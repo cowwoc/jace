@@ -1,0 +1,72 @@
+<html>
+
+  <title> Jace Developer's Guide - Hello Peer </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 8</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"> 
+          <font size="+2">
+            <b>Hello Peer</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Moving onto Peers </td> </tr> </table>
+
+    <p>
+    This section covers a demonstration of the peer capabilities of Jace. The example, <a href="../../examples/peer_example1">peer_example1</a>, contains a single Java Peer class <a href="../../examples/peer_example1/java/jace/examples/PeerExample.java">PeerExample.java</a> which, as you can see, looks like any other Java class. It has one native method, getResources(), that we implement with a Jace C++ Peer. The first step in implementing the Peer is to compile and enhance PeerExample.class. If you examine <a href="../../examples/peer_example1/build.xml">build.xml</a> you can see that after compiling PeerExample, we run the PeerEnhancer on the PeerExample.class and place the enhanced Java Peer class into the enhanced folder. Next, we run the PeerGenerator on the enhanced PeerExample.class. The PeerGenerator generates:
+    
+    <ul>
+      <li>
+      The header file containing the declaration for the C++ Peer class - <a href="../../examples/peer_example1/c++/include/jace/peer/jace/examples/PeerExample.h">PeerExample.h</a> (All peers are placed under the jace::peer namespace - Just like proxies are placed under the jace::proxy namespace). <br><br> </li>
+      
+      <li>
+      The mapping file containing the code that maps JNI function calls to the C++ Peer's methods - <a href="../../examples/peer_example1/c++/source/jace/peer/jace/examples/PeerExampleMappings.cpp">PeerExampleMappings.cpp</a> and <br><br> </li>
+
+      <li>
+      The source file containing the implementation for all of the members of the C++ Peer class - <a href="../../examples/peer_example1/c++/source/jace/peer/jace/examples/PeerExample.cpp">PeerExample.cpp</a>. This file does not contain the native methods which must be implemented by the developer. <br><br> </li>
+    </ul>
+
+    Next, we would actually implement the native methods. In this case, it's already been done in <a href="../../examples/peer_example1/c++/source/jace/peer/jace/examples/PeerExampleImpl.cpp">PeerExampleImpl.cpp</a>. Next, we run the AutoProxy on the generated files and our own source code, so that all of the necessary C++ Proxy classes are created. Finally, we compile and build all of the source code.
+    </p>
+
+  <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Building and running </td> </tr> </table>
+
+  <p> You can use ant to both build and run this example. </p>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide7.html">Previous</a>
+          <a href="guide9.html">Next</a> 
+        </td>
+      </tr>
+    </table>
+
+    </font>
+
+  </body>
+</html>
+

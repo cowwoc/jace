@@ -1,0 +1,244 @@
+<html>
+
+  <title> Jace Developer's Guide - Arrays in Action </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 11</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"> 
+          <font size="+2">
+            <b>Arrays in Action</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Arrays and Iterators </td> </tr> </table>
+
+    <p>
+    This example demonstrates the usage of Java arrays from C++. Like most of the other examples, this example, <a href="../../examples/array_example">array_example</a> only has a single source file, <a href="../../examples/array_example/source/array_example.cpp">array_example.cpp</a>, which contains the code we'll be examining:
+    </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+#define JACE_CHECK_ARRAYS </pre></code></font>
+
+  <p> Jace has an optional array checking mechanism that you can turn on 
+  by #defining JACE_CHECK_ARRAYS in your code. This must be turned
+  on or off for your entire project. When JACE_CHECK_ARRAYS is turned on,
+  Jace checks for out of bounds indices and iterators.</p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+#include "jace/JNIHelper.h"
+
+#include "jace/proxy/types/JInt.h"
+using jace::proxy::types::JInt;
+
+#include "jace/proxy/java/lang/String.h"
+using jace::proxy::java::lang::String;
+
+#include "jace/proxy/java/lang/Integer.h"
+using jace::proxy::java::lang::Integer;
+
+#include "jace/proxy/java/lang/Object.h"
+using jace::proxy::java::lang::Object;
+
+#include "jace/JArray.h"
+using jace::JArray;
+
+#include "jace/StaticVmLoader.h"
+using jace::StaticVmLoader;
+
+#include "jace/OptionList.h"
+using jace::OptionList;
+
+#include "jace/JNIException.h"
+using jace::JNIException;
+
+#include &lt;string&gt;
+using std::string;
+
+#include &lt;exception&gt;
+using std::exception;
+
+#include &lt;iostream&gt;
+using std::cout;
+using std::endl;
+
+#include &lt;algorithm&gt;
+using std::for_each;
+
+#include &lt;functional&gt;
+using std::unary_function;
+</pre></code></font>
+
+  <p> The new thing to notice here is the include of the algorithm and functional headers. Jace arrays can be used as Standard C++ compliant containers with random access iterators.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+struct print : public unary_function<void,Object> {
+  void operator()( Object obj ) {
+  cout &lt;&lt; "[print] " &lt;&lt; obj &lt;&lt; endl;
+  }
+}; </pre></code></font>
+
+  <p> Here, we're just defining a functor that prints its parameter, for later use with for_each. </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+int main() {
+
+  try {
+    // Standard Vm setup
+    StaticVmLoader loader( JNI_VERSION_1_2 );
+    OptionList list;
+    list.push_back( jace::CustomOption( "-Xcheck:jni" ) );
+    list.push_back( jace::CustomOption( "-Xmx16M" ) );
+    jace::helper::createVm( loader, list, false );
+
+    typedef JArray&lt;String&gt; StringArray; </pre></code></font>
+
+  <p> Same old, same old along with a convenience typedef. </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    // Creates a new array of Java String with 1000 null elements
+    StringArray strArray( 1000 );
+
+    // Fills the array with hello strings.
+    for ( int i = 0; i &lt; strArray.length(); ++i ) {
+      strArray[ i ] = "Hello " + String::valueOf( JInt( i ) );
+    }
+
+    // Prints the contents of the array.
+    // You can use JArray::operator[] for random access,
+    for ( int j = 0; j &lt; strArray.length(); ++j ) {
+      cout &lt;&lt; strArray[ j ] &lt;&lt; endl;
+    } </pre></code></font>
+
+  <p> Whenever you create a new JArray, the array members get initialized the same way they do in Java, with the default value for the element type. Once we create the array, we assign each element a new String value. Note that we're using the assignment operator with the array index operator. Also note that we can retrieve the length of an array using JArray::length(). The length is cached, so it's not expensive to retrieve often. 
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    // Traverse the array again, but this time with JArray::Iterator
+    // JArray::Iterator is preferred for non-random access,
+    // because it allows Jace to perform smart caching.
+    for ( StringArray::Iterator it = strArray.begin(); it != strArray.end(); ++it ) {
+      *it = *it + " again";
+      cout &lt;&lt; *it &lt;&lt; endl;
+    } </pre></code></font>
+
+  <p> JArray is similar to std::vector in that it allows random access through both an index operator and through a nested iterator class. JArray::Iterator is random access like vector::iterator, but it has some additional semantics attached to it. Because of the interface of an iterator, Jace can make some assumptions about caching that aren't as easy to make through an index operator. Users can also supply hints to the iterator to indicate, for example, how many elements are being iterated through. Therefore, the preferred means of accessing a JArray is through JArray::Iterator.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    // JArray::Iterator conforms to the Standard C++ Library's concept
+    // of a random access iterator, and can be used that way.
+    for_each( strArray.begin(), strArray.end(), print() ); </pre></code></font>
+
+  <p> A demonstration of the use of a JArray as a standard C++ container using a standard C++ algorithm.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    // Demonstrate some more random access iterator usage
+    for ( StringArray::Iterator it2 = strArray.begin(); it2 < strArray.end() - 2; ) {
+      it2 += 2;
+      cout &lt;&lt; "Forward two: " &lt;&lt; *it2 &lt;&lt; endl;
+      it2 -= 1;
+      cout &lt;&lt; "Back one: " &lt;&lt; *it2 &lt;&lt; endl;
+    } </pre></code></font>
+
+  <p> Just some more random access iteration.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    // As stated above, Jace can check for bad array access
+    // Here, we demonstrate some array access checking
+    #ifdef JACE_CHECK_ARRAYS
+
+      try {
+        StringArray::Iterator it = strArray.begin( strArray.length() + 1 );
+      }
+      catch ( JNIException&amp; e ) {
+        cout &lt;&lt; "Caught a bad iterator construction:" &lt;&lt; endl;
+        cout &lt;&lt; e.what() &lt;&lt; endl;
+      }
+
+      try {
+        StringArray::Iterator it = strArray.end();
+        ++it;
+      }
+      catch ( JNIException&amp; e ) {
+        cout &lt;&lt; "Caught a bad iterator advancement." &lt;&lt; endl;
+        cout &lt;&lt; e.what() &lt;&lt; endl;
+      }
+
+      try {
+        StringArray::Iterator it = strArray.begin();
+        --it;
+      }
+      catch ( JNIException&amp; e ) {
+        cout &lt;&lt; "Caught a bad iterator rewind." &lt;&lt; endl;
+        cout &lt;&lt; e.what() &lt;&lt; endl;
+      }
+ 
+      try {
+        cout &lt;&lt; strArray[ strArray.length() ] &lt;&lt; endl;
+      }
+      catch ( JNIException&amp; e ) {
+        cout &lt;&lt; "Caught a bad array index." &lt;&lt; endl;
+        cout &lt;&lt; e.what() &lt;&lt; endl;
+      }
+    #endif </pre></code></font>
+
+  <p> Here we actually demonstrate Jace's handling of bad array accesses, both through iterators and through the index operator. </p>
+    
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+ }
+  catch ( exception&amp; e ) {
+  cout &lt;&lt; e.what() &lt;&lt; endl;
+    return -1;
+  }
+
+  return 0;
+} </pre></code></font>
+
+  <p> Exception handling as usual. </p>
+
+  <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Building and running </td> </tr> </table>
+
+    <p>
+    Like the other examples, you can build this example by running ANT on <a href="../../examples/array_example/build.xml">build.xml</a>. Other than having the JVM in your library path, there are no special requirements for running this example.
+    </p>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide10.html">Previous</a>
+          <!-- <a href="guide12.html">Next</a> -->
+        </td>
+      </tr>
+    </table>
+
+    </font>
+
+  </body>
+</html>
+

@@ -1,0 +1,152 @@
+
+<html>
+
+  <title> Jace Developer's Guide - Proxy Classes </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 3</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"> 
+          <font size="+2">
+            <b>Proxy Classes</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Here a Proxy, There a Proxy, Everywhere a Proxy Proxy</td> </tr> </table>
+
+    <p>
+    Jace C++ Proxies are C++ classes that wrap existing Java types. If you examine the JNI type system, you'll see that there are a total of 24 different types. <br> <br>
+    
+    nine primitive types: 
+
+    <ul>
+      <li> jboolean </li>
+      <li> jbyte </li>
+      <li> jchar </li>
+      <li> jshort </li>
+      <li> jint </li>
+      <li> jlong </li>
+      <li> jdouble </li>
+      <li> jfloat </li>
+      <li> void </li>
+    </ul>
+
+    fourteen reference types:
+
+    <ul>
+      <li> jobject </li>
+      <li> jclass </li>
+      <li> jstring </li>
+      <li> jthrowable </li>
+      <li> jarray </li>
+      <li> jobjectArray </li>
+      <li> jbooleanArray </li>
+      <li> jbyteArray </li>
+      <li> jcharArray </li>
+      <li> jshortArray </li>
+      <li> jintArray </li>
+      <li> jlongArray </li>
+      <li> jfloatArray </li>
+      <li> jdoubleArray </li>
+    </ul>
+
+    and the union type: 
+
+    <ul>
+      <li> jvalue </li>
+    </ul>
+
+    which can represent any of the primitive or reference types. <br><br>
+
+    Jace models each JNI type with a corresponding C++ class as can be seen in Figure 1. <br><br>
+    
+    <center>
+      <img src="class_diagram.png">
+    <p>
+    <font face="Arial">Figure 1</font>
+    </p>
+    </center>
+    
+    At the root of the class hierarchy is JValue which is the base class for every type in the system<sup><a href="#foot1">1</a></sup>. A JValue is mostly a simple wrapper around a JNI jvalue. Every JValue has a JClass which can be used to retrieve the JNI string which represents itself<sup><a href="#foot2">2</a></sup> and the JNI jclass that represents the Java type. JValues can be constructed with a JNI jvalue, and the JValue base class sets the rule that all of its subclasses must also be constructible with a jvalue. <br><br>
+    
+    Directly subclassing JValue, are the nine primitive Proxies. Primitive Proxies are simple wrappers around Java primitives, with convenient methods and overloaded operators to provide easy conversion with C++ primitives. The primitive Proxies can be instantiated from their matching JNI types or from their corresponding C++ types. For example, you can create a new JInt using a C++ int, or using a JNI jint:
+
+    <font face="Verdana" size="+1" color="#000066"><code><pre>
+    jint jniInt = 32;
+    JInt fromJniInt( jniInt );
+    JInt fromCppInt( 32 ); </pre></code></font>
+    
+    Also subclassing JValue is JObject, the root of all Java reference types. JObject is a wrapper around the JNI jobject type, and as such, provides access to its JNI jobject, through the <code>getLocalObject()</code> method. Like JValues, JObjects can be constructed from jvalues, but they can also be constructed from jobjects. And also like JValue, JObject sets a rule for all of its base classes - only this time, the children must be constructible from a jobject as well as a jvalue. Differing from it's simpler ancestors and brethern, JObject has some added capabilities. First, when a JObject is constructed, it creates a new global reference to its jobject. You can access that global reference with a call to <code>getJavaObject()</code>. Second, you can test a JObject to see if it is null by calling, <code>isNull()</code>.  <br><br>
+
+    Subclassing JObject, is the template array class, JArray. The JArray class is a wrapper for all of the JNI array types: jarray, jobjectArray, jbooleanArray, jbyteArray, jcharArray, jshortArray, jintArray, jlongArray, jfloatArray, and jdoubleArray. The JArray class can take any Proxy class as a template parameter. You can construct a JArray either by passing it a JNI array or by specifying a size. For example,
+
+    <font face="Verdana" size="+1" color="#000066"><code><pre>
+      void printLength( jintArray array ) {
+        JArray&lt;JInt&gt; intArray( array );
+        cout &lt;&lt; intArray.length() &lt;&lt; endl;
+      }
+
+      JArray&lt;URL&gt; createNewURLArrayOfLength( int length ) {
+        JArray&lt;URL&gt; array( length );
+        return array;
+      } </pre></code></font>
+
+  Like its Java counterpart, you can access elements of a JArray by using operator[](). For example,
+
+    <font face="Verdana" size="+1" color="#000066"><code><pre>
+      void printArray( JArray&lt;String&gt; array ) {
+        for ( int i = 0; i &lt; array.length(); ++i ) {
+          String str = array[ i ];
+          cout &lt;&lt; str &lt;&lt; endl;
+        }
+      } </pre></code></font>
+
+
+    </p>
+
+    <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide2.html">Previous</a>
+          <a href="guide4.html">Next</a>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <font size="-2">
+      <a name="foot1">1)</a> (excepting JClass) </a> <br><br>
+      <a name="foot2">2)</a> For example, the JClass for JInt returns "I", and the JClass for jace::proxy::java::lang::String returns "java/lang/String;"
+    </font>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    </font>
+
+  </body>
+</html>
+

@@ -1,0 +1,162 @@
+<html>
+
+  <title> Jace Developer's Guide - A Mapping Example </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 10</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"> 
+          <font size="+2">
+            <b>A Mapping Example</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Using Maps </td> </tr> </table>
+
+    <p>
+    This example demonstrates the usage of a Java Map from C++. This example doesn't introduce a lot of new concepts. It just enforces the existing examples, and draws attention to a few interesting details. Like most of the other examples, this example, <a href="../../examples/map_example">map_example</a> only has a single source file, <a href="../../examples/map_example/source/main.cpp">main.cpp</a>, which contains the code we'll be examining:
+    </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+include "jace/JNIHelper.h"
+using jace::OptionList;
+
+#include "jace/StaticVmLoader.h"
+using jace::StaticVmLoader;
+
+#include "jace/proxy/java/util/Set.h"
+using jace::proxy::java::util::Set;
+
+#include "jace/proxy/java/lang/System.h"
+using jace::proxy::java::lang::System;
+
+#include "jace/proxy/java/lang/Object.h"
+using ::jace::proxy::java::lang::Object;
+
+#include "jace/proxy/java/lang/Integer.h"
+using jace::proxy::java::lang::Integer;
+
+#include "jace/proxy/java/lang/String.h"
+using jace::proxy::java::lang::String;
+
+#include "jace/proxy/java/util/Map.h"
+using jace::proxy::java::util::Map;
+
+#include "jace/proxy/java/util/HashMap.h"
+using jace::proxy::java::util::HashMap;
+
+#include "jace/proxy/java/util/Map.Entry.h"
+using jace::proxy::java::util::Map_Entry;
+
+#include "jace/proxy/java/util/Iterator.h"
+using jace::proxy::java::util::Iterator;
+
+#include "jace/javacast.h"
+using jace::java_cast;
+
+#include &lt;vector&gt;
+using std::vector;
+
+#include &lt;iostream&gt;
+using std::cout;
+using std::endl; </pre></code></font>
+
+  <p> By now, you should be familiar with all of these #includes. However, the include and using directive for <a href="../../examples/map_example/proxies/include/jace/proxy/java/util/Map.Entry.h">Map_Entry</a> should catch your attention. Map_Entry is actually an inner class, Entry, for the outer class java.util.Map. In Java notation, it is referred to as java.util.Map$Entry. When Jace generates the proxies for nested classes, it generates them as normal C++ classes. Because, '$' characters are illegal in C++ identifiers, Jace translates all '$' characters to '_' characters. So, for example, a nested, nested class, Foo$Bar$Baz, would be generated as Foo_Bar_Baz. However, when naming the files, Jace uses '.' characters instead of '$' characters or '_' characters. This works well, because '$' characters are typically illegal in file names, and the use of '.' characters instead of '_' characters helps Jace to distinguish between an outer class named Foo_Bar and a nested class named Foo$Bar.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+int main() {
+
+  try {
+    StaticVmLoader loader( JNI_VERSION_1_2 );
+    jace::helper::createVm( loader, OptionList(), false );
+
+    for ( int i = 0; i &lt; 1000; ++i ) { </pre></code></font>
+
+  <p> As before, we run this code in a loop to demonstrate that Jace manages references in all situations. </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    Map map = HashMap(); </pre></code></font>
+  <p>
+  Nothing new here. Following good coding style guidelines, we declare our variables to be of an interface type, rather than a concrete type.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    map.put( Integer( "1" ), String( "Hello 1" ) );
+    map.put( Integer( "2" ), String( "Hello 2" ) );
+    map.put( Integer( "3" ), String( "Hello 3" ) ); </pre></code></font>
+
+  <p>
+  Here, we're just adding three entries to the Map. It's necessary to explicitly specify Integer and String, because there is no meaningful conversion from int or char* to jace::proxy::java::lang::Object - the argument types of Map.put.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    Set entrySet( map.entrySet() );
+
+      for ( Iterator it( entrySet.iterator() ); it.hasNext(); ) {
+        Map_Entry entry = jace::java_cast<Map_Entry>( it.next() );
+        Integer key = jace::java_cast&lt;Integer&gt;( entry.getKey() );
+        String value = jace::java_cast&lt;String&gt;( entry.getValue() );
+        cout &lt;&lt; "key: &lt;" &lt;&lt; key &lt;&lt; "&gt; value: &lt;" &lt;&lt; value &lt;&lt; "&gt;" &lt;&lt; endl;
+      } </pre></code></font>
+
+  <p>
+  We're just iterating through and printing out the Map's entrySet here. Normally, in Java code, you would type-cast from the return value of it.next() to Map_Entry, but you can't just use C style casts to perform casting of Java objects. Rather, to execute a Java 'type-cast' using Jace, you use the java_cast&lt;&gt; template function. You can use java_cast to cast between two Java types, or between a Java type and a JNI handle. If the cast fails, java_cast will throw a JNIException. You can also use the instanceof&lt;&gt; template function in the same way you'd use the instanceof operator in Java to determine if it is safe to perform a cast.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+  }
+  catch ( std::exception&amp; e ) {
+    cout &lt;&lt; e.what() &lt;&lt; endl;
+    return -1;
+  }
+
+  return 0;
+} </pre></code></font>
+
+  <p>
+  As always, we make sure to catch any exceptions that might occur.
+  </p>
+
+  <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Building and running </td> </tr> </table>
+
+    <p>
+    Like the other examples, you can build this example by running ANT on <a href="../../examples/map_example/build.xml">build.xml</a>. Other than having the JVM in your library path, there are no special requirements for running this example.
+    </p>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide9.html">Previous</a>
+          <a href="guide11.html">Next</a>
+        </td>
+      </tr>
+    </table>
+
+    </font>
+
+  </body>
+</html>
+

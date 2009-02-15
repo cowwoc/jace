@@ -1,0 +1,171 @@
+
+<html>
+
+  <title> Jace Developer's Guide - Before You Begin</title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 1</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <font size="+2">
+            <b>Before You Begin</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%">
+      <tr> <td> Getting Started </td> </tr>
+    </table>
+
+    <p align="left">
+    You can get the latest versions of this documentation at <a href="http://sourceforge.net/projects/jace/" target="_top">http://sourceforge.net/projects/jace/</a>. </p>
+
+    <p align="left">
+    If you're interested in learning how to develop with Jace, you've come to the right place, but first things first. If you've never used JNI before, you're going to be absolutely lost. No class library or set of tools can be an adequate substitute for the knowledge that you'll gain by reading through the freely available <a href="http://java.sun.com/docs/books/jni/">Java Native Interface Programmer's Guide</a> and <a href="http://java.sun.com/javase/6/docs/technotes/guides/jni/index.html">Java Native Interface Specification</a>. Your time will have been well spent.
+    </p>
+
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%">
+      <tr>
+        <td>
+          The Jace License
+        </td>
+      </tr>
+    </table>
+
+    <p>
+    Jace is made available under the BSD license, which roughly means that you're free to do whatever you want to with it. Here's the fine print:
+
+    <font size="-1"><tt><pre>
+Copyright (c) 2002, Toby Reyelts
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+Neither the name of Toby Reyelts nor the names of his contributors
+may be used to endorse or promote products derived from this software
+without specific prior written permission.
+<br>
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+    </font></tt></pre>
+    </p>
+
+    <table bgcolor="#EEEEEE" width="100%">
+      <tr>
+        <td>
+          Compatibility
+        </td>
+      </tr>
+    </table>
+
+    <p>
+    You've probably already got a development platform in mind, or perhaps two or three. Jace is excellent for cross-platform development, because it's built using only the standard C++ library and a JDK 1.4 or later compiler. Here's a matrix of all of the known Jace compatible compilers, operating systems, and architectures. If your favorite compiler/os/arch isn't listed, download the source and give the build a try. You're likely to experience a pleasant surprise.
+    </p>
+
+    <table cellpadding="10">
+      <tr>
+        <th> &nbsp; </th>
+        <th bgcolor="#EEEEEE"> Windows x86, x64</th>
+        <th bgcolor="#EEEEEE"> Solaris Sparc </th>
+        <th bgcolor="#EEEEEE"> Linux i386 </th>
+        <th bgcolor="#EEEEEE"> MacOSX </th>
+      </tr>
+      <tr>
+        <th bgcolor="#EEEEEE" align="left"> Visual C++ 6.0, 7.x, 8.x, 9.x </th>
+        <td align="center"> X </td>
+        <td align="center"> &nbsp; </td>
+        <td align="center">&nbsp;  </td>
+        <td align="center">&nbsp;  </td>
+      </tr>
+      <tr>
+        <th bgcolor="#EEEEEE" align="left"> Forte C++ 6.0 </th>
+        <td align="center">&nbsp;  </td>
+        <td align="center"> X </td>
+        <td align="center">&nbsp;  </td>
+        <td align="center">&nbsp;  </td>
+      </tr>
+      <tr>
+        <th bgcolor="#EEEEEE" align="left"> GCC 3.x </th>
+        <td align="center"> X </td>
+        <td align="center"> X </td>
+        <td align="center"> X </td>
+        <td align="center"> X </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Installation </td> </tr> </table>
+
+    <p>
+    If you haven't already, you may download Jace from <a href="http://jace.reyelts.com/jace">http://jace.reyelts.com/jace</a> or <a href="http://sf.net/projects/jace">http://sf.net/projects/jace</a>. You'll get a jace[XXX].jar file (where XXX is the version of Jace being downloaded) which you can then simply extract using your favorite zip tool (for example, Winzip) or the JDK's jar utility. This is what you should see:
+    </p>
+
+    <img src="layout.png">
+
+    <p>
+    The release folder contains all of the binaries and tools you need to use Jace. It consists of the following folders:
+      <ul>
+        <li>bin - The proxygen, batchgen, autoproxy, and peergen code-generation tools. </li>
+        <li>docs - The documentation necessary to use Jace - including what you're staring at right now. </li>
+        <li>examples - Several example programs used to demonstrate the features available in Jace. </li>
+        <li>include - The header files that you need to #include when you develop with Jace. </li>
+        <li>lib - Debug and release binaries of the Jace Runtime Library (JRL) for a few platforms (for example, Windows and Linux).
+        </li>
+      </ul>
+    </p>
+
+    The source folder contains the source used to build the JRL and code-generation tools. This is where you can go to build your own version of the JRL if Jace didn't come with pre-built binaries for your platform. The source directory has the following folders:
+
+    <ul>
+      <li>c++/include - The C++ header files required to build the JRL. </li>
+      <li>c++/lib - The makefiles and scripts used to build the JRL for several platforms. </li>
+      <li>c++/source - The C++ source files required to build the JRL. </li>
+      <li>java/source - The Java source files required to build the entire set of code-generation tools.</li>
+      <li>java/classes - An intermediary build directory for the Java classes. </li>
+    </ul>
+
+    <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide0.html">Previous</a>
+          <a href="guide2.html">Next</a>
+        </td>
+      </tr>
+    </table>
+
+    </font>
+
+  </body>
+</html>
+

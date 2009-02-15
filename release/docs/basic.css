@@ -1,0 +1,98 @@
+
+
+A::link {
+	color: 606060;
+}
+
+A:visited {
+	color: 606060;
+}
+
+A:active { 
+  color: 3A3C6E; 
+}
+ 
+
+BODY {
+	font-family: serif;
+	line-height: 1.1;
+	background: white;
+	color: black;
+	margin : 0px 0px 0px 0px;
+}
+
+.headerTable {
+	font : bold italic x-large Arial, Helvetica, sans-serif;
+	font-color : White;
+	color : White;
+	background :3A3C6E ;
+	width : 100%;
+	text-align : center;
+}
+
+.titleTable {
+	font : bold italic large Arial, Helvetica, sans-serif;
+	font-color : White;
+	color : White;
+	background : 6C6D84;
+	width : 80%;
+	text-align : left;
+	border : 1px solid Black;
+	padding-right : 50;
+}
+
+.localHeader {
+	font : bold larger Arial, Helvetica, sans-serif;
+	font-color : Black;
+	color : Black;
+	text-align : left;
+	white-space : nowrap;
+	background : EEEEEE;
+}
+
+.localTable {
+	margin-left : 10 px;
+	white-space : nowrap;
+	width : 90%;
+}
+
+.localText {
+	font : Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-color : Black;
+	color : Black;
+	text-align : left;
+}
+
+.bodyTable {
+	border: 1px solid Black;
+	background : white;
+	margin-left : 10 px;
+	width : 95%;
+}
+
+.menuTable {
+	border: 1px solid Black;
+	background : F7F1EB;
+	width : 100%;
+}
+
+.menuButton {
+	width : auto;
+	text-align : center;
+}
+
+.tableHeader {
+	background : EEEEEE;
+	color : black;
+	font : bold larger Arial, Helvetica, sans-serif;
+}
+
+.fieldText {
+	font : bold Arial;
+	white-space : nowrap;
+}
+
+.field {
+	border: 1px solid Black;
+}
+

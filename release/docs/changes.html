@@ -1,0 +1,500 @@
+
+<html>
+
+  <head>
+    <link rel="stylesheet" type="text/css" href="basic.css">
+    <title> Cumulative changelog </title>
+  </head>
+
+  <body>
+
+    <font face="Verdana" size="-1">
+
+      <table width="100%"> <tr> <td bgcolor="#EEEEEE" align="left"> <font size="+2"> <b>Cumulative Changelog </b> </font> </td> </tr> </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.1.1 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td> AutoProxy and BatchEnhancer did not generate new proxies unless the target filename already existed </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Upgraded to ASM 3.1 and Retroweaver 2.0.6 </td>
+      <tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.1 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td> Jace will register a shutdown hook <b>jace.util.ShutdownHook</b> to prevent interaction with the JVM after it has shutdown (otherwise we get a core-dump). If you register your own shutdown hooks that use Jace, you should invoke <pre>Runtime.removeShutdownHook(jace.util.ShutdownHook.getInstance());</pre> on startup and <pre>jace.util.ShutdownHook.getInstance().run();</pre> at the end of your shutdown hook. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Upgraded to Retroweaver 1.2.2. Java 1.3 users must now include <b>retroweaver-rt-1.2.2.jar</b> in their classpath. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Provided jace.jar for Java5 users and jace-1.3.jar for Java 1.3 users </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> So in summary, when using Jace to generate proxies or peers you must include <b>jace-1.3.jar</b> and <b>retroweaver-rt-1.2.2.jar</b> in your classpath. And at runtime, your application must include <b>jace-runtime.jar</b> in its classpath.</td>
+      <tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.1 RC1_05 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td> Applications must now include <b>jace-runtime.jar</b> in their classpath. Jace will register a shutdown hook <b>jace.util.ShutdownHook</b> to prevent interaction with the JVM after it has shutdown (otherwise we get a core-dump). If you register your own shutdown hooks that use Jace, you should invoke <pre>Runtime.removeShutdownHook(jace.util.ShutdownHook.getInstance());</pre> on startup and <pre>jace.util.ShutdownHook.getInstance().run();</pre> at the end of your shutdown hook. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed some doc bugs. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> ProxyGenerator no longer overwrites existing files (so the C++ compiler doesn't end up recompiling unchanged files) </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added JNIHelper::setClassLoader() which allows one to specify which ClassLoader Jace should use. If you use Java Webstart you must use this method to tell Jace to use the special Webstart classloader. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed crash if java.lang.Exception is never included by the application but JNIException is caught (this was caused by the fact that jenlister did not contain java.lang.Exception). </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [797422] Fixed JArray compilation error. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [892227] template specialization in javacast.tsd </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [921351] AutoProxy -deplist switch does not work. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [943053] Inconsistent CRLF on PeerGenerator output; fixed. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [999579] jni FindClass bug, affects JClassImpl::getClass; fixed. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [860380] AutoProxy generation bug on array. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [860384] C++ namespace limitation. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [868480] autoproxy does not filter files in source or header dirs. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [1012595] Need to remove dead code from "specialized-away" ElementProxy methods that are causing compilation errors. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> [868564] Scripts require cwd to be $JACEDIR/release/bin. </td>
+      <tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.1 RC1 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td> Fixed many, many, many bugs, including all those listed in SourceForge, and many not listed in SourceForge. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added local reference management. Now you can run your programs forever without leaking any memory or resorting to Push/PopLocalFrame, DeleteLocalRef, or DetachCurrentThread calls. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added a new -mindep option to AutoProxy. With this new option, AutoProxy now only generates the bare minimum set of classes for your code to correctly compile. This reduces the number of classes generated to 1/10th the original on average. For example, map_example now contains 7 auto-generated classes, down from 75. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added guard checking for faster compilation. Now Jace builds in 20 seconds, and all of the shipped examples build in under 30 seconds. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added JACE_CHECK_NULLS - You can turn this on to get exceptions when you dereference null Java objects. See the new array example. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added JACE_CHECK_ARRAYS - You can turn this on to get exceptions when you do silly things with arrays. See the new array example. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added java_cast and instanceof template functions that act like their Java counterparts. Check out javacast.h and the map_example. These functions type-safely replace JObject.getJavaJniObject(), JObject( jobject ), and JObject( jvalue ). </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added STL conforming random access iterators to JArray. See the new array example.</td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed support for VC++.NET (now works out of the box with VC++7.0 and VC++7.1) </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed support for gcc 3.2 (now works out of the box) </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added support for the Comeau compiler</td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added two new examples - array_example and peer_singleton</td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added a new BatchEnhancer utility</td>
+      <tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.1 Beta3 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td> New support for Peers. Nifty byte code enhancement and code generation now takes all of the manual effort out of this task. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> New support for dynamic VM loading. Thanks to Philipp Seith for some donated code related to Win32. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> New support for specifying options to the virtual machine through the createVm() function. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> New support for gcc 3.0+ on MacOSX. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> New support for VC++ .NET (7.0). </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> The Developer's Guide has been updated and also contains several new examples. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed some bugs that were preventing Jace from compiling correctly with Forte C++. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Changed the names of the getJavaObject, getJavaClass, and staticGetJavaClass functions so that they don't clash with other libraries (like Castor's JDO).</td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed some naming conflicts between proxies in the Java library and common Linux macros. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Removed the dependency on JDK 1.4 from the Jace tools. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed BatchGenerator so that it generates classes in the correct directories. </td>
+      <tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.1 Beta2 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td> Removed all dependencies from the JDK from the Jace C++ runtime library. You may now easily use Jace with any version of any JDK. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Jace now supports gcc 3.0+ and Linux. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added the new AutoProxy tool. It scans C++ source and header files and automatically generates all of the necessary C++ Proxies. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Jace now sports a nifty Programmer's Guide. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Increased support for Internationalization </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Fixed a bug where ~JClassImpl could throw. </td>
+      <tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td> Added a new createVM() utility function. </td>
+      <tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.0.3a </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td>
+        Migrated the few classes in the framework library to the jnilib library.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+      <tr>
+        <td>
+          Fixed a problem with BatchGenerator where it was omitting jace/ from the path in jace/java* classes.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+      <tr>
+        <td>
+            Fixed a problem with BatchGenerator and ProxyGenerator where they were allowing illegal
+            C++ characters (like '$') in Java class names to propagate unchanged to the C++ proxy classes.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+      <tr>
+        <td>
+          Fixed a bug in ProxyGenerator where generated classes didn't inherit interfaces virtually.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+      <tr>
+        <td>
+          Changed ProxyGenerator so that generated interfaces now have a no argument
+          constructor that delegates to Object::Object( NO_OP ).
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+      <tr>
+        <td>
+          Changed ProxyGenerator so that classes no longer specify interfaces in their constructor initializer list.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+      <tr>
+        <td>
+          Fixed a bug in ProxyGenerator where inherited superclasses and interfaces weren't fully-qualified,
+          sometimes resulting in a name clash.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+      <tr>
+        <td>
+          The debug version of jnilib is now named jnilibd to distinguish it from the release version which
+          is named jnilib.
+        </td>
+      </tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.0.3 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td>
+          Restructured build process.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td>
+          Separated JDK class library from the Jace core.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td>
+          Created separate source and binary releases.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td>
+          Did some serious documenting.
+        </td>
+      </tr>
+
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.0.2 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td>
+          Added JObject::getLocalObject(). See the new documentation for JObject::getLocalObject() for more details.
+        </td>
+      </tr>
+
+      <tr> <td> <hr size="-1"> </td> </tr>
+
+      <tr>
+        <td>
+          Fixed a bug in which JClassImpl was allowing its jclass references to
+          go out of scope. JClassImpl now creates a global reference to its jclass.
+        </td>
+      </tr>
+    </table>
+    <br>
+    <br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Changes in 1.0.1 </td> </tr> </table>
+    <br>
+    <table>
+      <tr>
+        <td>
+          Fixed a bug in JField.get() which was trying to construct a
+          JFieldProxy using a jobject instead of a jvalue.
+        </td>
+      </tr>
+    </table>
+    <br>
+    <br>
+  </font>
+
+  </body>
+
+</html>
+

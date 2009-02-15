@@ -1,0 +1,152 @@
+<html>
+
+  <title> Jace Developer's Guide - A VM Loading Example </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 9</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"> 
+          <font size="+2">
+            <b>A VM Loading Example</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Loading done your way </td> </tr> </table>
+
+    <p>
+    This section demonstrates how you can use Jace to statically or dynamically load your virtual machine. The example, <a href="../../examples/vm_load_example">vm_load_example</a> only has a single source file, <a href="../../examples/vm_load_example/source/main.cpp">main.cpp</a>, which demonstrates how to load a virtual machine. As before, we'll examine the source code line by line:
+    </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+
+#include "jace/JNIHelper.h"
+
+#include "jace/OptionList.h"
+using jace::OptionList;
+using jace::Option;
+using jace::Classpath;
+using jace::Verbose;
+using jace::CustomOption;
+
+#include "jace/StaticVmLoader.h"
+using jace::StaticVmLoader;
+
+#ifdef _WIN32
+  #include "jace/Win32VmLoader.h"
+  using jace::Win32VmLoader;
+#else
+  #include "jace/UnixVmLoader.h"
+  using ::jace::UnixVmLoader;
+#endif
+
+#include <iostream>
+using std::cout;
+using std::endl; </pre></code></font>
+
+  <p>
+  It is <a href="../../include/jace/JNIHelper.h">JNIHelper.h</a> that contains the function, createVm(), necessary to load and instantiate the virtual machine. When you call createVm(), you can specify the list of Options to be used in the creation of the virtual machine. All of the different Option types are defined in <a href="../../include/jace/OptionList.h">OptionList.h</a>. When you call createVm(), you must also specify a VmLoader, which has the responsibilty of loading the virtual machine library and resolving functions that Jace requires to work with the virtual machine. <a href="../../include/jace/StaticVmLoader.h">StaticVmLoader</a> is the default VmLoader, and works by statically binding to the JVM library. <a href="../../include/jace/Win32VmLoader.h">Win32VmLoader</a> is able to search the registry for, and dynamically load virtual machines on the Windows platform. <a href="../../include/jace/UnixVmLoader.h">UnixVmLoader</a> is able to dynamically load virtual machines on generic Unix platforms (those supporting dlopen()).
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+int main( int argc, char* argv[] ) {
+
+  #ifdef JACE_WANT_DYNAMIC_LOAD
+
+    if ( argc != 2 ) {
+    cout &lt;&lt; "Usage: vm_load_example <path to virtual machine>" &lt;&lt; endl;
+      return -1;
+    }
+
+    string path = argv[ 1 ]; </pre></code></font>
+  <p>
+  To turn on dynamic loading, you must globally #define JACE_WANT_DYNAMIC_LOAD. This keeps the StaticVmLoader from trying to statically bind to a JVM. Here, we check to see if JACE_WANT_DYNAMIC_LOAD is defined. If it is, then we let the user specify the path to the JVM shared library that we'll load. If it isn't, then we won't need a path, because we'll be statically linking to the virtual machine.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+    #ifdef _WIN32
+      Win32VmLoader loader( path, JNI_VERSION_1_2 );
+    #else
+      UnixVmLoader loader( path, JNI_VERSION_1_2 );
+    #endif </pre></code></font>
+
+  <p>
+  If dynamic loading is turned on, then we use a Win32VmLoader for the Win32 platform. For now, we assume that all other platforms are Unix-like. In either case, we pass the user supplied path on to the loader.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+  #else
+    StaticVmLoader loader( JNI_VERSION_1_2 );
+  #endif </pre></code></font>
+
+  <p>
+  In the case that we're doing static loading, we use the StaticVmLoader. We also need to make sure that we have our linker options set so that we are linking to the JVM library. There is no need to specify a path here.
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+  OptionList options;
+
+  options.push_back( Classpath( "." ) );
+  options.push_back( Verbose( Verbose::Jni, Verbose::Class ) );
+  options.push_back( CustomOption( "-Xmx128M" ) ); </pre></code></font>
+
+  <p>
+    Our choice of options isn't affected at all by the type of loading we perform. Here, we specify that we want a classpath set to the current directory, we want verbose logging for JNI and class loading, and we assume that we set the max heap to 128M (assuming that we're loading a Sun virtual machine, or some other virtual machine that supports this custom option).
+  </p>
+
+  <font face="Verdana" size="+1" color="#000066"><code><pre>
+  try {
+    jace::helper::createVm( loader, options );
+  }
+  catch ( std::exception&amp; e ) {
+    cout &lt;&lt; "Unable to create the virtual machine: " &lt;&lt; endl;
+    cout &lt;&lt; e.what();
+    return -2;
+  }
+
+  cout &lt;&lt; "The virtual machine was successfully loaded." &lt;&lt; endl; </pre></code></font>
+
+  <p> Finally, we create the virtual machine, specifying both the loader and the options.
+  </p>
+
+  <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Building and running </td> </tr> </table>
+
+    <p>
+    This example doesn't require the building of any proxies or peers. Just be careful to link to the JVM library if you want to use the StaticVmLoader or to globally #define JACE_WANT_DYNAMIC_LOADING if you want to use one of the dynamic VmLoaders.
+    </p>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide8.html">Previous</a>
+          <a href="guide10.html">Next</a>
+        </td>
+      </tr>
+    </table>
+
+    </font>
+
+  </body>
+</html>
+

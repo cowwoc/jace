@@ -1,0 +1,67 @@
+
+<html>
+
+  <title> Jace Developer's Guide - Introducing Jace </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 2</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"> 
+          <font size="+2">
+            <b>Introducing Jace</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> In 60 Seconds or Less </td> </tr> </table>
+
+    <p>
+    Jace is a C++ runtime library consisting of a single shared library named "jace" <sup><a href="#foot1">1</a></sup> and a set of Proxy and Peer code-generation tools: ProxyGenerator, BatchGenerator, AutoProxy, PeerEnhancer, and PeerGenerator. In addition to providing some useful utility functions for developers, The Jace Runtime Library (JRL) uses JNI to provide the basic services that the tool-generated Proxies and Peers require to run correctly. The generated Proxy classes allow developers to instantiate and manipulate live Java objects at runtime, just as if they were native C++ classes.  The generated Peer classes provide an easy method for developers to implement native methods declared in their Java classes. The following diagram is a high-level overview of the relationships between a developer, the code-generating tools, and the JRL.
+    </p>
+
+    <img src="interaction.gif">
+
+    <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide1.html">Previous</a>
+          <a href="guide3.html">Next</a>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <font size="-2">
+      <a name="foot1">1)</a> For example, "jace.lib" on Windows or "libjace.so" on Unix. <br><br>
+    </font>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    </font>
+
+  </body>
+</html>
+

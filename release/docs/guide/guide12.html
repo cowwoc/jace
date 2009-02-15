@@ -1,0 +1,64 @@
+<html>
+
+  <title> Jace Developer's Guide - Arrays in Action </title>
+
+  <body>
+  <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 12</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right"> 
+          <font size="+2">
+            <b><font face="Verdana">Frequently Asked Questions</font></b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> <font size="-1" face="Verdana">How does one represent 'null'?</font></td> 
+    </tr> </table>
+
+  </font>
+  <p><font size="-1" face="Verdana">Given this Java code,</font>
+  </p>
+  <font color="#000066" size="+1" face="Verdana"><font face="Verdana" size="+1" color="#000066"><code><pre>
+String name = null;</pre></code></font>
+
+  </font>
+   <p>    
+     <font size="-1" face="Verdana">The equivilent Jace statement would be:</font></p>
+   <font color="#000066" size="+1" face="Verdana"><font face="Verdana" size="+1" color="#000066"><code><pre>
+String name = java_cast&lt;String&gt;(0);</pre></code></font>
+   </font>
+  <p>&nbsp;</p>
+  <table bgcolor="#EEEEEE" width="100%">
+    <tr>
+      <td><font size="-1" face="Verdana">How does one convert a Jace peer to its equivilent proxy?</font></td>
+    </tr>
+  </table>
+  <p><font size="-1" face="Verdana">Say we are within a C++ Peer method, &quot;this&quot; refers to the current instance of the C++ peer. Now say we want to get a C++ proxy for this instance, we'd invoke:</font>
+  <font color="#000066" size="+1" face="Verdana"><code><pre>MyProxy proxy = java_cast&lt;MyProxy&gt;(*this);</pre></code></font><font color="#000066" size="+1" face="Verdana"><code></code></font></p>
+  <p> <font face="Verdana" size="-1">
+  </font></p>
+  <font face="Verdana" size="-1"><table width="100%">
+    <tr>
+      <td align="right">
+        <a href="guide11.html">Previous</a>
+        <!-- <a href="guide12.html">Next</a> -->
+      </td>
+    </tr>
+  </table>
+  </font>
+
+  </body>
+</html>
+

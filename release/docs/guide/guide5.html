@@ -1,0 +1,89 @@
+
+<html>
+
+  <title> Jace Developer's Guide - Virtual Machine Loading </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 5</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <font size="+2">
+            <b>Virtual Machine Loading</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Dynamic Statics </td> </tr> </table>
+
+    <p>
+    Jace provides several options for virtual machine loading. You can create a virtual machine from your C++ code by calling jace::helper::createVm() found in <a href="../../include/jace/JNIHelper.h">JNIHelper.h</a>. There, you can specify a VmLoader, and a list of generic or virtual machine specific options.
+    </p>
+
+    <p>
+    To statically load a virtual machine, you must
+    <ul>
+      <li>statically link with jvm.lib <br><br> </li>
+      <li> use StaticVmLoader in your call to createVm(). </li>
+    </ul>
+    </p>
+
+    <p>
+    To dynamically load a virtual machine, you must
+
+    <ul>
+      <li> <em>not</em> statically link with jvm.lib <br><br> </li>
+      <li> globally #define JACE_WANT_DYNAMIC_LOAD (<b>Preprocessor Definitions</b> for VisualStudio users). This prevents
+      StaticVmLoader from trying to statically bind with jvm.lib. <br><br> </li>
+      <li> use an appropriate dynamic VmLoader for your platform - for example,
+      Win32VmLoader or UnixVmLoader. You may also write your own
+      dynamic VmLoader if you so choose. </li>
+    </ul>
+  </p>
+
+  <p>
+  Whether or not you statically or dynamically load your virtual
+  machine, you provide options to it via the same mechanism.
+  You specify the entire set of virtual machine options in an <a href="../../include/jace/OptionList.h">OptionList</a>
+  which you pass in to the call to createVm(). Finally, your application must include <b>jace-runtime.jar</b> in its classpath at runtime.
+  </p>
+
+    <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide4.html">Previous</a>
+          <a href="guide6.html">Next</a>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    </font>
+
+  </body>
+</html>
+

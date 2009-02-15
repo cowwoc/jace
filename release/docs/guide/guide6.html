@@ -1,0 +1,243 @@
+
+<html>
+
+  <title> Jace Developer's Guide - Tools </title>
+
+  <body>
+    <font face="Verdana" size="-1">
+
+    <table width="100%">
+      <tr>
+        <td bgcolor="#EEEEEE" align="right">
+          <font size="+2">
+            <b>Chapter 6</b>
+          </font>
+        </td>
+      </tr>
+      <tr>
+        <td align="right">
+          <font size="+2">
+            <b>Tools</b>
+          </font>
+        </td>
+      </tr>
+    </table>
+
+    <br><br>
+
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> When all you know how to use is a hammer...</td> </tr> </table>
+
+    <p>
+    Jace comes with several tools which have already been mentioned in passing. This chapter documents each tool and its options in greater detail.
+    </p>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> ProxyGenerator </td> </tr> </table>
+    <p>
+    <font size="+1">
+      <pre>
+Usage: ProxyGenerator &lt;class file&gt; &lt;header | source&gt; [ options ]
+Where options can be:
+  -protected : Generate protected fields and members
+  -package : Generate package fields and methods.
+  -private : Generate private fields and methods.
+      </pre>
+    </font>
+    </p>
+
+    <p>
+    The ProxyGenerator generates the C++ Proxy class for a single Java class. You can specify whether it generates the header or the source file to standard output. You can also specify at which access level the ProxyGenerator generates member fields and methods. By default, the ProxyGenerator only generates public members. Normally, developers should prefer using the AutoProxy in preference to the ProxyGenerator, as the AutoProxy will walk the dependency tree to generate all dependee classes.
+    </p>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> AutoProxy </td> </tr> </table>
+    <p>
+    <font size="+1">
+    <pre>
+Usage: AutoProxy
+  &lt;list of c++ header directories&gt;
+  &lt;list of c++ source directories&gt;
+  &lt;destination proxy header directory&gt;
+  &lt;destination proxy source directory&gt;
+  &lt;java classpath for proxies&gt;
+  [options]
+
+Where options can be:
+
+  -mindep
+  -extraDependencies=&lt;comma-separated list of classes&gt;
+  -exportsymbols</pre>
+        </font>
+    </p>
+
+    </font>
+    <p><font size="-1" face="Verdana">
+    This tool scans c++ header files and source files for #includes that reference Jace C++ Proxies. It then generates the header and source files for the entire dependency tree for those C++ Proxies. For example, upon seeing a #include for jace/proxy/java/lang/RuntimeException.h, AutoProxy would generate the Proxy classes for RuntimeException, Throwable, Object, Serializable, String, etc... AutoProxy is also used in conjunction with other tools like BatchGenerator and PeerGenerator. You can use the recommended new option, "-mindep" to limit the number of proxy classes that AutoProxy generates. You can also optionally specify an additional list of classes for AutoProxy to process with "-deplist".
+Finally, you can use &quot;-exportsymbols&quot; if the proxies are compiled into a DLL/SO and you want their symbols exported. If "exportsymbols" is true then the JACE_PROXY_EXPORTS precompiler symbol must be defined in the library exporting the proxies.</font></p>
+
+    <font face="Verdana" size="-1"><br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> BatchGenerator </td> </tr> </table>
+    <p>
+    <font size="+1">
+      <pre>
+Usage: BatchGenerator &lt;jar or zip file containing classes&gt;
+                      &lt;destination directory for header files&gt;
+                      &lt;destination directory for source files&gt;
+                      [ options ]
+Where options can be:
+  -protected : Generate protected fields and methods.
+  -package : Generate package fields and methods.
+  -private : Generate private fields and methods.
+      </pre>
+    </font>
+    </p>
+
+    <p>
+    The BatchGenerator is used to generate all of the Proxy C++ classes inside of a jar file. This tool is useful when you are trying to create a C++ API for an existing Java API. You simply jar up all of your Java classes and then run BatchGenerator on the jar file. You will also want to run AutoProxy on the resulting C++ Proxy classes, so that all dependee C++ proxy classes are generated.
+    </p>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> PeerEnhancer </td> </tr> </table>
+    <p>
+    <font size="+1">
+      <pre>
+Usage: PeerEnhancer
+  &lt;input file&gt;
+  &lt;output file&gt;
+  &lt;comma-separated list of libraries&gt;
+  [options]
+
+Where options can be:
+
+  -deallocator=&lt;deallocation method&gt;
+  -verbose
+      </pre>
+    </font>
+    </p>
+
+    <p>
+    The PeerEnhancer is used to enhance the bytecode of Java Peer classes with automatic lifetime management code for native C++ Peers. The <b>source path</b> is the path to the class file to be enhanced. The <b>output path</b> is the path where the new class file will be written (It is recommended that these not be the same). <b>libraries</b> are the comma-separated names of the native libraries which the newly enhanced Java Peer will try to load in its static initializer. <b>deallocation method</b> is the name of an (already existing) resource deallocation method (for example, "close" or "dispose"), which will be enhanced to also deallocate the native C++ Peer. <b>-verbose</b> indicates that Java peers should output library names before loading them.
+    </p>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> BatchEnhancer </td> </tr> </table>
+    <p>
+    <font size="+1">
+      <pre>
+Usage: BatchEnhancer
+  &lt;list of sources&gt;
+  &lt;comma-separated list of libraries&gt;
+  [options]
+
+  Where options can be:
+  -deallocator=&lt;deallocation method&gt;
+  -verbose
+      </pre>
+    </font>
+    </p>
+
+    <p>
+    The BatchEnhancer runs the PeerEnhancer on multiple sources in a single run.
+    </p>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> PeerGenerator </td> </tr> </table>
+    <p>
+    <font size="+1">
+      <pre>
+Usage: PeerGenerator &lt;class file&gt;
+&lt;destination_header_directory&gt; &lt;destination_source_directory&gt;
+&lt;user_defined_members = {true|false}&gt;
+      </pre>
+    </font>
+    </p>
+
+    <p>
+    The PeerGenerator generates the C++ header file and source code required to implement the native C++ Peer for a Java Peer. The class file is the path to the Java Peer's class file. The destination_header_directory is the directory where the header containing the declaration of the C++ Peer class will be written. The destination_source_directory is the directory where the C++ source code for the JNI mappings and the C++ Peer implementation will be written. If you set user_defined_members to true, the C++ header file will #include an additional user header file, &lt;peer_class_name&gt;_user.h, where you can include any additional data or function members which you might require to implement the C++ Peer.
+    For example, you may wish to override Peer::initialize() or Peer::destroy() in this header file.
+    </p>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Ant Integration </td> </tr> </table>
+    <p>
+    <font size="+1">
+      <pre>
+&lt;taskdef resource="jace/ant/task.properties"&gt;
+  &lt;classpath&gt;
+    &lt;fileset dir="${env.JACE_HOME}/lib" includes="**/*.jar"/&gt;
+  &lt;/classpath&gt;
+&lt;/taskdef&gt;
+
+&lt;CppPeerUptodate inputFile="input.class" outputHeaders="output/include" outputSources="output/source"
+property="cpp.peer.skip"/&gt;
+
+&lt;EnhanceJavaPeer inputFile="input.class" outputFile="output.class" deallocateMethod="dispose"&gt;
+  &lt;library name="browser"&gt;
+  &lt;library name="tray"&gt;
+&lt;/EnhancePeer&gt;
+
+&lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source" outputHeaders="output/include"
+ outputSource="output/source" minimizeDependencies="true" exportSymbols="false" classpath="rt.jar"&gt;
+  &lt;classpath&gt;
+    &lt;pathelement location="classes"/&gt;
+  &lt;/classpath&gt;
+  &lt;dependency name="java.lang.String"/&gt;
+  &lt;inputHeaders dir="input"&gt;
+    &lt;include name="include1"&gt;
+    &lt;include name="include2"&gt;
+  &lt;/inputHeaders&gt;
+  &lt;inputSources dir="input"&gt;
+    &lt;include name="source1"&gt;
+    &lt;include name="source2"&gt;
+  &lt;/inputSources&gt;
+&lt;/GenerateProxies&gt;
+
+&lt;GenerateCppPeer file="peer.class" library="peer" outputHeaders="output/include" outputSources="output/source"
+userDefinedMembers="false"/&gt;
+
+&lt;JavaPeerUptodate inputFile="input.class" outputFile="output.class" property="java.peer.skip"/&gt;
+      </pre>
+    </font>
+    </p>
+
+    <p>
+    <b>CppPeerUptodate</b> sets a property if a C++ peer is up to date.<br>
+    <b>EnhanceJavaPeer</b> enhances a single Java peer.<br>
+    <b>GenerateCppProxies</b> generates C++ proxies for Java classes.<br>
+    <b>GenerateCppPeer</b> generates a C++ peer for a Java class.<br>
+    <b>JavaPeerUptodate</b> sets a property if a Java peer is up to date.<br>
+    </p>
+
+    <br><br>
+
+    <table width="100%">
+      <tr>
+        <td align="right">
+          <a href="guide5.html">Previous</a>
+          <a href="guide7.html">Next</a>
+        </td>
+      </tr>
+    </table>
+
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+  <br><br>
+
+    </font>
+
+  </body>
+</html>
+
