@@ -5,8 +5,8 @@ package jace.ant;
  *
  * @author Gili Tzbari
  */
-public class Dependency {
-
+public class Dependency
+{
   private String name;
 
   /**
@@ -14,7 +14,8 @@ public class Dependency {
    *
    * @param name the class name
    */
-  public void setName(String name) {
+  public void setName(String name)
+  {
     this.name = name;
   }
 
@@ -23,12 +24,14 @@ public class Dependency {
    *
    * @return the class name
    */
-  public String getName() {
+  public String getName()
+  {
     return name;
   }
 
   @Override
-  public String toString() {
+  public String toString()
+  {
     return "Dependency[name=" + getName() + "]";
   }
 }

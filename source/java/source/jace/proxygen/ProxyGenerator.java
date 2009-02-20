@@ -5,6 +5,9 @@ import jace.metaclass.ClassMetaClass;
 import jace.metaclass.ClassPackage;
 import jace.metaclass.MetaClass;
 import jace.metaclass.MetaClassFactory;
+import jace.metaclass.JaceConstants;
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassAccessFlag;
 import jace.parser.ClassFile;
 import jace.parser.field.ClassField;
@@ -14,7 +17,7 @@ import jace.parser.method.ClassMethod;
 import jace.parser.method.MethodAccessFlag;
 import jace.parser.method.MethodAccessFlagSet;
 import jace.util.CKeyword;
-import jace.util.DelimitedList;
+import jace.util.DelimitedCollection;
 import jace.util.Util;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -55,8 +58,8 @@ public class ProxyGenerator
   public enum AccessibilityType
   {
     //
-    // WARNING: Do not change the element order! shouldBeSkipped() expects the elements to be ordered in increasing
-    // visibility.
+    // WARNING: Do not change the element order! shouldBeSkipped() expects the elements to be ordered in
+    // increasing visibility.
     //
     /**
      * Generate public fields and methods.
@@ -174,7 +177,7 @@ public class ProxyGenerator
    */
   public void generateHeader(Writer output) throws IOException
   {
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
 
     output.write(newLine);
     output.write(metaClass.beginGuard() + newLine);
@@ -199,7 +202,7 @@ public class ProxyGenerator
    */
   public void generateSource(Writer output) throws IOException
   {
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
 
     output.write(newLine);
     output.write(metaClass.include() + newLine);
@@ -271,13 +274,11 @@ public class ProxyGenerator
       // The better way to deal with this would be by handling the case generically,
       // but since we only see one example of this out of over 10,000 cases,
       // it's just not important enough to deal with right now.
-      if (classFile.getClassName().equals("org/omg/CORBA/Object"))
+      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
       {
         String dependentName = dependentMetaClass.getName();
         if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
-        {
           continue;
-        }
       }
       output.write(dependentMetaClass.include() + newLine);
     }
@@ -294,7 +295,7 @@ public class ProxyGenerator
     beginNamespace(output);
     output.write(newLine);
 
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
 
     Util.generateComment(output, "The Jace C++ proxy class source for " + classFile.getClassName() + "." +
                                  newLine +
@@ -402,8 +403,7 @@ public class ProxyGenerator
    */
   public void generateMethodDefinitions(Writer output, boolean forPeer) throws IOException
   {
-
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     String className = metaClass.getName();
 
     // go through all of the methods
@@ -415,7 +415,7 @@ public class ProxyGenerator
       if (!isPartOfDependencies(method))
         continue;
 
-      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType(), true);
+      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
       String methodName = method.getName();
 
       // Hack in special support for org.omg.CORBA.Object
@@ -425,7 +425,7 @@ public class ProxyGenerator
       // The better way to deal with this would be by handling the case generically,
       // but since we only see one example of this out of over 10,000 cases,
       // it's just not important enough to deal with right now.
-      if (classFile.getClassName().equals("org/omg/CORBA/Object"))
+      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
       {
         if (methodName.equals("_get_policy") ||
             methodName.equals("_get_domain_managers") ||
@@ -464,42 +464,34 @@ public class ProxyGenerator
 
       // If this is a constructor, there is no return-type
       if (isConstructor)
-      {
         output.write(className + "::" + className);
-      }
       else
       {
-
         // handle clashes between C++ keywords and java identifiers
         methodName = CKeyword.adjust(methodName);
 
         if (returnType.getName().equals("JVoid"))
-        {
           output.write("void");
-        }
         else
-        {
           output.write("::" + returnType.getFullyQualifiedName("::"));
-        }
         output.write(" " + className + "::" + methodName);
       }
       output.write("(");
 
-      List<String> parameterTypes = method.getParameterTypes();
-      DelimitedList.Stringifier sf = new DelimitedList.Stringifier()
+      List<TypeName> parameterTypes = method.getParameterTypes();
+      DelimitedCollection<TypeName> parameterList = new DelimitedCollection<TypeName>(parameterTypes);
+      DelimitedCollection.Stringifier<TypeName> sf = new DelimitedCollection.Stringifier<TypeName>()
       {
         int current = 0;
 
-        public String toString(Object obj)
+        @Override
+        public String toString(TypeName typeName)
         {
-          String str = (String) obj;
-          MetaClass mc = MetaClassFactory.getMetaClass(str, true);
+          MetaClass mc = MetaClassFactory.getMetaClass(typeName).proxy();
           return "::" + mc.getFullyQualifiedName("::") + " p" + current++;
         }
       };
-
-      DelimitedList parameterList = new DelimitedList(parameterTypes);
-      String parameterListStr = parameterList.toList(sf, ", ", false);
+      String parameterListStr = parameterList.toString(sf, ", ", false);
 
       // If this is a constructor, and it is a 'java copy constructor' (it takes only one
       // argument which is the same type as this class) we need to change the signature so
@@ -508,7 +500,7 @@ public class ProxyGenerator
       // that took its argument by value.
       if (isConstructor && parameterTypes.size() == 1)
       {
-        MetaClass argType = MetaClassFactory.getMetaClass(parameterTypes.iterator().next(), true);
+        MetaClass argType = MetaClassFactory.getMetaClass(parameterTypes.iterator().next()).proxy();
         if (argType.equals(metaClass))
         {
           parameterListStr += ", CopyConstructorSpecifier";
@@ -524,7 +516,6 @@ public class ProxyGenerator
       // If this is a constructor, we need to handle it differently from other methods
       if (isConstructor)
       {
-
         // initialize parent classes
         output.write(getInitializerName() + " {" + newLine);
 
@@ -534,11 +525,8 @@ public class ProxyGenerator
         if (parameterTypes.size() > 0)
         {
           output.write("  arguments");
-
           for (int i = 0; i < parameterTypes.size(); ++i)
-          {
             output.write(" << p" + i);
-          }
           output.write(";" + newLine);
         }
 
@@ -573,9 +561,7 @@ public class ProxyGenerator
         output.write("  ");
 
         if (!returnType.getName().equals("JVoid"))
-        {
           output.write("return ");
-        }
 
         output.write("::jace::JMethod< ");
         output.write("::" + returnType.getFullyQualifiedName("::"));
@@ -595,7 +581,8 @@ public class ProxyGenerator
 
     // Now define the special "one-off" methods that we add to classes like,
     // Object, String, and Throwable to provide better C++ and Java integration.
-    if (classFile.getClassName().equals("java/lang/Object"))
+    String fullyQualifiedName = classFile.getClassName().asIdentifier();
+    if (fullyQualifiedName.equals("java.lang.Object"))
     {
       Util.generateComment(output, "Provide the standard \"System.out.println()\" semantics for ostreams.");
       output.write("std::ostream& operator<<( std::ostream& out, Object& object ) {" + newLine);
@@ -603,7 +590,7 @@ public class ProxyGenerator
       output.write("  return out;" + newLine);
       output.write("}" + newLine);
     }
-    else if (classFile.getClassName().equals("java/lang/String"))
+    else if (fullyQualifiedName.equals("java.lang.String"))
     {
       output.write("String::String( const std::string& str ) : Object( NO_OP ) {" + newLine);
       output.write("  jstring strRef = createString( str );" + newLine);
@@ -721,7 +708,7 @@ public class ProxyGenerator
       output.write("}" + newLine);
       output.write(newLine);
     }
-    else if (classFile.getClassName().equals("java/lang/Throwable"))
+    else if (fullyQualifiedName.equals("java.lang.Throwable"))
     {
       output.write("Throwable::~Throwable() throw () {" + newLine);
       output.write("}" + newLine);
@@ -767,7 +754,7 @@ public class ProxyGenerator
    */
   public void generateFieldDefinitions(Writer output, boolean forPeer) throws IOException
   {
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     String className = metaClass.getName();
 
     Collection<String> methodNames = new ArrayList<String>();
@@ -782,8 +769,7 @@ public class ProxyGenerator
     {
       if (shouldBeSkipped(field))
         continue;
-
-      MetaClass mc = MetaClassFactory.getMetaClass(field.getDescriptor(), true);
+      MetaClass mc = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
 
       // Don't generate the field if it's type is not part of our dependency list
       if (dependencyFilter != null && !dependencyFilter.contains(mc))
@@ -858,7 +844,7 @@ public class ProxyGenerator
    */
   public void generateJaceDefinitions(Writer output, boolean forPeer) throws IOException
   {
-    MetaClass classMetaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass classMetaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     String className = classMetaClass.getName();
 
     Util.generateComment(output, "The following methods are required to integrate this class" + newLine +
@@ -958,18 +944,15 @@ public class ProxyGenerator
   public String getInitializerValue(boolean forPeer)
   {
 
-    MetaClass objectClass = MetaClassFactory.getMetaClass("java/lang/Object", false);
+    MetaClass objectClass = MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier("java.lang.Object")).proxy();
     String fullObjectName = "::" + objectClass.getFullyQualifiedName("::");
     String objectConstructor = fullObjectName + "( NO_OP )";
 
-    String superClassName = classFile.getSuperClassName();
-    MetaClass superClass = MetaClassFactory.getMetaClass(superClassName, false);
+    MetaClass superClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy();
     String fullSuperName = "::" + superClass.getFullyQualifiedName("::");
     String superConstructor = fullSuperName + "( NO_OP )";
 
-    String className = classFile.getClassName();
-    MetaClass metaClass = MetaClassFactory.getMetaClass(className, false);
-
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     String initializerName = metaClass.getName() + "_INITIALIZER";
     StringBuilder definition = new StringBuilder();
 
@@ -1014,9 +997,7 @@ public class ProxyGenerator
    */
   private String getInitializerName()
   {
-
-    String className = classFile.getClassName();
-    MetaClass metaClass = MetaClassFactory.getMetaClass(className, false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     return metaClass.getName() + "_INITIALIZER";
   }
 
@@ -1031,7 +1012,7 @@ public class ProxyGenerator
     beginNamespace(output);
     output.write(newLine);
 
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
 
     Util.generateComment(output, "The Jace C++ proxy class for " + classFile.getClassName() + "." + newLine +
                                  "Please do not edit this class, as any changes you make will be overwritten." + newLine +
@@ -1042,27 +1023,27 @@ public class ProxyGenerator
     output.write(" : ");
 
     // Write out the super classes. If we're the root object, we need to set JObject to be our superclass.
-    if (classFile.getClassName().equals("java/lang/Object"))
+    if (classFile.getClassName().asIdentifier().equals("java.lang.Object"))
       output.write("public virtual JObject ");
     else
     {
       output.write("public ");
 
       // if we are derived directly from java.lang.Object, we need to derive from it virtually
-      if (classFile.getSuperClassName().equals("java/lang/Object"))
+      if (classFile.getSuperClassName().asIdentifier().equals("java.lang.Object"))
         output.write("virtual ");
 
-      MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName(), false);
+      MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy();
       output.write("::" + superMetaClass.getFullyQualifiedName("::"));
 
       // We add in special support for java.lang.Throwable, because we want it to derive from std::exception.
-      if (classFile.getClassName().equals("java/lang/Throwable"))
+      if (classFile.getClassName().asIdentifier().equals("java.lang.Throwable"))
         output.write(", public std::exception");
 
       // now, add all of the interfaces that are implemented
-      for (String interface_: classFile.getInterfaces())
+      for (TypeName i: classFile.getInterfaces())
       {
-        MetaClass interfaceClass = MetaClassFactory.getMetaClass(interface_, false);
+        MetaClass interfaceClass = MetaClassFactory.getMetaClass(i).proxy();
         output.write(", public virtual ");
         output.write("::" + interfaceClass.getFullyQualifiedName("::"));
       }
@@ -1131,7 +1112,7 @@ public class ProxyGenerator
     output.write("  template <> inline ElementProxy< " + name +
                  ">::ElementProxy( jarray array, jvalue element, int index ) : " + newLine);
 
-    if (mc.getFullyQualifiedName("/").equals("jace/proxy/java/lang/Object"))
+    if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( element ), mIndex( index ) {");
     else
       output.write("    " + name + "( element ), Object( NO_OP ), mIndex( index ) {");
@@ -1146,7 +1127,7 @@ public class ProxyGenerator
                  name +
                  ">& proxy ) : " + newLine);
 
-    if (mc.getFullyQualifiedName("/").equals("jace/proxy/java/lang/Object"))
+    if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( proxy.getJavaJniObject() ), mIndex( proxy.mIndex ) {");
     else
       output.write("    " + name + "( proxy.getJavaJniObject() ), Object( NO_OP ), mIndex( proxy.mIndex ) {");
@@ -1173,7 +1154,7 @@ public class ProxyGenerator
     output.write("  template <> inline JFieldProxy< " + name +
                  ">::JFieldProxy( jfieldID fieldID_, jvalue value, jobject parent_ ) : " + newLine);
 
-    if (mc.getFullyQualifiedName("/").equals("jace/proxy/java/lang/Object"))
+    if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( value ), fieldID( fieldID_ ) {");
     else
       output.write("    " + name + "( value ), Object( NO_OP ), fieldID( fieldID_ ) {");
@@ -1195,7 +1176,7 @@ public class ProxyGenerator
     output.write("  template <> inline JFieldProxy< " + name +
                  ">::JFieldProxy( jfieldID fieldID_, jvalue value, jclass parentClass_ ) : " + newLine);
 
-    if (mc.getFullyQualifiedName("/").equals("jace/proxy/java/lang/Object"))
+    if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( value ), fieldID( fieldID_ ) {");
     else
       output.write("    " + name + "( value ), Object( NO_OP ), fieldID( fieldID_ ) {");
@@ -1213,7 +1194,7 @@ public class ProxyGenerator
                  name +
                  ">& object ) : " + newLine);
 
-    if (mc.getFullyQualifiedName("/").equals("jace/proxy/java/lang/Object"))
+    if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( object.getJavaJniValue() ) {");
     else
       output.write("    " + name + "( object.getJavaJniValue() ), Object( NO_OP ) {");
@@ -1257,7 +1238,7 @@ public class ProxyGenerator
 
     if (!isConstructor)
     {
-      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType(), true);
+      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
       if (returnType instanceof ArrayMetaClass)
         returnType = ((ArrayMetaClass) returnType).getBaseClass();
 
@@ -1268,9 +1249,9 @@ public class ProxyGenerator
       }
     }
 
-    for (String parameter: method.getParameterTypes())
+    for (TypeName parameter: method.getParameterTypes())
     {
-      MetaClass parameterType = MetaClassFactory.getMetaClass(parameter, true);
+      MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
 
       if (parameterType instanceof ArrayMetaClass)
         parameterType = ((ArrayMetaClass) parameterType).getBaseClass();
@@ -1349,7 +1330,7 @@ public class ProxyGenerator
         output.write("virtual ");
       }
 
-      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType(), true);
+      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
 
       if (returnType.getName().equals("JVoid"))
         output.write("void");
@@ -1360,21 +1341,19 @@ public class ProxyGenerator
     }
     output.write("(");
 
-    List<String> parameterTypes = method.getParameterTypes();
-    DelimitedList.Stringifier sf = new DelimitedList.Stringifier()
+    List<TypeName> parameterTypes = method.getParameterTypes();
+    DelimitedCollection<TypeName> parameterList = new DelimitedCollection<TypeName>(parameterTypes);
+    DelimitedCollection.Stringifier<TypeName> sf = new DelimitedCollection.Stringifier<TypeName>()
     {
-      int current = 0;
+      private int current = 0;
 
-      public String toString(Object obj)
+      public String toString(TypeName typeName)
       {
-        String str = (String) obj;
-        MetaClass mc = MetaClassFactory.getMetaClass(str, true);
+        MetaClass mc = MetaClassFactory.getMetaClass(typeName).proxy();
         return "::" + mc.getFullyQualifiedName("::") + " p" + current++;
       }
     };
-
-    DelimitedList parameterList = new DelimitedList(parameterTypes);
-    String parameterListStr = parameterList.toList(sf, ", ", false);
+    String parameterListStr = parameterList.toString(sf, ", ", false);
 
     // If this is a constructor, and it is a 'java copy constructor' (it takes only one
     // argument which is the same type as this class) we need to change the signature so
@@ -1383,7 +1362,7 @@ public class ProxyGenerator
     // that took its argument by value.
     if (isConstructor && parameterTypes.size() == 1)
     {
-      MetaClass argType = MetaClassFactory.getMetaClass(parameterTypes.iterator().next(), true);
+      MetaClass argType = MetaClassFactory.getMetaClass(parameterTypes.iterator().next()).proxy();
       if (argType.equals(metaClass))
         parameterListStr += ", CopyConstructorSpecifier";
     }
@@ -1413,9 +1392,10 @@ public class ProxyGenerator
    */
   private void generateMethodDeclarations(Writer output) throws IOException
   {
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
 
     Collection<ClassMethod> methods = classFile.getMethods();
+    String fullyQualifiedName = classFile.getClassName().asIdentifier();
     for (ClassMethod method: methods)
     {
       // Hack in special support for org.omg.CORBA.Object
@@ -1425,7 +1405,7 @@ public class ProxyGenerator
       // The better way to deal with this would be by handling the case generically,
       // but since we only see one example of this out of over 10,000 cases,
       // it's just not important enough to deal with right now.
-      if (classFile.getClassName().equals("org/omg/CORBA/Object"))
+      if (fullyQualifiedName.equals("org.omg.CORBA.Object"))
       {
         String methodName = method.getName();
         if (methodName.equals("_get_policy") ||
@@ -1440,13 +1420,13 @@ public class ProxyGenerator
 
     // now declare the special "one-off" methods that we add to classes like, Object, String, and Throwable to provide
     // better C++ and Java integration
-    if (classFile.getClassName().equals("java/lang/Object"))
+    if (fullyQualifiedName.equals("java.lang.Object"))
     {
       Util.generateComment(output, "Provide the standard \"System.out.println()\" semantics for ostreams.");
       output.write("friend std::ostream& operator<<( std::ostream& out, Object& object );" + newLine);
       output.write(newLine);
     }
-    else if (classFile.getClassName().equals("java/lang/String"))
+    else if (fullyQualifiedName.equals("java.lang.String"))
     {
       Util.generateComment(output, "Creates a String from a std::string.");
       if (exportSymbols)
@@ -1522,7 +1502,7 @@ public class ProxyGenerator
       output.write("public:" + newLine);
       output.write(newLine);
     }
-    else if (classFile.getClassName().equals("java/lang/Throwable"))
+    else if (fullyQualifiedName.equals("java.lang.Throwable"))
     {
       Util.generateComment(output, "Need to support a non-throwing destructor");
       if (exportSymbols)
@@ -1563,7 +1543,7 @@ public class ProxyGenerator
       if (shouldBeSkipped(field))
         continue;
 
-      MetaClass mc = MetaClassFactory.getMetaClass(field.getDescriptor(), true);
+      MetaClass mc = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
 
       // Don't generate the field if it's type is not part of our dependency list
       if (dependencyFilter != null && !dependencyFilter.contains(mc))
@@ -1608,7 +1588,7 @@ public class ProxyGenerator
       output.write(newLine);
     }
 
-    if (classFile.getClassName().equals("java/lang/Throwable"))
+    if (classFile.getClassName().asIdentifier().equals("java.lang.Throwable"))
     {
       // now define the special "one-off" methods that we add to classes like,
       // Object, String, and Throwable to provide better C++ and Java integration
@@ -1631,7 +1611,7 @@ public class ProxyGenerator
    */
   private void generateJaceDeclarations(Writer output) throws IOException
   {
-    MetaClass classMetaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass classMetaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     String className = classMetaClass.getName();
 
     Util.generateComment(output, "The following methods are required to integrate this class" + newLine +
@@ -1676,15 +1656,15 @@ public class ProxyGenerator
    */
   public void beginNamespace(Writer output) throws IOException
   {
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     ClassPackage classPackage = metaClass.getPackage();
 
-    String[] path = classPackage.getPath();
-    if (path.length == 0)
+    List<String> path = classPackage.getPath();
+    if (path.isEmpty())
       return;
 
     StringBuilder namespace = new StringBuilder("BEGIN_NAMESPACE_");
-    namespace.append(path.length);
+    namespace.append(path.size());
     namespace.append("( ");
     namespace.append(classPackage.toName(", ", false));
     namespace.append(" )");
@@ -1699,16 +1679,15 @@ public class ProxyGenerator
    */
   private void endNamespace(Writer output) throws IOException
   {
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     ClassPackage classPackage = metaClass.getPackage();
 
-    String[] path = classPackage.getPath();
-
-    if (path.length == 0)
+    List<String> path = classPackage.getPath();
+    if (path.isEmpty())
       return;
 
     StringBuilder namespace = new StringBuilder("END_NAMESPACE_");
-    namespace.append(path.length);
+    namespace.append(path.size());
     namespace.append("( ");
     namespace.append(classPackage.toName(", ", false));
     namespace.append(" )");
@@ -1734,7 +1713,7 @@ public class ProxyGenerator
     output.write("#endif" + newLine);
     output.write(newLine);
     output.write("#ifndef JACE_JOBJECT_H" + newLine);
-    output.write("#include \"jace/proxy/JObject.h\"" + newLine);
+    output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/JObject.h\"" + newLine);
     output.write("#endif" + newLine);
     output.write(newLine);
     output.write("#ifndef JACE_JENLISTER_H" + newLine);
@@ -1750,9 +1729,8 @@ public class ProxyGenerator
     output.write("#endif" + newLine);
     output.write(newLine);
 
-    String className = classFile.getClassName();
-
-    if (className.equals("java/lang/Throwable") || className.equals("java/lang/String"))
+    String className = classFile.getClassName().asIdentifier();
+    if (className.equals("java.lang.Throwable") || className.equals("java.lang.String"))
     {
       output.write("#include <string>" + newLine);
       output.write(newLine);
@@ -1769,31 +1747,27 @@ public class ProxyGenerator
    */
   public void includeDependentHeaders(Writer output) throws IOException
   {
-    if (!classFile.getClassName().equals("java/lang/Object"))
+    if (!classFile.getClassName().asIdentifier().equals("java.lang.Object"))
     {
-      String superClass = classFile.getSuperClassName();
-      MetaClass superClassMetaClass = MetaClassFactory.getMetaClass(superClass, false);
+      MetaClass superClassMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy();
       Util.generateComment(output, "The super class for this class.");
       output.write(superClassMetaClass.include() + newLine);
       output.write(newLine);
     }
 
-    Collection<String> interfaces = classFile.getInterfaces();
-
+    Collection<TypeName> interfaces = classFile.getInterfaces();
     if (interfaces.size() > 0)
     {
       Util.generateComment(output, "The interfaces implemented by this class.");
-
-      for (String interface_: interfaces)
+      for (TypeName i: interfaces)
       {
-        MetaClass interfaceClass = MetaClassFactory.getMetaClass(interface_, false);
+        MetaClass interfaceClass = MetaClassFactory.getMetaClass(i).proxy();
         output.write(interfaceClass.include() + newLine);
       }
       output.write(newLine);
     }
 
     Collection<MetaClass> dependentClasses = getDependentClasses(true);
-
     if (dependentClasses.size() > 0)
     {
       Util.generateComment(output, "Classes which this class is fully dependent upon.");
@@ -1818,7 +1792,7 @@ public class ProxyGenerator
         // The better way to deal with this would be by handling the case generically,
         // but since we only see one example of this out of over 10,000 cases,
         // it's just not important enough to deal with right now.
-        if (classFile.getClassName().equals("org/omg/CORBA/Object"))
+        if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
         {
           String dependentName = dependentMetaClass.getName();
           if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
@@ -1843,7 +1817,6 @@ public class ProxyGenerator
 
     for (MetaClass mc: getDependentClasses(false))
     {
-
       // Don't include classes that aren't in our dependency list
       if (dependencyFilter != null && !dependencyFilter.contains(mc))
         continue;
@@ -1868,14 +1841,13 @@ public class ProxyGenerator
   {
     // this method finds all dependencies by scanning through the field and methods belonging to the class
     Set<MetaClass> excludedClasses = new HashSet<MetaClass>();
-    excludedClasses.add(MetaClassFactory.getMetaClass(classFile.getSuperClassName(), false));
-    Collection<String> interfaces = classFile.getInterfaces();
+    excludedClasses.add(MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy());
 
-    for (String interface_: interfaces)
-      excludedClasses.add(MetaClassFactory.getMetaClass(interface_, false));
+    for (TypeName i: classFile.getInterfaces())
+      excludedClasses.add(MetaClassFactory.getMetaClass(i).proxy());
 
     // Add our current class to the list
-    excludedClasses.add(MetaClassFactory.getMetaClass(classFile.getClassName(), false));
+    excludedClasses.add(MetaClassFactory.getMetaClass(classFile.getClassName()).proxy());
 
     Set<MetaClass> result = new HashSet<MetaClass>();
     // first, get the fields for the class. We only include fields if we are listing fullyDependent classes.
@@ -1885,8 +1857,7 @@ public class ProxyGenerator
       {
         if (shouldBeSkipped(field))
           continue;
-
-        MetaClass metaClass = MetaClassFactory.getMetaClass(field.getDescriptor(), true);
+        MetaClass metaClass = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
         if (!excludedClasses.contains(metaClass))
           result.add(metaClass);
       }
@@ -1898,18 +1869,18 @@ public class ProxyGenerator
       if (shouldBeSkipped(method))
         continue;
 
-      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType(), true);
+      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
       addDependentClass(result, fullyDependent, returnType, excludedClasses);
 
-      for (String parameter: method.getParameterTypes())
+      for (TypeName parameter: method.getParameterTypes())
       {
-        MetaClass parameterType = MetaClassFactory.getMetaClass(parameter, true);
+        MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
         addDependentClass(result, fullyDependent, parameterType, excludedClasses);
       }
 
-      for (String exception: method.getExceptions())
+      for (TypeName exception: method.getExceptions())
       {
-        MetaClass exceptionType = MetaClassFactory.getMetaClass(exception, false);
+        MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();
         addDependentClass(result, fullyDependent, exceptionType, excludedClasses);
       }
     }

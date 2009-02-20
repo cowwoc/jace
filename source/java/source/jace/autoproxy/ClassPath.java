@@ -4,6 +4,8 @@ import jace.metaclass.ArrayMetaClass;
 import jace.metaclass.ClassMetaClass;
 import jace.metaclass.MetaClass;
 import jace.metaclass.MetaClassFactory;
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
 import jace.util.Util;
 import java.io.File;
@@ -48,7 +50,7 @@ public class ClassPath
    * @return the InputStream to the class
    * @throws NoClassDefFoundError if no matching class can be found.
    */
-  public InputStream openClass(String name) throws NoClassDefFoundError
+  public InputStream openClass(TypeName name) throws NoClassDefFoundError
   {
     for (File path: elements)
     {
@@ -59,7 +61,7 @@ public class ClassPath
       // if the file is a directory, search for the .class file in the appropriate subfolder
       if (path.isDirectory())
       {
-        MetaClass metaClass = MetaClassFactory.getMetaClass(name, false, false);
+        MetaClass metaClass = MetaClassFactory.getMetaClass(name);
         String directory = metaClass.getPackage().toName("/", false);
         File subDirectory = new File(path.getAbsolutePath(), directory);
 
@@ -100,7 +102,7 @@ public class ClassPath
       {
         log.trace("Checking compressed file " + fileName);
         ZipFile zipFile = new ZipFile(path);
-        MetaClass metaClass = MetaClassFactory.getMetaClass(name, false, false);
+        MetaClass metaClass = MetaClassFactory.getMetaClass(name);
         if (metaClass instanceof ArrayMetaClass)
           metaClass = ((ArrayMetaClass) metaClass).getBaseClass();
         String entryName = ((ClassMetaClass) metaClass).getFullyQualifiedTrueName("/") + ".class";
@@ -148,7 +150,7 @@ public class ClassPath
   {
     String classPath = args[0];
     ClassPath source = new ClassPath(Util.parseClasspath(classPath));
-    InputStream input = source.openClass(args[1]);
+    InputStream input = source.openClass(TypeNameFactory.fromPath(args[1]));
     ClassFile classFile = new ClassFile(input);
     classFile.print();
     try

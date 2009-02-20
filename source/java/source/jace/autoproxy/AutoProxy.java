@@ -9,7 +9,10 @@ import jace.metaclass.FloatClass;
 import jace.metaclass.IntClass;
 import jace.metaclass.LongClass;
 import jace.metaclass.MetaClass;
+import jace.metaclass.JaceConstants;
 import jace.metaclass.ShortClass;
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
 import jace.proxygen.ProxyGenerator;
@@ -49,7 +52,7 @@ public class AutoProxy
   private final File outputSources;
   private final List<File> classPath;
   private final boolean minimizeDependencies;
-  private final Set<String> extraDependencies;
+  private final Set<TypeName> extraDependencies;
   private final boolean exportSymbols;
   /**
    * The set of classes to process.
@@ -80,7 +83,7 @@ public class AutoProxy
    */
   public AutoProxy(Collection<File> inputHeaders, Collection<File> inputSources, File outputHeaders,
                    File outputSources, List<File> classPath, boolean minimizeDependencies,
-                   Set<String> extraDependencies)
+                   Set<TypeName> extraDependencies)
   {
     this(inputHeaders, inputSources, outputHeaders, outputSources, classPath, minimizeDependencies,
       extraDependencies, false);
@@ -107,7 +110,7 @@ public class AutoProxy
    */
   public AutoProxy(Collection<File> inputHeaders, Collection<File> inputSources, File outputHeaders,
                    File outputSources, List<File> classPath, boolean minimizeDependencies,
-                   Set<String> extraDependencies, boolean exportSymbols)
+                   Set<TypeName> extraDependencies, boolean exportSymbols)
   {
     if (inputHeaders == null)
       throw new IllegalArgumentException("inputHeaders may not be null");
@@ -208,7 +211,7 @@ public class AutoProxy
     for (MetaClass dependency: classes)
     {
       ClassMetaClass metaClass = (ClassMetaClass) dependency;
-      String sourceName = ((ClassMetaClass) metaClass.deProxy()).getFullyQualifiedTrueName("/");
+      String sourceName = ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("/");
 
       String classFileName = metaClass.getFileName();
       File sourceFile = new File(sourceName);
@@ -223,7 +226,7 @@ public class AutoProxy
         continue;
       }
 
-      InputStream input = source.openClass(sourceName);
+      InputStream input = source.openClass(TypeNameFactory.fromPath(sourceName));
       ClassFile classFile = new ClassFile(input);
       ProxyGenerator.writeProxy(metaClass, classFile, AccessibilityType.PUBLIC, outputHeaders, outputSources,
         dependencies, exportSymbols);
@@ -260,7 +263,6 @@ public class AutoProxy
 
     // look through the file to see if we can find any Jace proxy includes
     BufferedReader reader = null;
-
     try
     {
       reader = new BufferedReader(new FileReader(f));
@@ -277,17 +279,18 @@ public class AutoProxy
           String header = unQuote(lineTokens[1]);
 
           // Ensure that the separator character is "/"
-          header = header.replaceAll(Pattern.quote(File.separator), "/");
-          String[] headerTokens = header.split("/");
+          header = header.replace(File.separator, "/");
 
           // make sure the #include is for an actual Jace proxy
-          if (headerTokens.length < 3 || !headerTokens[0].equals("jace") || !headerTokens[1].equals("proxy"))
+          String prefix = JaceConstants.getProxyPackage().asPath() + "/";
+          if (!header.startsWith(prefix))
             continue;
 
-          // Strip "jace/proxy" from the package name
+          // Remove JaceConstants.getProxyPackage() from the header name
+          String[] headerTokens = header.substring(prefix.length()).split("/");
           StringBuilder packageName = new StringBuilder();
           String className = headerTokens[headerTokens.length - 1];
-          for (int i = 2, size = headerTokens.length - 1; i < size; ++i)
+          for (int i = 0, size = headerTokens.length - 1; i < size; ++i)
           {
             String component = headerTokens[i];
             packageName.append(component + "/");
@@ -418,7 +421,7 @@ public class AutoProxy
     String classPath = args[4];
 
     boolean minimizeDependencies = false;
-    Set<String> extraDependencies = new HashSet<String>();
+    Set<TypeName> extraDependencies = new HashSet<TypeName>();
     boolean exportSymbols = false;
 
     for (int i = 5; i < args.length; ++i)
@@ -430,7 +433,7 @@ public class AutoProxy
         String[] equalTokens = args[i].split("=");
         String[] commaTokens = equalTokens[1].split(",");
         for (String token: commaTokens)
-          extraDependencies.add(token);
+          extraDependencies.add(TypeNameFactory.fromIdentifier(token));
       }
       else if (args[i].equals("-exportsymbols"))
       {

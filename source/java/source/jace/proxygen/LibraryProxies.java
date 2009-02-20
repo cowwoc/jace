@@ -12,6 +12,8 @@ import jace.metaclass.IntClass;
 import jace.metaclass.LongClass;
 import jace.metaclass.MetaClass;
 import jace.metaclass.ShortClass;
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
 import jace.proxygen.ProxyGenerator.AccessibilityType;
@@ -33,8 +35,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gili Tzabari
  */
-public class LibraryProxies {
-
+public class LibraryProxies
+{
   private final Logger log = LoggerFactory.getLogger(LibraryProxies.class);
   private final List<File> classPath;
   private final File outputHeaders;
@@ -51,8 +53,9 @@ public class LibraryProxies {
    * @throws IllegalArgumentException if classPath, classes, outputHeaders, outputSources are null
    * or if outputHeaders, outputSources are not directories
    */
-  public LibraryProxies(List<File> classPath, Set<String> classes, File outputHeaders, File outputSources)
-    throws IllegalArgumentException {
+  public LibraryProxies(List<File> classPath, Set<TypeName> classes, File outputHeaders, File outputSources)
+    throws IllegalArgumentException
+  {
     if (classPath == null)
       throw new IllegalArgumentException("classPath may not be null");
     if (classes == null)
@@ -69,7 +72,7 @@ public class LibraryProxies {
     this.outputHeaders = outputHeaders;
     this.outputSources = outputSources;
     this.library = new ClassSet(classPath, true);
-    for (String dependency : classes)
+    for (TypeName dependency: classes)
       library.addClass(dependency);
   }
 
@@ -78,7 +81,8 @@ public class LibraryProxies {
    *
    * @throws IOException if an error occurs while writing the proxy files
    */
-  public void generateProxies() throws IOException {
+  public void generateProxies() throws IOException
+  {
     Set<MetaClass> classes = library.getClasses();
     ClassPath source = new ClassPath(classPath);
 
@@ -100,22 +104,24 @@ public class LibraryProxies {
     dependencies.addAll(classes);
 
     // now generate all of the proxies
-    for (MetaClass clazz : classes) {
+    for (MetaClass clazz: classes)
+    {
       ClassMetaClass metaClass = (ClassMetaClass) clazz;
-      String sourceName = ((ClassMetaClass) metaClass.deProxy()).getFullyQualifiedTrueName("/");
+      String sourceName = ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("/");
 
       String classFileName = metaClass.getFileName();
       File sourceFile = new File(sourceName);
       File targetHeaderFile = new File(outputHeaders, classFileName + ".h");
       File targetSourceFile = new File(outputSources, classFileName + ".cpp");
       if (targetSourceFile.exists() && targetHeaderFile.exists() &&
-        sourceFile.lastModified() <= targetSourceFile.lastModified() &&
-        sourceFile.lastModified() <= targetHeaderFile.lastModified()) {
+          sourceFile.lastModified() <= targetSourceFile.lastModified() &&
+          sourceFile.lastModified() <= targetHeaderFile.lastModified())
+      {
         log.warn(sourceFile + " has not been modified, skipping...");
         continue;
       }
 
-      InputStream input = source.openClass(sourceName);
+      InputStream input = source.openClass(TypeNameFactory.fromPath(sourceName));
       ClassFile classFile = new ClassFile(input);
       ProxyGenerator.writeProxy(metaClass, classFile, AccessibilityType.PROTECTED, outputHeaders, outputSources,
         dependencies, true);
@@ -130,19 +136,23 @@ public class LibraryProxies {
    * @return the fully-qualified class names of all classes within a directory
    * @throws IllegalArgumentException if directory is not a directory
    */
-  public static Set<String> getClasses(File directory) throws IllegalArgumentException {
+  public static Set<TypeName> getClasses(File directory) throws IllegalArgumentException
+  {
     if (!directory.isDirectory())
       throw new IllegalArgumentException(directory + " is not a directory");
-    File[] classes = directory.listFiles(new FilenameFilter() {
-
-      public boolean accept(File dir, String name) {
+    File[] classes = directory.listFiles(new FilenameFilter()
+    {
+      public boolean accept(File dir, String name)
+      {
         return name.endsWith(".class");
       }
     });
-    Set<String> result = new HashSet<String>();
-    for (File clazz : classes) {
+    Set<TypeName> result = new HashSet<TypeName>();
+    for (File clazz: classes)
+    {
       ClassFile file = new ClassFile(clazz.getPath());
-      if (file.getClassName().equals("")) {
+      if (file.getClassName().asIdentifier().equals(""))
+      {
         // skip anonymous classes
         continue;
       }
@@ -156,7 +166,8 @@ public class LibraryProxies {
    *
    * @return the logger associated with the object
    */
-  private Logger getLogger() {
+  private Logger getLogger()
+  {
     return log;
   }
 
@@ -165,14 +176,15 @@ public class LibraryProxies {
    *
    * @return String describing the usage of this tool
    */
-  public static String getUsage() {
+  public static String getUsage()
+  {
     String newLine = System.getProperty("line.separator");
 
     return "Usage: LibraryProxies " + newLine +
-      "  <java classpath> " + newLine +
-      "  <comma-separated list of class directories> " + newLine +
-      "  <output directory for proxy header files> " + newLine +
-      "  <output directory for proxy source files>";
+           "  <java classpath> " + newLine +
+           "  <comma-separated list of class directories> " + newLine +
+           "  <output directory for proxy header files> " + newLine +
+           "  <output directory for proxy source files>";
   }
 
   /**
@@ -180,8 +192,10 @@ public class LibraryProxies {
    *
    * @param args the command-line arguments
    */
-  public static void main(String[] args) {
-    if (args.length < 4 || args.length > 4) {
+  public static void main(String[] args)
+  {
+    if (args.length < 4 || args.length > 4)
+    {
       System.out.println(getUsage());
       return;
     }
@@ -191,17 +205,19 @@ public class LibraryProxies {
     File outputHeaders = new File(args[2]);
     File outputSources = new File(args[3]);
 
-    Set<String> classes = new HashSet<String>();
-    for (String directory : directories)
+    Set<TypeName> classes = new HashSet<TypeName>();
+    for (String directory: directories)
       classes.addAll(LibraryProxies.getClasses(new File(directory)));
-    LibraryProxies proxies = new LibraryProxies(Util.parseClasspath(classPath), classes, outputHeaders, 
-			outputSources);
-		Logger log = proxies.getLogger();
+    LibraryProxies proxies = new LibraryProxies(Util.parseClasspath(classPath), classes, outputHeaders,
+      outputSources);
+    Logger log = proxies.getLogger();
     log.info("Beginning Proxy generation.");
-    try {
+    try
+    {
       proxies.generateProxies();
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       log.error("closing class file", e);
     }
     log.info("Finished Proxy generation.");

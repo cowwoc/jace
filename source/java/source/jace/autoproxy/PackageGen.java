@@ -3,6 +3,8 @@ package jace.autoproxy;
 import jace.metaclass.ClassPackage;
 import jace.metaclass.MetaClass;
 import jace.metaclass.MetaClassFactory;
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * updated with the new set of classes.
  *
  */
-public class PackageGen {
-
+public class PackageGen
+{
   private final Logger log = LoggerFactory.getLogger(PackageGen.class);
   /**
    * The base directory containing the header files.
@@ -51,45 +53,46 @@ public class PackageGen {
    * @param headerDir the header directory
    * @param classes the names of the classes in the package
    */
-  public PackageGen(String headerDir, Collection<String> classes) {
-    if (headerDir.charAt(headerDir.length() - 1) != File.separatorChar) {
+  public PackageGen(String headerDir, Collection<TypeName> classes)
+  {
+    if (headerDir.charAt(headerDir.length() - 1) != File.separatorChar)
       headerDir += File.separator;
-    }
-
     this.headerDir = headerDir;
 
     classesByPackage = new HashMap<ClassPackage, Set<MetaClass>>();
 
-    for (String className : classes) {
-      MetaClass mc = MetaClassFactory.getMetaClass(className, false);
+    for (TypeName className: classes)
+    {
+      MetaClass mc = MetaClassFactory.getMetaClass(className).proxy();
       addClass(mc);
     }
   }
 
-  private PackageGen() {
+  private PackageGen()
+  {
   }
 
-  public static PackageGen newMetaClassInstance(String headerDir, Collection metaClasses) {
+  public static PackageGen newMetaClassInstance(String headerDir, Collection metaClasses)
+  {
 
-    if (headerDir.charAt(headerDir.length() - 1) != File.separatorChar) {
+    if (headerDir.charAt(headerDir.length() - 1) != File.separatorChar)
       headerDir += File.separator;
-    }
 
     PackageGen pg = new PackageGen();
 
     pg.headerDir = headerDir;
     pg.classesByPackage = new HashMap<ClassPackage, Set<MetaClass>>();
 
-    for (Iterator it = metaClasses.iterator(); it.hasNext();) {
+    for (Iterator it = metaClasses.iterator(); it.hasNext();)
       pg.addClass((MetaClass) it.next());
-    }
-
     return pg;
   }
 
-  private void addClass(MetaClass mc) {
+  private void addClass(MetaClass mc)
+  {
     Set<MetaClass> s = classesByPackage.get(mc.getPackage());
-    if (s == null) {
+    if (s == null)
+    {
       s = new HashSet<MetaClass>();
       classesByPackage.put(mc.getPackage(), s);
     }
@@ -99,12 +102,15 @@ public class PackageGen {
   /**
    * Runs the PackageGen.
    *
+   * @throws IOException if an I/O error occurs
    */
-  public void execute() throws IOException {
+  public void execute() throws IOException
+  {
 
     // Now go through all of the packages and update the package headers
     //
-    for (Iterator it = classesByPackage.keySet().iterator(); it.hasNext();) {
+    for (Iterator it = classesByPackage.keySet().iterator(); it.hasNext();)
+    {
 
       ClassPackage cp = (ClassPackage) it.next();
       Set<MetaClass> classSet = classesByPackage.get(cp);
@@ -114,29 +120,29 @@ public class PackageGen {
       new File(packageDir).mkdirs();
 
       // Read in everything if it already exists.
-      if (new File(packageFile).exists()) {
-
+      if (new File(packageFile).exists())
+      {
         FileInputStream input = new FileInputStream(packageFile);
         BufferedReader r = new BufferedReader(new InputStreamReader(input));
 
-        while (true) {
+        while (true)
+        {
           String line = r.readLine();
-
-          if (line == null) {
+          if (line == null)
             break;
-          }
 
           line = line.trim();
 
-          if (line.startsWith("#include")) {
+          if (line.startsWith("#include"))
+          {
             StringTokenizer st = new StringTokenizer(line, " ");
             st.nextToken();
             String include = st.nextToken();
-            String class_ = unQuote(include);
+            String className = unQuote(include);
             // Remove the trailing ".h" charachters.
-            class_ = class_.substring(0, class_.length() - 2);
+            className = className.substring(0, className.length() - 2);
             // Already coming in proxied
-            MetaClass mc = MetaClassFactory.getMetaClass(class_, false, false);
+            MetaClass mc = MetaClassFactory.getMetaClass(TypeNameFactory.fromPath(className));
             classSet.add(mc);
           }
         }
@@ -147,7 +153,8 @@ public class PackageGen {
       FileOutputStream output = new FileOutputStream(packageFile);
       PrintWriter w = new PrintWriter(new OutputStreamWriter(output));
 
-      for (Iterator classesIt = classSet.iterator(); classesIt.hasNext();) {
+      for (Iterator classesIt = classSet.iterator(); classesIt.hasNext();)
+      {
         Object obj = classesIt.next();
         log.debug("{}", obj);
         MetaClass mc = (MetaClass) obj;
@@ -159,15 +166,18 @@ public class PackageGen {
     }
   }
 
-  private String unQuote(String str) {
+  private String unQuote(String str)
+  {
     return str.substring(1, str.length() - 1);
   }
 
-	/**
-	 * Prints out debugging information.
-	 */
-  public void print() {
-    for (ClassPackage cp: classesByPackage.keySet()) {
+  /**
+   * Prints out debugging information.
+   */
+  public void print()
+  {
+    for (ClassPackage cp: classesByPackage.keySet())
+    {
       Set<MetaClass> c = classesByPackage.get(cp);
       log.debug(cp + ": " + c);
     }
@@ -178,37 +188,41 @@ public class PackageGen {
    *
    * @return the logger associated with the object
    */
-  private Logger getLogger() {
+  private Logger getLogger()
+  {
     return log;
   }
 
-	/**
+  /**
    * Tests PackageGen.
    *
    * @param args the command-line argument
    */
-  public static void main(String[] args) {
+  public static void main(String[] args)
+  {
 
-    if (args.length < 2) {
+    if (args.length < 2)
+    {
       System.out.println("PackageGen <header directory> [ classes... ]");
       return;
     }
 
     String headerDir = args[ 0];
 
-    ArrayList<String> classes = new ArrayList<String>(args.length - 1);
+    ArrayList<TypeName> classes = new ArrayList<TypeName>(args.length - 1);
 
-    for (int i = 1; i < args.length; ++i) {
-      classes.add(args[i]);
-    }
+    for (int i = 1; i < args.length; ++i)
+      classes.add(TypeNameFactory.fromIdentifier(args[i]));
 
     PackageGen pg = new PackageGen(headerDir, classes);
-		try {
-    pg.execute();
-		}
-		catch (IOException e) {
-			pg.getLogger().error("", e);
-		}
+    try
+    {
+      pg.execute();
+    }
+    catch (IOException e)
+    {
+      pg.getLogger().error("", e);
+    }
     pg.print();
   }
 }

@@ -1,5 +1,7 @@
 package jace.parser;
 
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.parser.attribute.Attribute;
 import jace.parser.attribute.AttributeFactory;
 import jace.parser.attribute.ConstantValueAttribute;
@@ -36,8 +38,8 @@ import org.slf4j.LoggerFactory;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ClassFile {
-
+public class ClassFile
+{
   private final Logger log = LoggerFactory.getLogger(ClassFile.class);
   /**
    * The identifying signature for a class file.
@@ -46,11 +48,11 @@ public class ClassFile {
   private static final int MAGIC_SIGNATURE = 0xCAFEBABE;
   private ConstantPool constantPool = new ConstantPool();
   private int superclassIndex;
-  private String superclassName;
+  private TypeName superclassName;
   private int classIndex;
-  private String className;
-  private ArrayList<Integer> interfaceIndices;
-  private ArrayList<String> interfaces;
+  private TypeName className;
+  private List<Integer> interfaceIndices;
+  private List<TypeName> interfaces;
   private ClassField[] fields;
   private ClassMethod[] methods;
   private ArrayList<Attribute> attributes;
@@ -64,7 +66,8 @@ public class ClassFile {
    * @param clazz the class stream
    * @throws ClassFormatError if an error occurs while parsing the class file
    */
-  public ClassFile(InputStream clazz) throws ClassFormatError {
+  public ClassFile(InputStream clazz) throws ClassFormatError
+  {
     parseClass(clazz);
   }
 
@@ -74,25 +77,31 @@ public class ClassFile {
    * @param path the class file path
    * @throws ClassFormatError if an error occurs while parsing the class file
    */
-  public ClassFile(String path) throws ClassFormatError {
-
+  public ClassFile(String path) throws ClassFormatError
+  {
     InputStream input = null;
 
-    try {
+    try
+    {
       input = new BufferedInputStream(new FileInputStream(path));
       parseClass(input);
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       ClassFormatError exception = new ClassFormatError("Unable to read the class");
       exception.initCause(e);
       throw exception;
     }
-    finally {
-      if (input != null) {
-        try {
+    finally
+    {
+      if (input != null)
+      {
+        try
+        {
           input.close();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
           // ignore
         }
       }
@@ -104,7 +113,8 @@ public class ClassFile {
    *
    * @return the name of the class
    */
-  public String getClassName() {
+  public TypeName getClassName()
+  {
     return className;
   }
 
@@ -113,7 +123,8 @@ public class ClassFile {
    *
    * @param name the name of the class
    */
-  public void setClassName(String name) {
+  public void setClassName(TypeName name)
+  {
     className = name;
   }
 
@@ -122,7 +133,8 @@ public class ClassFile {
    *
    * @return the name of the super class
    */
-  public String getSuperClassName() {
+  public TypeName getSuperClassName()
+  {
     return superclassName;
   }
 
@@ -131,7 +143,8 @@ public class ClassFile {
    *
    * @param name the name of the super class
    */
-  public void setSuperClassName(String name) {
+  public void setSuperClassName(TypeName name)
+  {
     superclassName = name;
   }
 
@@ -140,7 +153,8 @@ public class ClassFile {
    *
    * @return the names of the implemented interfaces
    */
-  public Collection<String> getInterfaces() {
+  public Collection<TypeName> getInterfaces()
+  {
     return Collections.unmodifiableList(interfaces);
   }
 
@@ -149,7 +163,8 @@ public class ClassFile {
    *
    * @return the constant pool indices of the implemented interfaces
    */
-  public Collection<Integer> getInterfaceIndices() {
+  public Collection<Integer> getInterfaceIndices()
+  {
     return Collections.unmodifiableList(interfaceIndices);
   }
 
@@ -158,7 +173,8 @@ public class ClassFile {
    *
    * @return the ClassFields for this class
    */
-  public Collection<ClassField> getFields() {
+  public Collection<ClassField> getFields()
+  {
     return Arrays.asList(fields);
   }
 
@@ -167,7 +183,8 @@ public class ClassFile {
    *
    * @return the ClassMethods for this class
    */
-  public Collection<ClassMethod> getMethods() {
+  public Collection<ClassMethod> getMethods()
+  {
     return Arrays.asList(methods);
   }
 
@@ -176,7 +193,8 @@ public class ClassFile {
    *
    * @return the major version
    */
-  public int getMajorVersion() {
+  public int getMajorVersion()
+  {
     return majorVersion;
   }
 
@@ -185,7 +203,8 @@ public class ClassFile {
    *
    * @return the minor version
    */
-  public int getMinorVersion() {
+  public int getMinorVersion()
+  {
     return minorVersion;
   }
 
@@ -195,56 +214,63 @@ public class ClassFile {
    * @param major the major version
    * @param minor the minor version
    */
-  public void setVersion(int major, int minor) {
+  public void setVersion(int major, int minor)
+  {
     final int NO_CHANGE = -1;
     final int TO_1_5 = 0;
     final int TO_1_4 = 1;
 
     int change = NO_CHANGE;
 
-    if (majorVersion < 49 && major >= 49) {
+    if (majorVersion < 49 && major >= 49)
       change = TO_1_5;
-    } else if (majorVersion >= 49 && major < 49) {
+    else if (majorVersion >= 49 && major < 49)
       change = TO_1_4;
-    }
 
     majorVersion = major;
     minorVersion = minor;
 
-    if (change == TO_1_5) {
+    if (change == TO_1_5)
+    {
       // TODO: Change synthetic attributes to access flags
-    } else if (change == TO_1_4) {
-
+    }
+    else if (change == TO_1_4)
+    {
       // Change synthetic access flags to attributes for class, methods, and fields
       // Also drop any other specifiers that are not valid.
       ClassAccessFlagSet classFlags = getAccessFlags();
       classFlags.remove(ClassAccessFlag.ANNOTATION);
       classFlags.remove(ClassAccessFlag.ENUM);
 
-      if (classFlags.contains(ClassAccessFlag.SYNTHETIC)) {
-        log.trace( "Setting class synthetic attribute." );
+      if (classFlags.contains(ClassAccessFlag.SYNTHETIC))
+      {
+        log.trace("Setting class synthetic attribute.");
         classFlags.remove(ClassAccessFlag.SYNTHETIC);
         setAccessFlags(classFlags);
         attributes.add(new SyntheticAttribute(constantPool));
       }
 
-      for (ClassField field : fields) {
+      for (ClassField field: fields)
+      {
         FieldAccessFlagSet flags = field.getAccessFlags();
         flags.remove(FieldAccessFlag.ENUM);
-        if (flags.contains(FieldAccessFlag.SYNTHETIC)) {
-          log.trace( "Setting field synthetic attribute." );
+        if (flags.contains(FieldAccessFlag.SYNTHETIC))
+        {
+          log.trace("Setting field synthetic attribute.");
           flags.remove(FieldAccessFlag.SYNTHETIC);
           field.setAccessFlags(flags);
           field.addAttribute(new SyntheticAttribute(constantPool));
         }
       }
 
-      for (ClassMethod method : methods) {
+      for (ClassMethod method: methods)
+      {
         MethodAccessFlagSet flags = method.getAccessFlags();
         flags.remove(MethodAccessFlag.BRIDGE);
         flags.remove(MethodAccessFlag.VARARGS);
-        if (method.getAccessFlags().contains(MethodAccessFlag.SYNTHETIC)) {
-          log.trace( "Setting method synthetic attribute." );
+        if (method.getAccessFlags().contains(MethodAccessFlag.SYNTHETIC))
+        {
+          log.trace("Setting method synthetic attribute.");
           flags.remove(MethodAccessFlag.SYNTHETIC);
           method.setAccessFlags(flags);
           method.addAttribute(new SyntheticAttribute(constantPool));
@@ -258,7 +284,8 @@ public class ClassFile {
    *
    * @return the set of access flags for this class
    */
-  public ClassAccessFlagSet getAccessFlags() {
+  public ClassAccessFlagSet getAccessFlags()
+  {
     return new ClassAccessFlagSet(accessFlags);
   }
 
@@ -267,7 +294,8 @@ public class ClassFile {
    *
    * @param set the set of access flags for this class
    */
-  public void setAccessFlags(ClassAccessFlagSet set) {
+  public void setAccessFlags(ClassAccessFlagSet set)
+  {
     accessFlags = set.getValue();
   }
 
@@ -277,7 +305,8 @@ public class ClassFile {
    * @param path the class path
    * @throws IOException if an error occurs while writing
    */
-  public void writeClass(String path) throws IOException {
+  public void writeClass(String path) throws IOException
+  {
     OutputStream output = new BufferedOutputStream(new FileOutputStream(path));
     writeClass(output);
     output.close();
@@ -289,7 +318,8 @@ public class ClassFile {
    * @param stream the output stream
    * @throws IOException if an error occurs while writing
    */
-  public void writeClass(OutputStream stream) throws IOException {
+  public void writeClass(OutputStream stream) throws IOException
+  {
     DataOutputStream output = new DataOutputStream(stream);
 
     writeSignature(output);
@@ -310,10 +340,12 @@ public class ClassFile {
    * @param stream the input stream
    * @throws ClassFormatError if an error occurs while parsing the class
    */
-  private void parseClass(InputStream stream) throws ClassFormatError {
+  private void parseClass(InputStream stream) throws ClassFormatError
+  {
     DataInputStream input = new DataInputStream(stream);
 
-    try {
+    try
+    {
       readSignature(input);
       readVersion(input);
       readConstantPool(input);
@@ -325,7 +357,8 @@ public class ClassFile {
       readMethods(input);
       readAttributes(input);
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       ClassFormatError exception = new ClassFormatError("The class definition ends prematurely");
       exception.initCause(e);
       throw exception;
@@ -338,11 +371,13 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readSignature(DataInputStream input) throws IOException {
+  private void readSignature(DataInputStream input) throws IOException
+  {
 
     int signature = input.readInt();
 
-    if (signature != MAGIC_SIGNATURE) {
+    if (signature != MAGIC_SIGNATURE)
+    {
       throw new ClassFormatError("The class signature isn't correct");
     }
   }
@@ -353,7 +388,8 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  private void writeSignature(DataOutputStream output) throws IOException {
+  private void writeSignature(DataOutputStream output) throws IOException
+  {
     output.writeInt(MAGIC_SIGNATURE);
   }
 
@@ -363,7 +399,8 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readAccessFlags(DataInputStream input) throws IOException {
+  private void readAccessFlags(DataInputStream input) throws IOException
+  {
     accessFlags = input.readUnsignedShort();
   }
 
@@ -373,20 +410,22 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readConstantPool(DataInputStream input) throws IOException {
+  private void readConstantPool(DataInputStream input) throws IOException
+  {
     ConstantFactory constantFactory = ConstantFactory.getConstantFactory();
 
     final int numEntries = input.readUnsignedShort() - 1;
-		if (log.isTraceEnabled())
-			log.trace( "num entries: " + numEntries );
+    if (log.isTraceEnabled())
+      log.trace("num entries: " + numEntries);
 
-    for (int entriesRead = 0; entriesRead < numEntries;) {
+    for (int entriesRead = 0; entriesRead < numEntries;)
+    {
       Constant c = constantFactory.readConstant(input, constantPool);
       constantPool.addConstant(c);
       entriesRead += c.getSize();
     }
-		if (log.isTraceEnabled())
-			log.debug("num pool entries: " + constantPool.getNumEntries());
+    if (log.isTraceEnabled())
+      log.debug("num pool entries: " + constantPool.getNumEntries());
   }
 
   /**
@@ -395,10 +434,12 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  private void writeConstantPool(DataOutputStream output) throws IOException {
+  private void writeConstantPool(DataOutputStream output) throws IOException
+  {
     int numEntries = constantPool.getNumEntries();
     output.writeShort(numEntries + 1);
-    for (int i = 0; i < constantPool.getSize(); ++i) {
+    for (int i = 0; i < constantPool.getSize(); ++i)
+    {
       Constant c = constantPool.getConstant(i);
       c.write(output);
     }
@@ -410,7 +451,8 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  public void writeAccessFlags(DataOutputStream output) throws IOException {
+  public void writeAccessFlags(DataOutputStream output) throws IOException
+  {
     output.writeShort(accessFlags);
   }
 
@@ -420,7 +462,8 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  public void writeClassName(DataOutputStream output) throws IOException {
+  public void writeClassName(DataOutputStream output) throws IOException
+  {
     output.writeShort(classIndex);
   }
 
@@ -430,7 +473,8 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  public void writeSuperClass(DataOutputStream output) throws IOException {
+  public void writeSuperClass(DataOutputStream output) throws IOException
+  {
     output.writeShort(superclassIndex);
   }
 
@@ -440,12 +484,12 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  public void writeInterfaces(DataOutputStream output) throws IOException {
+  public void writeInterfaces(DataOutputStream output) throws IOException
+  {
     output.writeShort(interfaceIndices.size());
 
-    for (Integer index : interfaceIndices) {
+    for (Integer index: interfaceIndices)
       output.writeShort(index);
-    }
   }
 
   /**
@@ -454,12 +498,12 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  public void writeFields(DataOutputStream output) throws IOException {
+  public void writeFields(DataOutputStream output) throws IOException
+  {
     output.writeShort(fields.length);
 
-    for (int i = 0; i < fields.length; ++i) {
+    for (int i = 0; i < fields.length; ++i)
       fields[i].write(output);
-    }
   }
 
   /**
@@ -468,12 +512,12 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  public void writeMethods(DataOutputStream output) throws IOException {
+  public void writeMethods(DataOutputStream output) throws IOException
+  {
     output.writeShort(methods.length);
 
-    for (int i = 0; i < methods.length; ++i) {
+    for (int i = 0; i < methods.length; ++i)
       methods[i].write(output);
-    }
   }
 
   /**
@@ -482,12 +526,12 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  public void writeAttributes(DataOutputStream output) throws IOException {
+  public void writeAttributes(DataOutputStream output) throws IOException
+  {
     output.writeShort(attributes.size());
 
-    for (Attribute a : attributes) {
+    for (Attribute a: attributes)
       a.write(output);
-    }
   }
 
   /**
@@ -496,7 +540,8 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while writing the class
    */
-  private void readVersion(DataInputStream input) throws IOException {
+  private void readVersion(DataInputStream input) throws IOException
+  {
     minorVersion = input.readUnsignedShort();
     majorVersion = input.readUnsignedShort();
   }
@@ -507,7 +552,8 @@ public class ClassFile {
    * @param output the output stream
    * @throws IOException if an error occurs while writing the class
    */
-  private void writeVersion(DataOutputStream output) throws IOException {
+  private void writeVersion(DataOutputStream output) throws IOException
+  {
     output.writeShort(minorVersion);
     output.writeShort(majorVersion);
   }
@@ -518,14 +564,16 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readSuperClass(DataInputStream input) throws IOException {
+  private void readSuperClass(DataInputStream input) throws IOException
+  {
     superclassIndex = input.readUnsignedShort();
 
-    if (superclassIndex == 0) {
-      superclassName = "java/lang/Object";
-    } else {
+    if (superclassIndex == 0)
+      superclassName = TypeNameFactory.fromIdentifier("java.lang.Object");
+    else
+    {
       ClassConstant superClass = (ClassConstant) constantPool.getConstantAt(superclassIndex);
-      superclassName = superClass.getValue().toString();
+      superclassName = TypeNameFactory.fromPath(superClass.getValue().toString());
     }
   }
 
@@ -535,14 +583,16 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readClassName(DataInputStream input) throws IOException {
+  private void readClassName(DataInputStream input) throws IOException
+  {
     classIndex = input.readUnsignedShort();
     ClassConstant thisClass = (ClassConstant) constantPool.getConstantAt(classIndex);
-		if (log.isDebugEnabled()) {
-			log.debug( "class index: " + classIndex );
-			log.debug( "class: " + thisClass );
-		}
-    className = thisClass.getValue().toString();
+    if (log.isDebugEnabled())
+    {
+      log.debug("class index: " + classIndex);
+      log.debug("class: " + thisClass);
+    }
+    className = TypeNameFactory.fromPath(thisClass.getValue().toString());
   }
 
   /**
@@ -551,17 +601,18 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readInterfaces(DataInputStream input) throws IOException {
-
+  private void readInterfaces(DataInputStream input) throws IOException
+  {
     final int interfaceCount = input.readUnsignedShort();
 
-    interfaces = new ArrayList<String>(interfaceCount);
+    interfaces = new ArrayList<TypeName>(interfaceCount);
     interfaceIndices = new ArrayList<Integer>(interfaceCount);
 
-    for (int i = 0; i < interfaceCount; ++i) {
+    for (int i = 0; i < interfaceCount; ++i)
+    {
       interfaceIndices.add(input.readUnsignedShort());
       ClassConstant cInterface = (ClassConstant) constantPool.getConstantAt(interfaceIndices.get(i));
-      interfaces.add(cInterface.getValue().toString());
+      interfaces.add(TypeNameFactory.fromPath(cInterface.getValue().toString()));
     }
   }
 
@@ -571,7 +622,8 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readFields(DataInputStream input) throws IOException {
+  private void readFields(DataInputStream input) throws IOException
+  {
     final int fieldCount = input.readUnsignedShort();
 
     fields = new ClassField[fieldCount];
@@ -586,13 +638,13 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readMethods(DataInputStream input) throws IOException {
+  private void readMethods(DataInputStream input) throws IOException
+  {
     final int methodCount = input.readUnsignedShort();
     methods = new ClassMethod[methodCount];
 
-    for (int i = 0; i < methodCount; ++i) {
+    for (int i = 0; i < methodCount; ++i)
       methods[i] = new ClassMethod(input, constantPool);
-    }
   }
 
   /**
@@ -601,7 +653,8 @@ public class ClassFile {
    * @param input the input stream
    * @throws IOException if an error occurs while reading the class
    */
-  private void readAttributes(DataInputStream input) throws IOException {
+  private void readAttributes(DataInputStream input) throws IOException
+  {
 
     final int attributeCount = input.readUnsignedShort();
 
@@ -617,7 +670,8 @@ public class ClassFile {
    *
    * @return the class attributes
    */
-  public List<Attribute> getAttributes() {
+  public List<Attribute> getAttributes()
+  {
     return Collections.unmodifiableList(attributes);
   }
 
@@ -626,85 +680,71 @@ public class ClassFile {
    *
    * @return the class constant pool.
    */
-  public ConstantPool getConstantPool() {
+  public ConstantPool getConstantPool()
+  {
     return constantPool;
   }
 
   /**
    * Outputs debugging information.
    */
-  public void print() {
+  public void print()
+  {
     System.out.println("class " + getClassName());
     System.out.println("  extends " + getSuperClassName());
 
-    Collection<String> interfaces = getInterfaces();
-
-    if (interfaces.size() > 0) {
-
+    if (interfaces.size() > 0)
+    {
       System.out.println("  implements");
-
-      for (String interface_ : interfaces) {
-        System.out.println("    " + interface_);
-      }
+      for (TypeName i: interfaces)
+        System.out.println("    " + i);
     }
 
-    ArrayList<ClassField> fields = new ArrayList<ClassField>(getFields());
-
-    for (int i = 0; i < fields.size(); ++i) {
-
-      ClassField field = fields.get(i);
-
-      String accessFlags = field.getAccessFlags().getName();
+    for (ClassField field: fields)
+    {
+      String fieldAccessFlags = field.getAccessFlags().getName();
       // String type = new ClassFormatter().fieldDescriptorToType( field.getDescriptor() );
-      String type = field.getDescriptor();
+      TypeName type = field.getDescriptor();
       String name = field.getName();
       String constantExpression = "";
       ConstantValueAttribute constantValue = field.getConstant();
 
-      if (constantValue != null) {
+      if (constantValue != null)
         constantExpression = "= " + constantValue.getValue().getValue().toString();
-      }
 
-      String declaration = buffer(accessFlags) +
-        buffer(type) +
-        buffer(name) +
-        constantExpression +
-        ";";
-
+      String declaration = buffer(fieldAccessFlags) +
+                           buffer(type.asDescriptor()) +
+                           buffer(name) +
+                           constantExpression +
+                           ";";
       System.out.println(declaration);
     }
 
-    ArrayList<ClassMethod> methods = new ArrayList<ClassMethod>(getMethods());
-
-    for (int i = 0; i < methods.size(); ++i) {
-
-      ClassMethod method = methods.get(i);
-
-      String accessFlags = method.getAccessFlags().getName();
+    for (ClassMethod method: methods)
+    {
+      String methodAccessFlags = method.getAccessFlags().getName();
       String type = method.getDescriptor();
       String name = method.getName();
-      Collection<String> exceptions = method.getExceptions();
+      Collection<TypeName> exceptions = method.getExceptions();
 
-      String declaration = buffer(accessFlags) +
-        buffer(type) +
-        buffer(name);
+      String declaration = buffer(methodAccessFlags) +
+                           buffer(type) +
+                           buffer(name);
 
-      if (exceptions.size() > 0) {
-
+      if (exceptions.size() > 0)
+      {
         declaration += "throws ";
-
-        for (String exception: exceptions)
-          declaration += buffer(exception);
+        for (TypeName exception: exceptions)
+          declaration += buffer(exception.asIdentifier());
       }
-
       System.out.println(declaration);
     }
 
-    if (attributes.size() > 0) {
+    if (attributes.size() > 0)
+    {
       System.out.println("Attributes...");
-      for (Attribute a : attributes) {
+      for (Attribute a: attributes)
         System.out.println(a);
-      }
     }
   }
 
@@ -714,19 +754,20 @@ public class ClassFile {
    * @param s the string to append to
    * @return the output string
    */
-  private static String buffer(String s) {
-    if (s.equals("")) {
+  private static String buffer(String s)
+  {
+    if (s.equals(""))
       return s;
-    }
     return s + " ";
   }
-	
+
   /**
    * Prints out the detail of the specified class.
    *
-	 * @param args the command-line arguments
+   * @param args the command-line arguments
    */
-  public static void main(String args[]) {
+  public static void main(String args[])
+  {
     ClassFile cf = new ClassFile(args[ 0]);
     cf.print();
   }

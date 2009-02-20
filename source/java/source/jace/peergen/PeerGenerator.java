@@ -5,13 +5,15 @@ import jace.metaclass.ClassMetaClass;
 import jace.metaclass.ClassPackage;
 import jace.metaclass.MetaClass;
 import jace.metaclass.MetaClassFactory;
+import jace.metaclass.JaceConstants;
+import jace.metaclass.TypeName;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
 import jace.parser.method.ClassMethod;
 import jace.parser.method.MethodAccessFlag;
 import jace.proxygen.ProxyGenerator;
 import jace.proxygen.ProxyGenerator.AccessibilityType;
-import jace.util.DelimitedList;
+import jace.util.DelimitedCollection;
 import jace.util.Util;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -55,8 +57,8 @@ public class PeerGenerator
   public PeerGenerator(ClassFile classFile, String includeDir, String sourceDir, boolean userDefinedMembers)
   {
     this.classFile = classFile;
-    proxyMetaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName(), false);
-    metaClass = (ClassMetaClass) proxyMetaClass.deProxy();
+    proxyMetaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
+    metaClass = (ClassMetaClass) proxyMetaClass.unProxy();
     this.includeDir = includeDir;
     this.sourceDir = sourceDir;
     this.userDefinedMembers = userDefinedMembers;
@@ -175,18 +177,16 @@ public class PeerGenerator
     output.write("class " + name + " : public ::jace::Peer, public ");
 
     // If we are derived directly from java.lang.Object, we need to derive from it virtually
-    if (classFile.getSuperClassName().equals("java/lang/Object"))
+    if (classFile.getSuperClassName().asIdentifier().equals("java.lang.Object"))
       output.write("virtual ");
 
-    MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName(), false);
+    MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy();
     output.write("::" + superMetaClass.getFullyQualifiedName("::"));
 
     // Now, add all of the interfaces that are implemented
-    Collection<String> interfaces = classFile.getInterfaces();
-
-    for (String interface_: interfaces)
+    for (TypeName i: classFile.getInterfaces())
     {
-      MetaClass interfaceClass = MetaClassFactory.getMetaClass(interface_, false);
+      MetaClass interfaceClass = MetaClassFactory.getMetaClass(i).proxy();
       output.write(", public virtual ");
       output.write("::" + interfaceClass.getFullyQualifiedName("::"));
     }
@@ -356,10 +356,10 @@ public class PeerGenerator
     ProxyGenerator proxyGen = new ProxyGenerator(classFile, AccessibilityType.PRIVATE);
     proxyGen.includeStandardHeaders(output);
 
-    output.write("#include \"jace/proxy/java/lang/Throwable.h\"" + newLine);
-    output.write("#include \"jace/proxy/java/lang/RuntimeException.h\"" + newLine);
-    output.write("#include \"jace/proxy/java/lang/Class.h\"" + newLine);
-    output.write("#include \"jace/proxy/java/lang/String.h\"" + newLine);
+    output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/Throwable.h\"" + newLine);
+    output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/RuntimeException.h\"" + newLine);
+    output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/Class.h\"" + newLine);
+    output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/String.h\"" + newLine);
     output.write("#include \"jace/JNIHelper.h\"" + newLine);
     output.write("#include \"jace/WrapperVmLoader.h\"" + newLine);
     output.write(newLine);
@@ -483,7 +483,7 @@ public class PeerGenerator
       // now, handle the normal case
       String functionName = getNativeMethodName(metaClass, method);
 
-      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType(), true);
+      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
 
       boolean isStatic = method.getAccessFlags().contains(MethodAccessFlag.STATIC);
 
@@ -494,21 +494,19 @@ public class PeerGenerator
       else
         params.add("jobject jP0");
 
-      List parameterTypes = method.getParameterTypes();
-
+      List<TypeName> parameterTypes = method.getParameterTypes();
       int parameterIndex = 1;
 
-      for (Iterator paramIt = parameterTypes.iterator(); paramIt.hasNext();)
+      for (TypeName param: parameterTypes)
       {
-        String param = (String) paramIt.next();
-        MetaClass paramClass = MetaClassFactory.getMetaClass(param, true);
+        MetaClass paramClass = MetaClassFactory.getMetaClass(param).proxy();
         params.add(paramClass.getJniType() + " jP" + parameterIndex);
         ++parameterIndex;
       }
 
       output.write("extern \"C\" JNIEXPORT " + returnType.getJniType() + " JNICALL " + functionName);
       output.write("( JNIEnv* env, ");
-      output.write(new DelimitedList(params).toList(", ", false));
+      output.write(new DelimitedCollection<String>(params).toString(", ", false));
       output.write(" ) { " + newLine);
       output.write(newLine);
 
@@ -529,10 +527,9 @@ public class PeerGenerator
 
       parameterIndex = 1;
 
-      for (Iterator paramIt = parameterTypes.iterator(); paramIt.hasNext();)
+      for (TypeName param: parameterTypes)
       {
-        String param = (String) paramIt.next();
-        MetaClass paramClass = MetaClassFactory.getMetaClass(param, true);
+        MetaClass paramClass = MetaClassFactory.getMetaClass(param).proxy();
         output.write("    " + "::" + paramClass.getFullyQualifiedName("::"));
         output.write(" p" + parameterIndex + "( jP" + parameterIndex + " );" + newLine);
         ++parameterIndex;
@@ -702,7 +699,7 @@ public class PeerGenerator
    */
   private static Set<MetaClass> getDependencies(ClassFile classFile)
   {
-    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName(), false);
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
 
     Set<MetaClass> result = new HashSet<MetaClass>();
     result.add(metaClass);
@@ -712,19 +709,19 @@ public class PeerGenerator
       if (!method.getName().equals("<init>"))
       {
         // Skip constructor return types
-        MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType(), true);
+        MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
         addDependentClass(result, returnType);
       }
 
-      for (String parameter: method.getParameterTypes())
+      for (TypeName parameter: method.getParameterTypes())
       {
-        MetaClass parameterType = MetaClassFactory.getMetaClass(parameter, true);
+        MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
         addDependentClass(result, parameterType);
       }
 
-      for (String exception: method.getExceptions())
+      for (TypeName exception: method.getExceptions())
       {
-        MetaClass exceptionType = MetaClassFactory.getMetaClass(exception, false);
+        MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();
         addDependentClass(result, exceptionType);
       }
     }
@@ -759,10 +756,9 @@ public class PeerGenerator
   private void beginNamespace(Writer output) throws IOException
   {
     ClassPackage classPackage = metaClass.toPeer().getPackage();
-    String[] packagePath = classPackage.getPath();
 
     StringBuilder namespace = new StringBuilder("BEGIN_NAMESPACE_");
-    namespace.append(packagePath.length);
+    namespace.append(classPackage.getPath().size());
     namespace.append("( ");
     namespace.append(classPackage.toName(", ", false));
     namespace.append(" )");
@@ -778,10 +774,9 @@ public class PeerGenerator
   private void endNamespace(Writer output) throws IOException
   {
     ClassPackage classPackage = metaClass.toPeer().getPackage();
-    String[] packagePath = classPackage.getPath();
 
     StringBuilder namespace = new StringBuilder("END_NAMESPACE_");
-    namespace.append(packagePath.length);
+    namespace.append(classPackage.getPath().size());
     namespace.append("( ");
     namespace.append(classPackage.toName(", ", false));
     namespace.append(" )");

@@ -8,47 +8,56 @@ package jace.metaclass;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ArrayMetaClass implements MetaClass {
-
+public class ArrayMetaClass implements MetaClass
+{
   /**
    * Constructs a new ArrayMetaClass with the given metaClass
    * as the base type.
    *
    * @param metaClass the meta class
    */
-  public ArrayMetaClass(MetaClass metaClass) {
+  public ArrayMetaClass(MetaClass metaClass)
+  {
     mBaseClass = metaClass;
   }
 
-  public String getName() {
+  public String getName()
+  {
     return "JArray< " + mBaseClass.getName() + " >";
   }
 
-  public String getFullyQualifiedName(String separator) {
+  public String getFullyQualifiedName(String separator)
+  {
     return "jace::JArray< " + "::" + mBaseClass.getFullyQualifiedName(separator) + " >";
   }
 
-  public ClassPackage getPackage() {
+  public ClassPackage getPackage()
+  {
     return mBaseClass.getPackage();
   }
 
-  public String beginGuard() {
+  public String beginGuard()
+  {
     return mBaseClass.beginGuard();
   }
 
-  public String endGuard() {
+  public String endGuard()
+  {
     return mBaseClass.endGuard();
   }
 
-  public String include() {
+  public String include()
+  {
     return mBaseClass.include();
   }
 
-  public String using() {
+  public String using()
+  {
     return mBaseClass.using();
   }
 
-  public String forwardDeclare() {
+  public String forwardDeclare()
+  {
     return mBaseClass.forwardDeclare();
   }
 
@@ -60,60 +69,89 @@ public class ArrayMetaClass implements MetaClass {
    *
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(Object obj)
+  {
 
     MetaClass baseMetaClass = getBaseClass();
 
-    if (obj instanceof ArrayMetaClass) {
+    if (obj instanceof ArrayMetaClass)
+    {
       ArrayMetaClass metaClass = (ArrayMetaClass) obj;
       return baseMetaClass.equals(metaClass.getBaseClass());
     }
 
-    if (obj instanceof MetaClass) {
+    if (obj instanceof MetaClass)
+    {
       return baseMetaClass.equals(obj);
     }
 
     return false;
   }
 
-  public int hashCode() {
+  public int hashCode()
+  {
     return getName().hashCode();
   }
 
-  public MetaClass getBaseClass() {
+  public MetaClass getBaseClass()
+  {
 
-    if (mBaseClass instanceof ArrayMetaClass) {
+    if (mBaseClass instanceof ArrayMetaClass)
+    {
       return ((ArrayMetaClass) mBaseClass).getBaseClass();
     }
 
     return mBaseClass;
   }
 
-  public MetaClass deProxy() {
-    return new ArrayMetaClass(getBaseClass().deProxy());
+  public MetaClass proxy()
+  {
+    return new ArrayMetaClass(getBaseClass().proxy());
   }
 
-  public boolean isPrimitive() {
+  public MetaClass unProxy()
+  {
+    return new ArrayMetaClass(getBaseClass().unProxy());
+  }
+
+  public boolean isPrimitive()
+  {
     return false;
   }
 
-  public String getJniType() {
+  public String getJniType()
+  {
 
-    if (mBaseClass instanceof BooleanClass) {
+    if (mBaseClass instanceof BooleanClass)
+    {
       return "jbooleanArray";
-    } else if (mBaseClass instanceof ByteClass) {
+    }
+    else if (mBaseClass instanceof ByteClass)
+    {
       return "jbyteArray";
-    } else if (mBaseClass instanceof CharClass) {
+    }
+    else if (mBaseClass instanceof CharClass)
+    {
       return "jcharArray";
-    } else if (mBaseClass instanceof DoubleClass) {
+    }
+    else if (mBaseClass instanceof DoubleClass)
+    {
       return "jdoubleArray";
-    } else if (mBaseClass instanceof FloatClass) {
+    }
+    else if (mBaseClass instanceof FloatClass)
+    {
       return "jfloatArray";
-    } else if (mBaseClass instanceof LongClass) {
+    }
+    else if (mBaseClass instanceof LongClass)
+    {
       return "jlongArray";
-    } else if (mBaseClass instanceof ShortClass) {
+    }
+    else if (mBaseClass instanceof ShortClass)
+    {
       return "jshortArray";
-    } else {
+    }
+    else
+    {
       return "jobjectArray";
     }
   }

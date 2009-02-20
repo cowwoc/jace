@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class PeerEnhancer {
-
+public class PeerEnhancer
+{
   private static final String newLine = System.getProperty("line.separator");
   private final Logger log = LoggerFactory.getLogger(PeerEnhancer.class);
   private ClassReader classReader;
@@ -69,8 +69,8 @@ public class PeerEnhancer {
    * @throws IllegalArgumentException if inputFile, outputFile, or libraries are null
    */
   public PeerEnhancer(File inputFile, File outputFile, List<String> libraries, String deallocationMethod,
-    boolean verbose) throws IllegalArgumentException {
-
+                      boolean verbose) throws IllegalArgumentException
+  {
     if (inputFile == null)
       throw new IllegalArgumentException("inputFile may not be null");
     if (outputFile == null)
@@ -87,15 +87,14 @@ public class PeerEnhancer {
   }
 
   /**
-   * This visitor enhances all non-chaining constructors so that a single
-   * call to jaceCreateInstance is made at the beginning of the constructor.
+   * This visitor inserts <code>jaceSetNativeHandle(jaceCreateInstance())</code> at the end of all
+   * non-chaining constructors.
    *
-   * jaceSetNativeHandle(jaceCreateInstance());
+   * @author Gili Tzabari
    */
-  private class NonChainingConstructorEnhancer extends MethodAdapter {
-
+  private class NonChainingConstructorEnhancer extends MethodAdapter
+  {
     private final String owner;
-    private boolean firstInstruction = true;
 
     /**
      * Creates a new NonChainingConstructorEnhancer.
@@ -103,42 +102,38 @@ public class PeerEnhancer {
      * @param cv MethodVisitor to delegate to
      * @param owner Class containing the method
      */
-    NonChainingConstructorEnhancer(MethodVisitor cv, String owner) {
+    NonChainingConstructorEnhancer(MethodVisitor cv, String owner)
+    {
       super(cv);
       this.owner = owner;
     }
 
     /**
-     * Insert "PeerClass thisRef = this" into the code.
-     */
-    private void insertInstruction() {
-      // Duplicate "this" twice on the stack
-      super.visitInsn(Opcodes.DUP);
-      super.visitInsn(Opcodes.DUP);
-
-      // Invoke jaceCreateInstance()
-      super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceCreateInstance,
-        Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
-
-      // Stack now contains: this, this, jaceCreateInstance()
-
-      // Invoke jaceSetNativeHandle(jaceCreateInstance())
-      super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceSetNativeHandle,
-        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{Type.LONG_TYPE}));
-
-    // Stack now contains: this
-    }
-
-    /**
-     * Enhances return instruction, if constructor is not chained.
+     * Enhances the return instruction.
      *
      * @param opcode the instruction opcode
      */
     @Override
-    public void visitInsn(int opcode) {
-      if (firstInstruction) {
-        insertInstruction();
-        firstInstruction = false;
+    public void visitInsn(int opcode)
+    {
+      if (opcode == Opcodes.RETURN)
+      {
+        // Load "this" onto the stack
+        super.visitVarInsn(Opcodes.ALOAD, 0);
+        super.visitInsn(Opcodes.DUP);
+        // Stack now contains: this, this
+
+        // Invoke jaceCreateInstance()
+        super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceCreateInstance,
+          Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
+
+        // Stack now contains: this, result of jaceCreateInstance()
+        // Invoke jaceSetNativeHandle(jaceCreateInstance())
+        super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceSetNativeHandle,
+          Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+          {
+            Type.LONG_TYPE
+          }));
       }
       super.visitInsn(opcode);
     }
@@ -149,35 +144,41 @@ public class PeerEnhancer {
    *
    * @return a {@code Set<methodDescriptor>} for all non-chaining constructors.
    */
-  private Set<String> getNonChainingConstructors() {
+  private Set<String> getNonChainingConstructors()
+  {
     final Set<String> result = new HashSet<String>();
 
-    classReader.accept(new EmptyVisitor() {
-
+    classReader.accept(new EmptyVisitor()
+    {
       private String className;
 
       @Override
       public void visit(int version, int access, String name, String signature,
-        String superName, String[] interfaces) {
+                        String superName, String[] interfaces)
+      {
         className = name;
       }
 
       @Override
       public MethodVisitor visitMethod(int access, String name,
-        final String desc, String signature, String[] exceptions) {
-        if (name.equals("<init>")) {
-          return new EmptyVisitor() {
-
+                                       final String desc, String signature, String[] exceptions)
+      {
+        if (name.equals("<init>"))
+        {
+          return new EmptyVisitor()
+          {
             private boolean constructorIsChained = false;
 
             @Override
-            public void visitMaxs(int maxStack, int maxLocals) {
+            public void visitMaxs(int maxStack, int maxLocals)
+            {
               if (!constructorIsChained)
                 result.add(desc);
             }
 
             @Override
-            public void visitMethodInsn(int opcode, String owner, String name, String desc) {
+            public void visitMethodInsn(int opcode, String owner, String name, String desc)
+            {
               if (className.equals(owner) && name.equals("<init>"))
                 constructorIsChained = true;
             }
@@ -194,7 +195,8 @@ public class PeerEnhancer {
    *
    * @throws IOException if an I/O error occurs while enhancing the file
    */
-  public void enhance() throws IOException {
+  public void enhance() throws IOException
+  {
     final boolean[] alreadyEnhanced = new boolean[1];
     alreadyEnhanced[0] = false;
     classInitializerFound = false;
@@ -202,37 +204,41 @@ public class PeerEnhancer {
     finalizerFound = false;
 
     BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile));
-    try {
+    try
+    {
       classReader = new ClassReader(in);
 
       /**
        * 1) Check whether jaceGetNativeHandle is already defined.
        */
-      classReader.accept(new EmptyVisitor() {
-
+      classReader.accept(new EmptyVisitor()
+      {
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
-          String signature, String[] exceptions) {
+                                         String signature, String[] exceptions)
+        {
           if (name.equals(jaceGetNativeHandle))
             alreadyEnhanced[0] = true;
           return null;
         }
       }, ClassReader.SKIP_DEBUG);
-      if (alreadyEnhanced[0]) {
+      if (alreadyEnhanced[0])
+      {
         log.info("The class " + inputFile + " has already been enhanced and will not be modified.");
         return;
       }
 
       final Set<String> nonChainingConstructors = getNonChainingConstructors();
       classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-      classReader.accept(new ClassAdapter(classWriter) {
-
+      classReader.accept(new ClassAdapter(classWriter)
+      {
         /**
          * Visits the class header.
          */
         @Override
         public void visit(int version, int access, String name,
-          String signature, String superName, String[] interfaces) {
+                          String signature, String superName, String[] interfaces)
+        {
           super.visit(version, access, name, signature, superName, interfaces);
           className = name;
         }
@@ -246,27 +252,36 @@ public class PeerEnhancer {
          */
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
-          String signature, String[] exceptions) {
-          if (name.equals("<clinit>")) {
+                                         String signature, String[] exceptions)
+        {
+          if (name.equals("<clinit>"))
+          {
             // Rename class initializer to jaceUserStaticInit()
             classInitializerFound = true;
             int flags = Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC;
             return classWriter.visitMethod(flags, jaceUserStaticInit, desc,
               null, exceptions);
-          } else if (name.equals("<init>")) {
+          }
+          else if (name.equals("<init>"))
+          {
             // Is this a non-chaining constructor?
-            if (nonChainingConstructors.contains(desc)) {
+            if (nonChainingConstructors.contains(desc))
+            {
               // Generate the method
               MethodVisitor out = classWriter.visitMethod(access, name, desc,
                 null, exceptions);
               return new NonChainingConstructorEnhancer(out, className);
             }
-          } else if (name.equals("finalize")) {
+          }
+          else if (name.equals("finalize"))
+          {
             // Rename finalizer to jaceUserFinalize
             finalizerFound = true;
             return classWriter.visitMethod(access, jaceUserFinalize, desc,
               signature, exceptions);
-          } else if (!deallocationMethodFound && name.equals(deallocationMethod)) {
+          }
+          else if (!deallocationMethodFound && name.equals(deallocationMethod))
+          {
             // Rename deallocation method to jaceUserClose
             deallocationMethodFound = true;
             return classWriter.visitMethod(access, jaceUserClose, desc,
@@ -276,15 +291,17 @@ public class PeerEnhancer {
         }
 
         @Override
-        public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
+        public AnnotationVisitor visitAnnotation(String desc, boolean visible)
+        {
           // Retain all attributes
           return super.visitAnnotation(desc, visible);
         }
       }, 0);
 
-      if (!deallocationMethodFound) {
+      if (!deallocationMethodFound)
+      {
         String msg = "Unable to locate the method: " + deallocationMethod + "." +
-          newLine + "Peer enhancement will now stop.";
+                     newLine + "Peer enhancement will now stop.";
         throw new RuntimeException(msg);
       }
 
@@ -297,12 +314,14 @@ public class PeerEnhancer {
         enhanceDeallocation();
       enhanceFinalize(finalizerFound);
     }
-    finally {
+    finally
+    {
       in.close();
     }
 
     File parentPath = outputFile.getParentFile();
-    if (parentPath != null && !parentPath.exists() && !parentPath.mkdirs()) {
+    if (parentPath != null && !parentPath.exists() && !parentPath.mkdirs())
+    {
       log.warn("Could not create " + parentPath);
       return;
     }
@@ -336,7 +355,8 @@ public class PeerEnhancer {
    *
    * @param classInitializerFound true if the class initializer already exists
    */
-  private void enhanceInitializer(boolean classInitializerFound) {
+  private void enhanceInitializer(boolean classInitializerFound)
+  {
     // Create method "private native static void jaceSetVm()"
     final int setVmFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_NATIVE;
     classWriter.visitMethod(setVmFlags, jaceSetVm,
@@ -351,8 +371,10 @@ public class PeerEnhancer {
     Label beginTryBlock = new Label();
     instructions.visitLabel(beginTryBlock);
 
-    for (String library : libraries) {
-      if (verbose) {
+    for (String library: libraries)
+    {
+      if (verbose)
+      {
         // Push System.err onto the stack
         instructions.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
           "err",
@@ -365,7 +387,10 @@ public class PeerEnhancer {
         instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
           "println",
           Type.getMethodDescriptor(Type.VOID_TYPE,
-          new Type[]{Type.getType(String.class)}));
+          new Type[]
+          {
+            Type.getType(String.class)
+          }));
       }
 
       // Push library name onto stack
@@ -375,7 +400,10 @@ public class PeerEnhancer {
       instructions.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/System",
         "loadLibrary",
         Type.getMethodDescriptor(Type.VOID_TYPE,
-        new Type[]{Type.getType(String.class)}));
+        new Type[]
+        {
+          Type.getType(String.class)
+        }));
     }
 
     // Invoke jaceSetVm()
@@ -436,7 +464,10 @@ public class PeerEnhancer {
     // Construct "RuntimeException(throwStr)"
     instructions.visitMethodInsn(Opcodes.INVOKESPECIAL,
       "java/lang/RuntimeException", "<init>",
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{Type.getType(String.class)}));
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+      {
+        Type.getType(String.class)
+      }));
 
     // Stack now contains [RuntimeException]
 
@@ -451,7 +482,8 @@ public class PeerEnhancer {
       null, beginCatchBlock, endCatchBlock, 1);
 
     // Make a call to the user's old initializer if there is one.
-    if (classInitializerFound) {
+    if (classInitializerFound)
+    {
       instructions.visitMethodInsn(Opcodes.INVOKESTATIC, className,
         jaceUserStaticInit,
         Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
@@ -476,7 +508,8 @@ public class PeerEnhancer {
    *   }
    *
    */
-  private void addNativeHandle() {
+  private void addNativeHandle()
+  {
     // Create field
     int fieldFlags = Opcodes.ACC_PRIVATE;
     classWriter.visitField(fieldFlags, jaceHandleField,
@@ -486,7 +519,10 @@ public class PeerEnhancer {
     int setFlags = Opcodes.ACC_PRIVATE;
     MethodVisitor setInstructions = classWriter.visitMethod(setFlags,
       jaceSetNativeHandle,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{Type.LONG_TYPE}),
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+      {
+        Type.LONG_TYPE
+      }),
       null, null);
 
     // Push "this" onto the stack
@@ -530,7 +566,8 @@ public class PeerEnhancer {
    *  private static native void jaceDestroyInstance( long handle );
    *
    */
-  private void addNativeLifetimeMethods() {
+  private void addNativeLifetimeMethods()
+  {
     // Create jaceCreateInstance() method
     int createFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE;
     classWriter.visitMethod(createFlags, jaceCreateInstance,
@@ -539,7 +576,10 @@ public class PeerEnhancer {
     // Create jacerDestroyInstance() method
     int destroyFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE | Opcodes.ACC_STATIC;
     classWriter.visitMethod(destroyFlags, jaceDestroyInstance,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{Type.LONG_TYPE}), null,
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+      {
+        Type.LONG_TYPE
+      }), null,
       null);
   }
 
@@ -557,7 +597,8 @@ public class PeerEnhancer {
    * }
    *
    */
-  private void addDeallocation() {
+  private void addDeallocation()
+  {
     // Create method
     int flags = Opcodes.ACC_PRIVATE;
     MethodVisitor instructions = classWriter.visitMethod(flags, jaceDispose,
@@ -593,7 +634,10 @@ public class PeerEnhancer {
     // Invoke jaceDestroyInstance(handle)
     instructions.visitMethodInsn(Opcodes.INVOKESTATIC, className,
       jaceDestroyInstance,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{Type.LONG_TYPE}));
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+      {
+        Type.LONG_TYPE
+      }));
 
     // Push "this" onto stack
     instructions.visitVarInsn(Opcodes.ALOAD, 0);
@@ -604,7 +648,10 @@ public class PeerEnhancer {
     // Invoke jaceSetNativeHandle(0)
     instructions.visitMethodInsn(Opcodes.INVOKESPECIAL, className,
       jaceSetNativeHandle,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{Type.LONG_TYPE}));
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+      {
+        Type.LONG_TYPE
+      }));
 
     instructions.visitLabel(handleIsZero);
 
@@ -623,7 +670,8 @@ public class PeerEnhancer {
    * jaceUserClose();
    * jaceDispose();
    */
-  private void enhanceDeallocation() {
+  private void enhanceDeallocation()
+  {
     // Create the new deallocation method
     final int flags = Opcodes.ACC_PUBLIC;
     MethodVisitor instructions = classWriter.visitMethod(flags, deallocationMethod,
@@ -652,8 +700,10 @@ public class PeerEnhancer {
    *
    * @param finalizerExisted true if the class already has a finalizer defined
    */
-  private void enhanceFinalize(boolean finalizerExisted) {
-    if (!finalizerExisted && deallocationMethodFound) {
+  private void enhanceFinalize(boolean finalizerExisted)
+  {
+    if (!finalizerExisted && deallocationMethodFound)
+    {
       // Only enhance the finalizer if one already existed or if the user did not specify a deallocation method
       return;
     }
@@ -661,12 +711,16 @@ public class PeerEnhancer {
     // Create a new finalizer
     final int flags = Opcodes.ACC_PROTECTED;
     MethodVisitor instructions = classWriter.visitMethod(flags, "finalize",
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, new String[]{"java/lang/Throwable"});
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, new String[]
+      {
+        "java/lang/Throwable"
+      });
 
     // Push 'this' onto stack
     instructions.visitVarInsn(Opcodes.ALOAD, 0);
 
-    if (finalizerExisted) {
+    if (finalizerExisted)
+    {
       // Duplicate 'this' on stack because jaceDispose takes it as an argument
       instructions.visitInsn(Opcodes.DUP);
 
@@ -683,17 +737,18 @@ public class PeerEnhancer {
     instructions.visitMaxs(0, 0);
   }
 
-  public static String getUsage() {
+  public static String getUsage()
+  {
     String usage =
-      "Usage: PeerEnhancer " + newLine +
-      "  <input file>" + newLine +
-      "  <output file>" + newLine +
-      "  <comma-separated list of libraries>" + newLine +
-      "  [options] " + newLine +
-      newLine +
-      "Where options can be:" + newLine +
-      "  -deallocator=<deallocation method>" + newLine +
-      "  -verbose " + newLine;
+           "Usage: PeerEnhancer " + newLine +
+           "  <input file>" + newLine +
+           "  <output file>" + newLine +
+           "  <comma-separated list of libraries>" + newLine +
+           "  [options] " + newLine +
+           newLine +
+           "Where options can be:" + newLine +
+           "  -deallocator=<deallocation method>" + newLine +
+           "  -verbose " + newLine;
     return usage;
   }
 
@@ -702,7 +757,8 @@ public class PeerEnhancer {
    *
    * @return the logger associated with the object
    */
-  private Logger getLogger() {
+  private Logger getLogger()
+  {
     return log;
   }
 
@@ -711,8 +767,10 @@ public class PeerEnhancer {
    *
    * @param args the command-line argument
    */
-  public static void main(String[] args) {
-    if (args.length < 3) {
+  public static void main(String[] args)
+  {
+    if (args.length < 3)
+    {
       System.out.println(getUsage());
       return;
     }
@@ -723,16 +781,21 @@ public class PeerEnhancer {
 
     String deallocationMethod = null;
     boolean verbose = false;
-    for (int i = 3; i < args.length; ++i) {
+    for (int i = 3; i < args.length; ++i)
+    {
       String option = args[i];
 
-      if (option.equals("-deallocator")) {
+      if (option.equals("-deallocator"))
+      {
         String[] tokens = args[i].split("=");
-        if (tokens.length == 2) {
+        if (tokens.length == 2)
+        {
           deallocationMethod = tokens[1];
           continue;
         }
-      } else if (option.equals("-verbose")) {
+      }
+      else if (option.equals("-verbose"))
+      {
         verbose = true;
         continue;
       }
@@ -744,15 +807,17 @@ public class PeerEnhancer {
 
     String tokens[] = libraries.split(",");
     List<String> nativeLibraries = new ArrayList<String>();
-    for (String token : tokens)
+    for (String token: tokens)
       nativeLibraries.add(token);
     PeerEnhancer enhancer = new PeerEnhancer(inputFile, outputFile, nativeLibraries, deallocationMethod, verbose);
     Logger log = enhancer.getLogger();
     log.info("Enhancing " + inputFile + " -> " + outputFile);
-    try {
+    try
+    {
       enhancer.enhance();
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       log.error("", e);
     }
   }

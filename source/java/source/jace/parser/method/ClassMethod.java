@@ -1,5 +1,7 @@
 package jace.parser.method;
 
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.parser.ConstantPool;
 import jace.parser.attribute.Attribute;
 import jace.parser.attribute.AttributeFactory;
@@ -24,8 +26,8 @@ import java.util.List;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ClassMethod {
-
+public class ClassMethod
+{
   /**
    * From the JVM specification:
    *
@@ -43,8 +45,8 @@ public class ClassMethod {
   private int descriptorIndex;
   private ArrayList<Attribute> attributes;
   private ConstantPool mPool;
-  private List<String> parameters;
-  private String returnType;
+  private List<TypeName> parameters;
+  private TypeName returnType;
 
   /**
    * Reads in a ClassMethod from a Java class file.
@@ -58,8 +60,8 @@ public class ClassMethod {
    * @throws IOException if an error occurs while trying to read the ClassMethod.
    *
    */
-  public ClassMethod(InputStream stream, ConstantPool pool) throws IOException {
-
+  public ClassMethod(InputStream stream, ConstantPool pool) throws IOException
+  {
     mPool = pool;
 
     DataInputStream input = new DataInputStream(stream);
@@ -73,38 +75,44 @@ public class ClassMethod {
 
     AttributeFactory factory = new AttributeFactory();
 
-    for (int i = 0; i < attributesCount; ++i) {
+    for (int i = 0; i < attributesCount; ++i)
+    {
       attributes.add(factory.readAttribute(stream, pool));
     }
 
     parseDescriptor();
   }
 
-  public void write(DataOutputStream output) throws IOException {
+  public void write(DataOutputStream output) throws IOException
+  {
     output.writeShort(accessFlags);
     output.writeShort(nameIndex);
     output.writeShort(descriptorIndex);
     output.writeShort(attributes.size());
 
-    for (Attribute a : attributes) {
+    for (Attribute a: attributes)
+    {
       a.write(output);
     }
   }
 
-  public List<Attribute> getAttributes() {
+  public List<Attribute> getAttributes()
+  {
     return Collections.unmodifiableList(attributes);
   }
 
-  public CodeAttribute getCode() {
-    for (Attribute a : attributes) {
-      if (a instanceof CodeAttribute) {
+  public CodeAttribute getCode()
+  {
+    for (Attribute a: attributes)
+    {
+      if (a instanceof CodeAttribute)
         return (CodeAttribute) a;
-      }
     }
     return null;
   }
 
-  public void addAttribute(Attribute a) {
+  public void addAttribute(Attribute a)
+  {
     attributes.add(a);
   }
 
@@ -113,27 +121,33 @@ public class ClassMethod {
    *
    * @return the MethodAccessFlagSet for this ClassMethod
    */
-  public MethodAccessFlagSet getAccessFlags() {
+  public MethodAccessFlagSet getAccessFlags()
+  {
     return new MethodAccessFlagSet(accessFlags);
   }
 
-  public void setAccessFlags(MethodAccessFlagSet set) {
+  public void setAccessFlags(MethodAccessFlagSet set)
+  {
     accessFlags = set.getValue();
   }
 
-  public int getNameIndex() {
+  public int getNameIndex()
+  {
     return nameIndex;
   }
 
-  public void setNameIndex(int index) {
+  public void setNameIndex(int index)
+  {
     nameIndex = index;
   }
 
-  public int getDescriptorIndex() {
+  public int getDescriptorIndex()
+  {
     return descriptorIndex;
   }
 
-  public void setDescriptorIndex(int index) {
+  public void setDescriptorIndex(int index)
+  {
     descriptorIndex = index;
   }
 
@@ -145,17 +159,13 @@ public class ClassMethod {
    * @throws RuntimeException that should probably instead be ClassFormatError.
    * @return the name of this ClassMethod
    */
-  public String getName() {
-
+  public String getName()
+  {
     Constant c = mPool.getConstantAt(nameIndex);
 
-    if (c instanceof UTF8Constant) {
+    if (c instanceof UTF8Constant)
       return c.getValue().toString();
-    }
-
-    String msg = "Not a UTF8Constant: " + c.getClass().getName();
-
-    throw new RuntimeException(msg);
+    throw new RuntimeException("Not a UTF8Constant: " + c.getClass().getName());
   }
 
   /**
@@ -164,21 +174,17 @@ public class ClassMethod {
    * For example, "(Ljava/lang/String;I)[B", which would
    * have a signature of: byte[] xxx( java.lang.String aString, int anInt )
    *
+   * @return the method descriptor
    * @throws ClassFormatError if the descriptor isn't of the right type.
    * This should probably be thrown during the parsing stage.
-   *
    */
-  public String getDescriptor() {
-
+  public String getDescriptor() throws ClassFormatError
+  {
     Constant c = mPool.getConstantAt(descriptorIndex);
 
-    if (c instanceof UTF8Constant) {
+    if (c instanceof UTF8Constant)
       return c.getValue().toString();
-    }
-
-    String msg = "Not a UTF8Constant: " + c.getClass().getName();
-
-    throw new ClassFormatError(msg);
+    throw new ClassFormatError("Not a UTF8Constant: " + c.getClass().getName());
   }
 
   /**
@@ -191,7 +197,8 @@ public class ClassMethod {
    *   [B
    * @return the return type for this ClassMethod
    */
-  public String getReturnType() {
+  public TypeName getReturnType()
+  {
     return returnType;
   }
 
@@ -204,11 +211,12 @@ public class ClassMethod {
    *   Ljava/lang/String or
    *   [B
    *
-   * @return a List of Strings that are the parameter types for this ClassMethod.
+   * @return an unmodifiable list of type names
    *
    */
-  public List<String> getParameterTypes() {
-    return new ArrayList<String>(parameters);
+  public List<TypeName> getParameterTypes()
+  {
+    return Collections.unmodifiableList(parameters);
   }
 
   /**
@@ -216,118 +224,125 @@ public class ClassMethod {
    * by parsing the descriptor.
    *
    */
-  private void parseDescriptor() throws IOException {
-
+  private void parseDescriptor() throws IOException
+  {
     String descriptor = getDescriptor();
-
     StringReader reader = new StringReader(descriptor);
 
     // read the opening '('
-    if (reader.read() != '(') {
+    if (reader.read() != '(')
+    {
       throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
-        "It does not begin its parameter list with a '('");
+                                 "It does not begin its parameter list with a '('");
     }
 
     // read the parameters
-    parameters = new ArrayList<String>();
+    parameters = new ArrayList<TypeName>();
     String parameter;
-
-    try {
-      while ((parameter = readType(reader)) != null) {
-        parameters.add(parameter);
-      }
+    try
+    {
+      while ((parameter = readType(reader)) != null)
+        parameters.add(TypeNameFactory.fromDescriptor(parameter));
     }
-    catch (RuntimeException e) {
+    catch (RuntimeException e)
+    {
       throw new RuntimeException("The descriptor <" + descriptor + "> is invalid", e);
     }
 
     // read the closing ')'
-    if (reader.read() != ')') {
+    if (reader.read() != ')')
+    {
       throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
-        "It does not end its parameter list with a ')'");
+                                 "It does not end its parameter list with a ')'");
     }
 
     // read the return type
-    try {
-      returnType = readType(reader);
+    try
+    {
+      returnType = TypeNameFactory.fromDescriptor(readType(reader));
     }
-    catch (RuntimeException e) {
+    catch (RuntimeException e)
+    {
       throw new RuntimeException("The descriptor <" + descriptor + "> is invalid", e);
     }
 
-    if (returnType == null) {
+    if (returnType == null)
+    {
       throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
-        "It does not specify a valid return type.");
+                                 "It does not specify a valid return type.");
     }
 
-    if (reader.read() != -1) {
+    if (reader.read() != -1)
+    {
       throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
-        "It does not end after specifying the return type.");
+                                 "It does not end after specifying the return type.");
     }
   }
 
-  private String readType(StringReader reader) throws IOException {
-
-    final char[] primitiveTypes = {'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z'};
+  private String readType(StringReader reader) throws IOException
+  {
+    final char[] primitiveTypes =
+    {
+      'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z'
+    };
 
     StringBuilder type = new StringBuilder();
 
     // we make sure that we can return parsing, back to where it came from
     reader.mark(0);
 
-    int c;
-
     // the type may be V (void), so we check for that possibility first
+    int c;
     c = reader.read();
 
-    if (c == 'V') {
+    if (c == 'V')
       return "V";
-    } else {
-      reader.reset();
-    }
+    reader.reset();
 
     // we may potentially be at the end of a parameter list
-    if (c == ')') {
+    if (c == ')')
       return null;
-    }
-
 
     // the type can begin with any number of array specifiers
-    while ((c = reader.read()) == '[') {
+    while ((c = reader.read()) == '[')
+    {
       type.append((char) c);
     }
 
     // now that we've read the array specifiers, we're going to check to see if the type is a primitive
-    for (int i = 0; i < primitiveTypes.length; ++i) {
-      if (c == primitiveTypes[i]) {
+    for (int i = 0; i < primitiveTypes.length; ++i)
+    {
+      if (c == primitiveTypes[i])
+      {
         type.append((char) c);
         return type.toString();
       }
     }
 
-    if (c != 'L') {
+    if (c != 'L')
+    {
       throw new RuntimeException("The descriptor is badly formatted. " +
-        "A type was expected, but none could be found.");
+                                 "A type was expected, but none could be found.");
     }
 
     type.append((char) c);
 
     // now, we read up to the terminating ';'
-    while (true) {
-
+    while (true)
+    {
       c = reader.read();
 
       // if we encounter end of stream, something is wrong
-      if (c == -1) {
+      if (c == -1)
+      {
         throw new RuntimeException("The descriptor is badly formatted. " +
-          "The type ends prematurely.");
+                                   "The type ends prematurely.");
       }
 
       type.append((char) c);
 
-      if (c == ';') {
+      if (c == ';')
         return type.toString();
-      }
     }
   }
 
@@ -336,16 +351,17 @@ public class ClassMethod {
    *
    * @return the exceptions which have been declared for this ClassMethod
    */
-  public Collection<String> getExceptions() {
-
-    for (Attribute a : attributes) {
-      if (a instanceof ExceptionsAttribute) {
-
+  public Collection<TypeName> getExceptions()
+  {
+    for (Attribute a: attributes)
+    {
+      if (a instanceof ExceptionsAttribute)
+      {
         ExceptionsAttribute ea = (ExceptionsAttribute) a;
         ClassConstant[] exceptionConstants = ea.getExceptions();
-        Collection<String> result = new ArrayList<String>(exceptionConstants.length);
+        Collection<TypeName> result = new ArrayList<TypeName>(exceptionConstants.length);
         for (int i = 0; i < exceptionConstants.length; ++i)
-          result.add(exceptionConstants[i].toString());
+          result.add(TypeNameFactory.fromPath(exceptionConstants[i].toString()));
         return result;
       }
     }
@@ -358,13 +374,13 @@ public class ClassMethod {
    * @return a String that contains debugging information for this ClassMethod
    */
   @Override
-  public String toString() {
-
+  public String toString()
+  {
     return "ClassMethod: \n" +
-      "accessFlags: " + accessFlags + "\n" +
-      "nameIndex: " + nameIndex + "\n" +
-      "descriptorIndex: " + descriptorIndex + "\n" +
-      "attributesCount: " + attributes.size();
+           "accessFlags: " + accessFlags + "\n" +
+           "nameIndex: " + nameIndex + "\n" +
+           "descriptorIndex: " + descriptorIndex + "\n" +
+           "attributesCount: " + attributes.size();
 
   }
 }

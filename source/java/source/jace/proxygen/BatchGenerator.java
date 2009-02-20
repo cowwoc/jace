@@ -2,6 +2,7 @@ package jace.proxygen;
 
 import jace.metaclass.ClassMetaClass;
 import jace.metaclass.MetaClassFactory;
+import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
 import jace.proxygen.ProxyGenerator.AccessibilityType;
 import java.io.File;
@@ -20,8 +21,8 @@ import java.util.jar.JarInputStream;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class BatchGenerator {
-
+public class BatchGenerator
+{
   private static String newLine = System.getProperty("line.separator");
   private File outputHeaders;
   private File outputSources;
@@ -34,22 +35,18 @@ public class BatchGenerator {
    * @param outputSources the directory to which the proxy source files should be written
    * @param accessibility the class accessibility to expose
    */
-  public BatchGenerator(File outputHeaders, File outputSources, AccessibilityType accessibility) {
-    if (outputHeaders == null) {
+  public BatchGenerator(File outputHeaders, File outputSources, AccessibilityType accessibility)
+  {
+    if (outputHeaders == null)
       throw new IllegalArgumentException("outputHeaders may not be null");
-    }
-    if (outputSources == null) {
+    if (outputSources == null)
       throw new IllegalArgumentException("outputSources may not be null");
-    }
-    if (accessibility == null) {
+    if (accessibility == null)
       throw new IllegalArgumentException("accessibility may not be null");
-    }
-    if (!outputHeaders.isDirectory()) {
+    if (!outputHeaders.isDirectory())
       throw new IllegalArgumentException("outputHeaders must be a directory");
-    }
-    if (!outputSources.isDirectory()) {
+    if (!outputSources.isDirectory())
       throw new IllegalArgumentException("outputSources must be a directory");
-    }
     this.outputHeaders = outputHeaders;
     this.outputSources = outputSources;
     this.accessibility = accessibility;
@@ -61,18 +58,17 @@ public class BatchGenerator {
    * @param file the jar file
    * @throws IOException if an I/O error occurs while generating proxies
    */
-  private void generateFromJar(File jarFile) throws IOException {
-
+  private void generateFromJar(File jarFile) throws IOException
+  {
     JarInputStream in = new JarInputStream(new FileInputStream(jarFile));
 
-    while (true) {
-
+    while (true)
+    {
       JarEntry entry = in.getNextJarEntry();
-      if (entry == null) {
+      if (entry == null)
         break;
-      }
-      if (entry.isDirectory()) {
-
+      if (entry.isDirectory())
+      {
         String dirName = entry.getName();
         dirName = "jace" + File.separator + "proxy" + File.separator + dirName;
 
@@ -86,23 +82,23 @@ public class BatchGenerator {
       }
 
       StringBuilder fullyQualifiedPath = new StringBuilder(entry.getName());
-      if (!fullyQualifiedPath.toString().endsWith(".class")) {
+      if (!fullyQualifiedPath.toString().endsWith(".class"))
         continue;
-      }
 
       // Remove the ".class" extension
       fullyQualifiedPath.setLength(fullyQualifiedPath.length() - ".class".length());
 
       // Fix for bug 607754. Stealing code from AutoProxy to do this right now
-      ClassMetaClass metaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(fullyQualifiedPath.toString(), false,
-        true);
+      ClassMetaClass metaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(
+        TypeNameFactory.fromPath(fullyQualifiedPath.toString())).proxy();
 
       String classFileName = metaClass.getFileName();
       File targetHeaderFile = new File(outputHeaders, classFileName + ".h");
       File targetSourceFile = new File(outputSources, classFileName + ".cpp");
       if (targetSourceFile.exists() && targetHeaderFile.exists() &&
-        jarFile.lastModified() <= targetSourceFile.lastModified() &&
-        jarFile.lastModified() <= targetHeaderFile.lastModified()) {
+          jarFile.lastModified() <= targetSourceFile.lastModified() &&
+          jarFile.lastModified() <= targetHeaderFile.lastModified())
+      {
         // The source-file has not been modified since we last generated the
         // target source/header files.
         System.out.println(jarFile + " has not been modified, skipping...");
@@ -121,16 +117,17 @@ public class BatchGenerator {
    *
    * @return String describing the usage of this tool
    */
-  private static String getUsage() {
+  private static String getUsage()
+  {
     return "Usage: BatchGenerator <jar or zip file containing classes>" + newLine +
-      "                      <destination directory for header files>" + newLine +
-      "                      <destination directory for source files>" + newLine +
-      "                     [ options ]" + newLine +
-      "Where options can be:" + newLine +
-      "  -public    : Generate public fields and methods." + newLine +
-      "  -protected : Generate public, protected fields and methods." + newLine +
-      "  -package : Generate public, protected, package-private fields and methods." + newLine +
-      "  -private : Generate public, protected, package-private, private fields and methods." + newLine;
+           "                      <destination directory for header files>" + newLine +
+           "                      <destination directory for source files>" + newLine +
+           "                     [ options ]" + newLine +
+           "Where options can be:" + newLine +
+           "  -public    : Generate public fields and methods." + newLine +
+           "  -protected : Generate public, protected fields and methods." + newLine +
+           "  -package : Generate public, protected, package-private fields and methods." + newLine +
+           "  -private : Generate public, protected, package-private, private fields and methods." + newLine;
   }
 
   /**
@@ -138,36 +135,42 @@ public class BatchGenerator {
    *
    * @param args the command-line arguments
    */
-  public static void main(String[] args) {
-    if (args.length < 3) {
+  public static void main(String[] args)
+  {
+    if (args.length < 3)
+    {
       System.out.println(getUsage());
       return;
     }
 
     AccessibilityType accessibility = AccessibilityType.PUBLIC;
 
-    for (int i = 3; i < args.length; ++i) {
+    for (int i = 3; i < args.length; ++i)
+    {
       String option = args[i];
 
-      if (option.equals("-public")) {
+      if (option.equals("-public"))
         accessibility = AccessibilityType.PUBLIC;
-      } else if (option.equals("-protected")) {
+      else if (option.equals("-protected"))
         accessibility = AccessibilityType.PROTECTED;
-      } else if (option.equals("-package")) {
+      else if (option.equals("-package"))
         accessibility = AccessibilityType.PACKAGE;
-      } else if (option.equals("-private")) {
+      else if (option.equals("-private"))
         accessibility = AccessibilityType.PRIVATE;
-      } else {
+      else
+      {
         System.out.println("Not an understood option: [" + option + "]");
         System.out.println();
         System.out.println(getUsage());
         return;
       }
     }
-    try {
+    try
+    {
       new BatchGenerator(new File(args[1]), new File(args[2]), accessibility).generateFromJar(new File(args[0]));
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       e.printStackTrace();
     }
   }

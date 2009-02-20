@@ -1,50 +1,60 @@
 package jace.metaclass;
 
+import java.util.Collections;
+
 /**
  * Represents the meta-data for the java primitive, 'short'.
  *
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ShortClass implements MetaClass {
-
+public class ShortClass implements MetaClass
+{
   private final static String newLine = System.getProperty("line.separator");
 
-  public String getName() {
+  public String getName()
+  {
     return "JShort";
   }
 
-  public String getFullyQualifiedName(String separator) {
+  public String getFullyQualifiedName(String separator)
+  {
     return "jace" + separator + "proxy" + separator + "types" + separator + getName();
   }
 
-  public ClassPackage getPackage() {
-    return new ClassPackage(new String[0]);
+  public ClassPackage getPackage()
+  {
+    return new ClassPackage(Collections.<String>emptyList());
   }
 
-  public String beginGuard() {
+  public String beginGuard()
+  {
     return "JACE_TYPES_JSHORT_H";
   }
 
-  public String endGuard() {
+  public String endGuard()
+  {
     return "// #ifndef JACE_TYPES_JSHORT_H";
   }
 
-  public String include() {
+  public String include()
+  {
     return "#ifndef JACE_TYPES_JSHORT_H" + newLine +
-      "#include \"jace/proxy/types/JShort.h\"" + newLine +
-      "#endif";
+           "#include \"" + JaceConstants.getProxyPackage().asPath() + "/types/JShort.h\"" + newLine +
+           "#endif";
   }
 
-  public String using() {
+  public String using()
+  {
     return "using jace::proxy::types::JShort;";
   }
 
-  public String forwardDeclare() {
+  public String forwardDeclare()
+  {
     String namespace =
-      "BEGIN_NAMESPACE_3( jace, proxy, types )" + newLine +
-      "class JShort;" + newLine +
-      "END_NAMESPACE_3( jace, proxy, types )";
+           "BEGIN_NAMESPACE_3( jace, proxy, types )" + newLine +
+           "class JShort;" + newLine +
+           "END_NAMESPACE_3( jace, proxy, types )";
 
     return namespace;
   }
@@ -56,29 +66,40 @@ public class ShortClass implements MetaClass {
    * to the same package.
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(Object obj)
+  {
     return (obj instanceof ShortClass);
   }
 
   @Override
-  public int hashCode() {
+  public int hashCode()
+  {
     return getName().hashCode();
   }
 
-  public MetaClass deProxy() {
-    return this;
+  public MetaClass proxy()
+  {
+    throw new UnsupportedOperationException();
   }
 
-  public boolean isPrimitive() {
+  public MetaClass unProxy()
+  {
+    throw new UnsupportedOperationException();
+  }
+
+  public boolean isPrimitive()
+  {
     return true;
   }
 
-  public String getJniType() {
+  public String getJniType()
+  {
     return "jshort";
   }
 
   @Override
-  public String toString() {
+  public String toString()
+  {
     return getClass().getName();
   }
 }

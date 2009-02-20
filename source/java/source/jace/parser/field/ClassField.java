@@ -1,5 +1,7 @@
 package jace.parser.field;
 
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.parser.ConstantPool;
 import jace.parser.attribute.Attribute;
 import jace.parser.attribute.AttributeFactory;
@@ -23,8 +25,8 @@ import org.slf4j.LoggerFactory;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ClassField {
-
+public class ClassField
+{
   private final Logger log = LoggerFactory.getLogger(ClassField.class);
   /* From the JVM specification:
    *
@@ -38,32 +40,27 @@ public class ClassField {
    *   attribute_info attributes[attributes_count];
    * }
    */
-  
   /**
-	 * The field modifiers.
+   * The field modifiers.
    */
   private int accessFlags;
-  
   /**
-	 * The name of this field.
+   * The name of this field.
    * A CONSTANT_Utf8_info in the constant pool
    */
   private int nameIndex;
-  
   /**
-	 * The type of this field.
+   * The type of this field.
    * A CONSTANT_Utf8_info in the constant pool
    */
-  private int descriptorIndex;  
-  
+  private int descriptorIndex;
   /**
-	 * The attributes for this ClassField.
+   * The attributes for this ClassField.
    * These attributes may only be ConstantValue, Synthetic, or Deprecated.
    */
   private List<Attribute> attributes;
-  
   /**
-	 * The ConstantPool for this ClassField.
+   * The ConstantPool for this ClassField.
    */
   private ConstantPool mPool;
 
@@ -73,71 +70,78 @@ public class ClassField {
    * @param stream
    * @param pool
    *
+   * @throws IOException if a reading error occurs
    */
-  public ClassField( InputStream stream, ConstantPool pool ) throws IOException {
-  
+  public ClassField(InputStream stream, ConstantPool pool) throws IOException
+  {
     mPool = pool;
-  
-    DataInputStream input = new DataInputStream( stream );
-  
+
+    DataInputStream input = new DataInputStream(stream);
+
     accessFlags = input.readUnsignedShort();
     nameIndex = input.readUnsignedShort();
     descriptorIndex = input.readUnsignedShort();
     int attributesCount = input.readUnsignedShort();
-  
-    attributes = new ArrayList<Attribute>( attributesCount );
-  
+
+    attributes = new ArrayList<Attribute>(attributesCount);
+
     AttributeFactory factory = new AttributeFactory();
-  
-    for ( int i = 0; i < attributesCount; ++i ) {
-      attributes.add( factory.readAttribute( stream, pool ) );
-    }
-  
-		if (log.isDebugEnabled())	{
-			log.debug( "accessFlags: " + accessFlags );
-			log.debug( "nameIndex: " + nameIndex );
-			log.debug( "descriptorIndex: " + descriptorIndex );
-			log.debug( "attributesCount: " + attributesCount );
-		}
-  }
-  
-  public void write( DataOutputStream output ) throws IOException {
-    output.writeShort( accessFlags );
-    output.writeShort( nameIndex );
-    output.writeShort( descriptorIndex );
-    output.writeShort( attributes.size() );
-  
-    for ( Attribute a : attributes ) {
-      a.write( output );
+
+    for (int i = 0; i < attributesCount; ++i)
+      attributes.add(factory.readAttribute(stream, pool));
+
+    if (log.isDebugEnabled())
+    {
+      log.debug("accessFlags: " + accessFlags);
+      log.debug("nameIndex: " + nameIndex);
+      log.debug("descriptorIndex: " + descriptorIndex);
+      log.debug("attributesCount: " + attributesCount);
     }
   }
-  
+
+  public void write(DataOutputStream output) throws IOException
+  {
+    output.writeShort(accessFlags);
+    output.writeShort(nameIndex);
+    output.writeShort(descriptorIndex);
+    output.writeShort(attributes.size());
+
+    for (Attribute a: attributes)
+      a.write(output);
+  }
+
   /**
    * Returns the FieldAccessFlagSet for this ClassField.
    *
-	 * @return the FieldAccessFlagSet for this ClassField
+   * @return the FieldAccessFlagSet for this ClassField
    */
-  public FieldAccessFlagSet getAccessFlags() {
-    return new FieldAccessFlagSet( accessFlags );
+  public FieldAccessFlagSet getAccessFlags()
+  {
+    return new FieldAccessFlagSet(accessFlags);
   }
-  
-  public void setAccessFlags( FieldAccessFlagSet set ) {
+
+  public void setAccessFlags(FieldAccessFlagSet set)
+  {
     accessFlags = set.getValue();
   }
 
-  public int getNameIndex() {
+  public int getNameIndex()
+  {
     return nameIndex;
   }
 
-  public void setNameIndex( int index ) {
+  public void setNameIndex(int index)
+  {
     nameIndex = index;
   }
 
-  public int getDescriptorIndex() {
+  public int getDescriptorIndex()
+  {
     return descriptorIndex;
   }
 
-  public void setDescriptorIndex( int index ) {
+  public void setDescriptorIndex(int index)
+  {
     descriptorIndex = index;
   }
 
@@ -146,32 +150,30 @@ public class ClassField {
    *
    * For example, "aVariable".
    *
-	 * @return the name of this ClassField
+   * @return the name of this ClassField
    */
-  public String getName() {
-    Constant c = mPool.getConstantAt( nameIndex );
-  
-    if ( c instanceof UTF8Constant ) {
+  public String getName()
+  {
+    Constant c = mPool.getConstantAt(nameIndex);
+
+    if (c instanceof UTF8Constant)
       return c.getValue().toString();
-    }
-  
-    return "Not a UTF8Constant: " + c.getClass().getName();
+    throw new RuntimeException("Not a UTF8Constant: " + c.getClass().getName());
   }
-  
+
   /**
    * Returns the descriptor for this ClassField.
    *
    * For example, "Ljava/lang/String;".
    *
+   * @return the field type
    */
-  public String getDescriptor() {
-    Constant c = mPool.getConstantAt( descriptorIndex );
-  
-    if ( c instanceof UTF8Constant ) {
-      return c.getValue().toString();
-    }
-  
-    return "Not a UTF8Constant: " + c.getClass().getName();
+  public TypeName getDescriptor()
+  {
+    Constant c = mPool.getConstantAt(descriptorIndex);
+    if (c instanceof UTF8Constant)
+      return TypeNameFactory.fromDescriptor(c.getValue().toString());
+    throw new RuntimeException("Not a UTF8Constant: " + c.getClass().getName());
   }
 
   /**
@@ -181,29 +183,32 @@ public class ClassField {
    * have a ConstantValueAttribute. This method returns null if it is
    * invoked on a ClassField  which isn't flagged as FieldAccessFlag.STATIC.
    *
-	 * @return the ConstantValueAttribute for this ClassField
+   * @return the ConstantValueAttribute for this ClassField
    */
-  public ConstantValueAttribute getConstant() {
-  
-    for ( Attribute a : attributes ) {
-      if ( a instanceof ConstantValueAttribute ) {
-        return ( ConstantValueAttribute ) a;
-      }
+  public ConstantValueAttribute getConstant()
+  {
+
+    for (Attribute a: attributes)
+    {
+      if (a instanceof ConstantValueAttribute)
+        return (ConstantValueAttribute) a;
     }
-  
+
     return null;
   }
-  
+
   /**
    * Returns all of the Attributes for this ClassField.
    *
-	 * @return all of the Attributes for this ClassField
+   * @return all of the Attributes for this ClassField
    */
-  public Collection<Attribute> getAttributes() {
-    return Collections.unmodifiableList( attributes );
+  public Collection<Attribute> getAttributes()
+  {
+    return Collections.unmodifiableList(attributes);
   }
-  
-  public void addAttribute( Attribute attr ) {
-    attributes.add( attr );
+
+  public void addAttribute(Attribute attr)
+  {
+    attributes.add(attr);
   }
 }

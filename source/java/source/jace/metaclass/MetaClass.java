@@ -12,8 +12,8 @@ package jace.metaclass;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public interface MetaClass {
-
+public interface MetaClass
+{
   /**
    * Returns the name of the class that this MetaClass represents.
    *
@@ -103,11 +103,18 @@ public interface MetaClass {
   String forwardDeclare();
 
   /**
-   * Return a version of this MetaClass without a pre-pended "jace/proxy" package.
+   * Return a version of this MetaClass with a pre-pended <code>JaceConstants.getProxyPackage()</code> package.
    *
-   * @return a version of this MetaClass without a pre-pended "jace/proxy" package
+   * @return a version of this MetaClass with a pre-pended <code>JaceConstants.getProxyPackage()</code> package
    */
-  MetaClass deProxy();
+  MetaClass proxy();
+
+  /**
+   * Return a version of this MetaClass without a pre-pended <code>JaceConstants.getProxyPackage()</code> package.
+   *
+   * @return a version of this MetaClass without a pre-pended <code>JaceConstants.getProxyPackage()</code> package
+   */
+  MetaClass unProxy();
 
   /**
    * Returns the JNI type for this MetaClass.

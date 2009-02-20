@@ -4,6 +4,8 @@ import jace.metaclass.ArrayMetaClass;
 import jace.metaclass.ClassMetaClass;
 import jace.metaclass.MetaClass;
 import jace.metaclass.MetaClassFactory;
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
 import jace.proxygen.ProxyGenerator;
 import jace.util.Util;
@@ -78,7 +80,7 @@ public class ClassSet
         packageName += '.';
       }
     }
-    String name = packageName + className.replace('.', '$');
+    TypeName name = TypeNameFactory.fromPath(packageName + className.replace('.', '$'));
     addClass(name);
   }
 
@@ -90,7 +92,7 @@ public class ClassSet
    *
    * @param fullyQualifiedName the fully qualified class name
    */
-  public void addClass(String fullyQualifiedName)
+  public void addClass(TypeName fullyQualifiedName)
   {
     // add in with dependent classes
     addDependentClasses(classes, fullyQualifiedName);
@@ -101,9 +103,9 @@ public class ClassSet
    *
    * @param classes the classes
    */
-  public void addClasses(Collection<String> classes)
+  public void addClasses(Collection<TypeName> classes)
   {
-    for (String fullyQualifiedName: classes)
+    for (TypeName fullyQualifiedName: classes)
       addClass(fullyQualifiedName);
   }
 
@@ -121,10 +123,10 @@ public class ClassSet
    * Generates the entire set of dependencies for a single class.
    *
    * @param classSet The set of dependent classes.
-   * @param className The class name to generate the list of dependencies for.
+   * @param className the class name to generate the list of dependencies for
    *
    */
-  private void addDependentClasses(Set<MetaClass> classSet, String className)
+  private void addDependentClasses(Set<MetaClass> classSet, TypeName className)
   {
     ClassPath classSource = new ClassPath(classPath);
     InputStream classInput = classSource.openClass(className);
@@ -140,19 +142,16 @@ public class ClassSet
     }
 
     // First, handle this class
-    MetaClass thisMetaClass = MetaClassFactory.getMetaClass(className, false);
+    MetaClass thisMetaClass = MetaClassFactory.getMetaClass(className).proxy();
     handleClass(classSet, thisMetaClass);
 
     // handle the super class and interfaces next
-    String superClass = classFile.getSuperClassName();
-    MetaClass superMetaClass = MetaClassFactory.getMetaClass(superClass, false);
+    MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy();
     handleClass(classSet, superMetaClass);
 
-    Collection<String> interfaces = classFile.getInterfaces();
-
-    for (String i: interfaces)
+    for (TypeName i: classFile.getInterfaces())
     {
-      MetaClass interfaceClass = MetaClassFactory.getMetaClass(i, false);
+      MetaClass interfaceClass = MetaClassFactory.getMetaClass(i).proxy();
       handleClass(classSet, interfaceClass);
     }
 
@@ -184,13 +183,13 @@ public class ClassSet
     if (!classSet.contains(metaClass))
     {
       classSet.add(metaClass);
-      String fullName = ((ClassMetaClass) metaClass.deProxy()).getFullyQualifiedTrueName(".");
+      TypeName fullName = TypeNameFactory.fromIdentifier(
+        ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("."));
       if (log.isDebugEnabled())
       {
         log.debug("Adding " + fullName);
         printClassSet(classSet);
       }
-
       addDependentClasses(classSet, fullName);
     }
   }
@@ -225,7 +224,7 @@ public class ClassSet
   {
     ClassSet library = new ClassSet(Util.parseClasspath(args[0]), Boolean.valueOf(args[2]).booleanValue());
     Set<MetaClass> classes = new HashSet<MetaClass>();
-    library.addDependentClasses(classes, args[1]);
+    library.addDependentClasses(classes, TypeNameFactory.fromIdentifier(args[1]));
 
     Logger log = library.getLogger();
     for (MetaClass metaClass: classes)

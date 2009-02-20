@@ -1,6 +1,8 @@
 package jace.ant;
 
 import jace.autoproxy.AutoProxy;
+import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +39,8 @@ import org.apache.tools.ant.types.Path;
  *
  * @author Gili Tzbari
  */
-public class GenerateCppProxiesTask extends Task {
-
+public class GenerateCppProxiesTask extends Task
+{
   private final Collection<File> inputHeaders = new ArrayList<File>();
   private final Collection<File> inputSources = new ArrayList<File>();
   private File outputHeaders;
@@ -58,9 +60,10 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param inputHeaders the directory containing the input header files
    */
-  public void setInputHeaders(String inputHeaders) {
+  public void setInputHeaders(String inputHeaders)
+  {
     this.inputHeaders.clear();
-    for (String path : inputHeaders.split(File.pathSeparator))
+    for (String path: inputHeaders.split(File.pathSeparator))
       this.inputHeaders.add(new File(path));
   }
 
@@ -69,9 +72,10 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param inputSources the directory containing the input source files
    */
-  public void setInputSources(String inputSources) {
+  public void setInputSources(String inputSources)
+  {
     this.inputSources.clear();
-    for (String path : inputSources.split(File.pathSeparator))
+    for (String path: inputSources.split(File.pathSeparator))
       this.inputSources.add(new File(path));
   }
 
@@ -80,7 +84,8 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param outputHeaders the directory containing the output header files
    */
-  public void setOutputHeaders(File outputHeaders) {
+  public void setOutputHeaders(File outputHeaders)
+  {
     this.outputHeaders = outputHeaders;
   }
 
@@ -89,7 +94,8 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param outputSources the directory containing the output source files
    */
-  public void setOutputSources(File outputSources) {
+  public void setOutputSources(File outputSources)
+  {
     this.outputSources = outputSources;
   }
 
@@ -98,7 +104,8 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param exportSymbols true if the proxy symbols should be exported
    */
-  public void setExportSymbols(boolean exportSymbols) {
+  public void setExportSymbols(boolean exportSymbols)
+  {
     this.exportSymbols = exportSymbols;
   }
 
@@ -107,12 +114,14 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param classpath the Java classpath
    */
-  public void setClasspath(Path classpath) {
+  public void setClasspath(Path classpath)
+  {
     this.classpath = classpath;
   }
 
   @Override
-  public void execute() throws BuildException {
+  public void execute() throws BuildException
+  {
     if (inputHeaders.isEmpty())
       throw new BuildException("must specify at least one inputHeaders directory", getLocation());
     if (inputSources.isEmpty())
@@ -122,15 +131,17 @@ public class GenerateCppProxiesTask extends Task {
     if (outputSources == null)
       throw new BuildException("outputSources must be set", getLocation());
     log(toString(), Project.MSG_DEBUG);
-    Set<String> extraDependencies = new HashSet<String>();
-    for (Dependency dependency : dependencies)
-      extraDependencies.add(dependency.getName());
+    Set<TypeName> extraDependencies = new HashSet<TypeName>();
+    for (Dependency dependency: dependencies)
+      extraDependencies.add(TypeNameFactory.fromIdentifier(dependency.getName()));
     AutoProxy autoProxy = new AutoProxy(inputHeaders, inputSources, outputHeaders, outputSources,
       Util.parseClasspath(classpath.toString()), true, extraDependencies, exportSymbols);
-    try {
+    try
+    {
       autoProxy.generateProxies();
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       throw new BuildException(e);
     }
   }
@@ -140,7 +151,8 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param dependency a class that must have a C++ proxy generated
    */
-  public void addConfiguredLibrary(Dependency dependency) {
+  public void addConfiguredLibrary(Dependency dependency)
+  {
     if (dependency.getName() == null)
       throw new BuildException("name must be set", getLocation());
     dependencies.add(dependency);
@@ -151,7 +163,8 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param classpath the Java classpath
    */
-  public void addConfiguredClasspath(Path classpath) {
+  public void addConfiguredClasspath(Path classpath)
+  {
     this.classpath.add(classpath);
   }
 
@@ -160,10 +173,11 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param headers the input header directories
    */
-  public void addConfiguredInputHeaders(DirSet headers) {
+  public void addConfiguredInputHeaders(DirSet headers)
+  {
     DirectoryScanner scanner = headers.getDirectoryScanner(getProject());
     scanner.scan();
-    for (String directory : scanner.getIncludedDirectories())
+    for (String directory: scanner.getIncludedDirectories())
       this.inputHeaders.add(new File(scanner.getBasedir(), directory));
   }
 
@@ -172,16 +186,19 @@ public class GenerateCppProxiesTask extends Task {
    *
    * @param sources the input source directories
    */
-  public void addConfiguredInputSources(DirSet sources) {
+  public void addConfiguredInputSources(DirSet sources)
+  {
     DirectoryScanner scanner = sources.getDirectoryScanner(getProject());
     scanner.scan();
-    for (String directory : scanner.getIncludedDirectories())
+    for (String directory: scanner.getIncludedDirectories())
       this.inputSources.add(new File(scanner.getBasedir(), directory));
   }
 
   @Override
-  public String toString() {
+  public String toString()
+  {
     return getClass().getSimpleName() + "[inputHeaders=" + inputHeaders + ", inputSources=" + inputSources +
-      ", outputHeader=" + outputHeaders + ", outputSources=" + outputSources + ", exportSymbols=" + exportSymbols + "]";
+           ", outputHeader=" + outputHeaders + ", outputSources=" + outputSources + ", exportSymbols=" + exportSymbols +
+           "]";
   }
 }

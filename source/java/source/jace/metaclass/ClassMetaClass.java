@@ -2,7 +2,7 @@ package jace.metaclass;
 
 import jace.util.CKeyword;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Represents meta-data about a class.
@@ -13,20 +13,22 @@ import java.util.Collection;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ClassMetaClass implements MetaClass {
-
+public class ClassMetaClass implements MetaClass
+{
   private final static String newLine = System.getProperty("line.separator");
   private String mName;
   private String mNewName;
   private ClassPackage mPackage;
 
-  ClassMetaClass(String name, ClassPackage aPackage) {
+  ClassMetaClass(String name, ClassPackage aPackage)
+  {
     mName = name;
     mNewName = CKeyword.adjust(mName);
     mPackage = aPackage;
   }
 
-  public String getName() {
+  public String getName()
+  {
     return mNewName;
   }
 
@@ -38,7 +40,8 @@ public class ClassMetaClass implements MetaClass {
    *
    * @return the file name that should be used for this MetaClass
    */
-  public String getFileName() {
+  public String getFileName()
+  {
     return mName.replace('$', '.');
   }
 
@@ -47,15 +50,18 @@ public class ClassMetaClass implements MetaClass {
    *
    * @return the name of the class, without the keyword mangling that occurs to make it compatible with C++
    */
-  public String getTrueName() {
+  public String getTrueName()
+  {
     return mName;
   }
 
-  public String getFullyQualifiedName(String separator) {
+  public String getFullyQualifiedName(String separator)
+  {
     return getPackage().toName(separator, true) + getName();
   }
 
-  public String getFullyQualifiedTrueName(String separator) {
+  public String getFullyQualifiedTrueName(String separator)
+  {
     return getPackage().toName(separator, true) + getTrueName();
   }
 
@@ -64,18 +70,21 @@ public class ClassMetaClass implements MetaClass {
    *
    * @return the ClassPackage for this MetaClass
    */
-  public ClassPackage getPackage() {
+  public ClassPackage getPackage()
+  {
     return mPackage;
   }
 
-  private String getGuardName() {
+  private String getGuardName()
+  {
     StringBuilder guardName = new StringBuilder(mPackage.toName("_", true).toUpperCase());
     guardName.append(mNewName.toUpperCase()).append("_H");
 
     return guardName.toString();
   }
 
-  public String beginGuard() {
+  public String beginGuard()
+  {
 
     StringBuilder beginGuard = new StringBuilder();
 
@@ -87,7 +96,8 @@ public class ClassMetaClass implements MetaClass {
     return beginGuard.toString();
   }
 
-  public String endGuard() {
+  public String endGuard()
+  {
 
     StringBuilder guardName = new StringBuilder(mPackage.toName("_", true).toUpperCase());
     guardName.append(mNewName.toUpperCase()).append("_H");
@@ -95,7 +105,8 @@ public class ClassMetaClass implements MetaClass {
     return "#endif // #ifndef " + guardName.toString();
   }
 
-  public String include() {
+  public String include()
+  {
     StringBuilder include = new StringBuilder("#ifndef " + getGuardName() + newLine + "#include \"");
 
     /* Changed so that the '$' character is now replaced with the '.' character instead.
@@ -111,7 +122,8 @@ public class ClassMetaClass implements MetaClass {
     return include.toString();
   }
 
-  public String using() {
+  public String using()
+  {
     StringBuilder using = new StringBuilder("using ");
     String packageName = mPackage.toName("::", true);
     using.append(packageName).append(mNewName).append(";");
@@ -119,11 +131,11 @@ public class ClassMetaClass implements MetaClass {
     return using.toString();
   }
 
-  public String forwardDeclare() {
+  public String forwardDeclare()
+  {
 
     StringBuilder forwardDeclaration = new StringBuilder("BEGIN_NAMESPACE_");
-    String[] path = mPackage.getPath();
-    String length = new Integer(path.length).toString();
+    String length = new Integer(mPackage.getPath().size()).toString();
 
     StringBuilder namespace = new StringBuilder("( ");
     namespace.append(mPackage.toName(", ", false));
@@ -136,55 +148,54 @@ public class ClassMetaClass implements MetaClass {
     return forwardDeclaration.toString();
   }
 
-  public MetaClass deProxy() {
-    String[] path = mPackage.getPath();
-
-    if (path.length < 2) {
-      return this;
-    }
-
-    if (!path[ 0].equals("jace") || !path[ 1].equals("proxy")) {
-      return this;
-    }
-
-    String[] newPath = new String[path.length - 2];
-
-    for (int i = 2; i < path.length; ++i) {
-      newPath[i - 2] = path[i];
-    }
-
-    return new ClassMetaClass(mName, new ClassPackage(newPath));
+  public MetaClass proxy()
+  {
+    List<String> newName = new ArrayList<String>();
+    newName.addAll(JaceConstants.getProxyPackage().getComponents());
+    newName.addAll(mPackage.getPath());
+    return new ClassMetaClass(mName, new ClassPackage(newName));
   }
 
-  public ClassMetaClass toPeer() {
-    String[] packagePath = mPackage.getPath();
-
-    Collection<String> path = new ArrayList<String>();
-    path.add("jace");
-    path.add("peer");
-
-    for (int i = 0; i < packagePath.length; ++i) {
-      path.add(packagePath[i]);
-    }
-
-    String[] newPackagePath = path.toArray(new String[0]);
-    return new ClassMetaClass(mName, new ClassPackage(newPackagePath));
+  public MetaClass unProxy()
+  {
+    if (!mPackage.isProxied())
+      throw new IllegalStateException("MetaClass is not a proxy: " + getFullyQualifiedName("."));
+    List<String> path = mPackage.getPath();
+    return new ClassMetaClass(mName,
+      new ClassPackage(path.subList(JaceConstants.getProxyPackage().getComponents().size(), path.size())));
   }
 
-  public boolean isPrimitive() {
+  public ClassMetaClass toPeer()
+  {
+    List<String> result = new ArrayList<String>(JaceConstants.getPeerPackage().getComponents());
+    for (String path: mPackage.getPath())
+      result.add(path);
+    return new ClassMetaClass(mName, new ClassPackage(result));
+  }
+
+  public boolean isPrimitive()
+  {
     return false;
   }
 
-  public String getJniType() {
+  public String getJniType()
+  {
     String name = getFullyQualifiedTrueName(".");
 
-    if (name.equals("java.lang.Class")) {
+    if (name.equals("java.lang.Class"))
+    {
       return "jclass";
-    } else if (name.equals("java.lang.String")) {
+    }
+    else if (name.equals("java.lang.String"))
+    {
       return "jstring";
-    } else if (name.equals("java.lang.Throwable")) {
+    }
+    else if (name.equals("java.lang.Throwable"))
+    {
       return "jthrowable";
-    } else {
+    }
+    else
+    {
       return "jobject";
     }
   }
@@ -192,48 +203,56 @@ public class ClassMetaClass implements MetaClass {
   /**
    * Compares this MetaClass to another.
    *
-   * Two MetaClasses are equal if they have the same name and belong
-   * to the same package.
+   * Two MetaClasses are equal if they have the same name and belong to the same package.
    */
   @Override
-  public boolean equals(Object obj) {
-    if (obj instanceof ArrayMetaClass) {
+  public boolean equals(Object obj)
+  {
+    if (obj instanceof ArrayMetaClass)
+    {
       ArrayMetaClass arrayMc = (ArrayMetaClass) obj;
       return equals(arrayMc.getBaseClass());
-    } else if (obj instanceof MetaClass) {
+    }
+    if (obj instanceof MetaClass)
+    {
       MetaClass mc = (MetaClass) obj;
-      return compare(mc) || compare(mc.deProxy());
+      return compare(mc);
     }
 
     return false;
   }
 
-  public boolean compare(MetaClass mc) {
+  private boolean compare(MetaClass mc)
+  {
     return mc.getName().equals(getName()) && mc.getPackage().equals(getPackage());
   }
 
   @Override
-  public int hashCode() {
+  public int hashCode()
+  {
     // Can't do a better hashCode than this, because we want to have proxied and deproxied classes compare equal
     return mName.hashCode();
   }
 
   @Override
-  public String toString() {
+  public String toString()
+  {
     return getFullyQualifiedTrueName(".");
   }
 
-	/**
+  /**
    * Tests ClassMetaClass.
    *
    * @param args the command-line argument
    */
-  public static void main(String[] args) {
+  public static void main(String[] args)
+  {
 
-    ClassMetaClass metaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(args[ 0], false);
-    MetaClass metaClass2 = MetaClassFactory.getMetaClass(args[ 0], false);
-    MetaClass metaClass3 = MetaClassFactory.getMetaClass("[" + args[ 0], false);
-    MetaClass metaClass4 = MetaClassFactory.getMetaClass("[[" + args[ 0], false);
+    ClassMetaClass metaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier(args[0])).
+      proxy();
+    MetaClass metaClass2 = MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier(args[0])).proxy();
+    MetaClass metaClass3 = MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier("[" + args[0])).proxy();
+    MetaClass metaClass4 = MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier("[[" + args[0])).proxy();
 
     System.out.println(metaClass.equals(metaClass2));
     System.out.println(metaClass.equals(metaClass3));
