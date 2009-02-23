@@ -89,7 +89,7 @@ public class TypeNameFactory
       @Override
       public String asPath()
       {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("There is no reliable way to convert an identifier to a path");
       }
 
       @Override
@@ -233,7 +233,7 @@ public class TypeNameFactory
       @Override
       public String asPath()
       {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("There is no reliable way to convert a descriptor to a path");
       }
 
       @Override

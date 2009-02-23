@@ -43,6 +43,7 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - Regression: ProxyGenerator was omitting #include files
 - Regression: ProxyGenerator.getDependentClasses() was returning super classes and interfaces contrary to its contract
 - PeerGenerator was missing forward-declarations of used classes
+- A PeerEnhancer bug would sometimes trigger "VerifyError: Unable to pop operand off an empty stack" errors; fixed.
 
 - Invoking C++ peer methods from within a Java Peer constructor would crash; fixed.
 - PeerGenerator was generating the wrong signature for jaceSetVm; fixed.

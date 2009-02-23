@@ -42,6 +42,60 @@ public class ClassPath
   }
 
   /**
+   * Returns the first match for <code>name</code> in the class path. The class may be packed within
+   * a zip or jar file.
+   *
+   * @param name the class name
+   * @return the directory, zip or jar file containing the class file. Null if the class was not found.
+   * @throws IOException if an I/O error occurs while reading a zip or jar file
+   */
+  public File getFirstMatch(TypeName name) throws IOException
+  {
+    for (File path: elements)
+    {
+      if (!path.exists())
+        continue;
+      log.trace("Checking " + path);
+
+      // if the file is a directory, search for the .class file in the appropriate subfolder
+      if (path.isDirectory())
+      {
+        MetaClass metaClass = MetaClassFactory.getMetaClass(name);
+        String directory = metaClass.getPackage().toName("/", false);
+        File subDirectory = new File(path.getAbsolutePath(), directory);
+
+        log.trace("Looking for directory " + subDirectory);
+        if (subDirectory.exists())
+        {
+          String fileName = ((ClassMetaClass) metaClass).getTrueName() + ".class";
+          File classFile = new File(subDirectory, fileName);
+
+          log.trace("Looking for file " + classFile);
+          if (classFile.exists())
+            return classFile.getParentFile();
+        }
+        continue;
+      }
+
+      // Search inside zip or jar files
+      String fileName = path.getName();
+      if (!path.getName().endsWith(".zip") && !path.getName().endsWith(".jar"))
+        continue;
+      log.trace("Checking compressed file " + fileName);
+      ZipFile zipFile = new ZipFile(path);
+      MetaClass metaClass = MetaClassFactory.getMetaClass(name);
+      if (metaClass instanceof ArrayMetaClass)
+        metaClass = ((ArrayMetaClass) metaClass).getBaseClass();
+      String entryName = ((ClassMetaClass) metaClass).getFullyQualifiedTrueName("/") + ".class";
+      log.trace("Looking for entry " + entryName);
+      ZipEntry entry = zipFile.getEntry(entryName);
+      if (entry != null)
+        return path;
+    }
+    return null;
+  }
+
+  /**
    * Reads the supplied class path looking for the class <code>name</code>.
    * Returns the InputStream to the class. (The class may be packed within
    * a Zip or Jar file).
@@ -81,8 +135,7 @@ public class ClassPath
             }
             catch (FileNotFoundException e)
             {
-              // This shouldn't happen, because we just checked.
-              e.printStackTrace();
+              // this shouldn't happen, because we just checked
               throw new RuntimeException("The file, " + fileName + " could not be found.");
             }
           }
@@ -95,7 +148,7 @@ public class ClassPath
 
       if (!path.getName().endsWith(".zip") && !path.getName().endsWith(".jar"))
       {
-        // Not a zip file.
+        // not a zip file
         continue;
       }
       try
@@ -152,7 +205,7 @@ public class ClassPath
     ClassPath source = new ClassPath(Util.parseClasspath(classPath));
     InputStream input = source.openClass(TypeNameFactory.fromPath(args[1]));
     ClassFile classFile = new ClassFile(input);
-    classFile.print();
+    System.out.println(classFile.toString());
     try
     {
       input.close();

@@ -80,12 +80,12 @@ public class CharClass implements MetaClass
 
   public MetaClass proxy()
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Primitives cannot be proxied");
   }
 
   public MetaClass unProxy()
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Primitives cannot be proxied");
   }
 
   public boolean isPrimitive()

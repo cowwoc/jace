@@ -77,12 +77,12 @@ public class VoidClass implements MetaClass
 
   public MetaClass proxy()
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Void cannot be proxied");
   }
 
   public MetaClass unProxy()
   {
-    throw new UnsupportedOperationException();
+    throw new UnsupportedOperationException("Void cannot be proxied");
   }
 
   public boolean isPrimitive()

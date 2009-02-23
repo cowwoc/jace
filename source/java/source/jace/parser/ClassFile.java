@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -685,80 +686,67 @@ public class ClassFile
     return constantPool;
   }
 
-  /**
-   * Outputs debugging information.
-   */
-  public void print()
+  @Override
+  public String toString()
   {
-    System.out.println("class " + getClassName());
-    System.out.println("  extends " + getSuperClassName());
-
+    StringBuilder result = new StringBuilder("class " + getClassName().asIdentifier() + " extends " +
+                                             getSuperClassName().asIdentifier() + "\n");
     if (interfaces.size() > 0)
     {
-      System.out.println("  implements");
-      for (TypeName i: interfaces)
-        System.out.println("    " + i);
+      result.append(" implements");
+      for (Iterator<TypeName> i = interfaces.iterator(); i.hasNext();)
+      {
+        result.append(i);
+        if (i.hasNext())
+          result.append(", ");
+      }
     }
 
     for (ClassField field: fields)
     {
       String fieldAccessFlags = field.getAccessFlags().getName();
-      // String type = new ClassFormatter().fieldDescriptorToType( field.getDescriptor() );
       TypeName type = field.getDescriptor();
       String name = field.getName();
-      String constantExpression = "";
       ConstantValueAttribute constantValue = field.getConstant();
 
+      String constantExpression;
       if (constantValue != null)
-        constantExpression = "= " + constantValue.getValue().getValue().toString();
+        constantExpression = " =" + constantValue.getValue().getValue().toString();
+      else
+        constantExpression = "";
 
-      String declaration = buffer(fieldAccessFlags) +
-                           buffer(type.asDescriptor()) +
-                           buffer(name) +
-                           constantExpression +
-                           ";";
-      System.out.println(declaration);
+      result.append(fieldAccessFlags + " " + type.asIdentifier() + " " + name + constantExpression +
+                    ";\n");
     }
 
     for (ClassMethod method: methods)
     {
-      String methodAccessFlags = method.getAccessFlags().getName();
-      String type = method.getDescriptor();
-      String name = method.getName();
+      result.append(method.getAccessFlags().getName() + " " + method.getDescriptor() + " " + method.getName());
       Collection<TypeName> exceptions = method.getExceptions();
-
-      String declaration = buffer(methodAccessFlags) +
-                           buffer(type) +
-                           buffer(name);
-
       if (exceptions.size() > 0)
       {
-        declaration += "throws ";
-        for (TypeName exception: exceptions)
-          declaration += buffer(exception.asIdentifier());
+        result.append("throws ");
+        for (Iterator<TypeName> i = exceptions.iterator(); i.hasNext();)
+        {
+          result.append(i.next().asIdentifier());
+          if (i.hasNext())
+            result.append(", ");
+        }
       }
-      System.out.println(declaration);
+      result.append(";\n");
     }
 
     if (attributes.size() > 0)
     {
-      System.out.println("Attributes...");
-      for (Attribute a: attributes)
-        System.out.println(a);
+      result.append("Attributes: ");
+      for (Iterator<Attribute> i = attributes.iterator(); i.hasNext();)
+      {
+        result.append(i.next());
+        if (i.hasNext())
+          result.append(", ");
+      }
     }
-  }
-
-  /**
-   * A convenience formatting method.
-   *
-   * @param s the string to append to
-   * @return the output string
-   */
-  private static String buffer(String s)
-  {
-    if (s.equals(""))
-      return s;
-    return s + " ";
+    return result.toString();
   }
 
   /**
@@ -768,7 +756,7 @@ public class ClassFile
    */
   public static void main(String args[])
   {
-    ClassFile cf = new ClassFile(args[ 0]);
-    cf.print();
+    ClassFile cf = new ClassFile(args[0]);
+    System.out.println(cf.toString());
   }
 }
