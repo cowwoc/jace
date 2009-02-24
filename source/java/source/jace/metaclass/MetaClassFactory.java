@@ -18,15 +18,15 @@ public class MetaClassFactory
 
   static
   {
-    ClassMap.put("B", new ByteClass());
-    ClassMap.put("C", new CharClass());
-    ClassMap.put("D", new DoubleClass());
-    ClassMap.put("F", new FloatClass());
-    ClassMap.put("I", new IntClass());
-    ClassMap.put("J", new LongClass());
-    ClassMap.put("S", new ShortClass());
-    ClassMap.put("V", new VoidClass());
-    ClassMap.put("Z", new BooleanClass());
+    ClassMap.put("byte", new ByteClass(false));
+    ClassMap.put("char", new CharClass(false));
+    ClassMap.put("double", new DoubleClass(false));
+    ClassMap.put("float", new FloatClass(false));
+    ClassMap.put("int", new IntClass(false));
+    ClassMap.put("long", new LongClass(false));
+    ClassMap.put("short", new ShortClass(false));
+    ClassMap.put("void", new VoidClass(false));
+    ClassMap.put("boolean", new BooleanClass(false));
   }
 
   /**

@@ -1,75 +1,38 @@
 package jace.metaclass;
 
-import java.util.Collections;
-
 /**
  * Represents the meta-data for the java primitive, 'boolean'.
  *
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class BooleanClass implements MetaClass
+public class BooleanClass extends PrimitiveMetaClass
 {
-  private final static String newLine = System.getProperty("line.separator");
+  /**
+   * Creates a new BooleanClass.
+   * 
+   * @param isProxy true if the object represents a proxy
+   */
+  public BooleanClass(boolean isProxy)
+  {
+    super(isProxy);
+  }
+
+  @Override
+  protected MetaClass newInstance(boolean isProxy)
+  {
+    return new BooleanClass(isProxy);
+  }
 
   public String getName()
   {
     return "JBoolean";
   }
 
-  public String getFullyQualifiedName(String separator)
-  {
-    return JaceConstants.getProxyPackage().asPath().replace("/", separator) + separator + "types" + separator +
-           getName();
-  }
-
-  public ClassPackage getPackage()
-  {
-    return new ClassPackage(Collections.<String>emptyList());
-  }
-
-  public String beginGuard()
-  {
-    return "JACE_TYPES_JBOOLEAN_H";
-  }
-
-  public String endGuard()
-  {
-    return "// #ifndef JACE_TYPES_JBOOLEAN_H";
-  }
-
-  public String include()
-  {
-    return "#ifndef JACE_TYPES_JBOOLEAN_H" + newLine +
-           "#include \"" + JaceConstants.getProxyPackage().asPath() + "/types/JBoolean.h\"" + newLine +
-           "#endif";
-  }
-
-  public String using()
-  {
-    return "using jace::proxy::types::JBoolean;";
-  }
-
-  public String forwardDeclare()
-  {
-    String namespace =
-           "BEGIN_NAMESPACE_3( jace, proxy, types )" + newLine +
-           "class JBoolean;" + newLine +
-           "END_NAMESPACE_3( jace, proxy, types )";
-
-    return namespace;
-  }
-
-  /**
-   * Compares this MetaClass to another.
-   *
-   * Two MetaClasses are equal if they have the same name and belong
-   * to the same package.
-   */
   @Override
   public boolean equals(Object obj)
   {
-    return (obj instanceof BooleanClass);
+    return obj instanceof BooleanClass;
   }
 
   @Override
@@ -78,29 +41,8 @@ public class BooleanClass implements MetaClass
     return getName().hashCode();
   }
 
-  public MetaClass proxy()
-  {
-    throw new UnsupportedOperationException("Primitives cannot be proxied");
-  }
-
-  public MetaClass unProxy()
-  {
-    throw new UnsupportedOperationException("Primitives cannot be proxied");
-  }
-
-  public boolean isPrimitive()
-  {
-    return true;
-  }
-
   public String getJniType()
   {
     return "jboolean";
-  }
-
-  @Override
-  public String toString()
-  {
-    return getClass().getName();
   }
 }

@@ -90,15 +90,15 @@ public class LibraryProxies
     Set<MetaClass> dependencies = new HashSet<MetaClass>();
 
     // include all primitives
-    dependencies.add(new BooleanClass());
-    dependencies.add(new ByteClass());
-    dependencies.add(new CharClass());
-    dependencies.add(new ShortClass());
-    dependencies.add(new IntClass());
-    dependencies.add(new LongClass());
-    dependencies.add(new FloatClass());
-    dependencies.add(new DoubleClass());
-    dependencies.add(new VoidClass());
+    dependencies.add(new BooleanClass(false));
+    dependencies.add(new ByteClass(false));
+    dependencies.add(new CharClass(false));
+    dependencies.add(new ShortClass(false));
+    dependencies.add(new IntClass(false));
+    dependencies.add(new LongClass(false));
+    dependencies.add(new FloatClass(false));
+    dependencies.add(new DoubleClass(false));
+    dependencies.add(new VoidClass(false));
 
     // include all of the dependent classes
     dependencies.addAll(classes);

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -72,22 +71,6 @@ public class PackageGen
   {
   }
 
-  public static PackageGen newMetaClassInstance(String headerDir, Collection metaClasses)
-  {
-
-    if (headerDir.charAt(headerDir.length() - 1) != File.separatorChar)
-      headerDir += File.separator;
-
-    PackageGen pg = new PackageGen();
-
-    pg.headerDir = headerDir;
-    pg.classesByPackage = new HashMap<ClassPackage, Set<MetaClass>>();
-
-    for (Iterator it = metaClasses.iterator(); it.hasNext();)
-      pg.addClass((MetaClass) it.next());
-    return pg;
-  }
-
   private void addClass(MetaClass mc)
   {
     Set<MetaClass> s = classesByPackage.get(mc.getPackage());
@@ -109,10 +92,8 @@ public class PackageGen
 
     // Now go through all of the packages and update the package headers
     //
-    for (Iterator it = classesByPackage.keySet().iterator(); it.hasNext();)
+    for (ClassPackage cp: classesByPackage.keySet())
     {
-
-      ClassPackage cp = (ClassPackage) it.next();
       Set<MetaClass> classSet = classesByPackage.get(cp);
       String packageDir = headerDir + cp.toName(File.separator, false);
       String packageFile = packageDir + File.separator + PACKAGE_HEADER;
@@ -153,9 +134,8 @@ public class PackageGen
       FileOutputStream output = new FileOutputStream(packageFile);
       PrintWriter w = new PrintWriter(new OutputStreamWriter(output));
 
-      for (Iterator classesIt = classSet.iterator(); classesIt.hasNext();)
+      for (Object obj: classSet)
       {
-        Object obj = classesIt.next();
         log.debug("{}", obj);
         MetaClass mc = (MetaClass) obj;
         w.println(mc.include());

@@ -203,9 +203,8 @@ public class PeerGenerator
 
     // Generate the native method declarations
     Collection<ClassMethod> methods = classFile.getMethods();
-    for (Iterator it = methods.iterator(); it.hasNext();)
+    for (ClassMethod method: methods)
     {
-      ClassMethod method = (ClassMethod) it.next();
       if (!method.getAccessFlags().contains(MethodAccessFlag.NATIVE))
         continue;
 
@@ -495,8 +494,8 @@ public class PeerGenerator
         params.add("jobject jP0");
 
       List<TypeName> parameterTypes = method.getParameterTypes();
-      int parameterIndex = 1;
 
+      int parameterIndex = 1;
       for (TypeName param: parameterTypes)
       {
         MetaClass paramClass = MetaClassFactory.getMetaClass(param).proxy();
@@ -526,7 +525,6 @@ public class PeerGenerator
         target = fullPeerName + "::";
 
       parameterIndex = 1;
-
       for (TypeName param: parameterTypes)
       {
         MetaClass paramClass = MetaClassFactory.getMetaClass(param).proxy();
@@ -536,13 +534,11 @@ public class PeerGenerator
       }
 
       if (parameterTypes.size() > 0 || !isStatic)
-      {
         output.write(newLine);
-      }
 
       if (returnType instanceof VoidClass)
       {
-        output.write("    " + target + methodName + "( ");
+        output.write("    " + target + methodName + "(");
         for (int i = 0; i < params.size() - 1; ++i)
         {
           output.write("p" + (i + 1));
@@ -550,17 +546,16 @@ public class PeerGenerator
             output.write(",");
           output.write(" ");
         }
-        output.write(" );" + newLine);
+        output.write(");" + newLine);
         output.write("    return;" + newLine);
       }
       else
       {
         output.write("    return ");
-
         if (!returnType.isPrimitive())
           output.write("static_cast<" + returnType.getJniType() + ">( env->NewLocalRef( ");
 
-        output.write(target + methodName + "( ");
+        output.write(target + methodName + "(");
         for (int i = 0; i < params.size() - 1; ++i)
         {
           output.write("p" + (i + 1));
@@ -609,8 +604,7 @@ public class PeerGenerator
    */
   private String getNativeMethodName(MetaClass metaClass, ClassMethod method)
   {
-
-    List parameterTypes = method.getParameterTypes();
+    List<TypeName> parameterTypes = method.getParameterTypes();
 
     StringBuilder nativeName = new StringBuilder("Java_");
     String mangledClassName = metaClass.getFullyQualifiedName("/");
@@ -622,17 +616,13 @@ public class PeerGenerator
     nativeName.append(mangledMethodName);
     nativeName.append("__");
 
-    for (Iterator it = parameterTypes.iterator(); it.hasNext();)
+    for (Iterator<TypeName> it = parameterTypes.iterator(); it.hasNext();)
     {
-
-      String type = (String) it.next();
+      String type = it.next().asDescriptor();
 
       // If this is a class type, make sure it ends with a semi-colon.
       if (type.startsWith("L") && !(type.charAt(type.length() - 1) == ';'))
-      {
         type += ";";
-      }
-
       type = mangleName(type);
       nativeName.append(type);
     }

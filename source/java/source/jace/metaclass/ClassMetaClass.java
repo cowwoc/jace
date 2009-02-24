@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents meta-data about a class.
+ * Represents meta-data for class types.
  *
  * This helps prevent any sort of naming clashes caused by using other tools
  * that work with standard java class libraries.
@@ -150,10 +150,12 @@ public class ClassMetaClass implements MetaClass
 
   public MetaClass proxy()
   {
-    List<String> newName = new ArrayList<String>();
-    newName.addAll(JaceConstants.getProxyPackage().getComponents());
-    newName.addAll(mPackage.getPath());
-    return new ClassMetaClass(mName, new ClassPackage(newName));
+    if (mPackage.isProxied())
+      throw new IllegalStateException("MetaClass is already a proxy: " + getFullyQualifiedName("."));
+    List<String> newPackage = new ArrayList<String>();
+    newPackage.addAll(JaceConstants.getProxyPackage().getComponents());
+    newPackage.addAll(mPackage.getPath());
+    return new ClassMetaClass(mName, new ClassPackage(newPackage));
   }
 
   public MetaClass unProxy()
@@ -161,8 +163,31 @@ public class ClassMetaClass implements MetaClass
     if (!mPackage.isProxied())
       throw new IllegalStateException("MetaClass is not a proxy: " + getFullyQualifiedName("."));
     List<String> path = mPackage.getPath();
-    return new ClassMetaClass(mName,
-      new ClassPackage(path.subList(JaceConstants.getProxyPackage().getComponents().size(), path.size())));
+    List<String> newPackage = path.subList(JaceConstants.getProxyPackage().getComponents().size(), path.size());
+    if (newPackage.size() == 1 && newPackage.get(0).equals("types"))
+    {
+      // Found a primitive
+      if (mName.equals("JBoolean"))
+        return new BooleanClass(false);
+      if (mName.equals("JByte"))
+        return new ByteClass(false);
+      if (mName.equals("JChar"))
+        return new CharClass(false);
+      if (mName.equals("JDouble"))
+        return new DoubleClass(false);
+      if (mName.equals("JFloat"))
+        return new FloatClass(false);
+      if (mName.equals("JInt"))
+        return new IntClass(false);
+      if (mName.equals("JLong"))
+        return new LongClass(false);
+      if (mName.equals("JShort"))
+        return new ShortClass(false);
+      if (mName.equals("JVoid"))
+        return new VoidClass(false);
+      throw new AssertionError("Unexpected primitive: " + mName);
+    }
+    return new ClassMetaClass(mName, new ClassPackage(newPackage));
   }
 
   public ClassMetaClass toPeer()

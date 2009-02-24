@@ -106,6 +106,7 @@ public class ClassPath
    */
   public InputStream openClass(TypeName name) throws NoClassDefFoundError
   {
+    // TODO: reuse result from getFirstMatch() to pick up from where we left off
     for (File path: elements)
     {
       if (!path.exists())

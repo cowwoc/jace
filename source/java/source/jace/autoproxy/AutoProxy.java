@@ -26,10 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -172,25 +170,26 @@ public class AutoProxy
     dependencies.addAll(proxies.getClasses());
 
     // Include all primitives
-    dependencies.add(new BooleanClass());
-    dependencies.add(new ByteClass());
-    dependencies.add(new CharClass());
-    dependencies.add(new ShortClass());
-    dependencies.add(new IntClass());
-    dependencies.add(new LongClass());
-    dependencies.add(new FloatClass());
-    dependencies.add(new DoubleClass());
-    dependencies.add(new VoidClass());
+    dependencies.add(new BooleanClass(false));
+    dependencies.add(new ByteClass(false));
+    dependencies.add(new CharClass(false));
+    dependencies.add(new ShortClass(false));
+    dependencies.add(new IntClass(false));
+    dependencies.add(new LongClass(false));
+    dependencies.add(new FloatClass(false));
+    dependencies.add(new DoubleClass(false));
+    dependencies.add(new VoidClass(false));
 
     // now generate all of the proxies
     for (MetaClass proxy: proxies.getClasses())
     {
       ClassMetaClass proxyClass = (ClassMetaClass) proxy;
-      TypeName sourceName = TypeNameFactory.fromPath(proxyClass.unProxy().getFullyQualifiedName("/"));
+      TypeName inputName = TypeNameFactory.fromPath(proxyClass.unProxy().getFullyQualifiedName("/"));
+      TypeName outputName = TypeNameFactory.fromPath(proxyClass.getFullyQualifiedName("/"));
 
-      File outputSourceFile = new File(outputSources, sourceName.asPath() + ".cpp");
-      File outputHeaderFile = new File(outputHeaders, sourceName.asPath() + ".h");
-      File inputParentFile = source.getFirstMatch(sourceName);
+      File outputSourceFile = new File(outputSources, outputName.asPath() + ".cpp");
+      File outputHeaderFile = new File(outputHeaders, outputName.asPath() + ".h");
+      File inputParentFile = source.getFirstMatch(inputName);
       if (inputParentFile != null)
       {
         File inputFile;
@@ -207,26 +206,26 @@ public class AutoProxy
           if (inputParentFile.isDirectory())
             log.info(inputFile + " has not been modified, skipping...");
           else
-            log.info(inputParentFile + "!" + sourceName.asPath() + " has not been modified, skipping...");
+            log.info(inputParentFile + "!" + inputName.asPath() + " has not been modified, skipping...");
           continue;
         }
       }
 
       if (log.isTraceEnabled())
-        log.trace("Generating proxies for " + sourceName + "...");
-      InputStream input = source.openClass(sourceName);
+        log.trace("Generating proxies for " + inputName + "...");
+      InputStream input = source.openClass(inputName);
       ClassFile classFile = new ClassFile(input);
       ProxyGenerator.writeProxy(proxyClass, classFile, AccessibilityType.PUBLIC, outputHeaders, outputSources,
         dependencies, exportSymbols);
       input.close();
     }
 
-    /* I just realized that package import headers don't make any sense related to AutoProxy
-     * I'll just leave this in here for now in case something changes, but I find that unlikely.
-     */
-    // Now update package import headers
-    // PackageGen packageGen = PackageGen.newMetaClassInstance( destHeaderDir, classes );
-    // packageGen.execute();
+  /* I just realized that package import headers don't make any sense related to AutoProxy
+   * I'll just leave this in here for now in case something changes, but I find that unlikely.
+   */
+  // Now update package import headers
+  // PackageGen packageGen = PackageGen.newMetaClassInstance( destHeaderDir, classes );
+  // packageGen.execute();
   }
 
   /**
@@ -241,11 +240,11 @@ public class AutoProxy
   private void traverse(File f, FilenameFilter filter)
   {
     log.debug(f.getAbsolutePath());
-    if (f.isDirectory())
+    File[] files = f.listFiles(filter);
+    if (files != null)
     {
-      File[] files = f.listFiles(filter);
-      for (int i = 0; i < files.length; ++i)
-        traverse(files[i], filter);
+      for (File file: files)
+        traverse(file, filter);
       return;
     }
 

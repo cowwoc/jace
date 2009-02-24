@@ -1768,7 +1768,7 @@ public class ProxyGenerator
     }
 
     Collection<MetaClass> dependentClasses = getDependentClasses(true);
-    if (dependentClasses.size() > 0)
+    if (!dependentClasses.isEmpty())
     {
       Util.generateComment(output, "Classes which this class is fully dependent upon.");
       for (MetaClass dependentMetaClass: dependentClasses)

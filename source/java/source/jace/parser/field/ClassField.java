@@ -211,4 +211,10 @@ public class ClassField
   {
     attributes.add(attr);
   }
+
+  @Override
+  public String toString()
+  {
+    return getDescriptor() + " " + getName();
+  }
 }
