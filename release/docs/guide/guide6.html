@@ -75,7 +75,7 @@ Where options can be:
 
     </font>
     <p><font size="-1" face="Verdana">
-    This tool scans c++ header files and source files for #includes that reference Jace C++ Proxies. It then generates the header and source files for the entire dependency tree for those C++ Proxies. For example, upon seeing a #include for jace/proxy/java/lang/RuntimeException.h, AutoProxy would generate the Proxy classes for RuntimeException, Throwable, Object, Serializable, String, etc... AutoProxy is also used in conjunction with other tools like BatchGenerator and PeerGenerator. You can use the recommended new option, "-mindep" to limit the number of proxy classes that AutoProxy generates. You can also optionally specify an additional list of classes for AutoProxy to process with "-deplist".
+    This tool scans c++ header files and source files for #includes that reference Jace C++ Proxies. It then generates the header and source files for the entire dependency tree for those C++ Proxies. For example, upon seeing a #include for jace/proxy/java/lang/RuntimeException.h, AutoProxy would generate the Proxy classes for RuntimeException, Throwable, Object, Serializable, String, etc... AutoProxy is also used in conjunction with other tools like BatchGenerator and PeerGenerator. You can use the recommended new option, "-mindep" to limit the number of proxy classes that AutoProxy generates. You can also optionally specify an additional list of unused classes for AutoProxy to process with "-extraDependencies" (useful for libraries where the full dependency list isn't known ahead of time).
 Finally, you can use &quot;-exportsymbols&quot; if the proxies are compiled into a DLL/SO and you want their symbols exported. If "exportsymbols" is true then the JACE_PROXY_EXPORTS precompiler symbol must be defined in the library exporting the proxies.</font></p>
 
     <font face="Verdana" size="-1"><br><br>
@@ -170,50 +170,51 @@ Usage: PeerGenerator &lt;class file&gt;
     <p>
     <font size="+1">
       <pre>
+&lt;property environment="env"/&gt;
 &lt;taskdef resource="jace/ant/task.properties"&gt;
   &lt;classpath&gt;
     &lt;fileset dir="${env.JACE_HOME}/lib" includes="**/*.jar"/&gt;
   &lt;/classpath&gt;
 &lt;/taskdef&gt;
 
+&lt;JavaPeerUptodate inputFile="input.class" outputFile="output.class" property="java.peer.skip"/&gt;
+
+&lt;EnhanceJavaPeer inputFile="input.class" outputFile="output.class" deallocationMethod="dispose"&gt;
+  &lt;library name="browser"/&gt;
+  &lt;library name="tray"/&gt;
+&lt;/EnhanceJavaPeer&gt;
+
 &lt;CppPeerUptodate inputFile="input.class" outputHeaders="output/include" outputSources="output/source"
 property="cpp.peer.skip"/&gt;
 
-&lt;EnhanceJavaPeer inputFile="input.class" outputFile="output.class" deallocateMethod="dispose"&gt;
-  &lt;library name="browser"&gt;
-  &lt;library name="tray"&gt;
-&lt;/EnhancePeer&gt;
+&lt;GenerateCppPeer file="peer.class" outputHeaders="output/include" outputSources="output/source"
+userDefinedMembers="false"/&gt;
 
 &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source" outputHeaders="output/include"
- outputSource="output/source" minimizeDependencies="true" exportSymbols="false" classpath="rt.jar"&gt;
+ outputSources="output/source" exportSymbols="false" classpath="rt.jar"&gt;
   &lt;classpath&gt;
     &lt;pathelement location="classes"/&gt;
   &lt;/classpath&gt;
-  &lt;dependency name="java.lang.String"/&gt;
+  &lt;dependency name="forced.dependency.class"/&gt;
   &lt;inputHeaders dir="input"&gt;
-    &lt;include name="include1"&gt;
-    &lt;include name="include2"&gt;
+    &lt;include name="include1"/&gt;
+    &lt;include name="include2"/&gt;
   &lt;/inputHeaders&gt;
   &lt;inputSources dir="input"&gt;
-    &lt;include name="source1"&gt;
-    &lt;include name="source2"&gt;
+    &lt;include name="source1"/&gt;
+    &lt;include name="source2"/&gt;
   &lt;/inputSources&gt;
-&lt;/GenerateProxies&gt;
-
-&lt;GenerateCppPeer file="peer.class" library="peer" outputHeaders="output/include" outputSources="output/source"
-userDefinedMembers="false"/&gt;
-
-&lt;JavaPeerUptodate inputFile="input.class" outputFile="output.class" property="java.peer.skip"/&gt;
+&lt;/GenerateCppProxies&gt;
       </pre>
     </font>
     </p>
 
     <p>
-    <b>CppPeerUptodate</b> sets a property if a C++ peer is up to date.<br>
-    <b>EnhanceJavaPeer</b> enhances a single Java peer.<br>
-    <b>GenerateCppProxies</b> generates C++ proxies for Java classes.<br>
-    <b>GenerateCppPeer</b> generates a C++ peer for a Java class.<br>
     <b>JavaPeerUptodate</b> sets a property if a Java peer is up to date.<br>
+    <b>EnhanceJavaPeer</b> enhances a single Java peer.<br>
+    <b>CppPeerUptodate</b> sets a property if a C++ peer is up to date.<br>
+    <b>GenerateCppPeer</b> generates a C++ peer for a Java class.<br>
+    <b>GenerateCppProxies</b> generates C++ proxies for Java classes.<br>
     </p>
 
     <br><br>

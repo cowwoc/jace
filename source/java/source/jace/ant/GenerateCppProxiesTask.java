@@ -22,7 +22,7 @@ import org.apache.tools.ant.types.Path;
  *
  * Example:
  * &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source" outputHeaders="output/include"
- * outputSource="output/source" exportSymbols="false" classpath="rt.jar"&gt;
+ * outputSources="output/source" exportSymbols="false" classpath="rt.jar"&gt;
  *   &lt;classpath&gt;
  *     &lt;pathelement location="classes"/&gt;
  *   &lt;/classpath&gt;
@@ -151,7 +151,7 @@ public class GenerateCppProxiesTask extends Task
    *
    * @param dependency a class that must have a C++ proxy generated
    */
-  public void addConfiguredLibrary(Dependency dependency)
+  public void addConfiguredDependency(Dependency dependency)
   {
     if (dependency.getName() == null)
       throw new BuildException("name must be set", getLocation());
