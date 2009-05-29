@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
  *
  * Example:
  * &lt;EnhanceJavaPeer inputFile="input.class" outputFile="output.class" deallocationMethod="dispose" verbose="false"&gt;
- *   &lt;library name="browser"&gt;
- *   &lt;library name="tray"&gt;
+ *   &lt;library name="browser"/&gt;
+ *   &lt;library name="tray"/&gt;
  * &lt;/EnhanceJavaPeer&gt;
  *
  * @author Gili Tzbari
