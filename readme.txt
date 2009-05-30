@@ -56,6 +56,7 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - Patch #1106710: -deplist doesn't work
 - Patch #1095109: Allow CMD script to run from any directory
 - Patch #1037408: Multiple source/header directory support for AutoProxy
+- Nested classes weren't being processed properly; fixed.
 
 Compatibility breakers:
 

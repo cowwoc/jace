@@ -3,7 +3,6 @@ package jace.metaclass;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Creates new MetaClasses instances.
@@ -18,15 +17,15 @@ public class MetaClassFactory
 
   static
   {
-    ClassMap.put("byte", new ByteClass(false));
-    ClassMap.put("char", new CharClass(false));
-    ClassMap.put("double", new DoubleClass(false));
-    ClassMap.put("float", new FloatClass(false));
-    ClassMap.put("int", new IntClass(false));
-    ClassMap.put("long", new LongClass(false));
-    ClassMap.put("short", new ShortClass(false));
-    ClassMap.put("void", new VoidClass(false));
-    ClassMap.put("boolean", new BooleanClass(false));
+    ClassMap.put("B", new ByteClass(false));
+    ClassMap.put("C", new CharClass(false));
+    ClassMap.put("D", new DoubleClass(false));
+    ClassMap.put("F", new FloatClass(false));
+    ClassMap.put("I", new IntClass(false));
+    ClassMap.put("J", new LongClass(false));
+    ClassMap.put("S", new ShortClass(false));
+    ClassMap.put("V", new VoidClass(false));
+    ClassMap.put("Z", new BooleanClass(false));
   }
 
   /**
@@ -55,25 +54,24 @@ public class MetaClassFactory
    */
   public static MetaClass getMetaClass(TypeName typeName)
   {
-    String identifier = typeName.asIdentifier();
-    assert (!identifier.contains("/") && !identifier.contains(";")): identifier;
+    String descriptor = typeName.asDescriptor();
     // Check to see if this is an array class. If so, handle it accordingly.
-    if (identifier.charAt(0) == '[')
+    if (descriptor.charAt(0) == '[')
     {
-      TypeName componentType = TypeNameFactory.fromIdentifier(identifier.substring(1, identifier.length()));
+      TypeName componentType = TypeNameFactory.fromDescriptor(descriptor.substring(1, descriptor.length()));
       MetaClass componentClass = getMetaClass(componentType);
       return new ArrayMetaClass(componentClass);
     }
 
     // if this is a primitive class, then we are done
-    MetaClass primitiveClass = getPrimitiveClass(identifier);
+    MetaClass primitiveClass = getPrimitiveClass(descriptor);
     if (primitiveClass != null)
       return primitiveClass;
 
     List<String> packageList = new ArrayList<String>();
-    for (String element: identifier.split(Pattern.quote(".")))
+    for (String element: typeName.getComponents())
       packageList.add(element);
-    assert (packageList.size() > 0);
+    assert (packageList.size() > 0): typeName;
 
     // The last element is the class name
     String name = packageList.remove(packageList.size() - 1);

@@ -99,20 +99,20 @@ public class AutoProxy
     if (classPath == null)
       throw new IllegalArgumentException("classPath may not be null");
     if (!outputHeaders.isDirectory())
-      throw new IllegalArgumentException("outputHeaders must be an existing directory: " + outputHeaders);
+      throw new IllegalArgumentException("outputHeaders must be an existing directory: " + outputHeaders.getAbsolutePath());
     if (!outputSources.isDirectory())
-      throw new IllegalArgumentException("outputSources must be an existing directory: " + outputSources);
+      throw new IllegalArgumentException("outputSources must be an existing directory: " + outputSources.getAbsolutePath());
     this.inputHeaders = new ArrayList<File>(inputHeaders);
     this.inputSources = new ArrayList<File>(inputSources);
     for (File file: this.inputHeaders)
     {
       if (!file.isDirectory())
-        throw new IllegalArgumentException("inputHeaders must be an existing directory: " + file);
+        throw new IllegalArgumentException("inputHeaders must be an existing directory: " + file.getAbsolutePath());
     }
     for (File file: this.inputSources)
     {
       if (!file.isDirectory())
-        throw new IllegalArgumentException("inputSources must be an existing directory: " + file);
+        throw new IllegalArgumentException("inputSources must be an existing directory: " + file.getAbsolutePath());
     }
     this.outputHeaders = outputHeaders;
     this.outputSources = outputSources;
@@ -184,8 +184,8 @@ public class AutoProxy
     for (MetaClass proxy: proxies.getClasses())
     {
       ClassMetaClass proxyClass = (ClassMetaClass) proxy;
-      TypeName inputName = TypeNameFactory.fromPath(proxyClass.unProxy().getFullyQualifiedName("/"));
-      TypeName outputName = TypeNameFactory.fromPath(proxyClass.getFullyQualifiedName("/"));
+      TypeName inputName = TypeNameFactory.fromPath(proxyClass.unProxy().getFullyQualifiedTrueName("/"));
+      TypeName outputName = TypeNameFactory.fromPath(proxyClass.getFullyQualifiedTrueName("/"));
 
       File outputSourceFile = new File(outputSources, outputName.asPath() + ".cpp");
       File outputHeaderFile = new File(outputHeaders, outputName.asPath() + ".h");
@@ -197,7 +197,7 @@ public class AutoProxy
           inputFile = new File(inputParentFile, proxyClass.getFileName() + ".class");
         else
           inputFile = inputParentFile;
-        assert (inputFile.exists());
+        assert (inputFile.exists()): inputFile;
         if (outputSourceFile.exists() && outputHeaderFile.exists() &&
             inputFile.lastModified() <= outputSourceFile.lastModified() &&
             inputFile.lastModified() <= outputHeaderFile.lastModified())
@@ -257,7 +257,6 @@ public class AutoProxy
       for (String line; (line = reader.readLine()) != null;)
       {
         line = line.trim();
-
         String[] lineTokens = line.split("\\s");
 
         // make sure this line is an #include

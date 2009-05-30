@@ -36,13 +36,13 @@ public class ClassMetaClass implements MetaClass
    * Returns the file name that should be used for this MetaClass.
    *
    * For example, for java.lang.String, this would return String. For
-   * java.util.Map.EntrySet, this would return Map.EntrySet.
+   * java.util.Map.EntrySet, this would return Map$EntrySet.
    *
    * @return the file name that should be used for this MetaClass
    */
   public String getFileName()
   {
-    return mName.replace('$', '.');
+    return mName;
   }
 
   /**
@@ -109,14 +109,8 @@ public class ClassMetaClass implements MetaClass
   {
     StringBuilder include = new StringBuilder("#ifndef " + getGuardName() + newLine + "#include \"");
 
-    /* Changed so that the '$' character is now replaced with the '.' character instead.
-     *
-     * This is part of the fix to the bug where AutoProxy could not correctly find
-     * inner classes. The rest of the fixes are in AutoProxy and BatchGenerator.
-     */
     String packageName = mPackage.toName("/", true);
-    String includeName = mName.replace('$', '.');
-    include.append(packageName).append(includeName).append(".h\"");
+    include.append(packageName).append(mName).append(".h\"");
 
     include.append(newLine + "#endif");
     return include.toString();
@@ -148,7 +142,7 @@ public class ClassMetaClass implements MetaClass
     return forwardDeclaration.toString();
   }
 
-  public MetaClass proxy()
+  public ClassMetaClass proxy()
   {
     if (mPackage.isProxied())
       throw new IllegalStateException("MetaClass is already a proxy: " + getFullyQualifiedName("."));
@@ -158,35 +152,13 @@ public class ClassMetaClass implements MetaClass
     return new ClassMetaClass(mName, new ClassPackage(newPackage));
   }
 
-  public MetaClass unProxy()
+  public ClassMetaClass unProxy()
   {
     if (!mPackage.isProxied())
       throw new IllegalStateException("MetaClass is not a proxy: " + getFullyQualifiedName("."));
     List<String> path = mPackage.getPath();
     List<String> newPackage = path.subList(JaceConstants.getProxyPackage().getComponents().size(), path.size());
-    if (newPackage.size() == 1 && newPackage.get(0).equals("types"))
-    {
-      // Found a primitive
-      if (mName.equals("JBoolean"))
-        return new BooleanClass(false);
-      if (mName.equals("JByte"))
-        return new ByteClass(false);
-      if (mName.equals("JChar"))
-        return new CharClass(false);
-      if (mName.equals("JDouble"))
-        return new DoubleClass(false);
-      if (mName.equals("JFloat"))
-        return new FloatClass(false);
-      if (mName.equals("JInt"))
-        return new IntClass(false);
-      if (mName.equals("JLong"))
-        return new LongClass(false);
-      if (mName.equals("JShort"))
-        return new ShortClass(false);
-      if (mName.equals("JVoid"))
-        return new VoidClass(false);
-      throw new AssertionError("Unexpected primitive: " + mName);
-    }
+    assert (newPackage.size() != 1 || !newPackage.get(0).equals("types"));
     return new ClassMetaClass(mName, new ClassPackage(newPackage));
   }
 

@@ -944,7 +944,7 @@ public class ProxyGenerator
   public String getInitializerValue(boolean forPeer)
   {
 
-    MetaClass objectClass = MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier("java.lang.Object")).proxy();
+    MetaClass objectClass = MetaClassFactory.getMetaClass(TypeNameFactory.fromPath("java/lang/Object")).proxy();
     String fullObjectName = "::" + objectClass.getFullyQualifiedName("::");
     String objectConstructor = fullObjectName + "( NO_OP )";
 

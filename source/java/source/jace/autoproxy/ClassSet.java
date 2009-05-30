@@ -183,8 +183,8 @@ public class ClassSet
     if (!classSet.contains(metaClass))
     {
       classSet.add(metaClass);
-      TypeName fullName = TypeNameFactory.fromIdentifier(
-        ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("."));
+      TypeName fullName = TypeNameFactory.fromPath(
+        ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("/"));
       if (log.isDebugEnabled())
       {
         log.debug("Adding " + fullName);

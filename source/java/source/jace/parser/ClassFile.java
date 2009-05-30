@@ -570,7 +570,7 @@ public class ClassFile
     superclassIndex = input.readUnsignedShort();
 
     if (superclassIndex == 0)
-      superclassName = TypeNameFactory.fromIdentifier("java.lang.Object");
+      superclassName = TypeNameFactory.fromPath("java/lang/Object");
     else
     {
       ClassConstant superClass = (ClassConstant) constantPool.getConstantAt(superclassIndex);
