@@ -703,7 +703,7 @@ void setClassLoader(jobject classLoader) {
 	}
 }
 
-std::string toString( jobject obj ) {
+string toString( jobject obj ) {
 
   JNIEnv* env = attach();
 

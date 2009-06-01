@@ -107,7 +107,7 @@ public class LibraryProxies
     for (MetaClass clazz: classes)
     {
       ClassMetaClass metaClass = (ClassMetaClass) clazz;
-      String sourceName = ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("/");
+      String sourceName = metaClass.unProxy().getFullyQualifiedTrueName("/");
 
       String classFileName = metaClass.getFileName();
       File sourceFile = new File(sourceName);

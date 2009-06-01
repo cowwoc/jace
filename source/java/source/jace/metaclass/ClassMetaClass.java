@@ -33,16 +33,16 @@ public class ClassMetaClass implements MetaClass
   }
 
   /**
-   * Returns the file name that should be used for this MetaClass.
+   * Returns the C++ file name that should be used for this MetaClass.
    *
    * For example, for java.lang.String, this would return String. For
-   * java.util.Map.EntrySet, this would return Map$EntrySet.
+   * java.util.Map.EntrySet, this would return Map_EntrySet.
    *
    * @return the file name that should be used for this MetaClass
    */
   public String getFileName()
   {
-    return mName;
+    return mName.replace('$', '_');
   }
 
   /**
@@ -110,7 +110,8 @@ public class ClassMetaClass implements MetaClass
     StringBuilder include = new StringBuilder("#ifndef " + getGuardName() + newLine + "#include \"");
 
     String packageName = mPackage.toName("/", true);
-    include.append(packageName).append(mName).append(".h\"");
+    String includeName = mName.replace('$', '_');
+    include.append(packageName).append(includeName).append(".h\"");
 
     include.append(newLine + "#endif");
     return include.toString();

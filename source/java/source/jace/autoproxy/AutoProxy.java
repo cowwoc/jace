@@ -194,7 +194,7 @@ public class AutoProxy
       {
         File inputFile;
         if (inputParentFile.isDirectory())
-          inputFile = new File(inputParentFile, proxyClass.getFileName() + ".class");
+          inputFile = new File(inputParentFile, proxyClass.getTrueName() + ".class");
         else
           inputFile = inputParentFile;
         assert (inputFile.exists()): inputFile;

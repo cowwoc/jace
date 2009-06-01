@@ -80,7 +80,7 @@ public class ClassSet
         packageName += '.';
       }
     }
-    TypeName name = TypeNameFactory.fromPath(packageName + className.replace('.', '$'));
+    TypeName name = TypeNameFactory.fromPath(packageName + className.replace('_', '$'));
     addClass(name);
   }
 
