@@ -57,6 +57,8 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - Patch #1095109: Allow CMD script to run from any directory
 - Patch #1037408: Multiple source/header directory support for AutoProxy
 - Nested classes weren't being processed properly; fixed.
+- Added Peer.getJavaProxy(), allowing navigation from a Peer object to its Proxy.
+- AutoProxy and GenerateCppProxies now allow you to specify the method accessibility to expose.
 
 Compatibility breakers:
 

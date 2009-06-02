@@ -23,10 +23,10 @@ import java.util.jar.JarInputStream;
  */
 public class BatchGenerator
 {
-  private static String newLine = System.getProperty("line.separator");
-  private File outputHeaders;
-  private File outputSources;
-  private AccessibilityType accessibility;
+  private static final String newLine = System.getProperty("line.separator");
+  private final File outputHeaders;
+  private final File outputSources;
+  private final AccessibilityType accessibility;
 
   /**
    * Creates a new BatchGenerator
@@ -144,7 +144,6 @@ public class BatchGenerator
     }
 
     AccessibilityType accessibility = AccessibilityType.PUBLIC;
-
     for (int i = 3; i < args.length; ++i)
     {
       String option = args[i];

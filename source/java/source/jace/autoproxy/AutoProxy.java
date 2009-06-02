@@ -51,6 +51,7 @@ public class AutoProxy
   private final File outputHeaders;
   private final File outputSources;
   private final List<File> classPath;
+  private final AccessibilityType accessibility;
   private final boolean minimizeDependencies;
   private final Set<TypeName> extraDependencies;
   private final boolean exportSymbols;
@@ -68,6 +69,7 @@ public class AutoProxy
    * @param outputHeaders The directory to write new proxy header files to
    * @param outputSources The directory to write new proxy source files to
    * @param classPath the path to search for class files when resolving class dependencies
+   * @param accessibility the method accessibility to expose
    * @param minimizeDependencies set to true to only generate proxies based on minimum dependency
    * (superclass, interfaces and any classes used by the input files). Set to false to generate proxies for all class
    * dependencies (arguments, return values, and fields). The latter is used to generate proxies for a Java library when
@@ -82,8 +84,8 @@ public class AutoProxy
    * directory or does not exist.
    */
   public AutoProxy(Collection<File> inputHeaders, Collection<File> inputSources, File outputHeaders,
-                   File outputSources, List<File> classPath, boolean minimizeDependencies,
-                   Set<TypeName> extraDependencies, boolean exportSymbols)
+                   File outputSources, List<File> classPath, AccessibilityType accessibility,
+                   boolean minimizeDependencies, Set<TypeName> extraDependencies, boolean exportSymbols)
     throws IllegalArgumentException
   {
     if (inputHeaders == null)
@@ -117,8 +119,9 @@ public class AutoProxy
     this.outputHeaders = outputHeaders;
     this.outputSources = outputSources;
     this.classPath = classPath;
-    this.extraDependencies = extraDependencies;
+    this.accessibility = accessibility;
     this.minimizeDependencies = minimizeDependencies;
+    this.extraDependencies = extraDependencies;
     this.exportSymbols = exportSymbols;
     this.proxies = new ClassSet(classPath, minimizeDependencies);
     if (minimizeDependencies)
@@ -215,7 +218,7 @@ public class AutoProxy
         log.trace("Generating proxies for " + inputName + "...");
       InputStream input = source.openClass(inputName);
       ClassFile classFile = new ClassFile(input);
-      ProxyGenerator.writeProxy(proxyClass, classFile, AccessibilityType.PUBLIC, outputHeaders, outputSources,
+      ProxyGenerator.writeProxy(proxyClass, classFile, accessibility, outputHeaders, outputSources,
         dependencies, exportSymbols);
       input.close();
     }
@@ -367,8 +370,12 @@ public class AutoProxy
            newLine +
            "Where options can be:" + newLine +
            "  -mindep " + newLine +
-           "  -extraDependencies=<comma-separated list of classes> " + newLine +
-           "  -exportsymbols";
+           "  -extraDependencies=<comma-separated list of classes>" + newLine +
+           "  -exportsymbols" + newLine +
+           "  -public    : Generate public fields and methods." + newLine +
+           "  -protected : Generate public, protected fields and methods." + newLine +
+           "  -package : Generate public, protected, package-private fields and methods." + newLine +
+           "  -private : Generate public, protected, package-private, private fields and methods.";
   }
 
   /**
@@ -409,24 +416,41 @@ public class AutoProxy
     boolean minimizeDependencies = false;
     Set<TypeName> extraDependencies = new HashSet<TypeName>();
     boolean exportSymbols = false;
-
+    AccessibilityType accessibility = AccessibilityType.PUBLIC;
     for (int i = 5; i < args.length; ++i)
     {
-      if (args[i].equals("-mindep"))
+      String option = args[i];
+
+      if (option.equals("-mindep"))
         minimizeDependencies = true;
-      else if (args[i].startsWith("-deplist"))
+      else if (option.startsWith("-deplist"))
       {
-        String[] equalTokens = args[i].split("=");
+        String[] equalTokens = option.split("=");
         String[] commaTokens = equalTokens[1].split(",");
         for (String token: commaTokens)
           extraDependencies.add(TypeNameFactory.fromIdentifier(token));
       }
-      else if (args[i].equals("-exportsymbols"))
+      else if (option.equals("-exportsymbols"))
         exportSymbols = true;
+      else if (option.equals("-public"))
+        accessibility = AccessibilityType.PUBLIC;
+      else if (option.equals("-protected"))
+        accessibility = AccessibilityType.PROTECTED;
+      else if (option.equals("-package"))
+        accessibility = AccessibilityType.PACKAGE;
+      else if (option.equals("-private"))
+        accessibility = AccessibilityType.PRIVATE;
+      else
+      {
+        System.out.println("Not an understood option: [" + option + "]");
+        System.out.println();
+        System.out.println(getUsage());
+        return;
+      }
     }
 
     AutoProxy autoProxy = new AutoProxy(inputHeaders, inputSources, outputHeaders, outputSources,
-      Util.parseClasspath(classPath), minimizeDependencies, extraDependencies, exportSymbols);
+      Util.parseClasspath(classPath), accessibility, minimizeDependencies, extraDependencies, exportSymbols);
     Logger log = autoProxy.getLogger();
     log.info("Beginning Proxy generation.");
     try

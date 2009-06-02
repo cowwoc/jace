@@ -381,18 +381,6 @@ public class ProxyGenerator
   }
 
   /**
-   * Same as generateMethodDefinitions(output, false).
-   *
-   * @param output the output writer
-   * @throws IOException if an error occurs while writing
-   * @see generateMethodDefinitions(Writer, boolean)
-   */
-  public void generateMethodDefinitions(Writer output) throws IOException
-  {
-    generateMethodDefinitions(output, false);
-  }
-
-  /**
    * Generate the method definitions.
    *
    * @param output the output writer
@@ -908,6 +896,14 @@ public class ProxyGenerator
     output.write("}" + newLine);
     output.write(newLine);
 
+    if (forPeer)
+    {
+      output.write(classMetaClass.getFullyQualifiedName("::") + " " + className + "::getJaceProxy() {" + newLine);
+      output.write("  return " + classMetaClass.getFullyQualifiedName("::") + "(getJavaJniObject());" + newLine);
+      output.write("}" + newLine);
+      output.write(newLine);
+    }
+
     if (!forPeer)
       output.write("JEnlister<" + className + "> " + className + "::enlister;" + newLine);
   }
@@ -1054,7 +1050,7 @@ public class ProxyGenerator
     output.write(newLine);
 
     generateMethodDeclarations(output);
-    generateFieldDeclarations(output);
+    generateFieldDeclarations(output, false);
     generateJaceDeclarations(output);
 
     output.write("};" + newLine);
@@ -1520,9 +1516,10 @@ public class ProxyGenerator
    * Generates the field declarations.
    *
    * @param output the output writer
+   * @param forPeer true if the fields are being generated for a peer, false for a proxy
    * @throws IOException if an error occurs while writing
    */
-  public void generateFieldDeclarations(Writer output) throws IOException
+  public void generateFieldDeclarations(Writer output, boolean forPeer) throws IOException
   {
     // Generate a list of method names so we can
     // handle field/method-name clashes.
@@ -1548,7 +1545,7 @@ public class ProxyGenerator
 
       String name = field.getName();
 
-      if (name.equals("jaceNativeHandle"))
+      if (forPeer && name.equals("jaceNativeHandle"))
         continue;
 
       // handle clashes between C++ keywords and java identifiers by appending an underscore to the end of the java

@@ -3,6 +3,7 @@ package jace.ant;
 import jace.autoproxy.AutoProxy;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
+import jace.proxygen.ProxyGenerator.AccessibilityType;
 import jace.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +47,7 @@ public class GenerateCppProxiesTask extends Task
   private File outputHeaders;
   private File outputSources;
   private Path classpath = new Path(getProject());
+  private AccessibilityType accessibility = AccessibilityType.PUBLIC;
   /**
    * Unused classes to generate proxies for (useful for libraries where the used classes are not known in advance).
    */
@@ -100,6 +102,17 @@ public class GenerateCppProxiesTask extends Task
   }
 
   /**
+   * Indicates the method accessibility to expose.
+   *
+   * @param accessibility the method accessibility to expose
+   * @throws IllegalArgumentException if an unknown accessibility type is specified
+   */
+  public void setAccessibility(String accessibility) throws IllegalArgumentException
+  {
+    this.accessibility = AccessibilityType.valueOf(accessibility.toUpperCase());
+  }
+
+  /**
    * Indicates if the proxy symbols should be exported (for generating DLLs/SOs).
    *
    * @param exportSymbols true if the proxy symbols should be exported
@@ -135,7 +148,7 @@ public class GenerateCppProxiesTask extends Task
     for (Dependency dependency: dependencies)
       extraDependencies.add(TypeNameFactory.fromIdentifier(dependency.getName()));
     AutoProxy autoProxy = new AutoProxy(inputHeaders, inputSources, outputHeaders, outputSources,
-      Util.parseClasspath(classpath.toString()), true, extraDependencies, exportSymbols);
+      Util.parseClasspath(classpath.toString()), accessibility, true, extraDependencies, exportSymbols);
     try
     {
       autoProxy.generateProxies();

@@ -191,7 +191,7 @@ property="cpp.peer.skip"/&gt;
 userDefinedMembers="false"/&gt;
 
 &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source" outputHeaders="output/include"
- outputSources="output/source" exportSymbols="false" classpath="rt.jar"&gt;
+ outputSources="output/source" exportSymbols="false" classpath="rt.jar" accessibility="private"&gt;
   &lt;classpath&gt;
     &lt;pathelement location="classes"/&gt;
   &lt;/classpath&gt;
@@ -214,7 +214,7 @@ userDefinedMembers="false"/&gt;
     <b>EnhanceJavaPeer</b> enhances a single Java peer.<br>
     <b>CppPeerUptodate</b> sets a property if a C++ peer is up to date.<br>
     <b>GenerateCppPeer</b> generates a C++ peer for a Java class.<br>
-    <b>GenerateCppProxies</b> generates C++ proxies for Java classes.<br>
+    <b>GenerateCppProxies</b> generates C++ proxies for Java classes. <b>accessibility</b> refers to the method accessibility to expose.<br>
     </p>
 
     <br><br>

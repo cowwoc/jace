@@ -248,11 +248,15 @@ public class PeerGenerator
     }
     output.write(newLine);
 
+    Util.generateComment(output, "Returns the Java proxy.");
+    output.write(metaClass.proxy().getFullyQualifiedName("::") + " getJaceProxy();" + newLine);
+    output.write(newLine);
+
     output.write("// Fields made available by Jace" + newLine);
     output.write("// -----------------------------" + newLine);
     output.write(newLine);
 
-    proxyGen.generateFieldDeclarations(output);
+    proxyGen.generateFieldDeclarations(output, true);
 
     output.write("// Methods internal to Jace" + newLine);
     output.write("// ------------------------" + newLine);
