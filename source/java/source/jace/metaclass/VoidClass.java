@@ -24,7 +24,7 @@ public class VoidClass extends PrimitiveMetaClass
     return new VoidClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JVoid";
   }
@@ -38,7 +38,7 @@ public class VoidClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

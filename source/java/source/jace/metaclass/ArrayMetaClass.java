@@ -21,9 +21,9 @@ public class ArrayMetaClass implements MetaClass
     mBaseClass = metaClass;
   }
 
-  public String getName()
+  public String getSimpleName()
   {
-    return "JArray< " + mBaseClass.getName() + " >";
+    return "JArray< " + mBaseClass.getSimpleName() + " >";
   }
 
   public String getFullyQualifiedName(String separator)
@@ -90,7 +90,7 @@ public class ArrayMetaClass implements MetaClass
 
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public MetaClass getBaseClass()

@@ -24,7 +24,7 @@ public class ByteClass extends PrimitiveMetaClass
     return new ByteClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JByte";
   }
@@ -38,7 +38,7 @@ public class ByteClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

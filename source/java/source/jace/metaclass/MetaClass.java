@@ -24,7 +24,7 @@ public interface MetaClass
    *
    * @return the name of the class that this MetaClass represents
    */
-  String getName();
+  String getSimpleName();
 
   /**
    * Returns the fully-qualified name of the class.

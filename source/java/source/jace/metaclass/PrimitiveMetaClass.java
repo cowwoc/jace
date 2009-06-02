@@ -33,9 +33,9 @@ public abstract class PrimitiveMetaClass implements MetaClass
   public String getFullyQualifiedName(String separator)
   {
     if (!isProxy)
-      return getName();
+      return getSimpleName();
     return JaceConstants.getProxyPackage().asPath().replace("/", separator) + separator + "types" + separator +
-           getName();
+           getSimpleName();
   }
 
   public ClassPackage getPackage()
@@ -45,30 +45,30 @@ public abstract class PrimitiveMetaClass implements MetaClass
 
   public String beginGuard()
   {
-    return "JACE_TYPES_" + getName().toUpperCase() + "_H";
+    return "JACE_TYPES_" + getSimpleName().toUpperCase() + "_H";
   }
 
   public String endGuard()
   {
-    return "// #ifndef JACE_TYPES_" + getName().toUpperCase() + "_H";
+    return "// #ifndef JACE_TYPES_" + getSimpleName().toUpperCase() + "_H";
   }
 
   public String include()
   {
-    return "#ifndef JACE_TYPES_" + getName().toUpperCase() + "_H" + newLine +
-           "#include \"" + JaceConstants.getProxyPackage().asPath() + "/types/" + getName() + ".h\"" + newLine +
+    return "#ifndef JACE_TYPES_" + getSimpleName().toUpperCase() + "_H" + newLine +
+           "#include \"" + JaceConstants.getProxyPackage().asPath() + "/types/" + getSimpleName() + ".h\"" + newLine +
            "#endif";
   }
 
   public String using()
   {
-    return "using jace::proxy::types::" + getName() + ";";
+    return "using jace::proxy::types::" + getSimpleName() + ";";
   }
 
   public String forwardDeclare()
   {
     return "BEGIN_NAMESPACE_3( jace, proxy, types )" + newLine +
-           "class " + getName() + ";" + newLine +
+           "class " + getSimpleName() + ";" + newLine +
            "END_NAMESPACE_3( jace, proxy, types )";
   }
 

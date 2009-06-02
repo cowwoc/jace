@@ -276,7 +276,7 @@ public class ProxyGenerator
       // it's just not important enough to deal with right now.
       if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
       {
-        String dependentName = dependentMetaClass.getName();
+        String dependentName = dependentMetaClass.getSimpleName();
         if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
           continue;
       }
@@ -402,7 +402,7 @@ public class ProxyGenerator
   public void generateMethodDefinitions(Writer output, boolean forPeer) throws IOException
   {
     MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    String className = metaClass.getName();
+    String className = metaClass.getSimpleName();
 
     // go through all of the methods
     for (ClassMethod method: classFile.getMethods())
@@ -468,7 +468,7 @@ public class ProxyGenerator
         // handle clashes between C++ keywords and java identifiers
         methodName = CKeyword.adjust(methodName);
 
-        if (returnType.getName().equals("JVoid"))
+        if (returnType.getSimpleName().equals("JVoid"))
           output.write("void");
         else
           output.write("::" + returnType.getFullyQualifiedName("::"));
@@ -558,7 +558,7 @@ public class ProxyGenerator
         // If this is a non-void method call we need to return the result of the method call
         output.write("  ");
 
-        if (!returnType.getName().equals("JVoid"))
+        if (!returnType.getSimpleName().equals("JVoid"))
           output.write("return ");
 
         output.write("::jace::JMethod< ");
@@ -753,7 +753,7 @@ public class ProxyGenerator
   public void generateFieldDefinitions(Writer output, boolean forPeer) throws IOException
   {
     MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    String className = metaClass.getName();
+    String className = metaClass.getSimpleName();
 
     Collection<String> methodNames = new ArrayList<String>();
     for (ClassMethod method: classFile.getMethods())
@@ -843,7 +843,7 @@ public class ProxyGenerator
   public void generateJaceDefinitions(Writer output, boolean forPeer) throws IOException
   {
     MetaClass classMetaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    String className = classMetaClass.getName();
+    String className = classMetaClass.getSimpleName();
 
     Util.generateComment(output, "The following methods are required to integrate this class" + newLine +
                                  "with the Jace framework.");
@@ -951,7 +951,7 @@ public class ProxyGenerator
     String superConstructor = fullSuperName + "( NO_OP )";
 
     MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    String initializerName = metaClass.getName() + "_INITIALIZER";
+    String initializerName = metaClass.getSimpleName() + "_INITIALIZER";
     StringBuilder definition = new StringBuilder();
 
     definition.append("#ifndef VIRTUAL_INHERITANCE_IS_BROKEN" + newLine);
@@ -996,7 +996,7 @@ public class ProxyGenerator
   private String getInitializerName()
   {
     MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    return metaClass.getName() + "_INITIALIZER";
+    return metaClass.getSimpleName() + "_INITIALIZER";
   }
 
   /**
@@ -1017,7 +1017,7 @@ public class ProxyGenerator
                                  "For more information, please refer to the Jace Developer's Guide.");
 
     output.write("class ");
-    output.write(metaClass.getName());
+    output.write(metaClass.getSimpleName());
     output.write(" : ");
 
     // Write out the super classes. If we're the root object, we need to set JObject to be our superclass.
@@ -1296,7 +1296,7 @@ public class ProxyGenerator
     if (!isPartOfDependencies(method))
       return;
 
-    String className = metaClass.getName();
+    String className = metaClass.getSimpleName();
     String methodName = method.getName();
     boolean isConstructor = methodName.equals("<init>");
     MethodAccessFlagSet accessFlagSet = method.getAccessFlags();
@@ -1330,7 +1330,7 @@ public class ProxyGenerator
 
       MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
 
-      if (returnType.getName().equals("JVoid"))
+      if (returnType.getSimpleName().equals("JVoid"))
         output.write("void");
       else
         output.write("::" + returnType.getFullyQualifiedName("::"));
@@ -1609,7 +1609,7 @@ public class ProxyGenerator
   private void generateJaceDeclarations(Writer output) throws IOException
   {
     MetaClass classMetaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    String className = classMetaClass.getName();
+    String className = classMetaClass.getSimpleName();
 
     Util.generateComment(output, "The following methods are required to integrate this class" + newLine +
                                  "with the Jace framework.");
@@ -1791,7 +1791,7 @@ public class ProxyGenerator
         // it's just not important enough to deal with right now.
         if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
         {
-          String dependentName = dependentMetaClass.getName();
+          String dependentName = dependentMetaClass.getSimpleName();
           if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
             continue;
         }

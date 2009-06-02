@@ -24,7 +24,7 @@ public class BooleanClass extends PrimitiveMetaClass
     return new BooleanClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JBoolean";
   }
@@ -38,7 +38,7 @@ public class BooleanClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

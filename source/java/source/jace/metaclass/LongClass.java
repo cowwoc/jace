@@ -24,7 +24,7 @@ public class LongClass extends PrimitiveMetaClass
     return new LongClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JLong";
   }
@@ -38,7 +38,7 @@ public class LongClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

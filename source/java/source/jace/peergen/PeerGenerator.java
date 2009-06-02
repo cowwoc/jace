@@ -81,7 +81,7 @@ public class PeerGenerator
     File includeDirectory = new File(includeDir, directory);
     File sourceDirectory = new File(sourceDir, directory);
 
-    File cppHeader = new File(includeDirectory, peerMetaClass.getName() + ".h");
+    File cppHeader = new File(includeDirectory, peerMetaClass.getSimpleName() + ".h");
     File actualDirectory = cppHeader.getParentFile();
     if (!actualDirectory.exists() && !actualDirectory.mkdirs())
       throw new IOException("Failed to create " + actualDirectory);
@@ -95,7 +95,7 @@ public class PeerGenerator
       out.close();
     }
 
-    File cppMappings = new File(sourceDirectory, peerMetaClass.getName() + "Mappings.cpp");
+    File cppMappings = new File(sourceDirectory, peerMetaClass.getSimpleName() + "Mappings.cpp");
     actualDirectory = cppMappings.getParentFile();
     if (!actualDirectory.exists() && !actualDirectory.mkdirs())
       throw new IOException("Failed to create " + actualDirectory);
@@ -109,7 +109,7 @@ public class PeerGenerator
       out.close();
     }
 
-    File cppSource = new File(sourceDirectory, peerMetaClass.getName() + "_peer.cpp");
+    File cppSource = new File(sourceDirectory, peerMetaClass.getSimpleName() + "_peer.cpp");
     actualDirectory = cppSource.getParentFile();
     if (!actualDirectory.exists() && !actualDirectory.mkdirs())
     {
@@ -165,7 +165,7 @@ public class PeerGenerator
     output.write(newLine);
 
     // Generate the class declaration
-    String name = metaClass.getName();
+    String name = metaClass.getSimpleName();
     Util.generateComment(output, name + newLine +
                                  newLine +
                                  "This header provides the declaration for the Jace Peer, " + name + "." +
@@ -276,7 +276,7 @@ public class PeerGenerator
       output.write("// User defined members" + newLine);
       output.write("// --------------------" + newLine);
       String userInclude = peerMetaClass.getPackage().toName("/", true) +
-                           peerMetaClass.getName() + "_user.h";
+                           peerMetaClass.getSimpleName() + "_user.h";
       output.write("#include \"" + userInclude + "\"" + newLine);
       output.write(newLine);
     }
@@ -642,18 +642,13 @@ public class PeerGenerator
    */
   private String mangleName(String name)
   {
-
     StringBuilder newName = new StringBuilder(name);
-
     for (int i = 0; i < newName.length(); ++i)
     {
-
       char c = newName.charAt(i);
 
       if (c == '/')
-      {
         newName.replace(i, i + 1, "_");
-      }
       else if (c == '_')
       {
         newName.replace(i, i + 1, "_1");
@@ -673,15 +668,12 @@ public class PeerGenerator
       {
         StringBuilder unicodeRepresentation = new StringBuilder(Integer.toHexString(c));
         while (unicodeRepresentation.length() < 5)
-        {
           unicodeRepresentation.insert(0, '0');
-        }
         unicodeRepresentation.insert(0, '_');
         newName.replace(i, i + 1, unicodeRepresentation.toString());
         ++i;
       }
     }
-
     return newName.toString();
   }
 

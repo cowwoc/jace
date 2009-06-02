@@ -24,7 +24,7 @@ public class IntClass extends PrimitiveMetaClass
     return new IntClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JInt";
   }
@@ -38,7 +38,7 @@ public class IntClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

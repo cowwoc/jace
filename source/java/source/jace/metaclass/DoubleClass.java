@@ -24,7 +24,7 @@ public class DoubleClass extends PrimitiveMetaClass
     return new DoubleClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JDouble";
   }
@@ -38,7 +38,7 @@ public class DoubleClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

@@ -24,7 +24,7 @@ public class CharClass extends PrimitiveMetaClass
     return new CharClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JChar";
   }
@@ -38,7 +38,7 @@ public class CharClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

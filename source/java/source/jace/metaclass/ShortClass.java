@@ -24,7 +24,7 @@ public class ShortClass extends PrimitiveMetaClass
     return new ShortClass(isProxy);
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return "JShort";
   }
@@ -38,7 +38,7 @@ public class ShortClass extends PrimitiveMetaClass
   @Override
   public int hashCode()
   {
-    return getName().hashCode();
+    return getSimpleName().hashCode();
   }
 
   public String getJniType()

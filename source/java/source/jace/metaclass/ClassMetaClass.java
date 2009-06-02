@@ -27,7 +27,7 @@ public class ClassMetaClass implements MetaClass
     mPackage = aPackage;
   }
 
-  public String getName()
+  public String getSimpleName()
   {
     return mNewName;
   }
@@ -57,7 +57,7 @@ public class ClassMetaClass implements MetaClass
 
   public String getFullyQualifiedName(String separator)
   {
-    return getPackage().toName(separator, true) + getName();
+    return getPackage().toName(separator, true) + getSimpleName();
   }
 
   public String getFullyQualifiedTrueName(String separator)
@@ -137,7 +137,7 @@ public class ClassMetaClass implements MetaClass
     namespace.append(" )");
 
     forwardDeclaration.append(length).append(namespace.toString()).append(newLine);
-    forwardDeclaration.append("class ").append(getName()).append(";").append(newLine);
+    forwardDeclaration.append("class ").append(getSimpleName()).append(";").append(newLine);
     forwardDeclaration.append("END_NAMESPACE_").append(length).append(namespace);
 
     return forwardDeclaration.toString();
@@ -222,7 +222,7 @@ public class ClassMetaClass implements MetaClass
 
   private boolean compare(MetaClass mc)
   {
-    return mc.getName().equals(getName()) && mc.getPackage().equals(getPackage());
+    return mc.getSimpleName().equals(getSimpleName()) && mc.getPackage().equals(getPackage());
   }
 
   @Override
