@@ -128,6 +128,15 @@ public class ClassSet
    */
   private void addDependentClasses(Set<MetaClass> classSet, TypeName className)
   {
+    // First, handle this class
+    MetaClass thisMetaClass = MetaClassFactory.getMetaClass(className).proxy();
+    if (!handleClass(classSet, thisMetaClass))
+    {
+      // We've already seen this class
+      return;
+    }
+
+    // handle the super class and interfaces next
     ClassPath classSource = new ClassPath(classPath);
     InputStream classInput = classSource.openClass(className);
     ClassFile classFile = new ClassFile(classInput);
@@ -140,12 +149,6 @@ public class ClassSet
     {
       log.warn("failed to close the class file", e);
     }
-
-    // First, handle this class
-    MetaClass thisMetaClass = MetaClassFactory.getMetaClass(className).proxy();
-    handleClass(classSet, thisMetaClass);
-
-    // handle the super class and interfaces next
     MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy();
     handleClass(classSet, superMetaClass);
 
@@ -169,7 +172,14 @@ public class ClassSet
       handleClass(classSet, metaClass);
   }
 
-  private void handleClass(Set<MetaClass> classSet, MetaClass metaClass)
+  /**
+   * Adds a MetaClass to the set of MetaClasses.
+   *
+   * @param classSet the class
+   * @param metaClass the set of MetaClasses
+   * @return true if the class was added
+   */
+  private boolean handleClass(Set<MetaClass> classSet, MetaClass metaClass)
   {
     if (metaClass instanceof ArrayMetaClass)
     {
@@ -178,20 +188,20 @@ public class ClassSet
     }
 
     if (metaClass.isPrimitive())
-      return;
+      return false;
 
-    if (!classSet.contains(metaClass))
+    if (classSet.contains(metaClass))
+      return false;
+    classSet.add(metaClass);
+    TypeName fullName = TypeNameFactory.fromPath(
+      ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("/"));
+    if (log.isDebugEnabled())
     {
-      classSet.add(metaClass);
-      TypeName fullName = TypeNameFactory.fromPath(
-        ((ClassMetaClass) metaClass.unProxy()).getFullyQualifiedTrueName("/"));
-      if (log.isDebugEnabled())
-      {
-        log.debug("Adding " + fullName);
-        printClassSet(classSet);
-      }
-      addDependentClasses(classSet, fullName);
+      log.debug("Adding " + fullName);
+      printClassSet(classSet);
     }
+    addDependentClasses(classSet, fullName);
+    return true;
   }
 
   /**

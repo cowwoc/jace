@@ -7,8 +7,12 @@ import jace.metaclass.MetaClass;
 import jace.metaclass.MetaClassFactory;
 import jace.metaclass.JaceConstants;
 import jace.metaclass.TypeName;
+import jace.metaclass.TypeNameFactory;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
+import jace.parser.attribute.Attribute;
+import jace.parser.attribute.InnerClassesAttribute;
+import jace.parser.attribute.InnerClassesAttribute.InnerClass;
 import jace.parser.method.ClassMethod;
 import jace.parser.method.MethodAccessFlag;
 import jace.proxygen.ProxyGenerator;
@@ -58,7 +62,7 @@ public class PeerGenerator
   {
     this.classFile = classFile;
     proxyMetaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    metaClass = (ClassMetaClass) proxyMetaClass.unProxy();
+    metaClass = proxyMetaClass.unProxy();
     this.includeDir = includeDir;
     this.sourceDir = sourceDir;
     this.userDefinedMembers = userDefinedMembers;
@@ -220,7 +224,6 @@ public class PeerGenerator
       else
         proxyGen.generateMethodDeclaration(output, metaClass, method, ProxyGenerator.InvokeStyle.NORMAL);
     }
-
     output.write(newLine);
 
     output.write("// Methods made available by Jace" + newLine);
@@ -243,6 +246,7 @@ public class PeerGenerator
       }
       proxyGen.generateMethodDeclaration(output, metaClass, method);
     }
+    output.write(newLine);
 
     output.write("// Fields made available by Jace" + newLine);
     output.write("// -----------------------------" + newLine);

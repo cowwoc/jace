@@ -696,7 +696,7 @@ public class ClassFile
       result.append(" implements");
       for (Iterator<TypeName> i = interfaces.iterator(); i.hasNext();)
       {
-        result.append(i);
+        result.append(i.next());
         if (i.hasNext())
           result.append(", ");
       }

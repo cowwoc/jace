@@ -207,7 +207,7 @@ public class InnerClassesAttribute implements Attribute {
    *
    * @return the Constant that represents the value of this ConstantValueAttribute
    */
-  public List getInnerClasses() {
+  public List<InnerClass> getInnerClasses() {
     return Arrays.asList(innerClasses);
   }
 

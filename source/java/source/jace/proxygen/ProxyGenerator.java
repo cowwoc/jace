@@ -339,9 +339,7 @@ public class ProxyGenerator
 
     // skip the method if it is a BRIDGE method
     if ((flagSet.getValue() & 0x0040) != 0)
-    {
       return true;
-    }
 
     // if the method is public, we always generate it
     if (flagSet.contains(MethodAccessFlag.PUBLIC))
@@ -1539,7 +1537,6 @@ public class ProxyGenerator
 
     for (ClassField field: classFile.getFields())
     {
-
       if (shouldBeSkipped(field))
         continue;
 

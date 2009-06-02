@@ -13,8 +13,8 @@ import java.util.ArrayList;
  * @author Toby Reyelts
  *
  */
-public class MethodAccessFlagSet {
-
+public class MethodAccessFlagSet
+{
   /** Represents the value for this set.
    * This value is a bitwise or (|) of all the MethodAccessFlag values
    * contained in this set.
@@ -26,7 +26,8 @@ public class MethodAccessFlagSet {
    *
    * @param value the set value
    */
-  public MethodAccessFlagSet(int value) {
+  public MethodAccessFlagSet(int value)
+  {
     mValue = value;
   }
 
@@ -36,7 +37,8 @@ public class MethodAccessFlagSet {
    * @param flag the flag to check for
    * @return true if the flag is contained in this set
    */
-  public boolean contains(MethodAccessFlag flag) {
+  public boolean contains(MethodAccessFlag flag)
+  {
     return ((mValue & flag.getValue()) == flag.getValue());
   }
 
@@ -46,32 +48,37 @@ public class MethodAccessFlagSet {
    *
    * @return the string used to represent the flags in a Java source file
    */
-  public String getName() {
-
+  public String getName()
+  {
     StringBuilder name = new StringBuilder();
 
     ArrayList<MethodAccessFlag> flags = new ArrayList<MethodAccessFlag>(MethodAccessFlag.getFlags());
 
-    for (int i = 0; i < flags.size(); ++i) {
+    for (int i = 0; i < flags.size(); ++i)
+    {
       MethodAccessFlag flag = flags.get(i);
-      if (this.contains(flag)) {
+      if (this.contains(flag))
+      {
         name.append(flag.getName() + " ");
       }
     }
 
     // remove the extra space we added at the end
-    if (name.length() > 0) {
+    if (name.length() > 0)
+    {
       name.deleteCharAt(name.length() - 1);
     }
 
     return name.toString();
   }
 
-  public void add(MethodAccessFlag flag) {
+  public void add(MethodAccessFlag flag)
+  {
     mValue |= flag.getValue();
   }
 
-  public void remove(MethodAccessFlag flag) {
+  public void remove(MethodAccessFlag flag)
+  {
     mValue &= ~flag.getValue();
   }
 
@@ -80,7 +87,8 @@ public class MethodAccessFlagSet {
    *
    * @return the value used to represent the MethodAccessFlagSet in a Java class file
    */
-  public int getValue() {
+  public int getValue()
+  {
     return mValue;
   }
 
@@ -90,16 +98,24 @@ public class MethodAccessFlagSet {
    *
    * @param value the set value
    */
-  protected void setValue(int value) {
+  protected void setValue(int value)
+  {
     mValue = value;
   }
 
-	/**
+  @Override
+  public String toString()
+  {
+    return getName();
+  }
+
+  /**
    * Tests MethodAccessFlagSet.
    *
    * @param args the command-line argument
    */
-  public static void main(String[] args) {
+  public static void main(String[] args)
+  {
     System.out.println(new MethodAccessFlagSet(Integer.parseInt(args[ 0])).getName());
   }
 }

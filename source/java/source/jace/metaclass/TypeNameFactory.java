@@ -210,19 +210,7 @@ public class TypeNameFactory
     @Override
     public String asIdentifier()
     {
-      StringBuilder result = new StringBuilder(path);
-      int index = -1;
-      while (true)
-      {
-        index = result.indexOf("/", index + 1);
-        if (index == -1)
-          break;
-        result.replace(index, index + 1, ".");
-      }
-      index = result.indexOf("$");
-      if (index != -1)
-        result.replace(index, index + 1, ".");
-      return result.toString();
+      return path.replace("/", ".").replace("$", ".");
     }
 
     @Override
