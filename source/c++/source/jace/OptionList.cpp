@@ -112,9 +112,9 @@ Option* SystemProperty::clone() const {
   return new SystemProperty( mName, mValue ); 
 }
 
-std::string Verbose::toString(Verbose::ComponentType component) const
+std::string Verbose::toString(Verbose::ComponentType componentType) const
 {
-	switch (component)
+	switch (componentType)
 	{
 		case GC:
 			return "gc";
@@ -123,50 +123,19 @@ std::string Verbose::toString(Verbose::ComponentType component) const
 		case CLASS:
 			return "class";
 		default:
-			throw JNIException("Unknown component: " + component);
+			throw JNIException("Unknown component: " + componentType);
 	}
 }
 
-Verbose::Verbose( ComponentType component ) : options( createVector( component ) ) {
-}
-
-Verbose::Verbose( std::vector<ComponentType>::const_iterator begin,
-								  std::vector<ComponentType>::const_iterator end ) : 
-	options ( createVector( begin, end ) ) {
+Verbose::Verbose( ComponentType _componentType ) : componentType( _componentType ) {
 }
 
 Verbose::Verbose( const Verbose& other ) : 
-	options ( other.options ) {
-}
-
-std::vector<Verbose::ComponentType> Verbose::createVector( ComponentType& component ) {
-	std::vector<ComponentType> result;
-	result.push_back(component);
-	return result;
-}
-
-std::vector<Verbose::ComponentType> Verbose::createVector( std::vector<ComponentType>::const_iterator begin, 
-																													 std::vector<ComponentType>::const_iterator end ) {
-	std::vector<ComponentType> result;
-	std::copy( begin, end, back_inserter( result ) );
-	return result;
+	componentType ( other.componentType ) {
 }
 
 const std::string Verbose::stringValue() const {
-
-  std::string buffer( "-verbose:" );
-
-	vector<ComponentType>::const_iterator it = options.begin();
-  vector<ComponentType>::const_iterator end = options.end();
-
-  for ( ; it != end; ++it ) {
-    buffer += toString(*it);
-    if ( it + 1 != end ) {
-      buffer += ",";
-    }
-  }
-
-  return buffer;
+  return string("-verbose:") + toString(componentType);
 }
 
 void* Verbose::extraInfo() {
@@ -174,7 +143,7 @@ void* Verbose::extraInfo() {
 }
 
 Option* Verbose::clone() const {
-  return new Verbose( options.begin(), options.end() );
+  return new Verbose( componentType );
 }
 
 JavaAgent::JavaAgent( const std::string& path_ ) :

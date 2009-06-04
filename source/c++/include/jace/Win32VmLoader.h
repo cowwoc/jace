@@ -82,7 +82,7 @@ class Win32VmLoader : public ::jace::VmLoader {
    * @param version - Version of the VM as String (e.g. "1.3.1", "1.4")
    *        The default value is the version of the lastest Sun VM installed.
    *
-   * @param version - The version of JNI to use. For example,
+   * @param jniVersion - The version of JNI to use. For example,
    * JNI_VERSION_1_2 or JNI_VERSION_1_4. The default is JNI_VERSION_1_2.
    *
    * @throws JNIException if an error occurs while trying to look up the VM.

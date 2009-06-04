@@ -13,6 +13,7 @@ import java.util.Set;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
@@ -36,9 +37,6 @@ public class PeerEnhancer
 {
   private static final String newLine = System.getProperty("line.separator");
   private final Logger log = LoggerFactory.getLogger(PeerEnhancer.class);
-  private ClassReader classReader;
-  private ClassWriter classWriter;
-  private String className;
   private File inputFile;
   private File outputFile;
   private List<String> libraries;
@@ -87,25 +85,45 @@ public class PeerEnhancer
   }
 
   /**
-   * This visitor inserts <code>jaceSetNativeHandle(jaceCreateInstance())</code> at the end of all
+   * This visitor inserts <code>jaceSetNativeHandle(jaceCreateInstance())</code> at the beginning of all
    * non-chaining constructors.
    *
    * @author Gili Tzabari
    */
-  private class NonChainingConstructorEnhancer extends MethodAdapter
+  private static class NonChainingConstructorEnhancer extends MethodAdapter
   {
-    private final String owner;
+    // DESIGN:
+    // - This code initializes the native handle used by "jace::helper::getPeer(this)"
+    // - Ideally we'd like to initialize the native handle after the Java object is fully constructed.
+    //   Unfortunately, we have no way of preventing native methods from being invoked by the constructor
+    //   itself.
+    // - The earliest we can inject code is after a call to super().
+    // - We don't have to worry about native methods getting invoked as arguments of super() because
+    //   static native methods do not depend upon the native handle.
+    private boolean done;
+    private final String className;
+    private final String superClassName;
 
     /**
      * Creates a new NonChainingConstructorEnhancer.
      *
      * @param cv MethodVisitor to delegate to
-     * @param owner Class containing the method
+     * @param className the class containing the method
+     * @param superClassName the superclass of the class containing the method
      */
-    NonChainingConstructorEnhancer(MethodVisitor cv, String owner)
+    public NonChainingConstructorEnhancer(MethodVisitor cv, String className, String superClassName)
     {
       super(cv);
-      this.owner = owner;
+      this.className = className;
+      this.superClassName = superClassName;
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc)
+    {
+      super.visitMethodInsn(opcode, owner, name, desc);
+      if (!done && owner.equals(superClassName) && name.equals("<init>"))
+        insertInstruction();
     }
 
     /**
@@ -116,77 +134,47 @@ public class PeerEnhancer
     @Override
     public void visitInsn(int opcode)
     {
-      if (opcode == Opcodes.RETURN)
-      {
-        // Load "this" onto the stack
-        super.visitVarInsn(Opcodes.ALOAD, 0);
-        super.visitInsn(Opcodes.DUP);
-        // Stack now contains: this, this
-
-        // Invoke jaceCreateInstance()
-        super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceCreateInstance,
-          Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
-
-        // Stack now contains: this, result of jaceCreateInstance()
-        // Invoke jaceSetNativeHandle(jaceCreateInstance())
-        super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceSetNativeHandle,
-          Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
-          {
-            Type.LONG_TYPE
-          }));
-      }
+      if (!done && opcode == Opcodes.RETURN)
+        insertInstruction();
       super.visitInsn(opcode);
+    }
+
+    /**
+     * Inserts <code>jaceSetNativeHandle(jaceCreateInstance())</code>.
+     */
+    private void insertInstruction()
+    {
+      done = true;
+
+      // Load "this" onto the stack
+      super.visitVarInsn(Opcodes.ALOAD, 0);
+      super.visitInsn(Opcodes.DUP);
+      // Stack now contains: [this, this]
+
+      // Invoke jaceCreateInstance()
+      super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceCreateInstance,
+        Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
+
+      // Stack now contains: [this, result of jaceCreateInstance()]
+      // Invoke jaceSetNativeHandle(jaceCreateInstance())
+      super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceSetNativeHandle,
+        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+        {
+          Type.LONG_TYPE
+        }));
     }
   }
 
   /**
    * Returns a {@code Set<methodDescriptor>} for all non-chaining constructors.
    *
+   * @param classReader the ClassReader to read from
    * @return a {@code Set<methodDescriptor>} for all non-chaining constructors.
    */
-  private Set<String> getNonChainingConstructors()
+  private Set<String> getNonChainingConstructors(ClassReader classReader)
   {
     final Set<String> result = new HashSet<String>();
-
-    classReader.accept(new EmptyVisitor()
-    {
-      private String className;
-
-      @Override
-      public void visit(int version, int access, String name, String signature,
-                        String superName, String[] interfaces)
-      {
-        className = name;
-      }
-
-      @Override
-      public MethodVisitor visitMethod(int access, String name,
-                                       final String desc, String signature, String[] exceptions)
-      {
-        if (name.equals("<init>"))
-        {
-          return new EmptyVisitor()
-          {
-            private boolean constructorIsChained = false;
-
-            @Override
-            public void visitMaxs(int maxStack, int maxLocals)
-            {
-              if (!constructorIsChained)
-                result.add(desc);
-            }
-
-            @Override
-            public void visitMethodInsn(int opcode, String owner, String name, String desc)
-            {
-              if (className.equals(owner) && name.equals("<init>"))
-                constructorIsChained = true;
-            }
-          };
-        }
-        return null;
-      }
-    }, ClassReader.SKIP_DEBUG);
+    classReader.accept(new GetNonChainingConstructors(result), ClassReader.SKIP_DEBUG);
     return result;
   }
 
@@ -206,7 +194,7 @@ public class PeerEnhancer
     BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile));
     try
     {
-      classReader = new ClassReader(in);
+      ClassReader classReader = new ClassReader(in);
 
       /**
        * 1) Check whether jaceGetNativeHandle is already defined.
@@ -228,75 +216,9 @@ public class PeerEnhancer
         return;
       }
 
-      final Set<String> nonChainingConstructors = getNonChainingConstructors();
-      classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-      classReader.accept(new ClassAdapter(classWriter)
-      {
-        /**
-         * Visits the class header.
-         */
-        @Override
-        public void visit(int version, int access, String name,
-                          String signature, String superName, String[] interfaces)
-        {
-          super.visit(version, access, name, signature, superName, interfaces);
-          className = name;
-        }
-
-        /**
-         * 2) Rename the class initializer to jaceUserStaticInit
-         * 3) For non-chaining constructors, invoke
-         *    jaceSetNativeHandle(jaceCreateInstance()) before returning
-         * 4) Renames the user deallocation method to jaceUserClose()
-         * 5) Renames the user finalizer to jaceUserFinalize()
-         */
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String desc,
-                                         String signature, String[] exceptions)
-        {
-          if (name.equals("<clinit>"))
-          {
-            // Rename class initializer to jaceUserStaticInit()
-            classInitializerFound = true;
-            int flags = Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC;
-            return classWriter.visitMethod(flags, jaceUserStaticInit, desc,
-              null, exceptions);
-          }
-          else if (name.equals("<init>"))
-          {
-            // Is this a non-chaining constructor?
-            if (nonChainingConstructors.contains(desc))
-            {
-              // Generate the method
-              MethodVisitor out = classWriter.visitMethod(access, name, desc,
-                null, exceptions);
-              return new NonChainingConstructorEnhancer(out, className);
-            }
-          }
-          else if (name.equals("finalize"))
-          {
-            // Rename finalizer to jaceUserFinalize
-            finalizerFound = true;
-            return classWriter.visitMethod(access, jaceUserFinalize, desc,
-              signature, exceptions);
-          }
-          else if (!deallocationMethodFound && name.equals(deallocationMethod))
-          {
-            // Rename deallocation method to jaceUserClose
-            deallocationMethodFound = true;
-            return classWriter.visitMethod(access, jaceUserClose, desc,
-              signature, exceptions);
-          }
-          return super.visitMethod(access, name, desc, signature, exceptions);
-        }
-
-        @Override
-        public AnnotationVisitor visitAnnotation(String desc, boolean visible)
-        {
-          // Retain all attributes
-          return super.visitAnnotation(desc, visible);
-        }
-      }, 0);
+      final Set<String> nonChainingConstructors = getNonChainingConstructors(classReader);
+      ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+      classReader.accept(new EnhanceNonChainingConstructors(classWriter, nonChainingConstructors), 0);
 
       if (!deallocationMethodFound)
       {
@@ -305,29 +227,29 @@ public class PeerEnhancer
         throw new RuntimeException(msg);
       }
 
-
-      enhanceInitializer(classInitializerFound);
-      addNativeHandle();
-      addNativeLifetimeMethods();
-      addDeallocation();
+      String className = classReader.getClassName();
+      enhanceInitializer(classWriter, className, classInitializerFound);
+      addNativeHandle(classWriter, className);
+      addNativeLifetimeMethods(classWriter);
+      addDeallocation(classWriter, className);
       if (deallocationMethod != null)
-        enhanceDeallocation();
-      enhanceFinalize(finalizerFound);
+        enhanceDeallocation(classWriter, className);
+      enhanceFinalize(classWriter, className, finalizerFound);
+
+      File parentPath = outputFile.getParentFile();
+      if (parentPath != null && !parentPath.exists() && !parentPath.mkdirs())
+      {
+        log.warn("Could not create " + parentPath);
+        return;
+      }
+      BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
+      out.write(classWriter.toByteArray());
+      out.close();
     }
     finally
     {
       in.close();
     }
-
-    File parentPath = outputFile.getParentFile();
-    if (parentPath != null && !parentPath.exists() && !parentPath.mkdirs())
-    {
-      log.warn("Could not create " + parentPath);
-      return;
-    }
-    BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
-    out.write(classWriter.toByteArray());
-    out.close();
   }
 
   /**
@@ -353,9 +275,11 @@ public class PeerEnhancer
    *                         // present if the class already had an initializer.
    * }
    *
+   * @param classWriter the CllassWriter to write to
+   * @param className the class name
    * @param classInitializerFound true if the class initializer already exists
    */
-  private void enhanceInitializer(boolean classInitializerFound)
+  private void enhanceInitializer(ClassWriter classWriter, String className, boolean classInitializerFound)
   {
     // Create method "private native static void jaceSetVm()"
     final int setVmFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_NATIVE;
@@ -381,7 +305,7 @@ public class PeerEnhancer
           "Ljava/io/PrintStream;");
 
         // Push text onto the stack
-        instructions.visitLdcInsn("Loading " + library + "...");
+        instructions.visitLdcInsn(className + ": Loading " + library + "...");
 
         // Invoke System.err.println
         instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
@@ -399,6 +323,26 @@ public class PeerEnhancer
       // Invoke System.loadLibrary()
       instructions.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/System",
         "loadLibrary",
+        Type.getMethodDescriptor(Type.VOID_TYPE,
+        new Type[]
+        {
+          Type.getType(String.class)
+        }));
+    }
+
+    if (verbose)
+    {
+      // Push System.err onto the stack
+      instructions.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
+        "err",
+        "Ljava/io/PrintStream;");
+
+      // Push text onto the stack
+      instructions.visitLdcInsn(className + ": Done loading native libraries...");
+
+      // Invoke System.err.println
+      instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
+        "println",
         Type.getMethodDescriptor(Type.VOID_TYPE,
         new Type[]
         {
@@ -484,9 +428,28 @@ public class PeerEnhancer
     // Make a call to the user's old initializer if there is one.
     if (classInitializerFound)
     {
-      instructions.visitMethodInsn(Opcodes.INVOKESTATIC, className,
-        jaceUserStaticInit,
+      instructions.visitMethodInsn(Opcodes.INVOKESTATIC, className, jaceUserStaticInit,
         Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
+    }
+
+    if (verbose)
+    {
+      // Push System.err onto the stack
+      instructions.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
+        "err",
+        "Ljava/io/PrintStream;");
+
+      // Push text onto the stack
+      instructions.visitLdcInsn(className + ": Exiting class initializer...");
+
+      // Invoke System.err.println
+      instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
+        "println",
+        Type.getMethodDescriptor(Type.VOID_TYPE,
+        new Type[]
+        {
+          Type.getType(String.class)
+        }));
     }
 
     // Return from the method
@@ -507,8 +470,10 @@ public class PeerEnhancer
    *     return jaceNativeHandle;
    *   }
    *
+   * @param classWriter the ClassWriter to write to
+   * @param className the class name
    */
-  private void addNativeHandle()
+  private void addNativeHandle(ClassWriter classWriter, String className)
   {
     // Create field
     int fieldFlags = Opcodes.ACC_PRIVATE;
@@ -565,8 +530,9 @@ public class PeerEnhancer
    *  private native long jaceCreateInstance();
    *  private static native void jaceDestroyInstance( long handle );
    *
+   * @param classWriter the ClassWriter to write to
    */
-  private void addNativeLifetimeMethods()
+  private void addNativeLifetimeMethods(ClassWriter classWriter)
   {
     // Create jaceCreateInstance() method
     int createFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE;
@@ -595,9 +561,11 @@ public class PeerEnhancer
    *     jaceSetNativeHandle(0);
    *   }
    * }
-   *
+   * 
+   * @param classWriter the ClassWriter to write to
+   * @param className the class name
    */
-  private void addDeallocation()
+  private void addDeallocation(ClassWriter classWriter, String className)
   {
     // Create method
     int flags = Opcodes.ACC_PRIVATE;
@@ -612,8 +580,7 @@ public class PeerEnhancer
 
     // Invoke the method
     instructions.visitMethodInsn(Opcodes.INVOKESPECIAL, className,
-      jaceGetNativeHandle,
-      Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
+      jaceGetNativeHandle, Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
 
     // Duplicate the return value for use in the if statement
     instructions.visitInsn(Opcodes.DUP2);
@@ -669,8 +636,11 @@ public class PeerEnhancer
    *
    * jaceUserClose();
    * jaceDispose();
+   * 
+   * @param classWriter the ClassWriter to write to
+   * @param className the class name
    */
-  private void enhanceDeallocation()
+  private void enhanceDeallocation(ClassWriter classWriter, String className)
   {
     // Create the new deallocation method
     final int flags = Opcodes.ACC_PUBLIC;
@@ -698,9 +668,11 @@ public class PeerEnhancer
   /**
    * Enhance class finalizer.
    *
+   * @param classWriter the ClassWriter to write to
+   * @param className the class name
    * @param finalizerExisted true if the class already has a finalizer defined
    */
-  private void enhanceFinalize(boolean finalizerExisted)
+  private void enhanceFinalize(ClassWriter classWriter, String className, boolean finalizerExisted)
   {
     if (!finalizerExisted && deallocationMethodFound)
     {
@@ -819,6 +791,151 @@ public class PeerEnhancer
     catch (IOException e)
     {
       log.error("", e);
+    }
+  }
+
+  /**
+   * Returns a list of non-chaining constructors.
+   *
+   * @author Gili Tzabari
+   */
+  private static class GetNonChainingConstructors extends EmptyVisitor
+  {
+    private final Set<String> result;
+    private String className;
+
+    /**
+     * Creates a new GetNonChainingConstructors.
+     *
+     * @param result the Set to populate with results
+     */
+    public GetNonChainingConstructors(Set<String> result)
+    {
+      this.result = result;
+    }
+
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName,
+                      String[] interfaces)
+    {
+      className = name;
+    }
+
+    @Override
+    public MethodVisitor visitMethod(int access, String name, final String desc, String signature,
+                                     String[] exceptions)
+    {
+      if (name.equals("<init>"))
+      {
+        return new EmptyVisitor()
+        {
+          private boolean constructorIsChained = false;
+
+          @Override
+          public void visitMaxs(int maxStack, int maxLocals)
+          {
+            if (!constructorIsChained)
+              result.add(desc);
+          }
+
+          @Override
+          public void visitMethodInsn(int opcode, String owner, String name, String desc)
+          {
+            if (className.equals(owner) && name.equals("<init>"))
+              constructorIsChained = true;
+          }
+        };
+      }
+      return null;
+    }
+  }
+
+  /**
+   * Initializes the native handle in all non-chaining constructors.
+   *
+   * @author Gili Tzbari
+   */
+  private class EnhanceNonChainingConstructors extends ClassAdapter
+  {
+    private final Set<String> nonChainingConstructors;
+    private final ClassVisitor classVisitor;
+    private String className;
+    private String superClassName;
+
+    /**
+     * Creates a new EnhanceNonChainingConstructors.
+     *
+     * @param classVisitor the ClassVisitor to read from
+     * @param classWriter the ClassWriter to write to
+     * @param nonChainingConstructors a list of the non-chaining constructors in the class
+     */
+    public EnhanceNonChainingConstructors(ClassVisitor classVisitor, Set<String> nonChainingConstructors)
+    {
+      super(classVisitor);
+      this.classVisitor = classVisitor;
+      this.nonChainingConstructors = nonChainingConstructors;
+    }
+
+    /**
+     * Visits the class header.
+     */
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName,
+                      String[] interfaces)
+    {
+      super.visit(version, access, name, signature, superName, interfaces);
+      this.className = name;
+      this.superClassName = superName;
+    }
+
+    /**
+     * 2) Rename the class initializer to jaceUserStaticInit
+     * 3) For non-chaining constructors, invoke
+     *    jaceSetNativeHandle(jaceCreateInstance()) before returning
+     * 4) Renames the user deallocation method to jaceUserClose()
+     * 5) Renames the user finalizer to jaceUserFinalize()
+     */
+    @Override
+    public MethodVisitor visitMethod(int access, String name, String desc, String signature,
+                                     String[] exceptions)
+    {
+      if (name.equals("<clinit>"))
+      {
+        // Rename class initializer to jaceUserStaticInit()
+        classInitializerFound = true;
+        int flags = Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC;
+        return classVisitor.visitMethod(flags, jaceUserStaticInit, desc, null, exceptions);
+      }
+      else if (name.equals("<init>"))
+      {
+        // Is this a non-chaining constructor?
+        if (nonChainingConstructors.contains(desc))
+        {
+          // Generate the method
+          MethodVisitor out = classVisitor.visitMethod(access, name, desc, null, exceptions);
+          return new NonChainingConstructorEnhancer(out, className, superClassName);
+        }
+      }
+      else if (name.equals("finalize"))
+      {
+        // Rename finalizer to jaceUserFinalize
+        finalizerFound = true;
+        return classVisitor.visitMethod(access, jaceUserFinalize, desc, signature, exceptions);
+      }
+      else if (!deallocationMethodFound && name.equals(deallocationMethod))
+      {
+        // Rename deallocation method to jaceUserClose
+        deallocationMethodFound = true;
+        return classVisitor.visitMethod(access, jaceUserClose, desc, signature, exceptions);
+      }
+      return super.visitMethod(access, name, desc, signature, exceptions);
+    }
+
+    @Override
+    public AnnotationVisitor visitAnnotation(String desc, boolean visible)
+    {
+      // Retain all attributes
+      return super.visitAnnotation(desc, visible);
     }
   }
 }

@@ -322,14 +322,6 @@ public:
   JACE_API Verbose( ComponentType component );
 
 	/**
-	 * Creates a new Verbose option.
-	 *
-	 * @param begin the first component type
-	 * @param end the last component type
-	 */
-  JACE_API Verbose( std::vector<ComponentType>::const_iterator begin, std::vector<ComponentType>::const_iterator end );
-
-	/**
 	 * Copy constructor.
 	 */
 	JACE_API Verbose( const Verbose& other );
@@ -349,22 +341,7 @@ private:
 	 * @param component the component type
 	 */
 	std::string toString(ComponentType component) const;
-	/**
-	 * Returns a vector containing a single value.
-	 *
-	 * @param component the value
-	 */
-	static std::vector<ComponentType> createVector( ComponentType& component );
-	/**
-	 * Returns a vector containing a collection of values
-	 *
-	 * @param begin the first element
-	 * @param end the last element
-	 */
-	static std::vector<ComponentType> createVector( std::vector<ComponentType>::const_iterator begin, 
-		std::vector<ComponentType>::const_iterator end );
-
-  const std::vector<ComponentType> options;
+  const ComponentType componentType;
 };
 
 

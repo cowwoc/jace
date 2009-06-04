@@ -7,12 +7,8 @@ import jace.metaclass.MetaClass;
 import jace.metaclass.MetaClassFactory;
 import jace.metaclass.JaceConstants;
 import jace.metaclass.TypeName;
-import jace.metaclass.TypeNameFactory;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
-import jace.parser.attribute.Attribute;
-import jace.parser.attribute.InnerClassesAttribute;
-import jace.parser.attribute.InnerClassesAttribute.InnerClass;
 import jace.parser.method.ClassMethod;
 import jace.parser.method.MethodAccessFlag;
 import jace.proxygen.ProxyGenerator;
@@ -349,7 +345,7 @@ public class PeerGenerator
 
     MetaClass peerMetaClass = metaClass.toPeer();
     String fullPeerName = "::" + peerMetaClass.getFullyQualifiedName("::");
-    String className = mangleName(metaClass.getFullyQualifiedName("/"));
+    String className = mangleName(metaClass.getFullyQualifiedTrueName("/"));
 
     String msg = "These JNI mappings are for the Jace Peer for " + fullName + "." + newLine +
                  "Please do not edit these JNI mappings. Any changes made will be overwritten." + newLine +
@@ -392,7 +388,7 @@ public class PeerGenerator
 
       Util.generateComment(output, "The JNI mapping for" + newLine +
                                    newLine +
-                                   "Class: " + mangleName(metaClass.getFullyQualifiedName("/")) + newLine +
+                                   "Class: " + mangleName(metaClass.getFullyQualifiedTrueName("/")) + newLine +
                                    "Method: " + method.getName() + newLine +
                                    "Signature: " + method.getDescriptor());
 
@@ -610,13 +606,12 @@ public class PeerGenerator
    * @param method the method
    * @return the C++ function name
    */
-  private String getNativeMethodName(MetaClass metaClass, ClassMethod method)
+  private String getNativeMethodName(ClassMetaClass metaClass, ClassMethod method)
   {
     List<TypeName> parameterTypes = method.getParameterTypes();
 
     StringBuilder nativeName = new StringBuilder("Java_");
-    String mangledClassName = metaClass.getFullyQualifiedName("/");
-    mangledClassName = mangleName(mangledClassName);
+    String mangledClassName = mangleName(metaClass.getFullyQualifiedTrueName("/"));
     String mangledMethodName = mangleName(method.getName());
 
     nativeName.append(mangledClassName);
