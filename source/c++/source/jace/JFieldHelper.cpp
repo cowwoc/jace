@@ -84,7 +84,7 @@ jfieldID JFieldHelper::getFieldID( const JClass* parentClass, bool isStatic ) {
 		{
 			helper::catchAndThrow();
 		}
-		catch (JNIException e)
+		catch ( std::exception& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());

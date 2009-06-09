@@ -232,7 +232,7 @@ void registerShutdownHook( JNIEnv *env ) {
 		{
 			helper::catchAndThrow();
 		}
-		catch (JNIException& e)
+		catch ( std::exception& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
@@ -253,7 +253,7 @@ void registerShutdownHook( JNIEnv *env ) {
 	{
 		helper::catchAndThrow();
 	}
-	catch (JNIException& e)
+	catch ( std::exception& e )
 	{
 		string msg = "Exception thrown invoking ShutdownHook.registerIfNecessary()";
 		msg.append("\ncaused by:\n");
@@ -333,7 +333,6 @@ void shutdown() {
  * @see attach(const jobject, const char*, const bool)
  */
 JNIEnv* attach() throw ( JNIException ) {
-
 	return attach(0, 0, false);
 }
 
@@ -353,9 +352,8 @@ JNIEnv* attach() throw ( JNIException ) {
 JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw ( JNIException ) {
 
 	mutex::scoped_lock lock(shutdownMutex);
-  if ( hasShutdown() ) {
+  if ( hasShutdown() )
     throw JNIException( "The VM has already been shutdown." );
-  }
 
   JNIEnv* env;
 	JavaVMAttachArgs args = {0};
@@ -656,7 +654,7 @@ void catchAndThrow() {
 		{
 			helper::catchAndThrow();
 		}
-		catch (JNIException& e)
+		catch ( std::exception& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
@@ -715,7 +713,7 @@ string toString( jobject obj ) {
 		{
 			helper::catchAndThrow();
 		}
-		catch (JNIException& e)
+		catch ( std::exception& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
@@ -731,7 +729,7 @@ string toString( jobject obj ) {
 		{
 			helper::catchAndThrow();
 		}
-		catch (JNIException& e)
+		catch ( std::exception& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());

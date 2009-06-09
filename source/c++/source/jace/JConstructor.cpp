@@ -164,7 +164,7 @@ jmethodID JConstructor::getMethodID( const JClass* jClass, const JArguments& arg
 		{
 			helper::catchAndThrow();
 		}
-		catch (JNIException e)
+		catch ( std::exception& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());

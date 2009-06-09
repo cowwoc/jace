@@ -161,7 +161,7 @@ jclass JClassImpl::getClass() const throw ( JNIException ) {
 			{
 				helper::catchAndThrow();
 			}
-			catch (JNIException& e)
+			catch ( std::exception& e )
 			{
 				msg.append("\ncaused by:\n");
 				msg.append(e.what());
@@ -181,7 +181,7 @@ jclass JClassImpl::getClass() const throw ( JNIException ) {
 		{
 			helper::catchAndThrow();
 		}
-		catch (JNIException& e)
+		catch ( std::exception& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());

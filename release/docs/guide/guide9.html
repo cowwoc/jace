@@ -14,7 +14,7 @@
         </td>
       </tr>
       <tr>
-        <td align="right"> 
+        <td align="right">
           <font size="+2">
             <b>A VM Loading Example</b>
           </font>
@@ -37,7 +37,7 @@
 #include "jace/OptionList.h"
 using jace::OptionList;
 using jace::Option;
-using jace::Classpath;
+using jace::ClassPath;
 using jace::Verbose;
 using jace::CustomOption;
 
@@ -52,7 +52,7 @@ using jace::StaticVmLoader;
   using ::jace::UnixVmLoader;
 #endif
 
-#include <iostream>
+#include &lt;iostream&gt;
 using std::cout;
 using std::endl; </pre></code></font>
 
@@ -98,8 +98,9 @@ int main( int argc, char* argv[] ) {
   <font face="Verdana" size="+1" color="#000066"><code><pre>
   OptionList options;
 
-  options.push_back( Classpath( "." ) );
-  options.push_back( Verbose( Verbose::Jni, Verbose::Class ) );
+  options.push_back( ClassPath( "." ) );
+  options.push_back( Verbose( Verbose::JNI ) );
+  options.push_back( Verbose( Verbose::CLASS ) );
   options.push_back( CustomOption( "-Xmx128M" ) ); </pre></code></font>
 
   <p>

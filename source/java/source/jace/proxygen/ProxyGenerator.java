@@ -1008,8 +1008,10 @@ public class ProxyGenerator
 
     MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
 
-    Util.generateComment(output, "The Jace C++ proxy class for " + classFile.getClassName() + "." + newLine +
-                                 "Please do not edit this class, as any changes you make will be overwritten." + newLine +
+    Util.generateComment(output, "The Jace C++ proxy class for " + classFile.getClassName().asIdentifier() +
+                                 "." + newLine +
+                                 "Please do not edit this class, as any changes you make will be " +
+                                 "overwritten." + newLine +
                                  "For more information, please refer to the Jace Developer's Guide.");
 
     output.write("class ");

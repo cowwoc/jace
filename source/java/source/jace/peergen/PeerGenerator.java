@@ -422,7 +422,7 @@ public class PeerGenerator
       else if (methodName.equals("jaceDestroyInstance"))
       {
         output.write("extern \"C\" JNIEXPORT void JNICALL ");
-        output.write("Java_" + className + "_jaceDestroyInstance( JNIEnv*, jlong jNativeHandle ) {" + newLine);
+        output.write("Java_" + className + "_jaceDestroyInstance( JNIEnv*, jclass, jlong jNativeHandle ) {" + newLine);
         output.write("  try {" + newLine);
         output.write("    ::jace::Peer* peer = reinterpret_cast< ::jace::Peer*>( jNativeHandle );" + newLine);
         output.write("    peer->destroy();" + newLine);

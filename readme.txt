@@ -44,7 +44,6 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - Regression: ProxyGenerator.getDependentClasses() was returning super classes and interfaces contrary to its contract
 - PeerGenerator was missing forward-declarations of used classes
 - A PeerEnhancer bug would sometimes trigger "VerifyError: Unable to pop operand off an empty stack" errors; fixed.
-
 - Invoking C++ peer methods from within a Java Peer constructor would crash; fixed.
 - PeerGenerator was generating the wrong signature for jaceSetVm; fixed.
 - Jace was referring to JNIException using an unqualified name, causing conflicts if
@@ -59,6 +58,9 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - Nested classes weren't being processed properly; fixed.
 - Added Peer.getJavaProxy(), allowing navigation from a Peer object to its Proxy.
 - AutoProxy and GenerateCppProxies now allow you to specify the method accessibility to expose.
+- Fixed crashes that occurred because some internal methods were catching JNIException instead of std::exception.
+- OptionList::Verbose is now more consistent with other options, only accepting a single option at a time.
+- Fixed UnsatisfiedLinkError caused by PeerGenerator generating the wrong signature for jaceDestroyInstance()
 
 Compatibility breakers:
 
