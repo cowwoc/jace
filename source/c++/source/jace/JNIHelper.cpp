@@ -36,14 +36,6 @@ using ::jace::VmLoader;
 using std::cout;
 using std::endl;
 
-#ifdef SUPPORTS_SSTREAM
-  #include <sstream>
-  using std::stringstream;
-#else
-  #include <strstream>
-  using std::strstream;
-#endif
-
 #include <algorithm>
 using std::copy;
 using std::replace;
@@ -56,6 +48,7 @@ using std::map;
 
 #include <string>
 using std::string;
+using std::wstring;
 
 #pragma warning(push)
 #pragma warning(disable: 4103 4244 4512)
@@ -109,26 +102,6 @@ FactoryMap* getFactoryMap() {
   static FactoryMap factoryMap;
   return &factoryMap;
 }
-
-// A quick hack to get a string representation for any value
-// This should probably go into some framework utility class
-#ifdef SUPPORTS_SSTREAM
-
-  template <class T> string toString( T value ) {
-    stringstream stream;
-    stream << value;
-    return stream.str();
-  }
-
-#else
-
-  template <class T> string toString( T value ) {
-    strstream stream;
-    stream << value;
-    return string( stream.str(), stream.pcount() );
-  }
-
-#endif
 
 void classLoaderDestructor( jobject* value ) {
 

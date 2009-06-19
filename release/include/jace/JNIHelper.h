@@ -26,6 +26,16 @@
 #include "jace/OptionList.h"
 #endif
 
+#ifdef SUPPORTS_SSTREAM
+  #include <sstream>
+  using std::stringstream;
+	using std::wstringstream;
+#else
+  #include <strstream>
+  using std::strstream;
+	using std::wstrstream;
+#endif
+
 BEGIN_NAMESPACE( jace )
 class Peer;
 END_NAMESPACE( jace )
@@ -222,6 +232,34 @@ JACE_API jobject getClassLoader();
  *
  */
 JACE_API void setClassLoader( jobject classLoader );
+
+/**
+ * Returns the string representation of any type.
+ */
+template <class T> std::string toString( T value )
+{
+#ifdef SUPPORTS_SSTREAM
+    std::stringstream stream;
+#else
+    std::strstream stream;
+#endif
+    stream << value;
+    return stream.str();
+}
+
+/**
+ * Returns the wstring representation of any type.
+ */
+template <class T> std::wstring toWString( T value )
+{
+#ifdef SUPPORTS_SSTREAM
+    std::wstringstream stream;
+#else
+    std::wstrstream stream;
+#endif
+    stream << value;
+    return stream.str();
+}
 
 /**
  * Returns the result of calling Object.toString() on obj.

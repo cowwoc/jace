@@ -9,7 +9,7 @@
 		</layout>
 	</appender>
 	<root>
-		<level value="info"/>
+		<level value="warn"/>
 		<appender-ref ref="RootConsoleAppender"/>
 	</root>
 </configuration>

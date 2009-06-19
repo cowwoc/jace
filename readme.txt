@@ -60,7 +60,11 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - AutoProxy and GenerateCppProxies now allow you to specify the method accessibility to expose.
 - Fixed crashes that occurred because some internal methods were catching JNIException instead of std::exception.
 - OptionList::Verbose is now more consistent with other options, only accepting a single option at a time.
-- Fixed UnsatisfiedLinkError caused by PeerGenerator generating the wrong signature for jaceDestroyInstance()
+- Fixed UnsatisfiedLinkError caused by PeerGenerator generating the wrong signature for jaceDestroyInstance().
+- It is now possible to convert between java::lang::String and std::wstring.
+- Renamed library directories to from win32 and x64 to i386 and amd64 respectively.
+- Added jace::helper::toString(T) and jace::helper::toWString(T) to convert any type to a std::string or
+  std::wstring respectively.
 
 Compatibility breakers:
 
@@ -77,6 +81,7 @@ Compatibility breakers:
   2) The user does not specify the Java Peer dispose method to be enhanced
   
 - class Verbose now takes Verbose::ComponentType as input instead of String
+- Dropped support for old versions of Visual C++. We now only support Visual Studio 2008.
 
 -------------- New changes in 1.1.1
 

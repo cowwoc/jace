@@ -249,6 +249,13 @@ public class ProxyGenerator
     output.write("#include \"jace/JClassImpl.h\"" + newLine);
     output.write("#endif" + newLine);
     output.write("using jace::JClassImpl;" + newLine);
+
+    String className = classFile.getClassName().asIdentifier();
+    if (className.equals("java.lang.String"))
+    {
+      output.write(newLine);
+      output.write("#include \"jace/proxy/java/lang/Integer.h\"" + newLine);
+    }
   }
 
   /**
@@ -586,6 +593,23 @@ public class ProxyGenerator
       output.write("}" + newLine);
       output.write(newLine);
 
+      output.write("String::String( const std::wstring& str ) : Object( NO_OP ) {" + newLine);
+      output.write("  JNIEnv* env = ::jace::helper::attach();" + newLine);
+      output.write("  size_t nativeLength = str.size();" + newLine);
+      output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE())) { " +
+                   newLine);
+      output.write("    throw ::jace::JNIException( std::string(\"String::operator std::wstring() - " +
+                   "nativeLength (\") +" + newLine);
+      output.write("      jace::helper::toString(nativeLength) + \") > Integer.MAX_VALUE.\" );" + newLine);
+      output.write("  }" + newLine);
+      output.write("  jsize length = jsize( str.size() );" + newLine);
+      output.write("  jstring strRef = env->NewString( reinterpret_cast<const jchar*>( str.c_str() ), length );" +
+                   newLine);
+      output.write("  setJavaJniObject( strRef );" + newLine);
+      output.write("  ::jace::helper::deleteLocalRef( env, strRef );" + newLine);
+      output.write("}" + newLine);
+      output.write(newLine);
+
       output.write("String::String( const char* str ) : Object( NO_OP ) {" + newLine);
       output.write("  jstring strRef = createString( str );" + newLine);
       output.write("  setJavaJniObject( strRef );" + newLine);
@@ -600,7 +624,7 @@ public class ProxyGenerator
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("std::string String::getCString() const {" + newLine);
+      output.write("String::operator std::string() const {" + newLine);
       output.write("  JNIEnv* env = helper::attach();" + newLine);
       output.write("  jstring thisString = static_cast<jstring>( getJavaJniObject() );" + newLine);
       output.write("  jclass cls = getJavaJniClass()->getClass();" + newLine);
@@ -611,20 +635,19 @@ public class ProxyGenerator
       output.write("  if ( ! array ) {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    std::string msg = \"String::getCString - Unable to get the contents of the java String.\";" +
+      output.write("    throw ::jace::JNIException( \"String::operator std::string()- Unable to get the contents of the java String.\" );" +
                    newLine);
-      output.write("    throw ::jace::JNIException( msg );" + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
       output.write("  int arraySize = env->GetArrayLength( array );" + newLine);
       output.write("  jbyte* byteArray = env->GetByteArrayElements( array, 0 );" + newLine);
       output.write(newLine);
-      output.write("  if ( ! byteArray ) {" + newLine);
+      output.write("  if ( !byteArray ) {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    std::string msg = \"String::getCString - Unable to get the contents of the java String.\";" +
+      output.write("    throw ::jace::JNIException( \"String::operator std::string() - Unable to get the " +
+                   "contents of the java String.\" );" +
                    newLine);
-      output.write("    throw ::jace::JNIException( msg );" + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
       output.write("  std::string str( ( char* ) byteArray, ( char* ) byteArray + arraySize );" + newLine);
@@ -634,16 +657,38 @@ public class ProxyGenerator
       output.write("}" + newLine);
       output.write(newLine);
 
+      output.write("String::operator std::wstring() const {" + newLine);
+      output.write("  JNIEnv* env = helper::attach();" + newLine);
+      output.write("  jstring thisString = static_cast<jstring>( getJavaJniObject() );" + newLine);
+      output.write("  const jchar* buffer = env->GetStringChars(thisString, 0);" + newLine);
+      output.write("  if ( !buffer ) {" + newLine);
+      output.write("    env->ExceptionDescribe();" + newLine);
+      output.write("    env->ExceptionClear();" + newLine);
+      output.write("    throw ::jace::JNIException( \"String::operator std::wstring() - Unable to get the " +
+                   "contents of the java String.\" );" + newLine);
+      output.write("  }" + newLine);
+      output.write("  std::wstring result = reinterpret_cast<const wchar_t*>(buffer);" + newLine);
+      output.write("  env->ReleaseStringChars(thisString, buffer);" + newLine);
+      output.write("  return result;" + newLine);
+      output.write("}" + newLine);
+      output.write(newLine);
+
       output.write("jstring String::createString( const std::string& str ) {" + newLine);
       output.write("  JNIEnv* env = helper::attach();" + newLine);
-      output.write("  jsize bufLen = jsize( str.size() );" + newLine);
+      output.write("  size_t nativeLength = str.size();" + newLine);
+      output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE())) { " +
+                   newLine);
+      output.write("    throw ::jace::JNIException( std::string(\"String::operator std::wstring() - " +
+                   "nativeLength (\") +" + newLine);
+      output.write("      jace::helper::toString(nativeLength) + \") > Integer.MAX_VALUE.\" );" + newLine);
+      output.write("  }" + newLine);
+      output.write("  jsize bufLen = jsize( nativeLength );" + newLine);
       output.write("  jbyteArray jbuf = env->NewByteArray( bufLen );" + newLine + newLine);
       output.write("  if ( ! jbuf ) {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    std::string msg = \"String::createString - Unable to allocate a new java String.\";" +
+      output.write("    throw ::jace::JNIException( \"String::createString - Unable to allocate a new java String.\" );" +
                    newLine);
-      output.write("    throw ::jace::JNIException( msg );" + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
       output.write("  env->SetByteArrayRegion( jbuf, 0, bufLen, ( jbyte* ) str.c_str() );" + newLine);
@@ -654,9 +699,8 @@ public class ProxyGenerator
       output.write("  if ( ! jstr ) {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    std::string msg = \"String::createString - Unable to allocate a new java String.\";" +
+      output.write("    throw ::jace::JNIException( \"String::createString - Unable to allocate a new java String.\" );" +
                    newLine);
-      output.write("    throw ::jace::JNIException( msg );" + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
       output.write("  ::jace::helper::deleteLocalRef( env, jbuf );" + newLine);
@@ -665,32 +709,32 @@ public class ProxyGenerator
       output.write(newLine);
 
       output.write("std::ostream& operator<<( std::ostream& stream, const String& str ) {" + newLine);
-      output.write("  return stream << str.getCString();" + newLine);
+      output.write("  return stream << (std::string) str;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
       output.write("std::string operator+( const std::string& stdStr, const String& jStr ) {" + newLine);
-      output.write("  return stdStr + jStr.getCString();" + newLine);
+      output.write("  return stdStr + (std::string) jStr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
       output.write("std::string operator+( const String& jStr, const std::string& stdStr ) {" + newLine);
-      output.write("  return jStr.getCString() + stdStr;" + newLine);
+      output.write("  return (std::string) jStr + stdStr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
       output.write("String String::operator+( String str ) {" + newLine);
-      output.write("  return getCString() + str.getCString();" + newLine);
+      output.write("  return (std::string) *this + (std::string) str;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
       output.write("bool operator==( const std::string& stdStr, const String& str ) {" + newLine);
-      output.write("  return str.getCString() == stdStr;" + newLine);
+      output.write("  return (std::string) str == stdStr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
       output.write("bool operator==( const String& str, const std::string& stdStr ) {" + newLine);
-      output.write("  return str.getCString() == stdStr;" + newLine);
+      output.write("  return (std::string) str == stdStr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
     }
@@ -1424,10 +1468,16 @@ public class ProxyGenerator
     }
     else if (fullyQualifiedName.equals("java.lang.String"))
     {
-      Util.generateComment(output, "Creates a String from a std::string.");
+      Util.generateComment(output, "Creates a String from a std::string using the default charset.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
       output.write("String( const std::string& str );" + newLine);
+      output.write(newLine);
+
+      Util.generateComment(output, "Creates a String from a std::wstring.");
+      if (exportSymbols)
+        output.write("JACE_PROXY_API ");
+      output.write("String( const std::wstring& str );" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Creates a String from a c string.");
@@ -1442,10 +1492,16 @@ public class ProxyGenerator
       output.write("String& operator=( const String& str );" + newLine);
       output.write(newLine);
 
-      Util.generateComment(output, "Converts a jace::java::lang::String to a std::string.");
+      Util.generateComment(output, "Converts a String to a std::string.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("operator std::string() { return getCString(); }" + newLine);
+      output.write("operator std::string() const;" + newLine);
+      output.write(newLine);
+
+      Util.generateComment(output, "Converts a String to a std::wstring.");
+      if (exportSymbols)
+        output.write("JACE_PROXY_API ");
+      output.write("operator std::wstring() const;" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Allows Strings to be written to ostreams.");
@@ -1487,12 +1543,8 @@ public class ProxyGenerator
       output.write("private:" + newLine);
       output.write(newLine);
 
-      Util.generateComment(output, "Creates a new jstring from a std::string.");
+      Util.generateComment(output, "Creates a new jstring from a std::string using the default charset.");
       output.write("jstring createString( const std::string& str );" + newLine);
-      output.write(newLine);
-
-      Util.generateComment(output, "Retrieves a std::string from this String.");
-      output.write("std::string getCString() const;" + newLine);
       output.write(newLine);
 
       output.write("public:" + newLine);
