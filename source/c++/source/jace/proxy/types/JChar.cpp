@@ -13,10 +13,11 @@ using std::ostream;
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
+JClassImpl JChar::javaClass("char", "C");
+
 JChar::JChar( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JChar::JChar( jchar char_ ) {
   jvalue value;
@@ -51,7 +52,6 @@ bool JChar::operator!=( jchar val ) const {
 }
 
 const JClass* JChar::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "char", "C" );
   return &javaClass;
 }
 

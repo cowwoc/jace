@@ -18,6 +18,10 @@
 #include "jace/JClass.h"
 #endif
 
+#ifndef JACE_JCLASSIMPL_H
+#include "jace/JClassImpl.h"
+#endif
+
 #ifndef JACE_JVALUE_H
 #include "jace/proxy/JValue.h"
 #endif
@@ -35,87 +39,65 @@ BEGIN_NAMESPACE_3( jace, proxy, types )
  * @author Toby Reyelts
  *
  */
-class JFloat : public JValue {
-
-
+class JFloat : public JValue
+{
 public:
+	/**
+	 * Creates a new instance with the given value.
+	 */
+	JACE_API JFloat( jvalue value );
 
+	/**
+	 * Creates a new instance with the given value.
+	 */
+	JACE_API JFloat( jfloat value );
 
-/**
- * Creates a new instance with the given value.
- *
- */
-JACE_API JFloat( jvalue value );
+	/**
+	 * Destroys the existing java object.
+	 */
+	JACE_API virtual ~JFloat();
 
+	/**
+	 * Returns the value of this instance.
+	 */
+	JACE_API operator jfloat() const;
 
-/**
- * Creates a new instance with the given value.
- *
- */
-JACE_API JFloat( jfloat value );
+	/**
+	 * Returns the value of this instance.
+	 */
+	JACE_API jfloat getFloat() const;
 
+	/**
+	 * Compares this instance to another.
+	 */
+	JACE_API bool operator==( const JFloat& value ) const;
 
-/**
- * Destroys the existing java object.
- *
- */
-JACE_API virtual ~JFloat();
+	/**
+	 * Compares this instance to another.
+	 */
+	JACE_API bool operator!=( const JFloat& value ) const;
 
+	/**
+	 * Compares this instance to another.
+	 */
+	JACE_API bool operator==( jfloat value ) const;
 
-/**
- * Returns the value of this instance.
- *
- */
-JACE_API operator jfloat() const;
+	/**
+	 * Compares this instance to another.
+	 */
+	JACE_API bool operator!=( jfloat value ) const;
 
-/**
- * Returns the value of this instance.
- *
- */
-JACE_API jfloat getFloat() const;
+	/**
+	 * Returns the JClass for this class.
+	 */
+	JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
 
-
-/**
- * Compares this instance to another.
- *
- */
-JACE_API bool operator==( const JFloat& value ) const;
-
-
-/**
- * Compares this instance to another.
- *
- */
-JACE_API bool operator!=( const JFloat& value ) const;
-
-
-/**
- * Compares this instance to another.
- *
- */
-JACE_API bool operator==( jfloat value ) const;
-
-
-/**
- * Compares this instance to another.
- *
- */
-JACE_API bool operator!=( jfloat value ) const;
-
-
-/**
- * Returns the JClass for this class.
- *
- */
-JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
-
-
-/**
- * Returns the JClass for this instance.
- *
- */
-JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
-
+	/**
+	 * Returns the JClass for this instance.
+	 */
+	JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
+private:
+	static JClassImpl javaClass;
 };
 
 

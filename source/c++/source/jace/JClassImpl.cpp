@@ -1,4 +1,3 @@
-
 #include "jace/JClassImpl.h"
 
 #ifndef JACE_JNI_HELPER_H
@@ -7,6 +6,11 @@
 
 using std::string;
 using std::auto_ptr;
+
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
 
 BEGIN_NAMESPACE( jace )
 
@@ -30,41 +34,9 @@ BEGIN_NAMESPACE( jace )
 JClassImpl::JClassImpl( const string name, const string nameAsType ) :
   mName( name ), 
   mNameAsType( nameAsType ),
-  mClass( 0 ) {
-}
-
-
-/**
- * Destroys this JClassImpl.
- *
- */
-JClassImpl::~JClassImpl() throw () {
-
-  if ( mClass ) {
-
-    try {
-
-      if ( helper::hasShutdown() ) {
-        return;
-      }
-
-      JNIEnv* env = helper::attach();
-      helper::deleteGlobalRef( env, mClass );
-    }
-    catch ( std::exception& e ) {
-
-      ( void ) e; // Shut the compiler up.
-
-      /* Purposely ignored.
-       *
-       * JClassImpls are often used statically, and don't undergo destruction until
-       * after their VM has already been destroyed. At that time, the attach will fail.
-       */
-
-      // cout << "JClassImpl::~JClassImpl()" << endl;
-      // cout << "Unable to release a global reference." << endl;
-    }
-  }
+	mClass( 0 )
+{
+	mutex = new boost::mutex();
 }
 
 
@@ -93,7 +65,35 @@ JClassImpl::~JClassImpl() throw () {
 // JClassImpl::JClassImpl( const string& name ) : 
 JClassImpl::JClassImpl( const string name ) : 
   mName( name ),
-  mNameAsType( "L" + name + ";" ) {
+  mNameAsType( "L" + name + ";" ),
+	mClass ( 0 )
+{
+	mutex = new boost::mutex();
+}
+	
+/**
+ * Destroys this JClassImpl.
+ */
+JClassImpl::~JClassImpl() throw ()
+{
+	delete mutex;
+	if ( mClass )
+	{
+		try
+		{
+      if ( helper::hasShutdown() )
+        return;
+
+      JNIEnv* env = helper::attach();
+      helper::deleteGlobalRef( env, mClass );
+    }
+    catch ( std::exception& )
+		{
+			// Ignore silently. JClassImpls are often used statically, and don't undergo
+			// destruction until after their VM has already been destroyed. At that time,
+			// the attach will fail.
+    }
+  }
 }
 
 
@@ -102,9 +102,9 @@ JClassImpl::JClassImpl( const string name ) :
  * JNIEnv::FindClass.
  *
  * For example, "java/lang/Object".
- *
  */
-const string& JClassImpl::getName() const {
+const string& JClassImpl::getName() const
+{
   return mName;
 }
 
@@ -114,94 +114,84 @@ const string& JClassImpl::getName() const {
  * in a call to JNIEnv::GetMethodID.
  *
  * For example, "Ljava/lang/Object;".
- *
  */
-const string& JClassImpl::getNameAsType() const {
+const string& JClassImpl::getNameAsType() const
+{
   return mNameAsType;
 }
 
 
 /**
  * Returns the JNI representation of this class.
- *
  */
-jclass JClassImpl::getClass() const throw ( JNIException ) {
-
-  if ( mClass ) {
-    return mClass;
-  }
-
-  JNIEnv* env = helper::attach();
-
-	jobject classLoader = jace::helper::getClassLoader();
-	jclass localClass;
-
-	if ( classLoader != 0 )
+jclass JClassImpl::getClass() const throw ( JNIException )
+{
+	if (mClass == 0)
 	{
-		std::string binaryName( getName() );
-		size_t i = 0;
-		
-		// Replace '/' by '.' in the name
-		while (true) {
+		boost::mutex::scoped_lock lock(*mutex);
+		JNIEnv* env = helper::attach();
 
-			i = binaryName.find( '/', i );
-			if ( i != std::string::npos )
+		jobject classLoader = jace::helper::getClassLoader();
+		jclass localClass;
+
+		if ( classLoader != 0 )
+		{
+			std::string binaryName( getName() );
+			size_t i = 0;
+			
+			// Replace '/' by '.' in the name
+			while (true)
 			{
-				binaryName[i] = '.';
-				++i;
+				i = binaryName.find( '/', i );
+				if ( i != std::string::npos )
+				{
+					binaryName[i] = '.';
+					++i;
+				}
+				else
+					break;
 			}
-			else
-				break;
+			jclass classLoaderClass = env->GetObjectClass( classLoader );
+			jmethodID loadClass = env->GetMethodID( classLoaderClass, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;" );
+			if ( loadClass == 0 )
+			{
+				string msg = "JClass::getClass - Unable to find the method JNIHelper::getClassLoader().loadClass()";
+				try
+				{
+					helper::catchAndThrow();
+				}
+				catch ( JNIException& e )
+				{
+					msg.append("\ncaused by:\n");
+					msg.append(e.what());
+				}
+				throw JNIException( msg );
+			}
+			jstring javaString = env->NewStringUTF( binaryName.c_str() );
+			localClass = static_cast<jclass>( env->CallObjectMethod( classLoader, loadClass, javaString ) );
+			env->DeleteLocalRef( javaString );
 		}
-		jclass classLoaderClass = env->GetObjectClass( classLoader );
-		jmethodID loadClass = env->GetMethodID( classLoaderClass, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;" );
-		if ( loadClass == 0 ) {
-			string msg = "JClass::getClass - Unable to find the method JNIHelper::getClassLoader().loadClass()";
+		else
+			localClass = env->FindClass( getName().c_str() );
+
+		if ( ! localClass ) {
+			string msg = "JClass::getClass - Unable to find the class <" + getName() + ">";
 			try
 			{
 				helper::catchAndThrow();
 			}
-			catch ( std::exception& e )
+			catch ( JNIException& e )
 			{
 				msg.append("\ncaused by:\n");
 				msg.append(e.what());
 			}
 			throw JNIException( msg );
 		}
-		jstring javaString = env->NewStringUTF( binaryName.c_str() );
-		localClass = static_cast<jclass>( env->CallObjectMethod( classLoader, loadClass, javaString ) );
-		env->DeleteLocalRef( javaString );
+
+		mClass = static_cast<jclass>( helper::newGlobalRef( env, localClass ) );
+		helper::deleteLocalRef( env, localClass );
 	}
-	else
-		localClass = env->FindClass( getName().c_str() );
-
-  if ( ! localClass ) {
-    string msg = "JClass::getClass - Unable to find the class <" + getName() + ">";
-		try
-		{
-			helper::catchAndThrow();
-		}
-		catch ( std::exception& e )
-		{
-			msg.append("\ncaused by:\n");
-			msg.append(e.what());
-		}
-    throw JNIException( msg );
-  }
-
-  mClass = static_cast<jclass>( helper::newGlobalRef( env, localClass ) );
-  helper::deleteLocalRef( env, localClass );
-
   return mClass;
-}
-
-
-/**
- * Creates a duplicate instance of this JClass.
- *
- */
-auto_ptr<JClass> JClassImpl::clone() const {
-  return auto_ptr<JClass>( new JClassImpl( *this ) );
 }
 
 END_NAMESPACE( jace )

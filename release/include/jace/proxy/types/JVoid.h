@@ -18,6 +18,10 @@
 #include "jace/JClass.h"
 #endif
 
+#ifndef JACE_JCLASSIMPL_H
+#include "jace/JClassImpl.h"
+#endif
+
 #ifndef JACE_JVALUE_H
 #include "jace/proxy/JValue.h"
 #endif
@@ -35,28 +39,24 @@ BEGIN_NAMESPACE_3( jace, proxy, types )
  * @author Toby Reyelts
  *
  */
-class JVoid : public JValue {
-
-
+class JVoid : public JValue
+{
 public:
+	/**
+	 * Returns the JClass for the Void type.
+	 *
+	 * @throw JNIException if an error occurs while trying to retrieve the class.
+	 */
+	JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
 
-/**
- * Returns the JClass for the Void type.
- *
- * @throw JNIException if an error occurs while trying to retrieve the class.
- *
- */
-JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
-
-
-/**
- * Returns the JClass for the Void type.
- *
- * @throw JNIException if an error occurs while trying to retrieve the class.
- *
- */
-JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
-
+	/**
+	 * Returns the JClass for the Void type.
+	 *
+	 * @throw JNIException if an error occurs while trying to retrieve the class.
+	 */
+	JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
+private:
+	static JClassImpl javaClass;
 };
 
 

@@ -41,12 +41,14 @@ BEGIN_NAMESPACE_2( jace, proxy )
  *   static const JClass* staticGetJavaJniClass() throw ( JNIException ) and
  *   const JClass* getJavaJniClass() const throw ( JNIException )
  *
- *   staticGetJavaJniClass must return the same value as getJavaJniClass().
- * For example, Object implements staticGetJavaJniClass() and getJavaJniClass()
- * in a preferred fashion:
+ *   staticGetJavaJniClass() must return the same value as getJavaJniClass().
+ *   For example, Object implements staticGetJavaJniClass() and getJavaJniClass()
+ *   in a preferred fashion:
+ *
+ *
+ *   JClassImpl JObject::javaClass("java/lang/Object"); // static member variable
  *
  *   const JClass* Object::staticGetJavaJniClass() throw ( JNIException ) {
- *     static JClassImpl javaClass( "java/lang/Object" );
  *     return &javaClass;
  *   }
  *
@@ -55,79 +57,65 @@ BEGIN_NAMESPACE_2( jace, proxy )
  *   }
  *
  * @author Toby Reyelts
- *
+ * @author Gili Tzabari
  */
-class JValue {
-
+class JValue
+{
 public:
+	/**
+	 * Constructs a new JValue.
+	 */
+	JACE_API JValue();
 
-/**
- * Constructs a new JValue.
- *
- */
-JACE_API JValue();
+	/**
+	 * Destroys the existing JValue.
+	 */
+	JACE_API virtual ~JValue();
 
+	/** 
+	 * Returns the underlying JNI jvalue for this JValue.
+	 */
+	JACE_API jvalue getJavaJniValue();
 
-/**
- * Destroys the existing JValue.
- *
- */
-JACE_API virtual ~JValue();
+	/** 
+	 * Returns the underlying JNI jvalue for this JValue.
+	 *
+	 * Callers of this method should be careful not to call modifying
+	 * methods on the returned jvalue.
+	 *
+	 * This method should really be protected, but there is a bug in
+	 * Visual C++ which requires us to make this public.
+	 */
+	JACE_API jvalue getJavaJniValue() const;
 
-
-/** 
- * Returns the underlying JNI jvalue for this JValue.
- *
- */
-JACE_API jvalue getJavaJniValue();
-
-
-/** 
- * Returns the underlying JNI jvalue for this JValue.
- *
- * Callers of this method should be careful not to call modifying
- * methods on the returned jvalue.
- *
- * This method should really be protected, but there is a bug in
- * Visual C++ which requires us to make this public.
- *
- */
-JACE_API jvalue getJavaJniValue() const;
-
-
-/**
- * Retrieves the JClass for this JValue.
- *
- * @throw JNIException if an error occurs while trying to retrieve the class.
- *
- */
-JACE_API virtual const ::jace::JClass* getJavaJniClass() const = 0;
-
+	/**
+	 * Retrieves the JClass for this JValue.
+	 *
+	 * @throw JNIException if an error occurs while trying to retrieve the class.
+	 */
+	JACE_API virtual const ::jace::JClass* getJavaJniClass() const = 0;
 
 protected:
-
-/**
- * Sets the jvalue for this JValue.
- *
- * This method should only be called once during the lifetime
- * of this JValue, during the construction of a JValue.
- *
- * @param value The jvalue which represents this JValue.
- *
- * @throws JNIException if the jobject has already been set, 
- *   or if the JVM runs out of memory while trying to create 
- *   a new global reference.
- *
- */
-JACE_API virtual void setJavaJniValue( jvalue value ) throw ( ::jace::JNIException );
-
+	/**
+	 * Sets the jvalue for this JValue.
+	 *
+	 * This method should only be called once during the lifetime
+	 * of this JValue, during the construction of a JValue.
+	 *
+	 * @param value The jvalue which represents this JValue.
+	 *
+	 * @throws JNIException if the jobject has already been set, 
+	 *   or if the JVM runs out of memory while trying to create 
+	 *   a new global reference.
+	 *
+	 */
+	JACE_API virtual void setJavaJniValue( jvalue value ) throw ( ::jace::JNIException );
 
 private:
-
-/* The underlying JNI value.
- */
-jvalue mValue;
-
+	/**
+	 * The underlying JNI value.
+	 */
+	jvalue mValue;
 };
 
 

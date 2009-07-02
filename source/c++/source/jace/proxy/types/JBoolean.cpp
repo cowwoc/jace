@@ -8,11 +8,11 @@ using jace::JClassImpl;
 
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
+JClassImpl JBoolean::javaClass("boolean", "Z");
 
 JBoolean::JBoolean( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JBoolean::JBoolean( jboolean boolean_ ) {
   jvalue value;
@@ -47,7 +47,6 @@ bool JBoolean::operator!=( jboolean val ) const {
 }
 
 const JClass* JBoolean::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "boolean", "Z" );
   return &javaClass;
 }
 

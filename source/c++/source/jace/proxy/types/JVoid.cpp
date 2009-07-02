@@ -8,12 +8,14 @@ using jace::JClassImpl;
 
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
+
+JClassImpl JVoid::javaClass("void", "V");
+
 /**
  * Returns the JClass for this class.
  *
  */
 const JClass* JVoid::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "void", "V" );
   return &javaClass;
 }
 

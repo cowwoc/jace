@@ -10,10 +10,11 @@ using jace::JClassImpl;
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
+JClassImpl JFloat::javaClass("float", "F");
+
 JFloat::JFloat( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JFloat::JFloat( jfloat float_ ) {
   jvalue value;
@@ -48,7 +49,6 @@ bool JFloat::operator!=( jfloat val ) const {
 }
 
 const JClass* JFloat::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "float", "F" );
   return &javaClass;
 }
 

@@ -18,6 +18,12 @@
 #include "jace/JNIException.h"
 #endif
 
+namespace boost
+{
+	// End-users shouldn't have to include Boost header files
+	class mutex;
+};
+
 #include <string>
 
 BEGIN_NAMESPACE( jace )
@@ -29,102 +35,86 @@ BEGIN_NAMESPACE( jace )
  * @author Toby Reyelts
  *
  */
-class JClassImpl : public ::jace::JClass {
-
-
+class JClassImpl : public ::jace::JClass
+{
 public:
+	/**
+	 * Creates a new JClassImpl with the given name, and 
+	 * type name.
+	 *
+	 * @param name - The name of this class, suitable for use
+	 * in a call to JNIEnv::FindClass.
+	 *
+	 * For example, "java/lang/Object"
+	 *
+	 * @param nameAsType The name of this class as a type, 
+	 * suitable for use in a call to JNIEnv::GetMethodID.
+	 *
+	 * For example, "Ljava/lang/Object;"
+	 */
+	JACE_API JClassImpl( const std::string name, const std::string nameAsType );
 
+	/**
+	 * Creates a new JClassImpl with the given name.
+	 *
+	 * @param name - The name of the class, suitable for use
+	 * in a call to JNIEnv::FindClass.
+	 *
+	 * For example, "java/lang/Object".
+	 *
+	 * ------------------------------------------------------
+	 *
+	 * The type name for the class is created by preprending
+	 * "L" and appending ";" to name.
+	 *
+	 * For example,
+	 *
+	 *  JClassImpl( "java/lang/String" );
+	 *
+	 * is equivalent to
+	 *
+	 *  JClassImpl( "java/lang/String", "Ljava/lang/String;" );
+	 */
+	JACE_API JClassImpl( const std::string name );
 
-/**
- * Creates a new JClassImpl with the given name, and 
- * type name.
- *
- * @param name - The name of this class, suitable for use
- * in a call to JNIEnv::FindClass.
- *
- * For example, "java/lang/Object"
- *
- * @param nameAsType The name of this class as a type, 
- * suitable for use in a call to JNIEnv::GetMethodID.
- *
- * For example, "Ljava/lang/Object;"
- *
- */
-JACE_API JClassImpl( const std::string name, const std::string nameAsType );
+	/**
+	 * Destroys this JClassImpl.
+	 */
+	JACE_API virtual ~JClassImpl() throw ();
 
+	/**
+	 * Returns the name of this class. suitable for use in a call to
+	 * JNIEnv::FindClass.
+	 *
+	 * For example, "java/lang/Object".
+	 */
+	JACE_API virtual const std::string& getName() const;
 
-/**
- * Creates a new JClassImpl with the given name.
- *
- * @param name - The name of the class, suitable for use
- * in a call to JNIEnv::FindClass.
- *
- * For example, "java/lang/Object".
- *
- * ------------------------------------------------------
- *
- * The type name for the class is created by preprending
- * "L" and appending ";" to name.
- *
- * For example,
- *
- *  JClassImpl( "java/lang/String" );
- *
- * is equivalent to
- *
- *  JClassImpl( "java/lang/String", "Ljava/lang/String;" );
- *
- */
-// JClassImpl( const std::string& name );
-JACE_API JClassImpl( const std::string name );
+	/**
+	 * Returns the name of this class as a type, suitable for use
+	 * in a call to JNIEnv::GetMethodID.
+	 *
+	 * For example, "Ljava/lang/Object;".
+	 */
+	JACE_API virtual const std::string& getNameAsType() const;
 
-/**
- * Destroys this JClassImpl.
- *
- */
-JACE_API virtual ~JClassImpl() throw ();
-
-
-/**
- * Returns the name of this class. suitable for use in a call to
- * JNIEnv::FindClass.
- *
- * For example, "java/lang/Object".
- *
- */
-JACE_API virtual const std::string& getName() const;
-
-
-/**
- * Returns the name of this class as a type, suitable for use
- * in a call to JNIEnv::GetMethodID.
- *
- * For example, "Ljava/lang/Object;".
- *
- */
-JACE_API virtual const std::string& getNameAsType() const;
-
-
-/**
- * Returns the JNI representation of this class.
- *
- */
-JACE_API virtual jclass getClass() const throw ( ::jace::JNIException );
-
-
-/**
- * Creates a duplicate instance of this JClass.
- *
- */
-JACE_API virtual std::auto_ptr<JClass> clone() const;
-
-
+	/**
+	 * Returns the JNI representation of this class.
+	 */
+	JACE_API virtual jclass getClass() const throw ( ::jace::JNIException );
 private:
-
-std::string mName;
-std::string mNameAsType;
-mutable jclass mClass;
-
+	/**
+	 * Prevent copying.
+	 */
+	JClassImpl(JClassImpl&);
+	/**
+	 * Prevent assignment.
+	 */
+	JClassImpl& operator=(JClassImpl&);
+	std::string mName;
+	std::string mNameAsType;
+	mutable jclass mClass;
+	boost::mutex* mutex;
 };
 
 

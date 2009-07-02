@@ -10,10 +10,11 @@ using jace::JClassImpl;
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
+JClassImpl JDouble::javaClass("double", "D");
+
 JDouble::JDouble( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JDouble::JDouble( jdouble double_ ) {
   jvalue value;
@@ -48,7 +49,6 @@ bool JDouble::operator!=( jdouble val ) const {
 }
 
 const JClass* JDouble::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "double", "D" );
   return &javaClass;
 }
 

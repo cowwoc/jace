@@ -10,10 +10,11 @@ using jace::JClassImpl;
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
+JClassImpl JShort::javaClass("short", "S");
+
 JShort::JShort( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JShort::JShort( jshort short_ ) {
   jvalue value;
@@ -48,7 +49,6 @@ bool JShort::operator!=( jshort val ) const {
 }
 
 const JClass* JShort::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "short", "S" );
   return &javaClass;
 }
 

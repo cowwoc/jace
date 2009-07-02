@@ -1,4 +1,3 @@
-
 Jace 1.1.2
 
 This package includes the following:
@@ -65,6 +64,8 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - Renamed library directories to from win32 and x64 to i386 and amd64 respectively.
 - Added jace::helper::toString(T) and jace::helper::toWString(T) to convert any type to a std::string or
   std::wstring respectively.
+- Bug #1222146: JValue::staticGetJavaJniClass() is not thread-safe.
+- PeerEnhancer was stripping exceptions from the deallocation method; fixed.
 
 Compatibility breakers:
 

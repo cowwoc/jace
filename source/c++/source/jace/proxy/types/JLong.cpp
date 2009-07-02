@@ -8,10 +8,12 @@ using jace::JClassImpl;
 
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
+
+JClassImpl JLong::javaClass("long", "J");
+
 JLong::JLong( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JLong::JLong( jlong long_ ) {
   jvalue value;
@@ -53,7 +55,6 @@ bool JLong::operator!=( jlong val ) const {
 }
 
 const JClass* JLong::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "long", "J" );
   return &javaClass;
 }
 

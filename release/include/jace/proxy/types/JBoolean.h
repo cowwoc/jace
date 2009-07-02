@@ -18,6 +18,10 @@
 #include "jace/JClass.h"
 #endif
 
+#ifndef JACE_JCLASSIMPL_H
+#include "jace/JClassImpl.h"
+#endif
+
 #ifndef JACE_JVALUE_H
 #include "jace/proxy/JValue.h"
 #endif
@@ -36,87 +40,77 @@ BEGIN_NAMESPACE_3( jace, proxy, types )
  * @author Toby Reyelts
  *
  */
-class JBoolean : public ::jace::proxy::JValue {
-
-
+class JBoolean : public ::jace::proxy::JValue
+{
 public:
 
+	/**
+	 * Creates a new instance with the given value.
+	 *
+	 */
+	JACE_API JBoolean( jvalue value );
 
-/**
- * Creates a new instance with the given value.
- *
- */
-JACE_API JBoolean( jvalue value );
+	/**
+	 * Creates a new instance with the given value.
+	 *
+	 */
+	JACE_API JBoolean( jboolean value );
 
+	/**
+	 * Destroys the existing java object.
+	 *
+	 */
+	JACE_API virtual ~JBoolean();
 
-/**
- * Creates a new instance with the given value.
- *
- */
-JACE_API JBoolean( jboolean value );
+	/**
+	 * Returns the value of this instance.
+	 *
+	 */
+	JACE_API operator jboolean() const;
 
+	/**
+	 * Returns the value of this instance.
+	 *
+	 */
+	JACE_API jboolean getBoolean() const;
 
-/**
- * Destroys the existing java object.
- *
- */
-JACE_API virtual ~JBoolean();
+	/**
+	 * Compares this JBoolean to another.
+	 *
+	 */
+	JACE_API bool operator==( const JBoolean& boolean_ ) const;
 
+	/**
+	 * Compares this JBoolean to another.
+	 *
+	 */
+	JACE_API bool operator!=( const JBoolean& boolean_ ) const;
 
-/**
- * Returns the value of this instance.
- *
- */
-JACE_API operator jboolean() const;
+	/**
+	 * Compares this JBoolean to a jboolean.
+	 *
+	 */
+	JACE_API bool operator==( jboolean val ) const;
 
-/**
- * Returns the value of this instance.
- *
- */
-JACE_API jboolean getBoolean() const;
+	/**
+	 * Compares this JBoolean to a jboolean.
+	 *
+	 */
+	JACE_API bool operator!=( jboolean val ) const;
 
+	/**
+	 * Returns the JClass for this class.
+	 *
+	 */
+	JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
 
-/**
- * Compares this JBoolean to another.
- *
- */
-JACE_API bool operator==( const JBoolean& boolean_ ) const;
-
-
-/**
- * Compares this JBoolean to another.
- *
- */
-JACE_API bool operator!=( const JBoolean& boolean_ ) const;
-
-
-/**
- * Compares this JBoolean to a jboolean.
- *
- */
-JACE_API bool operator==( jboolean val ) const;
-
-
-/**
- * Compares this JBoolean to a jboolean.
- *
- */
-JACE_API bool operator!=( jboolean val ) const;
-
-
-/**
- * Returns the JClass for this class.
- *
- */
-JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
-
-
-/**
- * Returns the JClass for this instance.
- *
- */
-JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
-
+	/**
+	 * Returns the JClass for this instance.
+	 *
+	 */
+	JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
+private:
+	static JClassImpl javaClass;
 };
 
 

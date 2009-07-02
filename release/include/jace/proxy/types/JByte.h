@@ -18,6 +18,10 @@
 #include "jace/JClass.h"
 #endif
 
+#ifndef JACE_JCLASSIMPL_H
+#include "jace/JClassImpl.h"
+#endif
+
 #ifndef JACE_JVALUE_H
 #include "jace/proxy/JValue.h"
 #endif
@@ -35,93 +39,70 @@ BEGIN_NAMESPACE_3( jace, proxy, types )
  * @author Toby Reyelts
  *
  */
-class JByte : public ::jace::proxy::JValue {
-
-
+class JByte : public ::jace::proxy::JValue
+{
 public:
+	/**
+	 * Creates a new JByte with the given value.
+	 */
+	JACE_API JByte( jvalue value );
+
+	/**
+	 * Creates a new JByte with the given value.
+	 */
+	JACE_API JByte( jbyte byte );
+
+	/**
+	 * Destroys the existing java object.
+	 */
+	JACE_API virtual ~JByte();
+
+	/**
+	 * Returns the byte value of this java byte.
+	 */
+	JACE_API operator jbyte() const;
+
+	/**
+	 * Returns the byte value of this java byte.
+	 */
+	JACE_API jbyte getByte() const;
+
+	/**
+	 * Compares this JByte to another.
+	 */
+	JACE_API bool operator==( const JByte& byte_ ) const;
+
+	/**
+	 * Compares this JByte to another.
+	 */
+	JACE_API bool operator!=( const JByte& byte_ ) const;
 
 
-/**
- * Creates a new JByte with the given value.
- *
- */
-JACE_API JByte( jvalue value );
+	/**
+	 * Compares this JByte to a jbyte.
+	 */
+	JACE_API bool operator==( jbyte val ) const;
 
+	/**
+	 * Compares this JByte to a jbyte.
+	 */
+	JACE_API bool operator!=( jbyte val ) const;
 
-/**
- * Creates a new JByte with the given value.
- *
- */
-JACE_API JByte( jbyte byte );
+	/**
+	 * Returns the JClass for this class.
+	 */
+	JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
 
-
-/**
- * Destroys the existing java object.
- *
- */
-JACE_API virtual ~JByte();
-
-
-/**
- * Returns the byte value of this java byte.
- *
- */
-JACE_API operator jbyte() const;
-
-
-/**
- * Returns the byte value of this java byte.
- *
- */
-JACE_API jbyte getByte() const;
-
-
-/**
- * Compares this JByte to another.
- *
- */
-JACE_API bool operator==( const JByte& byte_ ) const;
-
-
-/**
- * Compares this JByte to another.
- *
- */
-JACE_API bool operator!=( const JByte& byte_ ) const;
-
-
-/**
- * Compares this JByte to a jbyte.
- *
- */
-JACE_API bool operator==( jbyte val ) const;
-
-
-/**
- * Compares this JByte to a jbyte.
- *
- */
-JACE_API bool operator!=( jbyte val ) const;
-
-
-/**
- * Returns the JClass for this class.
- *
- */
-JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
-
-
-/**
- * Returns the JClass for this instance.
- *
- */
-JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
-
+	/**
+	 * Returns the JClass for this instance.
+	 */
+	JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
+private:
+	static JClassImpl javaClass;
 };
 
 
 END_NAMESPACE_3( jace, proxy, types )
 
 #endif // #ifndef JACE_TYPES_JBYTE_H
-
 

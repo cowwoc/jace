@@ -31,13 +31,11 @@ BEGIN_NAMESPACE( jace )
  * @author Toby Reyelts
  *
  */
-class Peer {
-
-  public:
-
+class Peer
+{
+public:
   /**
    * Creates a new Peer based on the specified object.
-   *
    */
   JACE_API Peer( jobject obj );
 
@@ -51,7 +49,6 @@ class Peer {
   
   /**
    * Destroys this Peer.
-   *
    */
   JACE_API virtual ~Peer();
 
@@ -65,12 +62,10 @@ class Peer {
 
   /**
    * Returns the class type of the Java Peer.
-   *
    */
   JACE_API virtual const JClass* getJavaJniClass() const throw ( JNIException ) = 0;
 
-  protected:
-
+protected:
   /**
    * Returns a global reference to the Java object represented
    * by this Peer. Each allocated reference must be released 
@@ -79,20 +74,18 @@ class Peer {
    * Under normal circumstances, it should not be necessary to use this method,
    * as the Java object can be manipulated through the public interface
    * of the Peer.
-   *
    */  
   JACE_API jobject getGlobalRef();
 
   /**
    * Releases the specified global reference that was allocated
    * by a call to getGlobalRef.
-   *
    */
   JACE_API void releaseGlobalRef( jobject ref );
- 
-  private:
 
-  /* The weak reference 
+private:
+  /**
+	 * The weak reference.
    */
   jweak mWeakRef;
 };

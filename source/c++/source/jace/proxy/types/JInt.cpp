@@ -11,10 +11,12 @@ using std::ostream;
 
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
+
+JClassImpl JInt::javaClass("int", "I");
+
 JInt::JInt( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JInt::JInt( const jint int_ ) {
   jvalue value;
@@ -56,7 +58,6 @@ bool JInt::operator!=( jint val ) const {
 }
 
 const JClass* JInt::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "int", "I" );
   return &javaClass;
 }
 

@@ -7,20 +7,21 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodAdapter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Label;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.EmptyVisitor;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,9 +43,6 @@ public class PeerEnhancer
   private List<String> libraries;
   private String deallocationMethod;
   private final boolean verbose;
-  private boolean classInitializerFound;
-  private boolean deallocationMethodFound;
-  private boolean finalizerFound;
   private static final String jaceHandleField = "jaceNativeHandle";
   private static final String jaceCreateInstance = "jaceCreateInstance";
   private static final String jaceDestroyInstance = "jaceDestroyInstance";
@@ -85,96 +83,158 @@ public class PeerEnhancer
   }
 
   /**
-   * This visitor inserts <code>jaceSetNativeHandle(jaceCreateInstance())</code> at the beginning of all
+   * Invoke <code>jaceSetNativeHandle(jaceCreateInstance())</code> before returning from any
    * non-chaining constructors.
    *
-   * @author Gili Tzabari
+   * @param classNode the class to parse
    */
-  private static class NonChainingConstructorEnhancer extends MethodAdapter
+  private void enhanceConstructors(ClassNode classNode)
   {
-    // DESIGN:
-    // - This code initializes the native handle used by "jace::helper::getPeer(this)"
-    // - Ideally we'd like to initialize the native handle after the Java object is fully constructed.
-    //   Unfortunately, we have no way of preventing native methods from being invoked by the constructor
-    //   itself.
-    // - The earliest we can inject code is after a call to super().
-    // - We don't have to worry about native methods getting invoked as arguments of super() because
-    //   static native methods do not depend upon the native handle.
-    private boolean done;
-    private final String className;
-    private final String superClassName;
-
-    /**
-     * Creates a new NonChainingConstructorEnhancer.
-     *
-     * @param cv MethodVisitor to delegate to
-     * @param className the class containing the method
-     * @param superClassName the superclass of the class containing the method
-     */
-    public NonChainingConstructorEnhancer(MethodVisitor cv, String className, String superClassName)
+    for (Object o: classNode.methods)
     {
-      super(cv);
-      this.className = className;
-      this.superClassName = superClassName;
-    }
-
-    @Override
-    public void visitMethodInsn(int opcode, String owner, String name, String desc)
-    {
-      super.visitMethodInsn(opcode, owner, name, desc);
-      if (!done && owner.equals(superClassName) && name.equals("<init>"))
-        insertInstruction();
-    }
-
-    /**
-     * Enhances the return instruction.
-     *
-     * @param opcode the instruction opcode
-     */
-    @Override
-    public void visitInsn(int opcode)
-    {
-      if (!done && opcode == Opcodes.RETURN)
-        insertInstruction();
-      super.visitInsn(opcode);
-    }
-
-    /**
-     * Inserts <code>jaceSetNativeHandle(jaceCreateInstance())</code>.
-     */
-    private void insertInstruction()
-    {
-      done = true;
-
-      // Load "this" onto the stack
-      super.visitVarInsn(Opcodes.ALOAD, 0);
-      super.visitInsn(Opcodes.DUP);
-      // Stack now contains: [this, this]
-
-      // Invoke jaceCreateInstance()
-      super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceCreateInstance,
-        Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
-
-      // Stack now contains: [this, result of jaceCreateInstance()]
-      // Invoke jaceSetNativeHandle(jaceCreateInstance())
-      super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className, jaceSetNativeHandle,
-        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+      MethodNode method = (MethodNode) o;
+      if (method.name.equals("<init>"))
+      {
+        boolean isChained = false;
+        for (Iterator<?> i = method.instructions.iterator(); i.hasNext();)
         {
-          Type.LONG_TYPE
-        }));
+          AbstractInsnNode instruction = (AbstractInsnNode) i.next();
+          if (instruction.getType() != AbstractInsnNode.METHOD_INSN)
+            continue;
+          MethodInsnNode methodInvocation = (MethodInsnNode) instruction;
+          if (methodInvocation.owner.equals(classNode.name) && methodInvocation.name.equals("<init>"))
+          {
+            isChained = true;
+            break;
+          }
+        }
+        if (isChained)
+          continue;
+
+        // DESIGN:
+        // - This code initializes the native handle used by "jace::helper::getPeer(this)"
+        // - Ideally we'd like to initialize the native handle after the Java object is fully constructed.
+        //   Unfortunately, we have no way of preventing native methods from being invoked by the constructor
+        //   itself.
+        // - The earliest we can inject code is after a call to super().
+        // - We don't have to worry about native methods getting invoked as arguments of super() because
+        //   static native methods do not depend upon the native handle.
+
+        boolean matchFound = false;
+        for (Iterator<?> i = method.instructions.iterator(); i.hasNext();)
+        {
+          AbstractInsnNode instruction = (AbstractInsnNode) i.next();
+          switch (instruction.getType())
+          {
+            case AbstractInsnNode.METHOD_INSN:
+            {
+              MethodInsnNode methodInvocation = (MethodInsnNode) instruction;
+              if (methodInvocation.owner.equals(classNode.superName) && methodInvocation.name.equals("<init>"))
+                method.instructions.insert(instruction, getJaceSetNativeHandle(classNode.name));
+              matchFound = true;
+              break;
+            }
+            case AbstractInsnNode.INSN:
+            {
+              if (instruction.getOpcode() == Opcodes.RETURN)
+                method.instructions.insert(instruction, getJaceSetNativeHandle(classNode.name));
+              matchFound = true;
+              break;
+            }
+          }
+          if (matchFound)
+            break;
+        }
+        if (!matchFound)
+          throw new AssertionError();
+      }
     }
   }
 
   /**
-   * Returns a {@code Set<methodDescriptor>} for all non-chaining constructors.
+   * Returns a list of instructions for the following code:
    *
-   * @param classReader the ClassReader to read from
-   * @return a {@code Set<methodDescriptor>} for all non-chaining constructors.
+   * <code>jaceSetNativeHandle(jaceCreateInstance())</code>.
+   *
+   * @param className the name of the class being enhanced
+   * @return a list of instructions
    */
-  private Set<String> getNonChainingConstructors(ClassReader classReader)
+  private static InsnList getJaceSetNativeHandle(String className)
   {
-    final Set<String> result = new HashSet<String>();
-    classReader.accept(new GetNonChainingConstructors(result), ClassReader.SKIP_DEBUG);
+    InsnList result = new InsnList();
+    // Load "this" onto the stack
+    result.add(new VarInsnNode(Opcodes.ALOAD, 0));
+    result.add(new InsnNode(Opcodes.DUP));
+    // Stack now contains: [this, this]
+
+    // Invoke jaceCreateInstance()
+    result.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, className, jaceCreateInstance,
+      Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0])));
+
+    // Stack now contains: [this, result of jaceCreateInstance()]
+    // Invoke jaceSetNativeHandle(jaceCreateInstance())
+    result.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, className, jaceSetNativeHandle,
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+      {
+        Type.LONG_TYPE
+      })));
+    return result;
+  }
+
+  /**
+   * Renames the deallocation method to jaceUserClose().
+   *
+   * @param classNode the class to parse
+   * @return null if the method was not found
+   */
+  @SuppressWarnings("unchecked")
+  private void enhanceDeallocationMethod(ClassNode classNode)
+  {
+    if (deallocationMethod == null)
+      return;
+    for (Object o: classNode.methods)
+    {
+      MethodNode method = (MethodNode) o;
+      if (method.name.equals(deallocationMethod))
+      {
+        method.name = "jaceUserClose";
+        String[] exceptions = (String[]) method.exceptions.toArray(new String[0]);
+        classNode.methods.add(createDeallocationMethod(classNode.name, exceptions));
+        return;
+      }
+    }
+    throw new RuntimeException("Unable to locate the method: " + deallocationMethod + "." +
+                               newLine + "Peer enhancement will now stop.");
+  }
+
+  /**
+   * Create a new deallocation method.
+   *
+   * @param className the name of the class being enhanced
+   * @param exceptions the list of exceptions thrown by the deallocation method
+   * @return the deallocation method
+   */
+  private MethodNode createDeallocationMethod(String className, String[] exceptions)
+  {
+    MethodNode result = new MethodNode(Opcodes.ACC_PUBLIC, deallocationMethod,
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]),
+      null, exceptions);
+
+    // Place copy of 'this' on the stack
+    result.visitVarInsn(Opcodes.ALOAD, 0);
+
+    // Invoke the user's deallocation method
+    result.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
+      jaceUserClose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
+
+    // Place copy of 'this' on the stack
+    result.visitVarInsn(Opcodes.ALOAD, 0);
+
+    // Invoke jaceDispose()
+    result.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
+      jaceDispose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
+
+    result.visitInsn(Opcodes.RETURN);
     return result;
   }
 
@@ -187,62 +247,43 @@ public class PeerEnhancer
   {
     final boolean[] alreadyEnhanced = new boolean[1];
     alreadyEnhanced[0] = false;
-    classInitializerFound = false;
-    deallocationMethodFound = deallocationMethod == null;
-    finalizerFound = false;
 
     BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile));
     try
     {
+      ClassNode classNode = new ClassNode();
       ClassReader classReader = new ClassReader(in);
+      classReader.accept(classNode, 0);
 
-      /**
-       * 1) Check whether jaceGetNativeHandle is already defined.
-       */
-      classReader.accept(new EmptyVisitor()
+      // Check whether jaceGetNativeHandle is already defined.
+      for (Object o: classNode.methods)
       {
-        @Override
-        public MethodVisitor visitMethod(int access, String name, String desc,
-                                         String signature, String[] exceptions)
+        MethodNode method = (MethodNode) o;
+        if (method.name.equals(jaceGetNativeHandle))
         {
-          if (name.equals(jaceGetNativeHandle))
-            alreadyEnhanced[0] = true;
-          return null;
+          log.info("The class " + inputFile + " has already been enhanced and will not be modified.");
+          return;
         }
-      }, ClassReader.SKIP_DEBUG);
-      if (alreadyEnhanced[0])
-      {
-        log.info("The class " + inputFile + " has already been enhanced and will not be modified.");
-        return;
       }
 
-      final Set<String> nonChainingConstructors = getNonChainingConstructors(classReader);
-      ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-      classReader.accept(new EnhanceNonChainingConstructors(classWriter, nonChainingConstructors), 0);
-
-      if (!deallocationMethodFound)
-      {
-        String msg = "Unable to locate the method: " + deallocationMethod + "." +
-                     newLine + "Peer enhancement will now stop.";
-        throw new RuntimeException(msg);
-      }
-
-      String className = classReader.getClassName();
-      enhanceInitializer(classWriter, className, classInitializerFound);
-      addNativeHandle(classWriter, className);
-      addNativeLifetimeMethods(classWriter);
-      addDeallocation(classWriter, className);
-      if (deallocationMethod != null)
-        enhanceDeallocation(classWriter, className);
-      enhanceFinalize(classWriter, className, finalizerFound);
+      enhanceConstructors(classNode);
+      enhanceDeallocationMethod(classNode);
+      enhanceInitializer(classNode);
+      addNativeHandle(classNode);
+      addNativeLifetimeMethods(classNode);
+      addDeallocation(classNode);
+      enhanceFinalizer(classNode);
 
       File parentPath = outputFile.getParentFile();
       if (parentPath != null && !parentPath.exists() && !parentPath.mkdirs())
       {
         log.warn("Could not create " + parentPath);
         return;
+
       }
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
+      ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+      classNode.accept(classWriter);
       out.write(classWriter.toByteArray());
       out.close();
     }
@@ -275,42 +316,54 @@ public class PeerEnhancer
    *                         // present if the class already had an initializer.
    * }
    *
-   * @param classWriter the CllassWriter to write to
-   * @param className the class name
-   * @param classInitializerFound true if the class initializer already exists
+   * @param classNode the class to enhance
    */
-  private void enhanceInitializer(ClassWriter classWriter, String className, boolean classInitializerFound)
+  @SuppressWarnings("unchecked")
+  private void enhanceInitializer(ClassNode classNode)
   {
+    // Look for an existing class initializer
+    boolean userInitializerExists = false;
+    for (Object o: classNode.methods)
+    {
+      MethodNode method = (MethodNode) o;
+      if (method.name.equals("<clinit>"))
+      {
+        // Rename the user's class initializer to jaceUserStaticInit()
+        method.name = jaceUserStaticInit;
+        method.access = Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC;
+        userInitializerExists = true;
+        break;
+      }
+    }
+
     // Create method "private native static void jaceSetVm()"
-    final int setVmFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_NATIVE;
-    classWriter.visitMethod(setVmFlags, jaceSetVm,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null);
+    classNode.methods.add(new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC |
+                                         Opcodes.ACC_NATIVE,
+      jaceSetVm, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null));
 
     // Create class initializer
-    final int flags = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC;
-    MethodVisitor instructions = classWriter.visitMethod(flags, "<clinit>",
+    MethodNode classInitializer = new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "<clinit>",
       Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null);
+    classNode.methods.add(classInitializer);
 
     // try {
     Label beginTryBlock = new Label();
-    instructions.visitLabel(beginTryBlock);
+    classInitializer.visitLabel(beginTryBlock);
 
     for (String library: libraries)
     {
       if (verbose)
       {
         // Push System.err onto the stack
-        instructions.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
-          "err",
-          "Ljava/io/PrintStream;");
+        classInitializer.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
+          "err", "Ljava/io/PrintStream;");
 
         // Push text onto the stack
-        instructions.visitLdcInsn(className + ": Loading " + library + "...");
+        classInitializer.visitLdcInsn(classNode.name + ": Loading " + library + "...");
 
         // Invoke System.err.println
-        instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
-          "println",
-          Type.getMethodDescriptor(Type.VOID_TYPE,
+        classInitializer.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
+          "println", Type.getMethodDescriptor(Type.VOID_TYPE,
           new Type[]
           {
             Type.getType(String.class)
@@ -318,12 +371,11 @@ public class PeerEnhancer
       }
 
       // Push library name onto stack
-      instructions.visitLdcInsn(library);
+      classInitializer.visitLdcInsn(library);
 
       // Invoke System.loadLibrary()
-      instructions.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/System",
-        "loadLibrary",
-        Type.getMethodDescriptor(Type.VOID_TYPE,
+      classInitializer.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/System",
+        "loadLibrary", Type.getMethodDescriptor(Type.VOID_TYPE,
         new Type[]
         {
           Type.getType(String.class)
@@ -333,17 +385,15 @@ public class PeerEnhancer
     if (verbose)
     {
       // Push System.err onto the stack
-      instructions.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
-        "err",
-        "Ljava/io/PrintStream;");
+      classInitializer.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
+        "err", "Ljava/io/PrintStream;");
 
       // Push text onto the stack
-      instructions.visitLdcInsn(className + ": Done loading native libraries...");
+      classInitializer.visitLdcInsn(classNode.name + ": Done loading native libraries...");
 
       // Invoke System.err.println
-      instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
-        "println",
-        Type.getMethodDescriptor(Type.VOID_TYPE,
+      classInitializer.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
+        "println", Type.getMethodDescriptor(Type.VOID_TYPE,
         new Type[]
         {
           Type.getType(String.class)
@@ -351,101 +401,96 @@ public class PeerEnhancer
     }
 
     // Invoke jaceSetVm()
-    instructions.visitMethodInsn(Opcodes.INVOKESTATIC, className,
+    classInitializer.visitMethodInsn(Opcodes.INVOKESTATIC, classNode.name,
       jaceSetVm, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 
     // }
     Label endTryBlock = new Label();
-    instructions.visitLabel(endTryBlock);
+    classInitializer.visitLabel(endTryBlock);
 
     // We've reached the end of the try block, now skip the catch block
     Label endCatchBlock = new Label();
-    instructions.visitJumpInsn(Opcodes.GOTO, endCatchBlock);
+    classInitializer.visitJumpInsn(Opcodes.GOTO, endCatchBlock);
 
     // catch (Throwable)
     Label beginCatchBlock = new Label();
-    instructions.visitLabel(beginCatchBlock);
-    instructions.visitTryCatchBlock(beginTryBlock, endTryBlock, beginCatchBlock,
+    classInitializer.visitLabel(beginCatchBlock);
+    classInitializer.visitTryCatchBlock(beginTryBlock, endTryBlock, beginCatchBlock,
       "java/lang/Throwable");
 
     // Stack now contains: [throwable]
 
     // Save the exception associated with the current catch block at index 1
-    instructions.visitVarInsn(Opcodes.ASTORE, 1);
-    instructions.visitVarInsn(Opcodes.ALOAD, 1);
+    classInitializer.visitVarInsn(Opcodes.ASTORE, 1);
+    classInitializer.visitVarInsn(Opcodes.ALOAD, 1);
 
     // Stack now contains: [throwable]
 
     // Invoke throwable.printStackTrace()
-    instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-      "java/lang/Throwable", "printStackTrace",
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
+    classInitializer.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+      "java/lang/Throwable", "printStackTrace", Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 
     // Stack is now empty
 
     // Create a new RuntimeException, invoke its constructor, and throw it
-    instructions.visitTypeInsn(Opcodes.NEW, "java/lang/RuntimeException");
+    classInitializer.visitTypeInsn(Opcodes.NEW, "java/lang/RuntimeException");
 
     // Stack now contains: [RuntimeException]
 
     // Duplicate RuntimeException object for ATHROW
-    instructions.visitInsn(Opcodes.DUP);
+    classInitializer.visitInsn(Opcodes.DUP);
 
     // Stack now contains [RuntimeException, RuntimeException]
 
     // Load the exception associated with the current catch block
-    instructions.visitVarInsn(Opcodes.ALOAD, 1);
+    classInitializer.visitVarInsn(Opcodes.ALOAD, 1);
 
     // Stack now contains: [RuntimeException, RuntimeException, throwable]
 
     // Invoke throwable.toString()
-    instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
-      "java/lang/Throwable", "toString",
-      Type.getMethodDescriptor(Type.getType(String.class), new Type[0]));
+    classInitializer.visitMethodInsn(Opcodes.INVOKEVIRTUAL,
+      "java/lang/Throwable", "toString", Type.getMethodDescriptor(Type.getType(String.class), new Type[0]));
 
     // Stack now contains: [RuntimeException, RuntimeException, throwStr]
 
     // Construct "RuntimeException(throwStr)"
-    instructions.visitMethodInsn(Opcodes.INVOKESPECIAL,
-      "java/lang/RuntimeException", "<init>",
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+    classInitializer.visitMethodInsn(Opcodes.INVOKESPECIAL,
+      "java/lang/RuntimeException", "<init>", Type.getMethodDescriptor(Type.VOID_TYPE,
+      new Type[]
       {
         Type.getType(String.class)
       }));
 
     // Stack now contains [RuntimeException]
-
     // Throw the exception
-    instructions.visitInsn(Opcodes.ATHROW);
+    classInitializer.visitInsn(Opcodes.ATHROW);
 
     // End of catch block
-    instructions.visitLabel(endCatchBlock);
+    classInitializer.visitLabel(endCatchBlock);
 
     // Associate the variable "t" with the catch-block exception
-    instructions.visitLocalVariable("t", Type.getDescriptor(Throwable.class),
-      null, beginCatchBlock, endCatchBlock, 1);
+    classInitializer.visitLocalVariable("t", Type.getDescriptor(Throwable.class), null,
+      beginCatchBlock, endCatchBlock, 1);
 
-    // Make a call to the user's old initializer if there is one.
-    if (classInitializerFound)
+    // Invoke the user's class initializer if necessary
+    if (userInitializerExists)
     {
-      instructions.visitMethodInsn(Opcodes.INVOKESTATIC, className, jaceUserStaticInit,
+      classInitializer.visitMethodInsn(Opcodes.INVOKESTATIC, classNode.name, jaceUserStaticInit,
         Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
     }
 
     if (verbose)
     {
       // Push System.err onto the stack
-      instructions.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
-        "err",
-        "Ljava/io/PrintStream;");
+      classInitializer.visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System",
+        "err", "Ljava/io/PrintStream;");
 
       // Push text onto the stack
-      instructions.visitLdcInsn(className + ": Exiting class initializer...");
+      classInitializer.visitLdcInsn(classNode.name + ": Exiting class initializer...");
 
       // Invoke System.err.println
-      instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
-        "println",
-        Type.getMethodDescriptor(Type.VOID_TYPE,
+      classInitializer.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream",
+        "println", Type.getMethodDescriptor(Type.VOID_TYPE,
         new Type[]
         {
           Type.getType(String.class)
@@ -453,8 +498,7 @@ public class PeerEnhancer
     }
 
     // Return from the method
-    instructions.visitInsn(Opcodes.RETURN);
-    instructions.visitMaxs(0, 0);
+    classInitializer.visitInsn(Opcodes.RETURN);
   }
 
   /**
@@ -470,57 +514,51 @@ public class PeerEnhancer
    *     return jaceNativeHandle;
    *   }
    *
-   * @param classWriter the ClassWriter to write to
-   * @param className the class name
+   * @param classNode the class to enhance
    */
-  private void addNativeHandle(ClassWriter classWriter, String className)
+  @SuppressWarnings("unchecked")
+  private void addNativeHandle(ClassNode classNode)
   {
     // Create field
-    int fieldFlags = Opcodes.ACC_PRIVATE;
-    classWriter.visitField(fieldFlags, jaceHandleField,
-      Type.getDescriptor(long.class), null, null);
+    classNode.fields.add(new FieldNode(Opcodes.ACC_PRIVATE, jaceHandleField, Type.getDescriptor(long.class), null, null));
 
     // Create setter method
-    int setFlags = Opcodes.ACC_PRIVATE;
-    MethodVisitor setInstructions = classWriter.visitMethod(setFlags,
-      jaceSetNativeHandle,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
+    MethodNode setNativeHandle = new MethodNode(Opcodes.ACC_PRIVATE, jaceSetNativeHandle, Type.getMethodDescriptor(
+      Type.VOID_TYPE,
+      new Type[]
       {
         Type.LONG_TYPE
       }),
       null, null);
+    classNode.methods.add(setNativeHandle);
 
     // Push "this" onto the stack
-    setInstructions.visitVarInsn(Opcodes.ALOAD, 0);
+    setNativeHandle.visitVarInsn(Opcodes.ALOAD, 0);
 
     // Push method argument onto the stack
-    setInstructions.visitVarInsn(Opcodes.LLOAD, 1);
+    setNativeHandle.visitVarInsn(Opcodes.LLOAD, 1);
 
     // jaceHandle = method argument
-    setInstructions.visitFieldInsn(Opcodes.PUTFIELD, className, jaceHandleField,
+    setNativeHandle.visitFieldInsn(Opcodes.PUTFIELD, classNode.name, jaceHandleField,
       Type.getDescriptor(long.class));
 
     // Return from the method
-    setInstructions.visitInsn(Opcodes.RETURN);
-    setInstructions.visitMaxs(0, 0);
+    setNativeHandle.visitInsn(Opcodes.RETURN);
 
     // Create getter method
-    int getFlags = Opcodes.ACC_PRIVATE;
-    MethodVisitor getInstructions = classWriter.visitMethod(getFlags,
-      jaceGetNativeHandle,
-      Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]),
-      null, null);
+    MethodNode getNativeHandle = new MethodNode(Opcodes.ACC_PRIVATE, jaceGetNativeHandle, Type.getMethodDescriptor(
+      Type.LONG_TYPE, new Type[0]), null, null);
+    classNode.methods.add(getNativeHandle);
 
     // Push "this" onto the stack
-    getInstructions.visitVarInsn(Opcodes.ALOAD, 0);
+    getNativeHandle.visitVarInsn(Opcodes.ALOAD, 0);
 
     // Pushes the jaceHandle onto the stack
-    getInstructions.visitFieldInsn(Opcodes.GETFIELD, className, jaceHandleField,
+    getNativeHandle.visitFieldInsn(Opcodes.GETFIELD, classNode.name, jaceHandleField,
       Type.getDescriptor(long.class));
 
     // Return the handle value
-    getInstructions.visitInsn(Opcodes.LRETURN);
-    getInstructions.visitMaxs(0, 0);
+    getNativeHandle.visitInsn(Opcodes.LRETURN);
   }
 
   /**
@@ -528,25 +566,20 @@ public class PeerEnhancer
    * of the native peer.
    *
    *  private native long jaceCreateInstance();
-   *  private static native void jaceDestroyInstance( long handle );
+   *  private native void jaceDestroyInstance();
    *
-   * @param classWriter the ClassWriter to write to
+   * @param classNode the class to enhance
    */
-  private void addNativeLifetimeMethods(ClassWriter classWriter)
+  @SuppressWarnings("unchecked")
+  private void addNativeLifetimeMethods(ClassNode classNode)
   {
     // Create jaceCreateInstance() method
-    int createFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE;
-    classWriter.visitMethod(createFlags, jaceCreateInstance,
-      Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]), null, null);
+    classNode.methods.add(new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE, jaceCreateInstance,
+      Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]), null, null));
 
     // Create jacerDestroyInstance() method
-    int destroyFlags = Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE | Opcodes.ACC_STATIC;
-    classWriter.visitMethod(destroyFlags, jaceDestroyInstance,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
-      {
-        Type.LONG_TYPE
-      }), null,
-      null);
+    classNode.methods.add(new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE, jaceDestroyInstance,
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null));
   }
 
   /**
@@ -557,156 +590,133 @@ public class PeerEnhancer
    *   long handle = jaceGetNativeHandle();
    *   if (handle != 0)
    *   {
-   *     jaceDestroyInstance(handle);
+   *     jaceDestroyInstance();
    *     jaceSetNativeHandle(0);
    *   }
    * }
    * 
-   * @param classWriter the ClassWriter to write to
-   * @param className the class name
+   * @param classNode the class to enhance
    */
-  private void addDeallocation(ClassWriter classWriter, String className)
+  @SuppressWarnings("unchecked")
+  private void addDeallocation(ClassNode classNode)
   {
     // Create method
-    int flags = Opcodes.ACC_PRIVATE;
-    MethodVisitor instructions = classWriter.visitMethod(flags, jaceDispose,
+    MethodNode dispose = new MethodNode(Opcodes.ACC_PRIVATE, jaceDispose,
       Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null);
+    classNode.methods.add(dispose);
 
     Label beginningOfMethod = new Label();
-    instructions.visitLabel(beginningOfMethod);
+    dispose.visitLabel(beginningOfMethod);
 
     // Push "this" onto stack
-    instructions.visitVarInsn(Opcodes.ALOAD, 0);
+    dispose.visitVarInsn(Opcodes.ALOAD, 0);
 
     // Invoke the method
-    instructions.visitMethodInsn(Opcodes.INVOKESPECIAL, className,
+    dispose.visitMethodInsn(Opcodes.INVOKESPECIAL, classNode.name,
       jaceGetNativeHandle, Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0]));
 
     // Duplicate the return value for use in the if statement
-    instructions.visitInsn(Opcodes.DUP2);
+    dispose.visitInsn(Opcodes.DUP2);
 
     // Assign return value to local variable "handle"
-    instructions.visitVarInsn(Opcodes.LSTORE, 1);
+    dispose.visitVarInsn(Opcodes.LSTORE, 1);
 
     // Cast "handle" to an int
-    instructions.visitInsn(Opcodes.L2I);
+    dispose.visitInsn(Opcodes.L2I);
 
     // If "(int) handle" is equal to zero, jump to handleIsZero
     Label handleIsZero = new Label();
-    instructions.visitJumpInsn(Opcodes.IFEQ, handleIsZero);
-
-    // Push "handle" onto the stack
-    instructions.visitVarInsn(Opcodes.LLOAD, 1);
-
-    // Invoke jaceDestroyInstance(handle)
-    instructions.visitMethodInsn(Opcodes.INVOKESTATIC, className,
-      jaceDestroyInstance,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
-      {
-        Type.LONG_TYPE
-      }));
+    dispose.visitJumpInsn(Opcodes.IFEQ, handleIsZero);
 
     // Push "this" onto stack
-    instructions.visitVarInsn(Opcodes.ALOAD, 0);
+    dispose.visitVarInsn(Opcodes.ALOAD, 0);
+
+    // Invoke jaceDestroyInstance()
+    dispose.visitMethodInsn(Opcodes.INVOKESPECIAL, classNode.name,
+      jaceDestroyInstance, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
+
+    // Push "this" onto stack
+    dispose.visitVarInsn(Opcodes.ALOAD, 0);
 
     // Push "0" onto the stack
-    instructions.visitInsn(Opcodes.LCONST_0);
+    dispose.visitInsn(Opcodes.LCONST_0);
 
     // Invoke jaceSetNativeHandle(0)
-    instructions.visitMethodInsn(Opcodes.INVOKESPECIAL, className,
-      jaceSetNativeHandle,
+    dispose.visitMethodInsn(Opcodes.INVOKESPECIAL, classNode.name, jaceSetNativeHandle,
       Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
       {
         Type.LONG_TYPE
       }));
 
-    instructions.visitLabel(handleIsZero);
+    dispose.visitLabel(handleIsZero);
 
     // Return from method
     Label endOfMethod = new Label();
-    instructions.visitLabel(endOfMethod);
-    instructions.visitLocalVariable("handle", Type.getDescriptor(long.class),
+    dispose.visitLabel(endOfMethod);
+    dispose.visitLocalVariable("handle", Type.getDescriptor(long.class),
       null, beginningOfMethod, endOfMethod, 1);
-    instructions.visitInsn(Opcodes.RETURN);
-    instructions.visitMaxs(0, 0);
+    dispose.visitInsn(Opcodes.RETURN);
   }
 
   /**
-   * Enhance deallocation method so it reads:
+   * Renames the user's finalizer to jaceUserFinalize() and creates a new finalizer:
    *
-   * jaceUserClose();
-   * jaceDispose();
-   * 
-   * @param classWriter the ClassWriter to write to
-   * @param className the class name
-   */
-  private void enhanceDeallocation(ClassWriter classWriter, String className)
-  {
-    // Create the new deallocation method
-    final int flags = Opcodes.ACC_PUBLIC;
-    MethodVisitor instructions = classWriter.visitMethod(flags, deallocationMethod,
-      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null);
-
-    // Place copy of 'this' on the stack
-    instructions.visitVarInsn(Opcodes.ALOAD, 0);
-
-    // Invoke the user's deallocation method
-    instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
-      jaceUserClose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
-
-    // Place copy of 'this' on the stack
-    instructions.visitVarInsn(Opcodes.ALOAD, 0);
-
-    // Invoke jaceDispose()
-    instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
-      jaceDispose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
-
-    instructions.visitInsn(Opcodes.RETURN);
-    instructions.visitMaxs(0, 0);
-  }
-
-  /**
-   * Enhance class finalizer.
+   * protected void finalize() throws Throwable
+   * {
+   *   jaceUserFinalize();
+   *   jaceDispose();
+   * }
    *
-   * @param classWriter the ClassWriter to write to
-   * @param className the class name
-   * @param finalizerExisted true if the class already has a finalizer defined
+   * @param classNode the class to enhance
    */
-  private void enhanceFinalize(ClassWriter classWriter, String className, boolean finalizerExisted)
+  @SuppressWarnings("unchecked")
+  private void enhanceFinalizer(ClassNode classNode)
   {
-    if (!finalizerExisted && deallocationMethodFound)
+    boolean finalizerExisted = false;
+    for (Object o: classNode.methods)
+    {
+      MethodNode method = (MethodNode) o;
+      if (method.name.equals("finalize"))
+      {
+        finalizerExisted = true;
+
+        // Rename finalizer to jaceUserFinalize()
+        method.name = jaceUserFinalize;
+        break;
+      }
+    }
+    if (!finalizerExisted && deallocationMethod != null)
     {
       // Only enhance the finalizer if one already existed or if the user did not specify a deallocation method
       return;
     }
 
     // Create a new finalizer
-    final int flags = Opcodes.ACC_PROTECTED;
-    MethodVisitor instructions = classWriter.visitMethod(flags, "finalize",
+    MethodNode finalize = new MethodNode(Opcodes.ACC_PROTECTED, "finalize",
       Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, new String[]
       {
         "java/lang/Throwable"
       });
+    classNode.methods.add(finalize);
 
     // Push 'this' onto stack
-    instructions.visitVarInsn(Opcodes.ALOAD, 0);
+    finalize.visitVarInsn(Opcodes.ALOAD, 0);
 
     if (finalizerExisted)
     {
       // Duplicate 'this' on stack because jaceDispose takes it as an argument
-      instructions.visitInsn(Opcodes.DUP);
+      finalize.visitInsn(Opcodes.DUP);
 
       // Invoke the old finalizer
-      instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
+      finalize.visitMethodInsn(Opcodes.INVOKEVIRTUAL, classNode.name,
         jaceUserFinalize, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
     }
 
     // Invoke jaceDispose
-    instructions.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
+    finalize.visitMethodInsn(Opcodes.INVOKEVIRTUAL, classNode.name,
       jaceDispose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 
-    instructions.visitInsn(Opcodes.RETURN);
-    instructions.visitMaxs(0, 0);
+    finalize.visitInsn(Opcodes.RETURN);
   }
 
   public static String getUsage()
@@ -791,151 +801,6 @@ public class PeerEnhancer
     catch (IOException e)
     {
       log.error("", e);
-    }
-  }
-
-  /**
-   * Returns a list of non-chaining constructors.
-   *
-   * @author Gili Tzabari
-   */
-  private static class GetNonChainingConstructors extends EmptyVisitor
-  {
-    private final Set<String> result;
-    private String className;
-
-    /**
-     * Creates a new GetNonChainingConstructors.
-     *
-     * @param result the Set to populate with results
-     */
-    public GetNonChainingConstructors(Set<String> result)
-    {
-      this.result = result;
-    }
-
-    @Override
-    public void visit(int version, int access, String name, String signature, String superName,
-                      String[] interfaces)
-    {
-      className = name;
-    }
-
-    @Override
-    public MethodVisitor visitMethod(int access, String name, final String desc, String signature,
-                                     String[] exceptions)
-    {
-      if (name.equals("<init>"))
-      {
-        return new EmptyVisitor()
-        {
-          private boolean constructorIsChained = false;
-
-          @Override
-          public void visitMaxs(int maxStack, int maxLocals)
-          {
-            if (!constructorIsChained)
-              result.add(desc);
-          }
-
-          @Override
-          public void visitMethodInsn(int opcode, String owner, String name, String desc)
-          {
-            if (className.equals(owner) && name.equals("<init>"))
-              constructorIsChained = true;
-          }
-        };
-      }
-      return null;
-    }
-  }
-
-  /**
-   * Initializes the native handle in all non-chaining constructors.
-   *
-   * @author Gili Tzbari
-   */
-  private class EnhanceNonChainingConstructors extends ClassAdapter
-  {
-    private final Set<String> nonChainingConstructors;
-    private final ClassVisitor classVisitor;
-    private String className;
-    private String superClassName;
-
-    /**
-     * Creates a new EnhanceNonChainingConstructors.
-     *
-     * @param classVisitor the ClassVisitor to read from
-     * @param classWriter the ClassWriter to write to
-     * @param nonChainingConstructors a list of the non-chaining constructors in the class
-     */
-    public EnhanceNonChainingConstructors(ClassVisitor classVisitor, Set<String> nonChainingConstructors)
-    {
-      super(classVisitor);
-      this.classVisitor = classVisitor;
-      this.nonChainingConstructors = nonChainingConstructors;
-    }
-
-    /**
-     * Visits the class header.
-     */
-    @Override
-    public void visit(int version, int access, String name, String signature, String superName,
-                      String[] interfaces)
-    {
-      super.visit(version, access, name, signature, superName, interfaces);
-      this.className = name;
-      this.superClassName = superName;
-    }
-
-    /**
-     * 2) Rename the class initializer to jaceUserStaticInit
-     * 3) For non-chaining constructors, invoke
-     *    jaceSetNativeHandle(jaceCreateInstance()) before returning
-     * 4) Renames the user deallocation method to jaceUserClose()
-     * 5) Renames the user finalizer to jaceUserFinalize()
-     */
-    @Override
-    public MethodVisitor visitMethod(int access, String name, String desc, String signature,
-                                     String[] exceptions)
-    {
-      if (name.equals("<clinit>"))
-      {
-        // Rename class initializer to jaceUserStaticInit()
-        classInitializerFound = true;
-        int flags = Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC;
-        return classVisitor.visitMethod(flags, jaceUserStaticInit, desc, null, exceptions);
-      }
-      else if (name.equals("<init>"))
-      {
-        // Is this a non-chaining constructor?
-        if (nonChainingConstructors.contains(desc))
-        {
-          // Generate the method
-          MethodVisitor out = classVisitor.visitMethod(access, name, desc, null, exceptions);
-          return new NonChainingConstructorEnhancer(out, className, superClassName);
-        }
-      }
-      else if (name.equals("finalize"))
-      {
-        // Rename finalizer to jaceUserFinalize
-        finalizerFound = true;
-        return classVisitor.visitMethod(access, jaceUserFinalize, desc, signature, exceptions);
-      }
-      else if (!deallocationMethodFound && name.equals(deallocationMethod))
-      {
-        // Rename deallocation method to jaceUserClose
-        deallocationMethodFound = true;
-        return classVisitor.visitMethod(access, jaceUserClose, desc, signature, exceptions);
-      }
-      return super.visitMethod(access, name, desc, signature, exceptions);
-    }
-
-    @Override
-    public AnnotationVisitor visitAnnotation(String desc, boolean visible)
-    {
-      // Retain all attributes
-      return super.visitAnnotation(desc, visible);
     }
   }
 }

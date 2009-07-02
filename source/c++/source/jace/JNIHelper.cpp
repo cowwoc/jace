@@ -561,10 +561,8 @@ void catchAndThrow() {
 
       if ( env->ExceptionOccurred() ) {
         env->ExceptionDescribe();
-        string msg = "helper::catchAndThrow()\n" \
-                     "An error occurred while trying to call getName() on the superclass " \
-                     "of the thrown exception.";
-        throw JNIException( msg );
+        throw JNIException( "helper::catchAndThrow()\nAn error occurred while trying to call "
+					"getName() on the superclass of the thrown exception." );
       }
 
       exceptionTypeString = asString( env, exceptionType );
@@ -627,7 +625,7 @@ void catchAndThrow() {
 		{
 			helper::catchAndThrow();
 		}
-		catch ( std::exception& e )
+		catch ( JNIException& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
@@ -686,7 +684,7 @@ string toString( jobject obj ) {
 		{
 			helper::catchAndThrow();
 		}
-		catch ( std::exception& e )
+		catch ( JNIException& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
@@ -702,7 +700,7 @@ string toString( jobject obj ) {
 		{
 			helper::catchAndThrow();
 		}
-		catch ( std::exception& e )
+		catch ( JNIException& e )
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());

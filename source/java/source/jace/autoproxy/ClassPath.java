@@ -179,7 +179,7 @@ public class ClassPath
       }
       catch (Exception e)
       {
-        throw new RuntimeException("An error occured while looking for " + name, e);
+        throw new RuntimeException("An error occurred while looking for " + name, e);
       }
     }
     throw new NoClassDefFoundError("The class, " + name + " could not be found on the class path, " + elements);

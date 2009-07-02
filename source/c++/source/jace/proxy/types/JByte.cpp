@@ -8,11 +8,11 @@ using jace::JClassImpl;
 
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
+JClassImpl JByte::javaClass("byte", "B");
 
 JByte::JByte( jvalue value ) {
   setJavaJniValue( value );
 }
-
 
 JByte::JByte( jbyte byte ) {
   jvalue value;
@@ -47,7 +47,6 @@ bool JByte::operator!=( jbyte val ) const {
 }
 
 const JClass* JByte::staticGetJavaJniClass() throw ( JNIException ) {
-  static JClassImpl javaClass( "byte", "B" );
   return &javaClass;
 }
 

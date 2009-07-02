@@ -217,7 +217,7 @@ public:
 			{
 				helper::catchAndThrow();
 			}
-			catch ( std::exception& e )
+			catch ( JNIException& e )
 			{
 				msg.append("\ncaused by:\n");
 				msg.append(e.what());
