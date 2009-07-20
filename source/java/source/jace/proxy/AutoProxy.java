@@ -1,4 +1,4 @@
-package jace.autoproxy;
+package jace.proxy;
 
 import jace.metaclass.BooleanClass;
 import jace.metaclass.ByteClass;
@@ -15,8 +15,8 @@ import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
-import jace.proxygen.ProxyGenerator;
-import jace.proxygen.ProxyGenerator.AccessibilityType;
+import jace.proxy.ProxyGenerator;
+import jace.proxy.ProxyGenerator.AccessibilityType;
 import jace.util.Util;
 import java.io.BufferedReader;
 import java.io.File;

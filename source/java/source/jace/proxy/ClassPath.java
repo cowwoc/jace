@@ -1,4 +1,4 @@
-package jace.autoproxy;
+package jace.proxy;
 
 import jace.metaclass.ArrayMetaClass;
 import jace.metaclass.ClassMetaClass;
@@ -85,7 +85,7 @@ public class ClassPath
       ZipFile zipFile = new ZipFile(path);
       MetaClass metaClass = MetaClassFactory.getMetaClass(name);
       if (metaClass instanceof ArrayMetaClass)
-        metaClass = ((ArrayMetaClass) metaClass).getBaseClass();
+        metaClass = ((ArrayMetaClass) metaClass).getInnermostElementType();
       String entryName = ((ClassMetaClass) metaClass).getFullyQualifiedTrueName("/") + ".class";
       log.trace("Looking for entry " + entryName);
       ZipEntry entry = zipFile.getEntry(entryName);
@@ -158,7 +158,7 @@ public class ClassPath
         ZipFile zipFile = new ZipFile(path);
         MetaClass metaClass = MetaClassFactory.getMetaClass(name);
         if (metaClass instanceof ArrayMetaClass)
-          metaClass = ((ArrayMetaClass) metaClass).getBaseClass();
+          metaClass = ((ArrayMetaClass) metaClass).getInnermostElementType();
         String entryName = ((ClassMetaClass) metaClass).getFullyQualifiedTrueName("/") + ".class";
         log.trace("Looking for entry " + entryName);
         ZipEntry entry = zipFile.getEntry(entryName);

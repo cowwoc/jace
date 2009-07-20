@@ -81,7 +81,7 @@ public abstract class PrimitiveMetaClass implements MetaClass
 
   public MetaClass unProxy()
   {
-    if (isProxy)
+    if (!isProxy)
       throw new IllegalStateException(getClass().getSimpleName() + " is not a proxy: " + getFullyQualifiedName("."));
     return newInstance(false);
   }
@@ -95,6 +95,6 @@ public abstract class PrimitiveMetaClass implements MetaClass
   @Override
   public String toString()
   {
-    return getClass().getName();
+    return getClass().getName() + "(proxy=" + isProxy + ")";
   }
 }

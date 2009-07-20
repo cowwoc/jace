@@ -10,6 +10,8 @@ package jace.metaclass;
  */
 public class ArrayMetaClass implements MetaClass
 {
+  private MetaClass elementType;
+
   /**
    * Constructs a new ArrayMetaClass with the given metaClass
    * as the base type.
@@ -18,47 +20,47 @@ public class ArrayMetaClass implements MetaClass
    */
   public ArrayMetaClass(MetaClass metaClass)
   {
-    mBaseClass = metaClass;
+    this.elementType = metaClass;
   }
 
   public String getSimpleName()
   {
-    return "JArray< " + mBaseClass.getSimpleName() + " >";
+    return "JArray< " + elementType.getSimpleName() + " >";
   }
 
   public String getFullyQualifiedName(String separator)
   {
-    return "jace::JArray< " + "::" + mBaseClass.getFullyQualifiedName(separator) + " >";
+    return "jace::JArray< " + "::" + elementType.getFullyQualifiedName(separator) + " >";
   }
 
   public ClassPackage getPackage()
   {
-    return mBaseClass.getPackage();
+    return elementType.getPackage();
   }
 
   public String beginGuard()
   {
-    return mBaseClass.beginGuard();
+    return elementType.beginGuard();
   }
 
   public String endGuard()
   {
-    return mBaseClass.endGuard();
+    return elementType.endGuard();
   }
 
   public String include()
   {
-    return mBaseClass.include();
+    return elementType.include();
   }
 
   public String using()
   {
-    return mBaseClass.using();
+    return elementType.using();
   }
 
   public String forwardDeclare()
   {
-    return mBaseClass.forwardDeclare();
+    return elementType.forwardDeclare();
   }
 
   /**
@@ -66,26 +68,16 @@ public class ArrayMetaClass implements MetaClass
    *
    * In this case, we say that an ArrayMetaClass is equal to another
    * MetaClass if they both have the same base class.
-   *
+   * 
+   * @param o the object to compare to
    */
   @Override
-  public boolean equals(Object obj)
+  public boolean equals(Object o)
   {
-
-    MetaClass baseMetaClass = getBaseClass();
-
-    if (obj instanceof ArrayMetaClass)
-    {
-      ArrayMetaClass metaClass = (ArrayMetaClass) obj;
-      return baseMetaClass.equals(metaClass.getBaseClass());
-    }
-
-    if (obj instanceof MetaClass)
-    {
-      return baseMetaClass.equals(obj);
-    }
-
-    return false;
+    if (!(o instanceof ArrayMetaClass))
+      return false;
+    ArrayMetaClass other = (ArrayMetaClass) o;
+    return getElementType().equals(other.getElementType());
   }
 
   public int hashCode()
@@ -93,25 +85,37 @@ public class ArrayMetaClass implements MetaClass
     return getSimpleName().hashCode();
   }
 
-  public MetaClass getBaseClass()
+  /**
+   * Returns the array element type.
+   *
+   * @return the array element type
+   */
+  public MetaClass getElementType()
   {
+    return elementType;
+  }
 
-    if (mBaseClass instanceof ArrayMetaClass)
-    {
-      return ((ArrayMetaClass) mBaseClass).getBaseClass();
-    }
-
-    return mBaseClass;
+  /**
+   * Returns the type of the innermost element of the array.
+   *
+   * @return the type of the innermost element of the array
+   */
+  public MetaClass getInnermostElementType()
+  {
+    MetaClass result = elementType;
+    while (result instanceof ArrayMetaClass)
+      result = ((ArrayMetaClass) result).getElementType();
+    return result;
   }
 
   public MetaClass proxy()
   {
-    return new ArrayMetaClass(getBaseClass().proxy());
+    return new ArrayMetaClass(getElementType().proxy());
   }
 
   public MetaClass unProxy()
   {
-    return new ArrayMetaClass(getBaseClass().unProxy());
+    return new ArrayMetaClass(getElementType().unProxy());
   }
 
   public boolean isPrimitive()
@@ -121,39 +125,26 @@ public class ArrayMetaClass implements MetaClass
 
   public String getJniType()
   {
-
-    if (mBaseClass instanceof BooleanClass)
-    {
+    if (elementType instanceof BooleanClass)
       return "jbooleanArray";
-    }
-    else if (mBaseClass instanceof ByteClass)
-    {
+    if (elementType instanceof ByteClass)
       return "jbyteArray";
-    }
-    else if (mBaseClass instanceof CharClass)
-    {
+    if (elementType instanceof CharClass)
       return "jcharArray";
-    }
-    else if (mBaseClass instanceof DoubleClass)
-    {
+    if (elementType instanceof DoubleClass)
       return "jdoubleArray";
-    }
-    else if (mBaseClass instanceof FloatClass)
-    {
+    if (elementType instanceof FloatClass)
       return "jfloatArray";
-    }
-    else if (mBaseClass instanceof LongClass)
-    {
+    if (elementType instanceof LongClass)
       return "jlongArray";
-    }
-    else if (mBaseClass instanceof ShortClass)
-    {
+    if (elementType instanceof ShortClass)
       return "jshortArray";
-    }
-    else
-    {
-      return "jobjectArray";
-    }
+    return "jobjectArray";
   }
-  private MetaClass mBaseClass;
+
+  @Override
+  public String toString()
+  {
+    return getClass().getName() + "[" + getElementType() + "]";
+  }
 }

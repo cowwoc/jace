@@ -1,4 +1,4 @@
-package jace.peergen;
+package jace.peer;
 
 import jace.metaclass.ArrayMetaClass;
 import jace.metaclass.ClassMetaClass;
@@ -11,8 +11,8 @@ import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
 import jace.parser.method.ClassMethod;
 import jace.parser.method.MethodAccessFlag;
-import jace.proxygen.ProxyGenerator;
-import jace.proxygen.ProxyGenerator.AccessibilityType;
+import jace.proxy.ProxyGenerator;
+import jace.proxy.ProxyGenerator.AccessibilityType;
 import jace.util.DelimitedCollection;
 import jace.util.Util;
 import java.io.BufferedWriter;
@@ -745,7 +745,7 @@ public class PeerGenerator
     if (dependency instanceof ArrayMetaClass)
     {
       ArrayMetaClass arrayType = (ArrayMetaClass) dependency;
-      MetaClass baseType = arrayType.getBaseClass();
+      MetaClass baseType = arrayType.getInnermostElementType();
       dependencies.add(baseType);
       return;
     }

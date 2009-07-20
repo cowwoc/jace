@@ -27,7 +27,7 @@
 
   <target name="enhance" depends="compile" description="Runs PeerEnhancer against the PeerExample Java class">
 
-    <java fork="true" classname="jace.peergen.PeerEnhancer">
+    <java fork="true" classname="jace.peer.PeerEnhancer">
       <arg path="${source_peer_class}"/>
       <arg path="${dest_peer_class}"/>
       <arg value="${native_library_name}"/>
@@ -44,7 +44,7 @@
   <target name="peer_generate" depends="enhance" 
     description="Runs PeerGenerator against the enhanced PeerExample Java class to generate the necessary C++ Peer code">
 
-    <java classname="jace.peergen.PeerGenerator">
+    <java classname="jace.peer.PeerGenerator">
       <arg path="java/enhanced/jace/examples/PeerExample.class"/>
       <arg value="${native_library_name}"/>
       <arg path="${peer_gen_header_target}"/>

@@ -66,6 +66,8 @@ I need your support! If you can help developing Jace, please contact me at cowwo
   std::wstring respectively.
 - Bug #1222146: JValue::staticGetJavaJniClass() is not thread-safe.
 - PeerEnhancer was stripping exceptions from the deallocation method; fixed.
+- ByteClass.unproxy() would always fail; fixed.
+- ArrayMetaClass.proxy()/unproxy() would fail for multi-dimensional arrays; fixed.
 
 Compatibility breakers:
 
@@ -81,8 +83,9 @@ Compatibility breakers:
   1) The Java peer already defines a finalizer method, or
   2) The user does not specify the Java Peer dispose method to be enhanced
   
-- class Verbose now takes Verbose::ComponentType as input instead of String
+- Class Verbose now takes Verbose::ComponentType as input instead of String
 - Dropped support for old versions of Visual C++. We now only support Visual Studio 2008.
+- Renamed package jace.peergen to jace.peer, jace.proxygen to jace.proxy, jace.autoproxy to jace.proxy
 
 -------------- New changes in 1.1.1
 

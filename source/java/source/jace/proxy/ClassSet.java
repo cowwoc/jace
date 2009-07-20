@@ -1,4 +1,4 @@
-package jace.autoproxy;
+package jace.proxy;
 
 import jace.metaclass.ArrayMetaClass;
 import jace.metaclass.ClassMetaClass;
@@ -7,7 +7,6 @@ import jace.metaclass.MetaClassFactory;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
-import jace.proxygen.ProxyGenerator;
 import jace.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -191,14 +190,9 @@ public class ClassSet
   private ClassMetaClass toClassMetaClass(MetaClass metaClass)
   {
     if (metaClass instanceof ArrayMetaClass)
-    {
-      ArrayMetaClass arrayMetaClass = (ArrayMetaClass) metaClass;
-      metaClass = arrayMetaClass.getBaseClass();
-    }
-
+      metaClass = ((ArrayMetaClass) metaClass).getInnermostElementType();
     if (metaClass.isPrimitive())
       return null;
-
     return (ClassMetaClass) metaClass;
   }
 

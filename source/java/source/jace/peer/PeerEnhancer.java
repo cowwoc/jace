@@ -1,4 +1,4 @@
-package jace.peergen;
+package jace.peer;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

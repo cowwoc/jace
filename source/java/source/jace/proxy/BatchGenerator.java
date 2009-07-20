@@ -1,10 +1,10 @@
-package jace.proxygen;
+package jace.proxy;
 
 import jace.metaclass.ClassMetaClass;
 import jace.metaclass.MetaClassFactory;
 import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
-import jace.proxygen.ProxyGenerator.AccessibilityType;
+import jace.proxy.ProxyGenerator.AccessibilityType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;

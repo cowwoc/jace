@@ -1,6 +1,6 @@
 package jace.ant;
 
-import jace.peergen.PeerEnhancer;
+import jace.peer.PeerEnhancer;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;

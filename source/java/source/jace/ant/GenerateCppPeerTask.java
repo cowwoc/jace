@@ -1,7 +1,7 @@
 package jace.ant;
 
 import jace.parser.ClassFile;
-import jace.peergen.PeerGenerator;
+import jace.peer.PeerGenerator;
 import java.io.File;
 import java.io.IOException;
 import org.apache.tools.ant.BuildException;

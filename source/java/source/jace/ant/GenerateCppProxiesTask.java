@@ -1,9 +1,9 @@
 package jace.ant;
 
-import jace.autoproxy.AutoProxy;
+import jace.proxy.AutoProxy;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
-import jace.proxygen.ProxyGenerator.AccessibilityType;
+import jace.proxy.ProxyGenerator.AccessibilityType;
 import jace.util.Util;
 import java.io.File;
 import java.io.IOException;

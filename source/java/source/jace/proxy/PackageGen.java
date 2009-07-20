@@ -1,4 +1,4 @@
-package jace.autoproxy;
+package jace.proxy;
 
 import jace.metaclass.ClassPackage;
 import jace.metaclass.MetaClass;

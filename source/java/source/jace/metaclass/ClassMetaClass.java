@@ -202,27 +202,15 @@ public class ClassMetaClass implements MetaClass
    * Compares this MetaClass to another.
    *
    * Two MetaClasses are equal if they have the same name and belong to the same package.
+   * @param o the object to compare to
    */
   @Override
-  public boolean equals(Object obj)
+  public boolean equals(Object o)
   {
-    if (obj instanceof ArrayMetaClass)
-    {
-      ArrayMetaClass arrayMc = (ArrayMetaClass) obj;
-      return equals(arrayMc.getBaseClass());
-    }
-    if (obj instanceof MetaClass)
-    {
-      MetaClass mc = (MetaClass) obj;
-      return compare(mc);
-    }
-
-    return false;
-  }
-
-  private boolean compare(MetaClass mc)
-  {
-    return mc.getSimpleName().equals(getSimpleName()) && mc.getPackage().equals(getPackage());
+    if (!(o instanceof ClassMetaClass))
+      return false;
+    ClassMetaClass other = (ClassMetaClass) o;
+    return other.getSimpleName().equals(getSimpleName()) && other.getPackage().equals(getPackage());
   }
 
   @Override

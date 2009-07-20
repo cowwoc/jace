@@ -7,10 +7,12 @@
             <source-roots>
                 <root id="src.source.dir" name="Source Packages"/>
             </source-roots>
-            <test-roots/>
+            <test-roots>
+                <root id="test.test.dir" name="Test Packages"/>
+            </test-roots>
         </data>
         <libraries xmlns="http://www.netbeans.org/ns/ant-project-libraries/1">
-            <definitions>../java/lib/nblibraries.properties</definitions>
+            <definitions>../lib\nblibraries.properties</definitions>
         </libraries>
     </configuration>
 </project>

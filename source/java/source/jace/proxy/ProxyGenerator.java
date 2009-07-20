@@ -1,4 +1,4 @@
-package jace.proxygen;
+package jace.proxy;
 
 import jace.metaclass.ArrayMetaClass;
 import jace.metaclass.ClassMetaClass;
@@ -87,7 +87,7 @@ public class ProxyGenerator
   /**
    * The names of macros that may conflict with generated code.
    */
-  private Collection reservedFields = Arrays.asList(
+  private Collection<String> reservedFields = Arrays.asList(
     new String[]
     {
       "BIG_ENDIAN",
@@ -1307,7 +1307,7 @@ public class ProxyGenerator
     {
       MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
       if (returnType instanceof ArrayMetaClass)
-        returnType = ((ArrayMetaClass) returnType).getBaseClass();
+        returnType = ((ArrayMetaClass) returnType).getInnermostElementType();
 
       if (!dependencyFilter.contains(returnType))
       {
@@ -1321,7 +1321,7 @@ public class ProxyGenerator
       MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
 
       if (parameterType instanceof ArrayMetaClass)
-        parameterType = ((ArrayMetaClass) parameterType).getBaseClass();
+        parameterType = ((ArrayMetaClass) parameterType).getInnermostElementType();
 
       if (!dependencyFilter.contains(parameterType))
       {
@@ -1869,10 +1869,7 @@ public class ProxyGenerator
 
         // This is the special case when the dependent class is an array
         if (dependentMetaClass instanceof ArrayMetaClass)
-        {
-          ArrayMetaClass arrayMetaClass = (ArrayMetaClass) dependentMetaClass;
-          dependentMetaClass = arrayMetaClass.getBaseClass();
-        }
+          dependentMetaClass = ((ArrayMetaClass) dependentMetaClass).getInnermostElementType();
 
         // Hack in special support for org.omg.CORBA.Object
         // This is the only class that causes Jace to break, based on the
@@ -1995,10 +1992,10 @@ public class ProxyGenerator
       if (fullyDependent)
       {
         ArrayMetaClass arrayType = (ArrayMetaClass) classType;
-        MetaClass baseType = arrayType.getBaseClass();
+        MetaClass elementType = arrayType.getInnermostElementType();
 
-        if (!excludedClasses.contains(baseType))
-          result.add(baseType);
+        if (!excludedClasses.contains(elementType))
+          result.add(elementType);
       }
     }
     else if (!fullyDependent && !excludedClasses.contains(classType))

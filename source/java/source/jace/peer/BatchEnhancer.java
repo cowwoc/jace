@@ -1,4 +1,4 @@
-package jace.peergen;
+package jace.peer;
 
 import java.io.File;
 import java.io.IOException;
