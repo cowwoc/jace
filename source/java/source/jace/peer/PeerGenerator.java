@@ -42,8 +42,8 @@ public class PeerGenerator
   private ClassFile classFile;
   private ClassMetaClass metaClass;
   private ClassMetaClass proxyMetaClass;
-  private final String includeDir;
-  private final String sourceDir;
+  private final File includeDir;
+  private final File sourceDir;
   private final boolean userDefinedMembers;
 
   /**
@@ -54,7 +54,7 @@ public class PeerGenerator
    * @param sourceDir the directory containing the output source files
    * @param userDefinedMembers true if &lt;peer_class_name&gt;_user.h should be generated
    */
-  public PeerGenerator(ClassFile classFile, String includeDir, String sourceDir, boolean userDefinedMembers)
+  public PeerGenerator(ClassFile classFile, File includeDir, File sourceDir, boolean userDefinedMembers)
   {
     this.classFile = classFile;
     proxyMetaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
@@ -135,7 +135,8 @@ public class PeerGenerator
     output.write(newLine);
 
     // Generate the #includes
-    ProxyGenerator proxyGen = new ProxyGenerator(classFile, AccessibilityType.PRIVATE);
+    ProxyGenerator proxyGen = new ProxyGenerator.Builder(classFile, new ProxyGenerator.AcceptAll()).accessibility(
+      AccessibilityType.PRIVATE).build();
     proxyGen.includeStandardHeaders(output);
     output.write(newLine);
 
@@ -311,8 +312,9 @@ public class PeerGenerator
                                  "For more information, please refer to the Jace Developer's Guide." + newLine);
     output.write(newLine);
 
-    ProxyGenerator proxyGen = new ProxyGenerator(classFile, AccessibilityType.PRIVATE);
-    proxyGen.includeStandardSourceHeaders(output);
+    ProxyGenerator generator = new ProxyGenerator.Builder(classFile, new ProxyGenerator.AcceptAll()).accessibility(
+      AccessibilityType.PRIVATE).build();
+    generator.includeStandardSourceHeaders(output);
 
     for (MetaClass dependency: getDependencies(classFile))
     {
@@ -326,10 +328,10 @@ public class PeerGenerator
     beginNamespace(output);
     output.write(newLine);
 
-    output.write(proxyGen.getInitializerValue(true) + newLine);
-    proxyGen.generateMethodDefinitions(output, true);
-    proxyGen.generateFieldDefinitions(output, true);
-    proxyGen.generateJaceDefinitions(output, true);
+    output.write(generator.getInitializerValue(true) + newLine);
+    generator.generateMethodDefinitions(output, true);
+    generator.generateFieldDefinitions(output, true);
+    generator.generateJaceDefinitions(output, true);
 
     endNamespace(output);
     output.write(newLine);
@@ -356,8 +358,9 @@ public class PeerGenerator
                                  "For more information, please refer to the Jace Developer's Guide.");
     output.write(newLine);
 
-    ProxyGenerator proxyGen = new ProxyGenerator(classFile, AccessibilityType.PRIVATE);
-    proxyGen.includeStandardHeaders(output);
+    ProxyGenerator proxy = new ProxyGenerator.Builder(classFile, new ProxyGenerator.AcceptAll()).accessibility(
+      AccessibilityType.PRIVATE).build();
+    proxy.includeStandardHeaders(output);
 
     output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/Throwable.h\"" + newLine);
     output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/RuntimeException.h\"" + newLine);
@@ -818,13 +821,12 @@ public class PeerGenerator
       return;
     }
 
-    String classFilePath = args[0];
-    String includeDir = args[1];
-    String sourceDir = args[2];
+    File classFile = new File(args[0]);
+    File includeDir = new File(args[1]);
+    File sourceDir = new File(args[2]);
     boolean userDefinedMembers = Boolean.valueOf(args[3]).booleanValue();
 
-    PeerGenerator generator = new PeerGenerator(new ClassFile(classFilePath), includeDir, sourceDir,
-      userDefinedMembers);
+    PeerGenerator generator = new PeerGenerator(new ClassFile(classFile), includeDir, sourceDir, userDefinedMembers);
     Logger log = generator.getLogger();
     log.info("Beginning Peer generation.");
     try

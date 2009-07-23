@@ -4,6 +4,7 @@ import jace.metaclass.ClassMetaClass;
 import jace.metaclass.MetaClassFactory;
 import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
+import jace.proxy.ProxyGenerator.AcceptAll;
 import jace.proxy.ProxyGenerator.AccessibilityType;
 import java.io.File;
 import java.io.FileInputStream;
@@ -77,7 +78,6 @@ public class BatchGenerator
 
         File sourceDir = new File(outputSources + File.separator + dirName);
         sourceDir.mkdirs();
-
         continue;
       }
 
@@ -106,9 +106,9 @@ public class BatchGenerator
       }
 
       ClassFile classFile = new ClassFile(in);
-      ProxyGenerator.writeProxy(metaClass, classFile, accessibility, outputHeaders, outputSources);
+      new ProxyGenerator.Builder(classFile, new AcceptAll()).accessibility(accessibility).build().
+        writeProxy(outputHeaders, outputSources);
     }
-
     in.close();
   }
 

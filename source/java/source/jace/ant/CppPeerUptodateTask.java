@@ -77,7 +77,7 @@ public class CppPeerUptodateTask extends Task
     if (property == null)
       throw new BuildException("property must be set", getLocation());
 
-    ClassFile inputFileParser = new ClassFile(inputFile.getPath());
+    ClassFile inputFileParser = new ClassFile(inputFile);
     MetaClass metaClass = MetaClassFactory.getMetaClass(inputFileParser.getClassName());
     String path = metaClass.getFullyQualifiedName("/");
     File headerFile = new File(outputHeaders, JaceConstants.getPeerPackage().asPath() + path + ".h");

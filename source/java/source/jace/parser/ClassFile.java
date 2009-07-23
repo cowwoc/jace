@@ -19,6 +19,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -78,7 +79,7 @@ public class ClassFile
    * @param path the class file path
    * @throws ClassFormatError if an error occurs while parsing the class file
    */
-  public ClassFile(String path) throws ClassFormatError
+  public ClassFile(File path) throws ClassFormatError
   {
     InputStream input = null;
 
@@ -101,7 +102,7 @@ public class ClassFile
         {
           input.close();
         }
-        catch (Exception e)
+        catch (IOException e)
         {
           // ignore
         }
@@ -756,7 +757,7 @@ public class ClassFile
    */
   public static void main(String args[])
   {
-    ClassFile cf = new ClassFile(args[0]);
+    ClassFile cf = new ClassFile(new File(args[0]));
     System.out.println(cf.toString());
   }
 }

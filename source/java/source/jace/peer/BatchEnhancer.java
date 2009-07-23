@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
  * @author Toby Reyelts
  *
  */
-public class BatchEnhancer {
-
+public class BatchEnhancer
+{
   private final String libraries;
   private final String deallocationMethod;
   private final Collection<File> sources;
@@ -29,7 +29,8 @@ public class BatchEnhancer {
    * @param deallocationMethod the method to invoke in order to deallocate the native peer (may be null)
    * @param verbose true if Java peers should output library names before loading them
    */
-  public BatchEnhancer(Collection<File> sources, String libraries, String deallocationMethod, boolean verbose) {
+  public BatchEnhancer(Collection<File> sources, String libraries, String deallocationMethod, boolean verbose)
+  {
     this.sources = sources;
     this.libraries = libraries;
     this.deallocationMethod = deallocationMethod;
@@ -41,27 +42,29 @@ public class BatchEnhancer {
    *
    * @throws IOException if an I/O error occurs
    */
-  public void enhance() throws IOException {
-    List<String> nativeLibraries = new ArrayList<String>();
+  public void enhance() throws IOException
+  {
     String[] tokens = libraries.split(",");
-    for (String token : tokens)
-      nativeLibraries.add(token);
-    for (File source : sources) {
-      PeerEnhancer pe = new PeerEnhancer(source, source, nativeLibraries, deallocationMethod, verbose);
-      pe.enhance();
+    for (File source: sources)
+    {
+      PeerEnhancer.Builder enhancer = new PeerEnhancer.Builder(source, source);
+      for (String token: tokens)
+        enhancer.library(token);
+      enhancer.deallocationMethod(deallocationMethod).verbose(verbose).enhance();
     }
   }
 
-  public static String getUsage() {
+  public static String getUsage()
+  {
     String usage =
-      "Usage: BatchEnhancer " + newLine +
-      "  <" + File.separator + "-separated list of sources>" + newLine +
-      "  <comma-separated list of libraries>" + newLine +
-      "  [options]" + newLine +
-      newLine +
-      "Where options can be:" +
-      "  -deallocator=<deallocation method>" + newLine +
-      "  -verbose (if Java peers should output library names before loading them)" + newLine;
+           "Usage: BatchEnhancer " + newLine +
+           "  <" + File.separator + "-separated list of sources>" + newLine +
+           "  <comma-separated list of libraries>" + newLine +
+           "  [options]" + newLine +
+           newLine +
+           "Where options can be:" +
+           "  -deallocator=<deallocation method>" + newLine +
+           "  -verbose (if Java peers should output library names before loading them)" + newLine;
     return usage;
   }
 
@@ -70,31 +73,38 @@ public class BatchEnhancer {
    *
    * @param args the command-line argument
    */
-  public static void main(String[] args) {
+  public static void main(String[] args)
+  {
 
-    if (args.length < 2) {
+    if (args.length < 2)
+    {
       System.out.println(getUsage());
       return;
     }
 
     String[] sourceTokens = args[0].split(",");
     List<File> sources = new ArrayList<File>();
-    for (String token : sourceTokens)
+    for (String token: sourceTokens)
       sources.add(new File(token));
     String libraries = args[1];
 
     String deallocationMethod = null;
     boolean verbose = false;
-    for (int i = 2; i < args.length; ++i) {
+    for (int i = 2; i < args.length; ++i)
+    {
       String option = args[i];
 
-      if (option.equals("-deallocator")) {
+      if (option.equals("-deallocator"))
+      {
         String[] tokens = args[i].split("=");
-        if (tokens.length == 2) {
+        if (tokens.length == 2)
+        {
           deallocationMethod = tokens[1];
           continue;
         }
-      } else if (option.equals("-verbose")) {
+      }
+      else if (option.equals("-verbose"))
+      {
         verbose = true;
         continue;
       }
@@ -105,10 +115,12 @@ public class BatchEnhancer {
     }
 
     BatchEnhancer be = new BatchEnhancer(sources, libraries, deallocationMethod, verbose);
-    try {
+    try
+    {
       be.enhance();
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       LoggerFactory.getLogger(BatchEnhancer.class).error("", e);
     }
   }

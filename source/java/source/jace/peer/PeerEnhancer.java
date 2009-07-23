@@ -55,31 +55,98 @@ public class PeerEnhancer
   private static final String jaceUserClose = "jaceUserClose";
 
   /**
+   * Builds a PeerEnhancer.
+   *
+   * @author Gili Tzabari
+   */
+  public static final class Builder
+  {
+    private final File from;
+    private final File to;
+    private final List<String> libraries = new ArrayList<String>();
+    private String deallocationMethod;
+    private boolean verbose;
+
+    /**
+     * Creates a new Builder.
+     *
+     * @param from the path of the peer before it has been enhanced
+     * @param to the path of the peer after it has been enhanced
+     * @throws IllegalArgumentException if <code>from</code> or <code>to</code> are null
+     */
+    public Builder(File from, File to) throws IllegalArgumentException
+    {
+      if (from == null)
+        throw new IllegalArgumentException("from may not be null");
+      if (to == null)
+        throw new IllegalArgumentException("to may not be null");
+      this.from = from;
+      this.to = to;
+    }
+
+    /**
+     * Adds a library to be loaded by the peer.
+     *
+     * @param name the library name
+     * @return the Builder
+     */
+    public Builder library(String name)
+    {
+      libraries.add(name);
+      return this;
+    }
+
+    /**
+     * Indicates the name of the peer deallocation method.
+     *
+     * @param name the method name, or null if there is no deallocation method
+     * @return the Builder
+     * @throws IllegalArgumentException if name is an empty string
+     */
+    public Builder deallocationMethod(String name) throws IllegalArgumentException
+    {
+      if (name != null && name.trim().isEmpty())
+        throw new IllegalArgumentException("name may not be an empty String");
+      this.deallocationMethod = name;
+      return this;
+    }
+
+    /**
+     * Indicates if the peer should log lifecycle events.
+     *
+     * @param value true if the peer should log lifecycle events
+     * @return the Builder
+     */
+    public Builder verbose(boolean value)
+    {
+      this.verbose = value;
+      return this;
+    }
+
+    /**
+     * Enhances the peer.
+     *
+     * @throws IOException if an I/O error occurs
+     */
+    public void enhance() throws IOException
+    {
+      new PeerEnhancer(this).run();
+    }
+  }
+
+  /**
    * Creates a new PeerEnhancer.
    *
-   * @param inputFile the input class file
-   * @param outputFile the enhanced output file
-   * @param libraries native libraries to load at peer initialization time (empty collection denotes none)
-   * @param deallocationMethod peer deallocation method (null denotes none)
-   * @param verbose true if Java peers should output library names before loading them
-   * @throws IllegalArgumentException if inputFile, outputFile, or libraries are null
+   * @param builder an instance of <code>PeerEnhancer.Builder</code>
    */
-  public PeerEnhancer(File inputFile, File outputFile, List<String> libraries, String deallocationMethod,
-                      boolean verbose) throws IllegalArgumentException
+  private PeerEnhancer(Builder builder)
   {
-    if (inputFile == null)
-      throw new IllegalArgumentException("inputFile may not be null");
-    if (outputFile == null)
-      throw new IllegalArgumentException("outputFile may not be null");
-    if (libraries == null)
-      throw new IllegalArgumentException("libraries may not be null");
-    if (deallocationMethod != null && deallocationMethod.trim().isEmpty())
-      throw new IllegalArgumentException("deallocationMethod may not be an empty String");
-    this.inputFile = inputFile;
-    this.outputFile = outputFile;
-    this.libraries = libraries;
-    this.deallocationMethod = deallocationMethod;
-    this.verbose = verbose;
+    assert (builder != null);
+    this.inputFile = builder.from;
+    this.outputFile = builder.to;
+    this.libraries = builder.libraries;
+    this.deallocationMethod = builder.deallocationMethod;
+    this.verbose = builder.verbose;
   }
 
   /**
@@ -106,7 +173,10 @@ public class PeerEnhancer
           {
             isChained = true;
             break;
+
           }
+
+
         }
         if (isChained)
           continue;
@@ -131,23 +201,33 @@ public class PeerEnhancer
               MethodInsnNode methodInvocation = (MethodInsnNode) instruction;
               if (methodInvocation.owner.equals(classNode.superName) && methodInvocation.name.equals("<init>"))
                 method.instructions.insert(instruction, getJaceSetNativeHandle(classNode.name));
-              matchFound = true;
+              matchFound =
+              true;
               break;
+
             }
+
+
             case AbstractInsnNode.INSN:
             {
               if (instruction.getOpcode() == Opcodes.RETURN)
                 method.instructions.insert(instruction, getJaceSetNativeHandle(classNode.name));
-              matchFound = true;
+              matchFound =
+              true;
               break;
+
             }
+
+
           }
           if (matchFound)
             break;
         }
+
         if (!matchFound)
           throw new AssertionError();
       }
+
     }
   }
 
@@ -201,7 +281,10 @@ public class PeerEnhancer
         String[] exceptions = (String[]) method.exceptions.toArray(new String[0]);
         classNode.methods.add(createDeallocationMethod(classNode.name, exceptions));
         return;
+
       }
+
+
     }
     throw new RuntimeException("Unable to locate the method: " + deallocationMethod + "." +
                                newLine + "Peer enhancement will now stop.");
@@ -243,7 +326,7 @@ public class PeerEnhancer
    *
    * @throws IOException if an I/O error occurs while enhancing the file
    */
-  public void enhance() throws IOException
+  private void run() throws IOException
   {
     final boolean[] alreadyEnhanced = new boolean[1];
     alreadyEnhanced[0] = false;
@@ -263,7 +346,10 @@ public class PeerEnhancer
         {
           log.info("The class " + inputFile + " has already been enhanced and will not be modified.");
           return;
+
         }
+
+
       }
 
       enhanceConstructors(classNode);
@@ -281,6 +367,8 @@ public class PeerEnhancer
         return;
 
       }
+
+
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
       ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
       classNode.accept(classWriter);
@@ -291,6 +379,7 @@ public class PeerEnhancer
     {
       in.close();
     }
+
   }
 
   /**
@@ -331,9 +420,13 @@ public class PeerEnhancer
         // Rename the user's class initializer to jaceUserStaticInit()
         method.name = jaceUserStaticInit;
         method.access = Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC;
-        userInitializerExists = true;
+        userInitializerExists =
+        true;
         break;
+
       }
+
+
     }
 
     // Create method "private native static void jaceSetVm()"
@@ -370,7 +463,7 @@ public class PeerEnhancer
           }));
       }
 
-      // Push library name onto stack
+// Push library name onto stack
       classInitializer.visitLdcInsn(library);
 
       // Invoke System.loadLibrary()
@@ -400,7 +493,7 @@ public class PeerEnhancer
         }));
     }
 
-    // Invoke jaceSetVm()
+// Invoke jaceSetVm()
     classInitializer.visitMethodInsn(Opcodes.INVOKESTATIC, classNode.name,
       jaceSetVm, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 
@@ -463,22 +556,30 @@ public class PeerEnhancer
 
     // Stack now contains [RuntimeException]
     // Throw the exception
-    classInitializer.visitInsn(Opcodes.ATHROW);
+    classInitializer.visitInsn(
+      Opcodes.ATHROW);
 
     // End of catch block
     classInitializer.visitLabel(endCatchBlock);
 
     // Associate the variable "t" with the catch-block exception
-    classInitializer.visitLocalVariable("t", Type.getDescriptor(Throwable.class), null,
+    classInitializer.visitLocalVariable(
+      "t", Type.getDescriptor(Throwable.class), null,
       beginCatchBlock, endCatchBlock, 1);
 
     // Invoke the user's class initializer if necessary
+
+
+
+
+
+
+
     if (userInitializerExists)
     {
       classInitializer.visitMethodInsn(Opcodes.INVOKESTATIC, classNode.name, jaceUserStaticInit,
         Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
     }
-
     if (verbose)
     {
       // Push System.err onto the stack
@@ -788,11 +889,12 @@ public class PeerEnhancer
     }
 
     String tokens[] = libraries.split(",");
-    List<String> nativeLibraries = new ArrayList<String>();
+    PeerEnhancer.Builder enhancer = new PeerEnhancer.Builder(inputFile, outputFile);
     for (String token: tokens)
-      nativeLibraries.add(token);
-    PeerEnhancer enhancer = new PeerEnhancer(inputFile, outputFile, nativeLibraries, deallocationMethod, verbose);
-    Logger log = enhancer.getLogger();
+      enhancer.library(token);
+    enhancer.deallocationMethod(deallocationMethod);
+    enhancer.verbose(verbose);
+    Logger log = LoggerFactory.getLogger(PeerEnhancer.class);
     log.info("Enhancing " + inputFile + " -> " + outputFile);
     try
     {

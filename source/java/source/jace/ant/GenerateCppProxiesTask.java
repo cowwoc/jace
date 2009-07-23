@@ -147,8 +147,12 @@ public class GenerateCppProxiesTask extends Task
     Set<TypeName> extraDependencies = new HashSet<TypeName>();
     for (Dependency dependency: dependencies)
       extraDependencies.add(TypeNameFactory.fromIdentifier(dependency.getName()));
-    AutoProxy autoProxy = new AutoProxy(inputHeaders, inputSources, outputHeaders, outputSources,
-      Util.parseClasspath(classpath.toString()), accessibility, true, extraDependencies, exportSymbols);
+    AutoProxy.Builder builder = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
+      Util.parseClasspath(classpath.toString())).accessibility(accessibility).minimizeDependencies(true).
+      exportSymbols(exportSymbols);
+    for (TypeName dependency: extraDependencies)
+      builder.extraDependency(dependency);
+    AutoProxy autoProxy = builder.build();
     try
     {
       autoProxy.generateProxies();

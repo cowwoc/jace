@@ -7,6 +7,7 @@ import jace.metaclass.MetaClassFactory;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
+import jace.proxy.ProxyGenerator.AcceptAll;
 import jace.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -172,12 +173,12 @@ public class ClassSet
       return;
 
     // now handle all of the other classes
-    ProxyGenerator pg = new ProxyGenerator(classFile);
+    ProxyGenerator generator = new ProxyGenerator.Builder(classFile, new AcceptAll()).build();
 
-    for (MetaClass metaClass: pg.getDependentClasses(true))
+    for (MetaClass metaClass: generator.getDependentClasses(true))
       addDependentClasses(classSet, metaClass.unProxy());
 
-    for (MetaClass metaClass: pg.getDependentClasses(false))
+    for (MetaClass metaClass: generator.getDependentClasses(false))
       addDependentClasses(classSet, metaClass.unProxy());
   }
 

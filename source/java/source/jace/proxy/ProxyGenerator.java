@@ -1,6 +1,7 @@
 package jace.proxy;
 
 import jace.metaclass.ArrayMetaClass;
+import jace.metaclass.MetaClassFilter;
 import jace.metaclass.ClassMetaClass;
 import jace.metaclass.ClassPackage;
 import jace.metaclass.MetaClass;
@@ -28,7 +29,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,7 +81,7 @@ public class ProxyGenerator
   private final static String newLine = System.getProperty("line.separator");
   private final ClassFile classFile;
   private final AccessibilityType accessibility;
-  private final Set<MetaClass> dependencyFilter;
+  private final MetaClassFilter dependencyFilter;
   private final boolean exportSymbols;
   private final Logger log = LoggerFactory.getLogger(ProxyGenerator.class);
   /**
@@ -101,72 +101,17 @@ public class ProxyGenerator
     });
 
   /**
-   * Same as ProxyGenerator(classFile, AccessibilityType.PUBLIC).
-   *
-   * @param classFile the Java class file
-   *
-   * @throws IllegalArgumentException if classFile is null
-   * @see ProxyGenerator(ClassFile, AccessibilityType)
-   */
-  public ProxyGenerator(ClassFile classFile) throws IllegalArgumentException
-  {
-    this(classFile, AccessibilityType.PUBLIC);
-  }
-
-  /**
-   * Same as ProxyGenerator(classFile, accessibilityType, null).
-   *
-   * @param classFile the Java class file
-   * @param accessibility the member accessibility to expose
-   *
-   * @throws IllegalArgumentException if classFile, accessibility are null
-   * @see ProxyGenerator(ClassFile, AccessibilityType, Set<MetaClass>)
-   */
-  public ProxyGenerator(ClassFile classFile, AccessibilityType accessibility) throws IllegalArgumentException
-  {
-    this(classFile, accessibility, null);
-  }
-
-  /**
-   * Same as ProxyGenerator(classFile, accessibilityType, dependencyFilter, false).
-   *
-   * @param classFile the Java class file
-   * @param accessibility the member accessibility to expose
-   * @param dependencyFilter methods whose return-type or parameter types do not show up on this list
-   * are omitted. Null indicates that all dependencies should be accepted.
-   *
-   * @throws IllegalArgumentException if classFile, accessibility are null
-   * @@see ProxyGenerator(ClassFile, AccessibilityType, Set<MetaClass>, boolean)
-   */
-  public ProxyGenerator(ClassFile classFile, AccessibilityType accessibility, Set<MetaClass> dependencyFilter)
-    throws IllegalArgumentException
-  {
-    this(classFile, accessibility, dependencyFilter, false);
-  }
-
-  /**
    * Creates a new ProxyGenerator.
    *
-   * @param classFile the Java class file
-   * @param accessibility the member accessibility to expose
-   * @param dependencyFilter methods whose return-type or parameter types do not show up on this list
-   * are omitted. Null indicates that all dependencies should be accepted.
-   * @param exportSymbols true if proxies should export their symbols (i.e. when used in DLLs)
-   *
-   * @throws IllegalArgumentException if classFile, accessibility are null
+   * @param builder an instance of <code>ProxyGenerator.Builder</code>
    */
-  public ProxyGenerator(ClassFile classFile, AccessibilityType accessibility, Set<MetaClass> dependencyFilter,
-                        boolean exportSymbols)
-    throws IllegalArgumentException
+  private ProxyGenerator(Builder builder)
   {
-    if (classFile == null)
-      throw new IllegalArgumentException("classFile may not be null");
-    if (accessibility == null)
-      throw new IllegalArgumentException("accessibility may not be null");
-    this.classFile = classFile;
-    this.accessibility = accessibility;
-    this.dependencyFilter = dependencyFilter;
-    this.exportSymbols = exportSymbols;
+    assert (builder != null);
+    this.classFile = builder.classFile;
+    this.accessibility = builder.accessibility;
+    this.dependencyFilter = builder.dependencyFilter;
+    this.exportSymbols = builder.exportSymbols;
   }
 
   /**
@@ -271,7 +216,7 @@ public class ProxyGenerator
     for (MetaClass dependentMetaClass: getDependentClasses(false))
     {
       // Skip includes for classes that aren't part of our dependency list
-      if (dependencyFilter != null && !dependencyFilter.contains(dependentMetaClass))
+      if (!dependencyFilter.accept(dependentMetaClass))
         continue;
 
       // Hack in special support for org.omg.CORBA.Object
@@ -820,7 +765,7 @@ public class ProxyGenerator
       MetaClass mc = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
 
       // Don't generate the field if it's type is not part of our dependency list
-      if (dependencyFilter != null && !dependencyFilter.contains(mc))
+      if (!dependencyFilter.accept(mc))
         continue;
 
       String name = field.getName();
@@ -1297,7 +1242,7 @@ public class ProxyGenerator
    */
   private boolean isPartOfDependencies(ClassMethod method)
   {
-    if (dependencyFilter == null)
+    if (dependencyFilter instanceof AcceptAll)
       return true;
 
     String methodName = method.getName();
@@ -1309,7 +1254,7 @@ public class ProxyGenerator
       if (returnType instanceof ArrayMetaClass)
         returnType = ((ArrayMetaClass) returnType).getInnermostElementType();
 
-      if (!dependencyFilter.contains(returnType))
+      if (!dependencyFilter.accept(returnType))
       {
         log.debug("ReturnType: " + returnType + " not in dependency list");
         return false;
@@ -1323,7 +1268,7 @@ public class ProxyGenerator
       if (parameterType instanceof ArrayMetaClass)
         parameterType = ((ArrayMetaClass) parameterType).getInnermostElementType();
 
-      if (!dependencyFilter.contains(parameterType))
+      if (!dependencyFilter.accept(parameterType))
       {
         log.debug("ParameterType: " + parameterType + " not in dependency list");
         return false;
@@ -1623,7 +1568,7 @@ public class ProxyGenerator
       MetaClass mc = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
 
       // Don't generate the field if it's type is not part of our dependency list
-      if (dependencyFilter != null && !dependencyFilter.contains(mc))
+      if (!dependencyFilter.accept(mc))
         continue;
 
       String name = field.getName();
@@ -1864,7 +1809,7 @@ public class ProxyGenerator
       for (MetaClass dependentMetaClass: dependentClasses)
       {
         // Skip includes for classes that aren't part of our dependency list
-        if (dependencyFilter != null && !dependencyFilter.contains(dependentMetaClass))
+        if (!dependencyFilter.accept(dependentMetaClass))
           continue;
 
         // This is the special case when the dependent class is an array
@@ -1904,7 +1849,7 @@ public class ProxyGenerator
     for (MetaClass mc: getDependentClasses(false))
     {
       // Don't include classes that aren't in our dependency list
-      if (dependencyFilter != null && !dependencyFilter.contains(mc))
+      if (!dependencyFilter.accept(mc))
         continue;
 
       output.write(mc.forwardDeclare() + newLine);
@@ -2003,60 +1948,16 @@ public class ProxyGenerator
   }
 
   /**
-   * Same as writeProxy(metaClass, classFile, accessibility, outputHeaders, outputSources, null).
-   *
-   * @param metaClass the MetaClass describing the class
-   * @param classFile the class file
-   * @param accessibility the member accessibility to expose
-   * @param outputHeaders the directory to write the header file to
-   * @param outputSources the directory to write the source file to
-   * @throws IOException if an error occurs while writing the proxy files
-   * @see writeProxy(ClassMetaClass, ClassFile, AccessibilityType, File, File, Set<MEtaClass>)
-   */
-  public static void writeProxy(ClassMetaClass metaClass, ClassFile classFile, AccessibilityType accessibility,
-                                File outputHeaders, File outputSources) throws IOException
-  {
-    writeProxy(metaClass, classFile, accessibility, outputHeaders, outputSources, null);
-  }
-
-  /**
-   * Same as writeProxy(metaClass, classFile, accessibility, outputHeaders, outputSources, dependencies, false).
-   *
-   * @param metaClass the MetaClass describing the class
-   * @param classFile the class file
-   * @param accessibility the member accessibility to expose
-   * @param outputHeaders the directory to write the header file to
-   * @param outputSources the directory to write the source file to
-   * @param dependencyFilter methods whose return-type or parameter types do not show up on this list
-   * are omitted. Null indicates that all dependencies should be accepted.
-   * @throws IOException if an error occurs while writing the proxy files
-   * @see writeProxy(ClassMetaClass, ClassFile, AccessibilityType, File, File, Set<MEtaClass>, boolean)
-   */
-  public static void writeProxy(ClassMetaClass metaClass, ClassFile classFile, AccessibilityType accessibility,
-                                File outputHeaders, File outputSources, Set<MetaClass> dependencyFilter)
-    throws IOException
-  {
-    writeProxy(metaClass, classFile, accessibility, outputHeaders, outputSources, dependencyFilter, false);
-  }
-
-  /**
    * Generates the C++ proxy (header and source) for the specified class.
    *
-   * @param metaClass the MetaClass describing the class
-   * @param classFile the class file
-   * @param accessibility the member accessibility to expose
    * @param outputHeaders the directory to write the header file to
    * @param outputSources the directory to write the source file to
-   * @param dependencyFilter methods whose return-type or parameter types do not show up on this list
-   * are omitted. Null indicates that all dependencies should be accepted.
-   * @param exportSymbols true if proxies should export their symbols (i.e. when used in DLLs)
    * @throws IOException if an error occurs while writing the proxy files
    */
-  public static void writeProxy(ClassMetaClass metaClass, ClassFile classFile, AccessibilityType accessibility,
-                                File outputHeaders, File outputSources, Set<MetaClass> dependencyFilter,
-                                boolean exportSymbols) throws IOException
+  public void writeProxy(File outputHeaders, File outputSources)
+    throws IOException
   {
-
+    ClassMetaClass metaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName());
     String subDir = metaClass.getPackage().toName("/", false).replace('/', File.separatorChar);
     File fullHeaderDir = outputHeaders;
     File fullSourceDir = outputSources;
@@ -2074,8 +1975,6 @@ public class ProxyGenerator
     String classFileName = metaClass.getFileName();
     assert (!classFileName.contains("/") && !classFileName.contains("\\")): classFileName;
 
-    ProxyGenerator pg = new ProxyGenerator(classFile, accessibility, dependencyFilter, exportSymbols);
-    Logger log = pg.getLogger();
     if (log.isInfoEnabled())
       log.info("Generating the Proxy for " + metaClass.getFullyQualifiedName("."));
     File fullHeaderFile = new File(fullHeaderDir, classFileName + ".h");
@@ -2085,7 +1984,7 @@ public class ProxyGenerator
     BufferedWriter out = new BufferedWriter(new FileWriter(fullHeaderFile));
     try
     {
-      pg.generateHeader(out);
+      generateHeader(out);
     }
     finally
     {
@@ -2099,7 +1998,7 @@ public class ProxyGenerator
     out = new BufferedWriter(new FileWriter(fullSourceFile));
     try
     {
-      pg.generateSource(out);
+      generateSource(out);
     }
     finally
     {
@@ -2167,8 +2066,8 @@ public class ProxyGenerator
       }
     }
 
-    ProxyGenerator generator = new ProxyGenerator(new ClassFile(args[0]), accessibility,
-      Collections.<MetaClass>emptySet(), false);
+    ProxyGenerator generator = new ProxyGenerator.Builder(new ClassFile(new File(args[0])), new AcceptAll()).
+      accessibility(accessibility).build();
     try
     {
       if (args[1].equals("header"))
@@ -2179,6 +2078,113 @@ public class ProxyGenerator
     catch (IOException e)
     {
       generator.getLogger().error("", e);
+    }
+  }
+
+  /**
+   * Builds a ProxyGenerator.
+   *
+   * @author Gili Tzabari
+   */
+  public static class Builder
+  {
+    private final ClassFile classFile;
+    private final MetaClassFilter dependencyFilter;
+    private AccessibilityType accessibility = AccessibilityType.PUBLIC;
+    private boolean exportSymbols;
+
+    /**
+     * Creates a new Builder.
+     *
+     * @param classFile the class to generate a proxy for
+     * @param dependencyFilter indicates whether methods should be exported. Methods whose parameters or return types
+     * are rejected by the filter are omitted.
+     * @throws IllegalArgumentException if <code>classFile</code> is null
+     */
+    public Builder(ClassFile classFile, MetaClassFilter dependencyFilter)
+      throws IllegalArgumentException
+    {
+      if (classFile == null)
+        throw new IllegalArgumentException("classFile may not be null");
+      this.classFile = classFile;
+      this.dependencyFilter = dependencyFilter;
+    }
+
+    /**
+     * Indicates if proxy symbols should be exported (i.e. for use in DLLs)
+     *
+     * @param value true if proxy symbols should be exported
+     * @return the Builder
+     */
+    public Builder exportSymbols(boolean value)
+    {
+      this.exportSymbols = value;
+      return this;
+    }
+
+    /**
+     * Indicates the member accessibility to expose. The default is AccessibilityType.PUBLIC.
+
+     * @param accessibility the member accessibility to expose
+     * @return the Builder
+     * @throws IllegalArgumentException if <code>accessibility</code> is null
+     */
+    public Builder accessibility(AccessibilityType accessibility) throws IllegalArgumentException
+    {
+      if (accessibility == null)
+        throw new IllegalArgumentException("accessibility may not be null");
+      this.accessibility = accessibility;
+      return this;
+    }
+
+    /**
+     * Builds a ProxyGenerator.
+     *
+     * @return the ProxyGenerator
+     */
+    public ProxyGenerator build()
+    {
+      return new ProxyGenerator(this);
+    }
+  }
+
+  /**
+   * Accepts all classes.
+   *
+   * @author Gili Tzabari
+   */
+  public static class AcceptAll implements MetaClassFilter
+  {
+    @Override
+    public boolean accept(MetaClass candidate)
+    {
+      return true;
+    }
+  }
+
+  /**
+   * Accepts a collection of classes.
+   *
+   * @author Gili Tzabari
+   */
+  public static class FilteringCollection implements MetaClassFilter
+  {
+    private final Collection<MetaClass> collection = new ArrayList<MetaClass>();
+
+    /**
+     * Adds a metaclass to be accepted.
+     *
+     * @param metaClass the metaclass to accept
+     */
+    public void add(MetaClass metaClass)
+    {
+      collection.add(metaClass);
+    }
+
+    @Override
+    public boolean accept(MetaClass candidate)
+    {
+      return collection.contains(candidate);
     }
   }
 }

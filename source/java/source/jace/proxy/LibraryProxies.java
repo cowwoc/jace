@@ -15,6 +15,7 @@ import jace.metaclass.TypeNameFactory;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
 import jace.proxy.ProxyGenerator.AccessibilityType;
+import jace.proxy.ProxyGenerator.FilteringCollection;
 import jace.util.Util;
 import java.io.File;
 import java.io.FilenameFilter;
@@ -85,7 +86,7 @@ public class LibraryProxies
     ClassPath source = new ClassPath(classPath);
 
     // generate the dependency list
-    Set<MetaClass> dependencies = new HashSet<MetaClass>();
+    FilteringCollection dependencies = new FilteringCollection();
 
     // include all primitives
     dependencies.add(new BooleanClass(false));
@@ -99,7 +100,8 @@ public class LibraryProxies
     dependencies.add(new VoidClass(false));
 
     // include all of the dependent classes
-    dependencies.addAll(classes);
+    for (MetaClass metaClass: classes)
+      dependencies.add(metaClass);
 
     // now generate all of the proxies
     for (MetaClass clazz: classes)
@@ -121,8 +123,8 @@ public class LibraryProxies
 
       InputStream input = source.openClass(TypeNameFactory.fromPath(sourceName));
       ClassFile classFile = new ClassFile(input);
-      ProxyGenerator.writeProxy(metaClass, classFile, AccessibilityType.PROTECTED, outputHeaders, outputSources,
-        dependencies, true);
+      new ProxyGenerator.Builder(classFile, dependencies).accessibility(AccessibilityType.PROTECTED).build().
+        writeProxy(outputHeaders, outputSources);
       input.close();
     }
   }
@@ -148,8 +150,8 @@ public class LibraryProxies
     Set<TypeName> result = new HashSet<TypeName>();
     for (File clazz: classes)
     {
-      ClassFile file = new ClassFile(clazz.getPath());
-      if (file.getClassName().asIdentifier().equals(""))
+      ClassFile file = new ClassFile(clazz);
+      if (file.getClassName().asIdentifier().isEmpty())
       {
         // skip anonymous classes
         continue;

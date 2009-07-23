@@ -15,8 +15,8 @@ import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
-import jace.proxy.ProxyGenerator;
 import jace.proxy.ProxyGenerator.AccessibilityType;
+import jace.proxy.ProxyGenerator.FilteringCollection;
 import jace.util.Util;
 import java.io.BufferedReader;
 import java.io.File;
@@ -52,8 +52,6 @@ public class AutoProxy
   private final File outputSources;
   private final List<File> classPath;
   private final AccessibilityType accessibility;
-  private final boolean minimizeDependencies;
-  private final Set<TypeName> extraDependencies;
   private final boolean exportSymbols;
   /**
    * The set of classes to process.
@@ -64,68 +62,22 @@ public class AutoProxy
   /**
    * Creates a new AutoProxy.
    *
-   * @param inputHeaders the directories to recursively search for header files
-   * @param inputSources the directories to recursively search for source files
-   * @param outputHeaders The directory to write new proxy header files to
-   * @param outputSources The directory to write new proxy source files to
-   * @param classPath the path to search for class files when resolving class dependencies
-   * @param accessibility the method accessibility to expose
-   * @param minimizeDependencies set to true to only generate proxies based on minimum dependency
-   * (superclass, interfaces and any classes used by the input files). Set to false to generate proxies for all class
-   * dependencies (arguments, return values, and fields). The latter is used to generate proxies for a Java library when
-   * the input files are unknown.
-   * @param extraDependencies a list of unused classes to generate proxies for. For example, when generating C++ classes
-   * for a Java library there is no way of knowing ahead of time which proxies end-users will need so you may use this
-   * argument to specify those classes ahead of time.
-   * above those that are automatically determined. This is only examined when minDep=true.
-   * @param exportSymbols true if proxies should export their symbols (i.e. when used in DLLs)
-   * @throws IllegalArgumentException if inputHeaders, inputSources, outputHeaders, outputSources,
-   * extraDependencies or classPath are null. Or if one of the inputHeaders/inputSources elements is not a
-   * directory or does not exist.
+   * @param builder
+   *        An instance of <code>Builder</code>
    */
-  public AutoProxy(Collection<File> inputHeaders, Collection<File> inputSources, File outputHeaders,
-                   File outputSources, List<File> classPath, AccessibilityType accessibility,
-                   boolean minimizeDependencies, Set<TypeName> extraDependencies, boolean exportSymbols)
-    throws IllegalArgumentException
+  private AutoProxy(Builder builder)
   {
-    if (inputHeaders == null)
-      throw new IllegalArgumentException("inputHeaders may not be null");
-    if (inputSources == null)
-      throw new IllegalArgumentException("inputSources may not be null");
-    if (outputHeaders == null)
-      throw new IllegalArgumentException("outputHeaders may not be null");
-    if (outputSources == null)
-      throw new IllegalArgumentException("outputSources may not be null");
-    if (extraDependencies == null)
-      throw new IllegalArgumentException("extraDependencies may not be null");
-    if (classPath == null)
-      throw new IllegalArgumentException("classPath may not be null");
-    if (!outputHeaders.isDirectory())
-      throw new IllegalArgumentException("outputHeaders must be an existing directory: " + outputHeaders.getAbsolutePath());
-    if (!outputSources.isDirectory())
-      throw new IllegalArgumentException("outputSources must be an existing directory: " + outputSources.getAbsolutePath());
-    this.inputHeaders = new ArrayList<File>(inputHeaders);
-    this.inputSources = new ArrayList<File>(inputSources);
-    for (File file: this.inputHeaders)
-    {
-      if (!file.isDirectory())
-        throw new IllegalArgumentException("inputHeaders must be an existing directory: " + file.getAbsolutePath());
-    }
-    for (File file: this.inputSources)
-    {
-      if (!file.isDirectory())
-        throw new IllegalArgumentException("inputSources must be an existing directory: " + file.getAbsolutePath());
-    }
-    this.outputHeaders = outputHeaders;
-    this.outputSources = outputSources;
-    this.classPath = classPath;
-    this.accessibility = accessibility;
-    this.minimizeDependencies = minimizeDependencies;
-    this.extraDependencies = extraDependencies;
-    this.exportSymbols = exportSymbols;
-    this.proxies = new ClassSet(classPath, minimizeDependencies);
-    if (minimizeDependencies)
-      proxies.addClasses(extraDependencies);
+    assert (builder != null);
+    this.inputHeaders = new ArrayList<File>(builder.inputHeaders);
+    this.inputSources = new ArrayList<File>(builder.inputSources);
+    this.outputHeaders = builder.outputHeaders;
+    this.outputSources = builder.outputSources;
+    this.classPath = builder.classPath;
+    this.accessibility = builder.accessibility;
+    this.exportSymbols = builder.exportSymbols;
+    this.proxies = new ClassSet(builder.classPath, builder.minimizeDependencies);
+    if (builder.minimizeDependencies)
+      proxies.addClasses(builder.extraDependencies);
   }
 
   /**
@@ -167,10 +119,11 @@ public class AutoProxy
     ClassPath source = new ClassPath(classPath);
 
     // set up the dependency list for ProxyGenerator
-    Set<MetaClass> dependencies = new HashSet<MetaClass>();
+    FilteringCollection dependencies = new FilteringCollection();
 
     // Include all of the dependent classes
-    dependencies.addAll(proxies.getClasses());
+    for (MetaClass metaClass: proxies.getClasses())
+      dependencies.add(metaClass);
 
     // Include all primitives
     dependencies.add(new BooleanClass(false));
@@ -218,17 +171,17 @@ public class AutoProxy
         log.trace("Generating proxies for " + inputName + "...");
       InputStream input = source.openClass(inputName);
       ClassFile classFile = new ClassFile(input);
-      ProxyGenerator.writeProxy(proxyClass, classFile, accessibility, outputHeaders, outputSources,
-        dependencies, exportSymbols);
+      new ProxyGenerator.Builder(classFile, dependencies).accessibility(accessibility).exportSymbols(exportSymbols).
+        build().writeProxy(outputHeaders, outputSources);
       input.close();
     }
 
-  /* I just realized that package import headers don't make any sense related to AutoProxy
-   * I'll just leave this in here for now in case something changes, but I find that unlikely.
-   */
-  // Now update package import headers
-  // PackageGen packageGen = PackageGen.newMetaClassInstance( destHeaderDir, classes );
-  // packageGen.execute();
+    /* I just realized that package import headers don't make any sense related to AutoProxy
+     * I'll just leave this in here for now in case something changes, but I find that unlikely.
+     */
+    // Now update package import headers
+    // PackageGen packageGen = PackageGen.newMetaClassInstance( destHeaderDir, classes );
+    // packageGen.execute();
   }
 
   /**
@@ -357,7 +310,6 @@ public class AutoProxy
    */
   public static String getUsage()
   {
-
     String newLine = System.getProperty("line.separator");
 
     return "Usage: AutoProxy " + newLine +
@@ -395,7 +347,6 @@ public class AutoProxy
    */
   public static void main(String[] args)
   {
-
     if (args.length < 5 || args.length > 7)
     {
       System.out.println(getUsage());
@@ -449,8 +400,12 @@ public class AutoProxy
       }
     }
 
-    AutoProxy autoProxy = new AutoProxy(inputHeaders, inputSources, outputHeaders, outputSources,
-      Util.parseClasspath(classPath), accessibility, minimizeDependencies, extraDependencies, exportSymbols);
+    AutoProxy.Builder builder = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
+      Util.parseClasspath(classPath)).accessibility(accessibility).minimizeDependencies(minimizeDependencies).
+      exportSymbols(exportSymbols);
+    for (TypeName dependency: extraDependencies)
+      builder.extraDependency(dependency);
+    AutoProxy autoProxy = builder.build();
     Logger log = autoProxy.getLogger();
     log.info("Beginning Proxy generation.");
     try
@@ -462,5 +417,142 @@ public class AutoProxy
       log.error("", e);
     }
     log.info("Finished Proxy generation.");
+  }
+
+  public static class Builder
+  {
+    private final Collection<File> inputHeaders;
+    private final Collection<File> inputSources;
+    private final File outputHeaders;
+    private final File outputSources;
+    private final List<File> classPath;
+    private AccessibilityType accessibility = AccessibilityType.PUBLIC;
+    private boolean minimizeDependencies;
+    private final Set<TypeName> extraDependencies = new HashSet<TypeName>();
+    private boolean exportSymbols;
+
+    /**
+     * Creates a new AutoProxy.
+     *
+     * @param inputHeaders
+     *        The directories to recursively search for header files
+     * @param inputSources
+     *        The directories to recursively search for source files
+     * @param outputHeaders
+     *        The directory to write new proxy header files to
+     * @param outputSources
+     *        The directory to write new proxy source files to
+     * @param classPath
+     *        The path to search for class files when resolving class dependencies
+     * @throws IllegalArgumentException
+     *         If <code>inputHeaders</code>, <code>inputSources</code>, <code>outputHeaders</code>,
+     *         <code>outputSources</code>, <code>extraDependencies</code> or <code>classPath</code> are null. Or if one of
+     *         the <code>inputHeaders</code>/<code>inputSources</code> elements is not adirectory or does not exist.
+     */
+    public Builder(Collection<File> inputHeaders, Collection<File> inputSources, File outputHeaders, File outputSources,
+                   List<File> classPath)
+      throws IllegalArgumentException
+    {
+      if (inputHeaders == null)
+        throw new IllegalArgumentException("inputHeaders may not be null");
+      if (inputSources == null)
+        throw new IllegalArgumentException("inputSources may not be null");
+      if (outputHeaders == null)
+        throw new IllegalArgumentException("outputHeaders may not be null");
+      if (outputSources == null)
+        throw new IllegalArgumentException("outputSources may not be null");
+      if (extraDependencies == null)
+        throw new IllegalArgumentException("extraDependencies may not be null");
+      if (classPath == null)
+        throw new IllegalArgumentException("classPath may not be null");
+      if (!outputHeaders.isDirectory())
+        throw new IllegalArgumentException("outputHeaders must be an existing directory: " +
+                                           outputHeaders.getAbsolutePath());
+      if (!outputSources.isDirectory())
+        throw new IllegalArgumentException("outputSources must be an existing directory: " +
+                                           outputSources.getAbsolutePath());
+      this.inputHeaders = new ArrayList<File>(inputHeaders);
+      this.inputSources = new ArrayList<File>(inputSources);
+      for (File file: this.inputHeaders)
+      {
+        if (!file.isDirectory())
+          throw new IllegalArgumentException("inputHeaders must be an existing directory: " + file.getAbsolutePath());
+      }
+      for (File file: this.inputSources)
+      {
+        if (!file.isDirectory())
+          throw new IllegalArgumentException("inputSources must be an existing directory: " + file.getAbsolutePath());
+      }
+      this.outputHeaders = outputHeaders;
+      this.outputSources = outputSources;
+      this.classPath = classPath;
+    }
+
+    /**
+     * Indicates the method accessibility to expose.
+     * 
+     * @param accessibility
+     *        The method accessibility to expose
+     * @return the Builder
+     */
+    public Builder accessibility(AccessibilityType accessibility)
+    {
+      this.accessibility = accessibility;
+      return this;
+    }
+
+    /**
+     * Indicates whether classes should be exported even if they are not referenced by the input files.
+     * 
+     * @param value
+     *        <code>true</code> if the minimum set of classes should be generated (superclass, interfaces and
+     *        any classes used by the input files). <code>false</code> if all class dependencies (arguments,
+     *        return values, and fields) should be exported. The latter is used to generate proxies for a Java library,
+     *        where the set of input files are not known ahead of time.
+     * @return the Builder
+     */
+    public Builder minimizeDependencies(boolean value)
+    {
+      this.minimizeDependencies = value;
+      return this;
+    }
+
+    /**
+     * Specifies classes that should be exported in spite of the fact that they are not referenced by input files.
+     * This is mechanism is only enabled when <code>minimizeDependencies</code> is <code>true</code>.
+     * 
+     * When generating proxies for a Java library there is no way of knowing what classes will be referenced ahead of
+     * time so you must use this mechanism to specify any classes above those that are automatically determined.
+     * @param dependency a class that should be exported
+     * @return the Builder
+     */
+    public Builder extraDependency(TypeName dependency)
+    {
+      extraDependencies.add(dependency);
+      return this;
+    }
+
+    /**
+     * Indicates if proxy symbols should be exported (i.e. for use in DLLs)
+     *
+     * @param value
+     *        <code>true</code> if proxy symbols should be exported
+     * @return the Builder
+     */
+    public Builder exportSymbols(boolean value)
+    {
+      this.exportSymbols = value;
+      return this;
+    }
+
+    /**
+     * Builds an AutoProxy.
+     *
+     * @return the AutoProxy
+     */
+    public AutoProxy build()
+    {
+      return new AutoProxy(this);
+    }
   }
 }

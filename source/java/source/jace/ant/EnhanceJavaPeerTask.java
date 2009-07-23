@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Gili Tzbari
  */
-public class EnhanceJavaPeerTask extends Task {
-
-	private final Logger log = LoggerFactory.getLogger(EnhanceJavaPeerTask.class);
+public class EnhanceJavaPeerTask extends Task
+{
+  private final Logger log = LoggerFactory.getLogger(EnhanceJavaPeerTask.class);
   private File inputFile;
   private File outputFile;
   /**
@@ -44,42 +44,47 @@ public class EnhanceJavaPeerTask extends Task {
 
   /**
    * Sets the class file to enhance.
-	 * 
-	 * @param inputFile the class file to enhance
+   *
+   * @param inputFile the class file to enhance
    */
-  public void setInputFile(File inputFile) {
+  public void setInputFile(File inputFile)
+  {
     this.inputFile = inputFile;
   }
 
   /**
    * Sets the enhanced output file.
-	 * 
-	 * @param outputFile the enhanced output file
+   *
+   * @param outputFile the enhanced output file
    */
-  public void setOutputFile(File outputFile) {
+  public void setOutputFile(File outputFile)
+  {
     this.outputFile = outputFile;
   }
 
   /**
    * Sets the name of the method used to deallocate the Java peer.
-	 *
-	 * @param deallocationMethod the name of the method used to deallocate the Java peer
+   *
+   * @param deallocationMethod the name of the method used to deallocate the Java peer
    */
-  public void setDeallocationMethod(String deallocationMethod) {
+  public void setDeallocationMethod(String deallocationMethod)
+  {
     this.deallocationMethod = deallocationMethod;
   }
 
   /**
    * Indicates if Java peers should output library names before loading them.
-	 *
-	 * @param verbose true if Java peers should output library names before loading them
+   *
+   * @param verbose true if Java peers should output library names before loading them
    */
-  public void setVerbose(boolean verbose) {
+  public void setVerbose(boolean verbose)
+  {
     this.verbose = verbose;
   }
 
   @Override
-  public void execute() throws BuildException {
+  public void execute() throws BuildException
+  {
     if (inputFile == null)
       throw new BuildException("inputFile must be set", getLocation());
     if (outputFile == null)
@@ -88,50 +93,55 @@ public class EnhanceJavaPeerTask extends Task {
     for (int i = 0, size = libraries.size(); i < size; ++i)
       nativeLibraries.add(libraries.get(i).getName());
     log(toString(), Project.MSG_DEBUG);
-    PeerEnhancer enhancer = new PeerEnhancer(inputFile, outputFile, nativeLibraries, deallocationMethod, verbose);
-		if (log.isInfoEnabled())
-			log.info("Enhancing " + inputFile + " -> " + outputFile);
-    try {
-      enhancer.enhance();
+    if (log.isInfoEnabled())
+      log.info("Enhancing " + inputFile + " -> " + outputFile);
+    try
+    {
+      new PeerEnhancer.Builder(inputFile, outputFile).deallocationMethod(deallocationMethod).verbose(verbose).enhance();
 
-			if (inputFile.getCanonicalFile().equals(outputFile)) {
-				
-				// back up the enhanced file for JavaPeerUptodateTask
-				BufferedInputStream in = new BufferedInputStream(new FileInputStream(outputFile));
-				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile + ".enhanced"));
-				byte[] buffer = new byte[10 * 1024];
-				while (true) {
-					int rc = in.read(buffer);
-					if (rc == -1)
-						break;
-					out.write(buffer, 0, rc);
-				}
-				in.close();
-				out.close();
-				long lastModified = inputFile.lastModified();
-				if (lastModified != 0)
-					outputFile.setLastModified(lastModified);
-			}
+      if (inputFile.getCanonicalFile().equals(outputFile))
+      {
+
+        // back up the enhanced file for JavaPeerUptodateTask
+        BufferedInputStream in = new BufferedInputStream(new FileInputStream(outputFile));
+        BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile + ".enhanced"));
+        byte[] buffer = new byte[10 * 1024];
+        while (true)
+        {
+          int rc = in.read(buffer);
+          if (rc == -1)
+            break;
+          out.write(buffer, 0, rc);
+        }
+        in.close();
+        out.close();
+        long lastModified = inputFile.lastModified();
+        if (lastModified != 0)
+          outputFile.setLastModified(lastModified);
+      }
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       throw new BuildException(e);
     }
   }
 
   /**
    * Adds a native library to be loaded when the peer is initialized.
-	 * 
-	 * @param library a native library
+   *
+   * @param library a native library
    */
-  public void addConfiguredLibrary(Library library) {
+  public void addConfiguredLibrary(Library library)
+  {
     if (library.getName() == null)
       throw new BuildException("name must be set", getLocation());
     libraries.add(library);
   }
 
   @Override
-  public String toString() {
-    return getClass().getSimpleName() + "[inputFile=" + inputFile + ", outputFile=" + outputFile + ", libraries=" + 
-			libraries + ", deallocationMethod=" + deallocationMethod + "]";
+  public String toString()
+  {
+    return getClass().getSimpleName() + "[inputFile=" + inputFile + ", outputFile=" + outputFile + ", libraries=" +
+           libraries + ", deallocationMethod=" + deallocationMethod + "]";
   }
 }
