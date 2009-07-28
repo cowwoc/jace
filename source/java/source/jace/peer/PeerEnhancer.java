@@ -1,5 +1,6 @@
 package jace.peer;
 
+import jace.metaclass.TypeNameFactory;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -99,7 +100,7 @@ public class PeerEnhancer
     /**
      * Indicates the name of the peer deallocation method.
      *
-     * @param name the method name, or null if there is no deallocation method
+     * @param name the method name, or null if there is no deallocation method. The default is null.
      * @return the Builder
      * @throws IllegalArgumentException if name is an empty string
      */
@@ -114,7 +115,7 @@ public class PeerEnhancer
     /**
      * Indicates if the peer should log lifecycle events.
      *
-     * @param value true if the peer should log lifecycle events
+     * @param value true if the peer should log lifecycle events. The default is false.
      * @return the Builder
      */
     public Builder verbose(boolean value)
@@ -281,13 +282,11 @@ public class PeerEnhancer
         String[] exceptions = (String[]) method.exceptions.toArray(new String[0]);
         classNode.methods.add(createDeallocationMethod(classNode.name, exceptions));
         return;
-
       }
-
-
     }
-    throw new RuntimeException("Unable to locate the method: " + deallocationMethod + "." +
-                               newLine + "Peer enhancement will now stop.");
+    throw new RuntimeException("Unable to locate the method: " +
+                               TypeNameFactory.fromPath(classNode.name).asIdentifier() + "." + deallocationMethod +
+                               "." + newLine + "Peer enhancement will now stop.");
   }
 
   /**

@@ -85,7 +85,7 @@ public class AutoProxy
    *
    * @throws IOException if an error occurs while writing
    */
-  public void generateProxies() throws IOException
+  private void run() throws IOException
   {
     FilenameFilter headerFilter = new FilenameFilter()
     {
@@ -400,13 +400,12 @@ public class AutoProxy
       }
     }
 
-    AutoProxy.Builder builder = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
+    AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
       Util.parseClasspath(classPath)).accessibility(accessibility).minimizeDependencies(minimizeDependencies).
       exportSymbols(exportSymbols);
     for (TypeName dependency: extraDependencies)
-      builder.extraDependency(dependency);
-    AutoProxy autoProxy = builder.build();
-    Logger log = autoProxy.getLogger();
+      autoProxy.extraDependency(dependency);
+    Logger log = LoggerFactory.getLogger(AutoProxy.class);
     log.info("Beginning Proxy generation.");
     try
     {
@@ -492,7 +491,7 @@ public class AutoProxy
      * Indicates the method accessibility to expose.
      * 
      * @param accessibility
-     *        The method accessibility to expose
+     *        The method accessibility to expose. The default is AccessibilityType.PUBLIC.
      * @return the Builder
      */
     public Builder accessibility(AccessibilityType accessibility)
@@ -508,7 +507,7 @@ public class AutoProxy
      *        <code>true</code> if the minimum set of classes should be generated (superclass, interfaces and
      *        any classes used by the input files). <code>false</code> if all class dependencies (arguments,
      *        return values, and fields) should be exported. The latter is used to generate proxies for a Java library,
-     *        where the set of input files are not known ahead of time.
+     *        where the set of input files are not known ahead of time. The default is false.
      * @return the Builder
      */
     public Builder minimizeDependencies(boolean value)
@@ -523,7 +522,9 @@ public class AutoProxy
      * 
      * When generating proxies for a Java library there is no way of knowing what classes will be referenced ahead of
      * time so you must use this mechanism to specify any classes above those that are automatically determined.
-     * @param dependency a class that should be exported
+     *
+     * @param dependency
+     *        A class that should be exported
      * @return the Builder
      */
     public Builder extraDependency(TypeName dependency)
@@ -536,7 +537,7 @@ public class AutoProxy
      * Indicates if proxy symbols should be exported (i.e. for use in DLLs)
      *
      * @param value
-     *        <code>true</code> if proxy symbols should be exported
+     *        <code>true</code> if proxy symbols should be exported. The default is false.
      * @return the Builder
      */
     public Builder exportSymbols(boolean value)
@@ -546,13 +547,13 @@ public class AutoProxy
     }
 
     /**
-     * Builds an AutoProxy.
+     * Generates the proxies.
      *
-     * @return the AutoProxy
+     * @throws IOException if an I/O exception occurs
      */
-    public AutoProxy build()
+    public void generateProxies() throws IOException
     {
-      return new AutoProxy(this);
+      new AutoProxy(this).run();
     }
   }
 }

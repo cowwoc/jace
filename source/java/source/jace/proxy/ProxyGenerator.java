@@ -1957,7 +1957,7 @@ public class ProxyGenerator
   public void writeProxy(File outputHeaders, File outputSources)
     throws IOException
   {
-    ClassMetaClass metaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName());
+    ClassMetaClass metaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     String subDir = metaClass.getPackage().toName("/", false).replace('/', File.separatorChar);
     File fullHeaderDir = outputHeaders;
     File fullSourceDir = outputSources;
@@ -2113,7 +2113,7 @@ public class ProxyGenerator
     /**
      * Indicates if proxy symbols should be exported (i.e. for use in DLLs)
      *
-     * @param value true if proxy symbols should be exported
+     * @param value true if proxy symbols should be exported. The default is false.
      * @return the Builder
      */
     public Builder exportSymbols(boolean value)
@@ -2123,9 +2123,9 @@ public class ProxyGenerator
     }
 
     /**
-     * Indicates the member accessibility to expose. The default is AccessibilityType.PUBLIC.
-
-     * @param accessibility the member accessibility to expose
+     * Indicates the member accessibility to expose.
+     *
+     * @param accessibility the member accessibility to expose, The default is AccessibilityType.PUBLIC.
      * @return the Builder
      * @throws IllegalArgumentException if <code>accessibility</code> is null
      */
