@@ -68,6 +68,7 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - PeerEnhancer was stripping exceptions from the deallocation method; fixed.
 - ByteClass.unproxy() would always fail; fixed.
 - ArrayMetaClass.proxy()/unproxy() would fail for multi-dimensional arrays; fixed.
+- Removed logback.xml because according to the author logging should only be configured by applications, not libraries.
 
 Compatibility breakers:
 
