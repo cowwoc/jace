@@ -419,13 +419,9 @@ public class PeerEnhancer
         // Rename the user's class initializer to jaceUserStaticInit()
         method.name = jaceUserStaticInit;
         method.access = Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC;
-        userInitializerExists =
-        true;
+        userInitializerExists = true;
         break;
-
       }
-
-
     }
 
     // Create method "private native static void jaceSetVm()"
@@ -462,7 +458,7 @@ public class PeerEnhancer
           }));
       }
 
-// Push library name onto stack
+      // Push library name onto stack
       classInitializer.visitLdcInsn(library);
 
       // Invoke System.loadLibrary()
@@ -492,7 +488,7 @@ public class PeerEnhancer
         }));
     }
 
-// Invoke jaceSetVm()
+    // Invoke jaceSetVm()
     classInitializer.visitMethodInsn(Opcodes.INVOKESTATIC, classNode.name,
       jaceSetVm, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 

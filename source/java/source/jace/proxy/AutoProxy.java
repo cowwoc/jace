@@ -426,7 +426,7 @@ public class AutoProxy
     private final File outputSources;
     private final List<File> classPath;
     private AccessibilityType accessibility = AccessibilityType.PUBLIC;
-    private boolean minimizeDependencies;
+    private boolean minimizeDependencies = true;
     private final Set<TypeName> extraDependencies = new HashSet<TypeName>();
     private boolean exportSymbols;
 
@@ -507,7 +507,7 @@ public class AutoProxy
      *        <code>true</code> if the minimum set of classes should be generated (superclass, interfaces and
      *        any classes used by the input files). <code>false</code> if all class dependencies (arguments,
      *        return values, and fields) should be exported. The latter is used to generate proxies for a Java library,
-     *        where the set of input files are not known ahead of time. The default is false.
+     *        where the set of input files are not known ahead of time. The default is true.
      * @return the Builder
      */
     public Builder minimizeDependencies(boolean value)

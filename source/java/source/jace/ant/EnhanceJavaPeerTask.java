@@ -89,15 +89,16 @@ public class EnhanceJavaPeerTask extends Task
       throw new BuildException("inputFile must be set", getLocation());
     if (outputFile == null)
       throw new BuildException("outputFile must be set", getLocation());
-    List<String> nativeLibraries = new ArrayList<String>();
-    for (int i = 0, size = libraries.size(); i < size; ++i)
-      nativeLibraries.add(libraries.get(i).getName());
     log(toString(), Project.MSG_DEBUG);
     if (log.isInfoEnabled())
       log.info("Enhancing " + inputFile + " -> " + outputFile);
     try
     {
-      new PeerEnhancer.Builder(inputFile, outputFile).deallocationMethod(deallocationMethod).verbose(verbose).enhance();
+      PeerEnhancer.Builder enhancer = new PeerEnhancer.Builder(inputFile, outputFile).deallocationMethod(
+        deallocationMethod).verbose(verbose);
+      for (int i = 0, size = libraries.size(); i < size; ++i)
+        enhancer.library(libraries.get(i).getName());
+      enhancer.enhance();
 
       if (inputFile.getCanonicalFile().equals(outputFile))
       {
