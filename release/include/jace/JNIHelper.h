@@ -33,7 +33,6 @@
 #else
   #include <strstream>
   using std::strstream;
-	using std::wstrstream;
 #endif
 
 BEGIN_NAMESPACE( jace )
@@ -247,19 +246,17 @@ template <class T> std::string toString( T value )
     return stream.str();
 }
 
+#ifdef SUPPORTS_SSTREAM
 /**
  * Returns the wstring representation of any type.
  */
 template <class T> std::wstring toWString( T value )
 {
-#ifdef SUPPORTS_SSTREAM
     std::wstringstream stream;
-#else
-    std::wstrstream stream;
-#endif
     stream << value;
     return stream.str();
 }
+#endif
 
 /**
  * Returns the result of calling Object.toString() on obj.
