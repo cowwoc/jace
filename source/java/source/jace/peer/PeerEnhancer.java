@@ -174,10 +174,7 @@ public class PeerEnhancer
           {
             isChained = true;
             break;
-
           }
-
-
         }
         if (isChained)
           continue;
@@ -202,24 +199,17 @@ public class PeerEnhancer
               MethodInsnNode methodInvocation = (MethodInsnNode) instruction;
               if (methodInvocation.owner.equals(classNode.superName) && methodInvocation.name.equals("<init>"))
                 method.instructions.insert(instruction, getJaceSetNativeHandle(classNode.name));
-              matchFound =
-              true;
+              matchFound = true;
               break;
-
             }
-
 
             case AbstractInsnNode.INSN:
             {
               if (instruction.getOpcode() == Opcodes.RETURN)
                 method.instructions.insert(instruction, getJaceSetNativeHandle(classNode.name));
-              matchFound =
-              true;
+              matchFound = true;
               break;
-
             }
-
-
           }
           if (matchFound)
             break;
@@ -228,7 +218,6 @@ public class PeerEnhancer
         if (!matchFound)
           throw new AssertionError();
       }
-
     }
   }
 
@@ -345,10 +334,7 @@ public class PeerEnhancer
         {
           log.info("The class " + inputFile + " has already been enhanced and will not be modified.");
           return;
-
         }
-
-
       }
 
       enhanceConstructors(classNode);
@@ -364,9 +350,7 @@ public class PeerEnhancer
       {
         log.warn("Could not create " + parentPath);
         return;
-
       }
-
 
       BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
       ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -378,7 +362,6 @@ public class PeerEnhancer
     {
       in.close();
     }
-
   }
 
   /**
@@ -563,13 +546,6 @@ public class PeerEnhancer
       beginCatchBlock, endCatchBlock, 1);
 
     // Invoke the user's class initializer if necessary
-
-
-
-
-
-
-
     if (userInitializerExists)
     {
       classInitializer.visitMethodInsn(Opcodes.INVOKESTATIC, classNode.name, jaceUserStaticInit,

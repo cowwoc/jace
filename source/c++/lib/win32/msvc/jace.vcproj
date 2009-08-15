@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK;BOOST_THREAD_NO_LIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -69,7 +69,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_thread-vc90-mt-gd.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(BOOST_HOME)\stage32\lib&quot;"
@@ -103,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-gd-*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -134,7 +133,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK;BOOST_THREAD_NO_LIB"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -157,7 +156,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_thread-vc90-mt-gd.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(BOOST_HOME)\stage64\lib&quot;"
@@ -192,7 +190,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-gd-*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -224,7 +222,7 @@
 				Optimization="2"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK;BOOST_THREAD_NO_LIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -244,7 +242,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_thread-vc90-mt.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(BOOST_HOME)\stage32\lib&quot;"
@@ -278,7 +275,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -311,7 +308,7 @@
 				Optimization="2"
 				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK;BOOST_THREAD_NO_LIB"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -331,7 +328,6 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="boost_thread-vc90-mt.lib"
 				OutputFile="$(OutDir)\$(ProjectName).dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(BOOST_HOME)\stage64\lib&quot;"
@@ -366,7 +362,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;"
 			/>
 		</Configuration>
 	</Configurations>
