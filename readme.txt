@@ -69,6 +69,8 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - ByteClass.unproxy() would always fail; fixed.
 - ArrayMetaClass.proxy()/unproxy() would fail for multi-dimensional arrays; fixed.
 - Removed logback.xml because according to the author logging should only be configured by applications, not libraries.
+- Added new preprocessor symbols JACE_LINK_STATICALLY and JACE_PROXIES_LINK_STATICALLY for when developers wish to
+	link against Jace or C++ proxies statically (dynamic linking is the default).
 
 Compatibility breakers:
 

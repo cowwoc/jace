@@ -68,7 +68,6 @@ class VmLoader {
 
   /**
    * Creates a new dynamically allocated clone of this VmLoader.
-   *
    */
   JACE_API virtual VmLoader* clone() const = 0;
 

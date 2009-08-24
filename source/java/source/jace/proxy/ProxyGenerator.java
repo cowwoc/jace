@@ -546,8 +546,8 @@ public class ProxyGenerator
       output.write("  size_t nativeLength = str.size();" + newLine);
       output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE())) { " +
                    newLine);
-      output.write("    throw ::jace::JNIException( std::string(\"String::operator std::wstring() - " +
-                   "nativeLength (\") +" + newLine);
+      output.write("    throw ::jace::JNIException( std::string(\"String::String ( const std::wstring& str ) - " +
+                   "str.size() (\") +" + newLine);
       output.write("      jace::helper::toString(nativeLength) + \") > Integer.MAX_VALUE.\" );" + newLine);
       output.write("  }" + newLine);
       output.write("  jsize length = jsize( str.size() );" + newLine);
@@ -634,8 +634,8 @@ public class ProxyGenerator
       output.write("  size_t nativeLength = str.size();" + newLine);
       output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE())) { " +
                    newLine);
-      output.write("    throw ::jace::JNIException( std::string(\"String::operator std::wstring() - " +
-                   "nativeLength (\") +" + newLine);
+      output.write("    throw ::jace::JNIException( std::string(\"String::String ( const std::string& str ) - " +
+                   "str.size() (\") +" + newLine);
       output.write("      jace::helper::toString(nativeLength) + \") > Integer.MAX_VALUE.\" );" + newLine);
       output.write("  }" + newLine);
       output.write("  jsize bufLen = jsize( nativeLength );" + newLine);

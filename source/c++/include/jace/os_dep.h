@@ -11,24 +11,30 @@
 #endif
 
 #ifdef _WIN32
-	/**
-	 * Macros used for importing and exporting DLL symbols.
-	 *
-	 */
-	#ifdef JACE_EXPORTS
-		#define JACE_API __declspec(dllexport)
+	#ifndef JACE_LINK_STATICALLY
+		/**
+		 * Macros used for importing and exporting Jace DLL symbols.
+		 */
+		#ifdef JACE_EXPORTS
+			#define JACE_API __declspec(dllexport)
+		#else
+			#define JACE_API __declspec(dllimport)
+		#endif
 	#else
-		#define JACE_API __declspec(dllimport)
+		#define JACE_API
 	#endif
 
-	/**
-	 * Macros used for importing and exporting proxy DLL symbols.
-	 *
-	 */
-	#ifdef JACE_PROXY_EXPORTS
-		#define JACE_PROXY_API __declspec(dllexport)
+	#ifndef JACE_PROXIES_LINK_STATICALLY
+		/**
+		 * Macros used for importing and exporting proxy DLL symbols.
+		 */
+		#ifdef JACE_PROXY_EXPORTS
+			#define JACE_PROXY_API __declspec(dllexport)
+		#else
+			#define JACE_PROXY_API __declspec(dllimport)
+		#endif
 	#else
-		#define JACE_PROXY_API __declspec(dllimport)
+		#define JACE_PROXY_API
 	#endif
 #endif
 

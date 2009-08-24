@@ -122,27 +122,27 @@ public class ClassSet
   /**
    * Generates the entire set of dependencies for a single class.
    *
-   * @param classSet The set of dependent classes.
-   * @param c the (unproxied) class to generate the list of dependencies for
+   * @param result the set to add to
+   * @param clazz the (unproxied) class to generate the list of dependencies for
    *
    */
-  private void addDependentClasses(Set<MetaClass> classSet, MetaClass c)
+  private void addDependentClasses(Set<MetaClass> result, MetaClass clazz)
   {
     // First, handle this class
-    ClassMetaClass plainClass = toClassMetaClass(c);
+    ClassMetaClass plainClass = toClassMetaClass(clazz);
     if (plainClass == null)
       return;
     ClassMetaClass proxy = plainClass.proxy();
-    if (classSet.contains(proxy))
+    if (result.contains(proxy))
     {
       // We've already seen this class
       return;
     }
-    classSet.add(proxy);
+    result.add(proxy);
     if (log.isDebugEnabled())
     {
       log.debug("Adding " + plainClass);
-      printClassSet(classSet);
+      printClassSet(result);
     }
 
     // handle the super class and interfaces next
@@ -160,12 +160,18 @@ public class ClassSet
       log.warn("failed to close the class file", e);
     }
     MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName());
-    addDependentClasses(classSet, superMetaClass);
+    addDependentClasses(result, superMetaClass);
 
     for (TypeName i: classFile.getInterfaces())
     {
       MetaClass interfaceClass = MetaClassFactory.getMetaClass(i);
-      addDependentClasses(classSet, interfaceClass);
+      addDependentClasses(result, interfaceClass);
+    }
+
+    if (classFile.getClassName().asIdentifier().equals("java.lang.String"))
+    {
+      // String(std::string&) and String(std::wstring&) constructors make use of java.lang.Integer
+      addDependentClasses(result, MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier("java.lang.Integer")));
     }
 
     // If we are only working with the minimum dependencies, then we are done
@@ -176,10 +182,10 @@ public class ClassSet
     ProxyGenerator generator = new ProxyGenerator.Builder(classFile, new AcceptAll()).build();
 
     for (MetaClass metaClass: generator.getDependentClasses(true))
-      addDependentClasses(classSet, metaClass.unProxy());
+      addDependentClasses(result, metaClass.unProxy());
 
     for (MetaClass metaClass: generator.getDependentClasses(false))
-      addDependentClasses(classSet, metaClass.unProxy());
+      addDependentClasses(result, metaClass.unProxy());
   }
 
   /**
