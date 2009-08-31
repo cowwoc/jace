@@ -95,9 +95,8 @@ public class BatchGenerator
       String classFileName = metaClass.getFileName();
       File targetHeaderFile = new File(outputHeaders, classFileName + ".h");
       File targetSourceFile = new File(outputSources, classFileName + ".cpp");
-      if (targetSourceFile.exists() && targetHeaderFile.exists() &&
-          jarFile.lastModified() <= targetSourceFile.lastModified() &&
-          jarFile.lastModified() <= targetHeaderFile.lastModified())
+      if (!(jarFile.lastModified() > targetSourceFile.lastModified() ||
+            jarFile.lastModified() > targetHeaderFile.lastModified()))
       {
         // The source-file has not been modified since we last generated the
         // target source/header files.

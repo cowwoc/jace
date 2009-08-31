@@ -87,9 +87,9 @@ public class CppPeerUptodateTask extends Task
     log("mappingsFile: " + mappingsFile + ", lastModified: " + mappingsFile.lastModified(), Project.MSG_VERBOSE);
     log("peerFile: " + peerFile + ", lastModified: " + peerFile.lastModified(), Project.MSG_VERBOSE);
     log("inputFile: " + inputFile + ", lastModified: " + inputFile.lastModified(), Project.MSG_VERBOSE);
-    boolean isUptodate = headerFile.exists() && inputFile.lastModified() <= headerFile.lastModified() &&
-                         mappingsFile.exists() && inputFile.lastModified() <= mappingsFile.lastModified() &&
-                         peerFile.exists() && inputFile.lastModified() <= peerFile.lastModified();
+    boolean isUptodate = headerFile.lastModified() > inputFile.lastModified() &&
+                         mappingsFile.lastModified() > inputFile.lastModified() &&
+                         peerFile.lastModified() > inputFile.lastModified();
     log(toString() + " returning " + isUptodate, Project.MSG_VERBOSE);
     if (isUptodate)
       getProject().setNewProperty(property, "true");

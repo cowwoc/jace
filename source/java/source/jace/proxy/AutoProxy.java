@@ -141,7 +141,7 @@ public class AutoProxy
     {
       ClassMetaClass proxyClass = (ClassMetaClass) proxy;
       TypeName inputName = TypeNameFactory.fromPath(proxyClass.unProxy().getFullyQualifiedTrueName("/"));
-      TypeName outputName = TypeNameFactory.fromPath(proxyClass.getFullyQualifiedTrueName("/"));
+      TypeName outputName = TypeNameFactory.fromPath(proxyClass.getFullyQualifiedName("/"));
 
       File outputSourceFile = new File(outputSources, outputName.asPath() + ".cpp");
       File outputHeaderFile = new File(outputHeaders, outputName.asPath() + ".h");
@@ -154,9 +154,8 @@ public class AutoProxy
         else
           inputFile = inputParentFile;
         assert (inputFile.exists()): inputFile;
-        if (outputSourceFile.exists() && outputHeaderFile.exists() &&
-            inputFile.lastModified() <= outputSourceFile.lastModified() &&
-            inputFile.lastModified() <= outputHeaderFile.lastModified())
+        if (!(inputFile.lastModified() > outputSourceFile.lastModified() ||
+              inputFile.lastModified() > outputHeaderFile.lastModified()))
         {
           // the input file has not been modified since we last generated the corresponding output files
           if (inputParentFile.isDirectory())

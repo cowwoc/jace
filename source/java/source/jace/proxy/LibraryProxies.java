@@ -113,9 +113,8 @@ public class LibraryProxies
       File sourceFile = new File(sourceName);
       File targetHeaderFile = new File(outputHeaders, classFileName + ".h");
       File targetSourceFile = new File(outputSources, classFileName + ".cpp");
-      if (targetSourceFile.exists() && targetHeaderFile.exists() &&
-          sourceFile.lastModified() <= targetSourceFile.lastModified() &&
-          sourceFile.lastModified() <= targetHeaderFile.lastModified())
+      if (!(sourceFile.lastModified() > targetSourceFile.lastModified() ||
+            sourceFile.lastModified() > targetHeaderFile.lastModified()))
       {
         log.warn(sourceFile + " has not been modified, skipping...");
         continue;

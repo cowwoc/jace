@@ -74,8 +74,8 @@ public class GenerateCppPeerTask extends Task
     if (outputSources == null)
       throw new BuildException("outputSources must be set", getLocation());
     log(toString(), Project.MSG_DEBUG);
-    PeerGenerator peerGenerator = new PeerGenerator(new ClassFile(file), outputHeaders, outputSources,
-      userDefinedMembers);
+    PeerGenerator peerGenerator = new PeerGenerator(new ClassFile(file), file.lastModified(), outputHeaders,
+      outputSources, userDefinedMembers);
     try
     {
       peerGenerator.generate();

@@ -39,9 +39,10 @@ public class PeerGenerator
 {
   private static final String newLine = System.getProperty("line.separator");
   private final Logger log = LoggerFactory.getLogger(PeerGenerator.class);
-  private ClassFile classFile;
-  private ClassMetaClass metaClass;
-  private ClassMetaClass proxyMetaClass;
+  private final ClassFile classFile;
+  private final long lastModified;
+  private final ClassMetaClass metaClass;
+  private final ClassMetaClass proxyMetaClass;
   private final File includeDir;
   private final File sourceDir;
   private final boolean userDefinedMembers;
@@ -50,13 +51,16 @@ public class PeerGenerator
    * Constructs a new PeerGenerator for the given class.
    *
    * @param classFile the Java class that needs a C++ peer
+   * @param lastModified the date the class file was last modified
    * @param includeDir the directory containing the output header files
    * @param sourceDir the directory containing the output source files
    * @param userDefinedMembers true if &lt;peer_class_name&gt;_user.h should be generated
    */
-  public PeerGenerator(ClassFile classFile, File includeDir, File sourceDir, boolean userDefinedMembers)
+  public PeerGenerator(ClassFile classFile, long lastModified, File includeDir, File sourceDir,
+                       boolean userDefinedMembers)
   {
     this.classFile = classFile;
+    this.lastModified = lastModified;
     proxyMetaClass = (ClassMetaClass) MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
     metaClass = proxyMetaClass.unProxy();
     this.includeDir = includeDir;
@@ -81,44 +85,51 @@ public class PeerGenerator
     File actualDirectory = cppHeader.getParentFile();
     if (!actualDirectory.exists() && !actualDirectory.mkdirs())
       throw new IOException("Failed to create " + actualDirectory);
-    BufferedWriter out = new BufferedWriter(new FileWriter(cppHeader));
-    try
+    if (lastModified > cppHeader.lastModified())
     {
-      generateCppPeerHeader(out);
-    }
-    finally
-    {
-      out.close();
+      BufferedWriter out = new BufferedWriter(new FileWriter(cppHeader));
+      try
+      {
+        generateCppPeerHeader(out);
+      }
+      finally
+      {
+        out.close();
+      }
     }
 
     File cppMappings = new File(sourceDirectory, peerMetaClass.getSimpleName() + "Mappings.cpp");
     actualDirectory = cppMappings.getParentFile();
     if (!actualDirectory.exists() && !actualDirectory.mkdirs())
       throw new IOException("Failed to create " + actualDirectory);
-    out = new BufferedWriter(new FileWriter(cppMappings));
-    try
+    if (lastModified > cppMappings.lastModified())
     {
-      generateCppPeerMappings(out);
-    }
-    finally
-    {
-      out.close();
+      BufferedWriter out = new BufferedWriter(new FileWriter(cppMappings));
+      try
+      {
+        generateCppPeerMappings(out);
+      }
+      finally
+      {
+        out.close();
+      }
     }
 
     File cppSource = new File(sourceDirectory, peerMetaClass.getSimpleName() + "_peer.cpp");
     actualDirectory = cppSource.getParentFile();
     if (!actualDirectory.exists() && !actualDirectory.mkdirs())
-    {
       throw new IOException("Failed to create " + actualDirectory);
-    }
-    out = new BufferedWriter(new FileWriter(cppSource));
-    try
+    if (lastModified > cppSource.lastModified())
     {
-      generateCppPeerSource(out);
-    }
-    finally
-    {
-      out.close();
+      BufferedWriter out = new BufferedWriter(new FileWriter(cppSource));
+      try
+      {
+        generateCppPeerSource(out);
+      }
+      finally
+      {
+        out.close();
+      }
     }
   }
 
@@ -826,7 +837,8 @@ public class PeerGenerator
     File sourceDir = new File(args[2]);
     boolean userDefinedMembers = Boolean.valueOf(args[3]).booleanValue();
 
-    PeerGenerator generator = new PeerGenerator(new ClassFile(classFile), includeDir, sourceDir, userDefinedMembers);
+    PeerGenerator generator = new PeerGenerator(new ClassFile(classFile), classFile.lastModified(), includeDir,
+      sourceDir, userDefinedMembers);
     Logger log = generator.getLogger();
     log.info("Beginning Peer generation.");
     try
