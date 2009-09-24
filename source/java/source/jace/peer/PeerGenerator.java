@@ -11,6 +11,7 @@ import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
 import jace.parser.method.ClassMethod;
 import jace.parser.method.MethodAccessFlag;
+import jace.proxy.ClassPath;
 import jace.proxy.ProxyGenerator;
 import jace.proxy.ProxyGenerator.AccessibilityType;
 import jace.util.DelimitedCollection;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -146,9 +148,9 @@ public class PeerGenerator
     output.write(newLine);
 
     // Generate the #includes
-    ProxyGenerator proxyGen = new ProxyGenerator.Builder(classFile, new ProxyGenerator.AcceptAll()).accessibility(
-      AccessibilityType.PRIVATE).build();
-    proxyGen.includeStandardHeaders(output);
+    ProxyGenerator proxyGen = new ProxyGenerator.Builder(new ClassPath(Collections.<File>emptyList()), classFile,
+      new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
+    proxyGen.includeStandardHeaders(output, true);
     output.write(newLine);
 
     Util.generateComment(output, "The Peer class from which this class derives.");
@@ -173,21 +175,17 @@ public class PeerGenerator
 
     // Generate the class declaration
     String name = metaClass.getSimpleName();
-    Util.generateComment(output, name + newLine +
-                                 newLine +
-                                 "This header provides the declaration for the Jace Peer, " + name + "." +
-                                 newLine +
-                                 "To complete this Peer, you must create a new source file containing the" +
-                                 newLine +
-                                 "definitions for all native methods declared for this Peer." + newLine +
-                                 newLine +
-                                 "You may also override initialize() and destroy(), if your Peer requires" +
-                                 newLine +
-                                 "custom initialization or destruction.");
+    Util.generateComment(output, name + newLine + newLine + "This header provides the declaration for the Jace Peer, "
+                                 + name + "." + newLine
+                                 + "To complete this Peer, you must create a new source file containing the" + newLine
+                                 + "definitions for all native methods declared for this Peer." + newLine + newLine
+                                 + "You may also override initialize() and destroy(), if your Peer requires" + newLine
+                                 + "custom initialization or destruction.");
 
     output.write("class " + name + " : public ::jace::Peer, public ");
 
     // If we are derived directly from java.lang.Object, we need to derive from it virtually
+    assert (classFile.getSuperClassName() != null): "java.lang.Object may not be a peer";
     if (classFile.getSuperClassName().asIdentifier().equals("java.lang.Object"))
       output.write("virtual ");
 
@@ -221,8 +219,8 @@ public class PeerGenerator
         continue;
 
       String methodName = method.getName();
-      if (methodName.equals("jaceCreateInstance") || methodName.equals("jaceDestroyInstance") ||
-          methodName.equals("jaceSetVm"))
+      if (methodName.equals("jaceCreateInstance") || methodName.equals("jaceDestroyInstance") || methodName.equals(
+        "jaceSetVm"))
       {
         continue;
       }
@@ -245,10 +243,9 @@ public class PeerGenerator
         continue;
 
       String methodName = method.getName();
-      if (methodName.equals("<init>") || methodName.equals("<clinit>") ||
-          methodName.equals("jaceUserStaticInit") || methodName.equals("jaceUserClose") ||
-          methodName.equals("jaceUserFinalize") || methodName.equals("jaceDispose") ||
-          methodName.equals("jaceSetNativeHandle") || methodName.equals("jaceGetNativeHandle"))
+      if (methodName.equals("<init>") || methodName.equals("<clinit>") || methodName.equals("jaceUserStaticInit")
+          || methodName.equals("jaceUserClose") || methodName.equals("jaceUserFinalize") || methodName.equals(
+        "jaceDispose") || methodName.equals("jaceSetNativeHandle") || methodName.equals("jaceGetNativeHandle"))
       {
         continue;
       }
@@ -274,27 +271,23 @@ public class PeerGenerator
     output.write(name + "( jobject obj );" + newLine);
     output.write(newLine);
 
-    Util.generateComment(output, "Called when the the user explicitly collects a " + name + newLine +
-                                 "or when the VM garbage collects a " + name + ".");
+    Util.generateComment(output, "Called when the the user explicitly collects a " + name + newLine
+                                 + "or when the VM garbage collects a " + name + ".");
     output.write("virtual ~" + name + "() throw ();" + newLine);
     output.write(newLine);
 
-    output.write("virtual const JClass* getJavaJniClass() const throw ( ::jace::JNIException );" + newLine);
-    output.write("static const JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );" + newLine);
+    output.write("virtual const JClass& getJavaJniClass() const throw ( ::jace::JNIException );" + newLine);
+    output.write("static const JClass& staticGetJavaJniClass() throw ( ::jace::JNIException );" + newLine);
     output.write(newLine);
 
     if (userDefinedMembers)
     {
       output.write("// User defined members" + newLine);
       output.write("// --------------------" + newLine);
-      String userInclude = peerMetaClass.getPackage().toName("/", true) +
-                           peerMetaClass.getSimpleName() + "_user.h";
+      String userInclude = peerMetaClass.getPackage().toName("/", true) + peerMetaClass.getSimpleName() + "_user.h";
       output.write("#include \"" + userInclude + "\"" + newLine);
       output.write(newLine);
     }
-    output.write("private:" + newLine);
-    Util.generateComment(output, "Initialize the javaClass variable.");
-    output.write("static JClassImpl javaClass;" + newLine);
     output.write("};" + newLine);
 
     output.write(newLine);
@@ -315,16 +308,14 @@ public class PeerGenerator
   {
     String fullName = metaClass.getFullyQualifiedTrueName(".");
 
-    Util.generateComment(output, "This is the source for the implementation of the Jace Peer for " +
-                                 fullName + "." + newLine +
-                                 "Please do not edit this source. Any changes made will be overwritten." +
-                                 newLine +
-                                 newLine +
-                                 "For more information, please refer to the Jace Developer's Guide." + newLine);
+    Util.generateComment(output, "This is the source for the implementation of the Jace Peer for " + fullName + "."
+                                 + newLine + "Please do not edit this source. Any changes made will be overwritten."
+                                 + newLine + newLine
+                                 + "For more information, please refer to the Jace Developer's Guide." + newLine);
     output.write(newLine);
 
-    ProxyGenerator generator = new ProxyGenerator.Builder(classFile, new ProxyGenerator.AcceptAll()).accessibility(
-      AccessibilityType.PRIVATE).build();
+    ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(Collections.<File>emptyList()), classFile,
+      new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
     generator.includeStandardSourceHeaders(output);
 
     for (MetaClass dependency: getDependencies(classFile))
@@ -362,16 +353,15 @@ public class PeerGenerator
     String fullPeerName = "::" + peerMetaClass.getFullyQualifiedName("::");
     String className = mangleName(metaClass.getFullyQualifiedTrueName("/"));
 
-    Util.generateComment(output, "These JNI mappings are for the Jace Peer for " + fullName + "." + newLine +
-                                 "Please do not edit these JNI mappings. Any changes made will be overwritten." +
-                                 newLine +
-                                 newLine +
-                                 "For more information, please refer to the Jace Developer's Guide.");
+    Util.generateComment(output, "These JNI mappings are for the Jace Peer for " + fullName + "." + newLine
+                                 + "Please do not edit these JNI mappings. Any changes made will be overwritten."
+                                 + newLine + newLine
+                                 + "For more information, please refer to the Jace Developer's Guide.");
     output.write(newLine);
 
-    ProxyGenerator proxy = new ProxyGenerator.Builder(classFile, new ProxyGenerator.AcceptAll()).accessibility(
-      AccessibilityType.PRIVATE).build();
-    proxy.includeStandardHeaders(output);
+    ProxyGenerator proxy = new ProxyGenerator.Builder(new ClassPath(Collections.<File>emptyList()), classFile,
+      new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
+    proxy.includeStandardHeaders(output, true);
 
     output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/Throwable.h\"" + newLine);
     output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/RuntimeException.h\"" + newLine);
@@ -402,11 +392,9 @@ public class PeerGenerator
 
       String methodName = method.getName();
 
-      Util.generateComment(output, "The JNI mapping for" + newLine +
-                                   newLine +
-                                   "Class: " + mangleName(metaClass.getFullyQualifiedTrueName("/")) + newLine +
-                                   "Method: " + method.getName() + newLine +
-                                   "Signature: " + method.getDescriptor());
+      Util.generateComment(output, "The JNI mapping for" + newLine + newLine + "Class: " + mangleName(metaClass.
+        getFullyQualifiedTrueName("/")) + newLine + "Method: " + method.getName() + newLine + "Signature: " + method.
+        getDescriptor());
 
       // treat jaceCreateInstance, jaceDestroyInstance, and jaceSetVm specially
       if (methodName.equals("jaceCreateInstance"))
@@ -422,17 +410,15 @@ public class PeerGenerator
         output.write("  }" + newLine);
         output.write("  catch ( jace::proxy::java::lang::Throwable& t )" + newLine);
         output.write("  {" + newLine);
-        output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( t.getJavaJniObject() ) ) );" +
-                     newLine);
+        output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( t.getJavaJniObject() ) ) );" + newLine);
         output.write("    return 0;" + newLine);
         output.write("  }" + newLine);
         output.write("  catch ( std::exception& e )" + newLine);
         output.write("  {" + newLine);
-        output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();" +
-                     newLine);
+        output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();"
+                     + newLine);
         output.write("    jace::proxy::java::lang::RuntimeException ex( msg );" + newLine);
-        output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( ex.getJavaJniObject() ) ) );" +
-                     newLine);
+        output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( ex.getJavaJniObject() ) ) );" + newLine);
         output.write("    return 0;" + newLine);
         output.write("  }" + newLine);
         output.write("}" + newLine);
@@ -471,11 +457,11 @@ public class PeerGenerator
         output.write("  try" + newLine);
         output.write("  {" + newLine);
         output.write("    jclass jClassClass = env->FindClass( \"java/lang/Class\" );" + newLine);
-        output.write("    jmethodID forName = env->GetStaticMethodID( jClassClass, \"forName\", " +
-                     "\"(Ljava/lang/String;)Ljava/lang/Class;\" );" + newLine);
+        output.write("    jmethodID forName = env->GetStaticMethodID( jClassClass, \"forName\", "
+                     + "\"(Ljava/lang/String;)Ljava/lang/Class;\" );" + newLine);
         output.write("    jstring objectClassStr = env->NewStringUTF( \"java.lang.Object\" );" + newLine);
-        output.write("    jobject loaderLock = env->CallStaticObjectMethod( jClassClass, forName, objectClassStr );" +
-                     newLine);
+        output.write("    jobject loaderLock = env->CallStaticObjectMethod( jClassClass, forName, objectClassStr );"
+                     + newLine);
         output.write(newLine);
         output.write("    jint rc = env->MonitorEnter( loaderLock );" + newLine);
         output.write(newLine);
@@ -503,8 +489,8 @@ public class PeerGenerator
         output.write("  }" + newLine);
         output.write("  catch ( std::exception& e )" + newLine);
         output.write("  {" + newLine);
-        output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();" +
-                     newLine);
+        output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();"
+                     + newLine);
         output.write("    std::cerr << msg;" + newLine);
         output.write("    return;" + newLine);
         output.write("  }" + newLine);
@@ -541,7 +527,7 @@ public class PeerGenerator
 
       output.write("extern \"C\" JNIEXPORT " + returnType.getJniType() + " JNICALL " + functionName);
       output.write("( JNIEnv* env, ");
-      output.write(new DelimitedCollection<String>(params).toString(", ", false));
+      output.write(new DelimitedCollection<String>(params).toString(", "));
       output.write(" ) { " + newLine);
       output.write(newLine);
 
@@ -552,8 +538,8 @@ public class PeerGenerator
       String target;
       if (!isStatic)
       {
-        output.write("    " + fullPeerName + "* peer = dynamic_cast< " + fullPeerName +
-                     "*>( ::jace::helper::getPeer( jP0 ) );" + newLine);
+        output.write("    " + fullPeerName + "* peer = dynamic_cast< " + fullPeerName
+                     + "*>( ::jace::helper::getPeer( jP0 ) );" + newLine);
         output.write("    assert(peer!=0);" + newLine);
         target = "peer->";
       }
@@ -610,17 +596,15 @@ public class PeerGenerator
 
       output.write("  catch ( jace::proxy::java::lang::Throwable& t )" + newLine);
       output.write("  {" + newLine);
-      output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( t.getJavaJniObject() ) ) );" +
-                   newLine);
+      output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( t.getJavaJniObject() ) ) );" + newLine);
       output.write("    return " + returnValue + ";" + newLine);
       output.write("  }" + newLine);
       output.write("  catch ( std::exception& e )" + newLine);
       output.write("  {" + newLine);
-      output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();" +
-                   newLine);
+      output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();"
+                   + newLine);
       output.write("    jace::proxy::java::lang::RuntimeException ex( msg );" + newLine);
-      output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( ex.getJavaJniObject() ) ) );" +
-                   newLine);
+      output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( ex.getJavaJniObject() ) ) );" + newLine);
       output.write("    return " + returnValue + ";" + newLine);
       output.write("  }" + newLine);
       output.write("}" + newLine);
@@ -819,9 +803,9 @@ public class PeerGenerator
    */
   private static String getUsage()
   {
-    return "Usage: PeerGenerator <class file> " + newLine +
-           "<destination_header_directory> <destination_source_directory>" + newLine +
-           "<user_defined_members = {true|false}>" + newLine;
+    return "Usage: PeerGenerator <class file> " + newLine
+           + "<destination_header_directory> <destination_source_directory>" + newLine
+           + "<user_defined_members = {true|false}>" + newLine;
   }
 
   public static void main(String[] args)

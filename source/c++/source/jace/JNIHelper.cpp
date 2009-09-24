@@ -54,7 +54,7 @@ using std::wstring;
 #pragma warning(disable: 4103 4244 4512)
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/tss.hpp>
-using boost::mutex;
+#include <boost/shared_ptr.hpp>
 #pragma warning(pop)
 
 BEGIN_NAMESPACE_2( jace, helper )
@@ -65,7 +65,7 @@ BEGIN_NAMESPACE_2( jace, helper )
 //
 JavaVM* javaVM = 0;
 
-auto_ptr<VmLoader> globalLoader( 0 );
+boost::shared_ptr<VmLoader> globalLoader;
 
 // A workaround for Ctrl-C causing problems.
 // If Ctrl-C isn't handled by the program, and it causes
@@ -95,20 +95,20 @@ bool globalHasShutdown = false;
 boost::mutex shutdownMutex;
 
 // The map of all of the java class factories.
-//
 typedef map<string,JFactory*> FactoryMap;
 
-FactoryMap* getFactoryMap() {
+FactoryMap* getFactoryMap()
+{
   static FactoryMap factoryMap;
   return &factoryMap;
 }
 
-void classLoaderDestructor( jobject* value ) {
-
+void classLoaderDestructor( jobject* value )
+{
 	// Invoked by setClassLoader() or when the thread exits
 	if ( value == 0 )
 		return;
-	mutex::scoped_lock lock(shutdownMutex);
+	boost::mutex::scoped_lock lock(shutdownMutex);
 	if ( hasShutdown() )
 		return;
 
@@ -130,9 +130,11 @@ void classLoaderDestructor( jobject* value ) {
 
 boost::thread_specific_ptr<jobject> threadClassLoader(classLoaderDestructor);
 
-std::string asString( JNIEnv* env, jstring str ) {
+std::string asString( JNIEnv* env, jstring str )
+{
   const char* utfString = env->GetStringUTFChars( str, 0 );
-  if ( ! utfString ) {
+  if ( ! utfString )
+	{
     std::string msg = "Unable to retrieve the character string for an exception message.";
     throw JNIException( msg );
   }
@@ -142,20 +144,22 @@ std::string asString( JNIEnv* env, jstring str ) {
 }
 
 
-::jace::VmLoader* getVmLoader() {
+::jace::VmLoader* getVmLoader()
+{
   return globalLoader.get();
 }
 
 
-void setVmLoader( const ::jace::VmLoader& loader ) {
-  globalLoader = auto_ptr<VmLoader>( loader.clone() );
+void setVmLoader( const ::jace::VmLoader& loader )
+{
+  globalLoader = boost::shared_ptr<VmLoader>( loader.clone() );
 }
 
 
 void createVm( const VmLoader& loader,
                const OptionList& options,
-               bool ignoreUnrecognized ) {
-
+               bool ignoreUnrecognized )
+{
   setVmLoader( loader );
   globalLoader->loadVm();
 
@@ -175,7 +179,8 @@ void createVm( const VmLoader& loader,
 
   options.destroyJniOptions( jniOptions );
 
-  if ( rc != 0 ) {
+  if ( rc != 0 )
+	{
     string msg = "Unable to create the virtual machine. The error was " + toString( rc );
     throw JNIException( msg );
   }
@@ -183,22 +188,26 @@ void createVm( const VmLoader& loader,
 }
 
 
-void registerShutdownHook( JNIEnv *env ) {
+void registerShutdownHook( JNIEnv *env )
+{
   jclass hookClass = env->FindClass( "jace/util/ShutdownHook" );
-  if ( ! hookClass ) {
+  if ( ! hookClass )
+	{
     string msg = "Assert failed: Unable to find the class, jace.util.ShutdownHook.";
     throw JNIException( msg );
   }
 
   jmethodID hookGetInstance = env->GetStaticMethodID( hookClass, "getInstance", "()Ljace/util/ShutdownHook;" );
-  if ( ! hookGetInstance ) {
+  if ( ! hookGetInstance )
+	{
 		deleteLocalRef( env, hookClass );
     string msg = "Assert failed: Unable to find the method, ShutdownHook.getInstance().";
     throw JNIException( msg );
   }
 
 	jobject hookObject = env->CallStaticObjectMethod( hookClass, hookGetInstance );
-	if ( ! hookObject )	{
+	if ( ! hookObject )
+	{
 		deleteLocalRef( env, hookClass );
     string msg = "Unable to invoke ShutdownHook.getInstance()";
 		try
@@ -214,7 +223,8 @@ void registerShutdownHook( JNIEnv *env ) {
 	}
 
   jmethodID hookRegisterIfNecessary = env->GetMethodID( hookClass, "registerIfNecessary", "()V" );
-  if ( ! hookRegisterIfNecessary ) {
+  if ( ! hookRegisterIfNecessary )
+	{
 		deleteLocalRef( env, hookObject );
 		deleteLocalRef( env, hookClass );
     string msg = "Assert failed: Unable to find the method, ShutdownHook.registerIfNecessary().";
@@ -243,7 +253,7 @@ void registerShutdownHook( JNIEnv *env ) {
  */
 extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown( JNIEnv*, jclass )
 {
-	mutex::scoped_lock lock(shutdownMutex);
+	boost::mutex::scoped_lock lock(shutdownMutex);
 	globalHasShutdown = true;
 }
 
@@ -252,26 +262,29 @@ extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown( 
  * Returns the current java virtual machine.
  *
  */
-JavaVM* getJavaVM() throw ( JNIException ) {
-
-  if ( ! javaVM ) {
-
+JavaVM* getJavaVM() throw ( JNIException )
+{
+  if ( ! javaVM )
+	{
     jsize numVMs;
-		if (globalLoader.get() == 0) {
+		if (globalLoader.get() == 0)
+		{
       string msg = string( "JNIHelper::getJavaVM\n" ) +
                    "Unable to find the JVM loader";
 			throw JNIException( msg );
 		}
     jint result = globalLoader->getCreatedJavaVMs( &javaVM, 1, &numVMs );
 
-    if ( result != 0 ) {
+    if ( result != 0 )
+		{
       string msg = string( "JNIHelper::getJavaVM\n" ) +
                    "Unable to find the JVM. The specific JNI error code is " +
                    toString( result );
       throw JNIException( msg );
     }
 
-    if ( numVMs != 1 ) {
+    if ( numVMs != 1 )
+		{
       string msg = string( "JNIHelper::getJavaVM\n" ) +
                    "Looking for exactly 1 JVM, but " +
                    toString( numVMs ) +
@@ -284,8 +297,9 @@ JavaVM* getJavaVM() throw ( JNIException ) {
 }
 
 
-void shutdown() {
-	mutex::scoped_lock lock(shutdownMutex);
+void shutdown()
+{
+	boost::mutex::scoped_lock lock(shutdownMutex);
   globalHasShutdown = true;
 
 	// Currently (JDK 1.5) JVM unloading is not supported and DestroyJavaVM() always returns failure.
@@ -305,7 +319,8 @@ void shutdown() {
  * @see AttachCurrentThread
  * @see attach(const jobject, const char*, const bool)
  */
-JNIEnv* attach() throw ( JNIException ) {
+JNIEnv* attach() throw ( JNIException )
+{
 	return attach(0, 0, false);
 }
 
@@ -322,9 +337,9 @@ JNIEnv* attach() throw ( JNIException ) {
  * @see AttachCurrentThread
  * @see AttachCurrentThreadAsDaemon
  */
-JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw ( JNIException ) {
-
-	mutex::scoped_lock lock(shutdownMutex);
+JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw ( JNIException )
+{
+	boost::mutex::scoped_lock lock(shutdownMutex);
   if ( hasShutdown() )
     throw JNIException( "The VM has already been shutdown." );
 
@@ -364,8 +379,8 @@ void detach() throw () {
 /**
  * Enlists a new factory for a java class with the JNIHelper.
  *
- * All java classes should enlist with the JNIHelper on start-up.
- * They can do this by adding a static member variable
+ * All java exception classes should enlist with the JNIHelper
+ * on start-up. They can do this by adding a static member variable
  * of type JEnlister to their class definition.
  *
  * For example, java::lang::Object has a static member variable,
@@ -374,10 +389,10 @@ void detach() throw () {
  *
  * which is all that is required to register a new factory
  * for itself.
- *
  */
-void enlist( JFactory* factory ) {
-  string name = factory->getClass()->getName();
+void enlist( JFactory* factory )
+{
+  string name = factory->getClass().getName();
   replace( name.begin(), name.end(), '/', '.' );
   getFactoryMap()->insert( FactoryMap::value_type( name, factory ) );
   //  cout << "helper::enlist - Enlisted " << name << endl;
@@ -399,9 +414,9 @@ jobject newLocalRef( JNIEnv* env, jobject ref ) {
   return localRef;
 }
 
-void deleteLocalRef( JNIEnv* env, jobject localRef ) {
-
-	mutex::scoped_lock lock(shutdownMutex);
+void deleteLocalRef( JNIEnv* env, jobject localRef )
+{
+	boost::mutex::scoped_lock lock(shutdownMutex);
   if ( hasShutdown() ) {
     return;
   }
@@ -423,13 +438,11 @@ jobject newGlobalRef( JNIEnv* env, jobject ref ) {
   return globalRef;
 }
 
-void deleteGlobalRef( JNIEnv* env, jobject globalRef ) {
-
-	mutex::scoped_lock lock(shutdownMutex);
-  if ( hasShutdown() ) {
+void deleteGlobalRef( JNIEnv* env, jobject globalRef )
+{
+	boost::mutex::scoped_lock lock(shutdownMutex);
+  if ( hasShutdown() )
     return;
-  }
-
   env->DeleteGlobalRef( globalRef );
 }
 

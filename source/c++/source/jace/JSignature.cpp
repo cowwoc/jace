@@ -7,6 +7,11 @@ using std::string;
 #include <list>
 using std::list;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/ref.hpp>
+#pragma warning(pop)
+
 
 /* The template implementation.
  *
@@ -19,7 +24,7 @@ BEGIN_NAMESPACE( jace )
  */
 JSignature::JSignature( const JClass& resultType ) :
   mTypes(),
-  mResultType( &resultType ) { 
+  mResultType( resultType ) { 
 }
 
 
@@ -43,18 +48,18 @@ string JSignature::toString() const {
 
   string signature = "(";
 
-  typedef list<const JClass*> ClassList;
+	typedef list<boost::reference_wrapper<const JClass>> ClassList;
 
   ClassList::const_iterator end = mTypes.end();
 
   for ( ClassList::const_iterator i = mTypes.begin();
         i != end;
         ++i ) {
-    signature.append( (*i)->getNameAsType() );
+    signature.append( i->get().getNameAsType() );
   }
 
   signature.append( ")" );
-  signature.append( mResultType->getNameAsType() );
+  signature.append( mResultType.getNameAsType() );
 
   return signature;
 }
@@ -67,7 +72,7 @@ string JSignature::toString() const {
  *
  */
 JSignature& JSignature::operator<<( const JClass& argumentType ) {
-  mTypes.push_back( &argumentType );
+	mTypes.push_back( boost::ref<const JClass>(argumentType) );
   return *this;
 }
 

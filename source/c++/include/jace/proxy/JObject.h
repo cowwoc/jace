@@ -133,13 +133,16 @@ public:
 	JACE_API JObject& operator=( const JObject& object );
 
 	/**
-	 * Returns the JClass* that represents the static type of this class.
-	 * For example, for a String Java object, referred to by a C++ proxy Object,
-	 * this method returns JClassImpl( "java/lang/Object" ).
-	 *
-	 * The returned JClass* should not be deleted.
+	 * Returns the JClass for this class.
 	 */
-	JACE_API virtual const JClass* getJavaJniClass() const throw ( JNIException );
+	JACE_API static const ::jace::JClass& staticGetJavaJniClass() throw ( ::jace::JNIException );
+
+	/**
+	 * Returns the JClass that represents the static type of this class.
+	 * For example, for a String Java object, referred to by a C++ proxy object,
+	 * this method returns JClassImpl( "java/lang/String" ).
+	 */
+	JACE_API virtual const JClass& getJavaJniClass() const throw ( JNIException );
 
 protected:
 	/**
@@ -240,9 +243,7 @@ protected:
 	 * @throws the corresponding C++ proxy exception, if a java exception
 	 *   is thrown during method execution.
 	 */
-	JACE_API jobject newObject( const JClass* jClass, const JArguments& arguments );
-private:
-	static JClassImpl javaClass;
+	JACE_API jobject newObject( const JClass& jClass, const JArguments& arguments );
 };
 
 

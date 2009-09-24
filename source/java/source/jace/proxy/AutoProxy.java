@@ -27,7 +27,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
@@ -50,7 +49,7 @@ public class AutoProxy
   private final Collection<File> inputSources;
   private final File outputHeaders;
   private final File outputSources;
-  private final List<File> classPath;
+  private final ClassPath classPath;
   private final AccessibilityType accessibility;
   private final boolean exportSymbols;
   /**
@@ -115,9 +114,6 @@ public class AutoProxy
     for (File directory: inputSources)
       traverse(directory, sourceFilter);
 
-    // do the actual proxy generation
-    ClassPath source = new ClassPath(classPath);
-
     // set up the dependency list for ProxyGenerator
     FilteringCollection dependencies = new FilteringCollection();
 
@@ -145,7 +141,7 @@ public class AutoProxy
 
       File outputSourceFile = new File(outputSources, outputName.asPath() + ".cpp");
       File outputHeaderFile = new File(outputHeaders, outputName.asPath() + ".h");
-      File inputParentFile = source.getFirstMatch(inputName);
+      File inputParentFile = classPath.getFirstMatch(inputName);
       if (inputParentFile != null)
       {
         File inputFile;
@@ -154,8 +150,8 @@ public class AutoProxy
         else
           inputFile = inputParentFile;
         assert (inputFile.exists()): inputFile;
-        if (!(inputFile.lastModified() > outputSourceFile.lastModified() ||
-              inputFile.lastModified() > outputHeaderFile.lastModified()))
+        if (!(inputFile.lastModified() > outputSourceFile.lastModified() || inputFile.lastModified() > outputHeaderFile.
+          lastModified()))
         {
           // the input file has not been modified since we last generated the corresponding output files
           if (inputParentFile.isDirectory())
@@ -168,10 +164,10 @@ public class AutoProxy
 
       if (log.isTraceEnabled())
         log.trace("Generating proxies for " + inputName + "...");
-      InputStream input = source.openClass(inputName);
+      InputStream input = classPath.openClass(inputName);
       ClassFile classFile = new ClassFile(input);
-      new ProxyGenerator.Builder(classFile, dependencies).accessibility(accessibility).exportSymbols(exportSymbols).
-        build().writeProxy(outputHeaders, outputSources);
+      new ProxyGenerator.Builder(classPath, classFile, dependencies).accessibility(accessibility).
+        exportSymbols(exportSymbols).build().writeProxy(outputHeaders, outputSources);
       input.close();
     }
 
@@ -239,9 +235,7 @@ public class AutoProxy
 
           // Ignore any of the built in Jace proxies
           String packageNameStr = packageName.toString();
-          if (packageNameStr.startsWith("types/") ||
-              className.startsWith("JObject") ||
-              className.startsWith("JValue"))
+          if (packageNameStr.startsWith("types/") || className.startsWith("JObject") || className.startsWith("JValue"))
           {
             continue;
           }
@@ -311,22 +305,15 @@ public class AutoProxy
   {
     String newLine = System.getProperty("line.separator");
 
-    return "Usage: AutoProxy " + newLine +
-           "  <" + File.pathSeparator + "-separated list of c++ header directories> " + newLine +
-           "  <" + File.pathSeparator + "-separated list of c++ source directories> " + newLine +
-           "  <destination proxy header directory> " + newLine +
-           "  <destination proxy source directory> " + newLine +
-           "  <java classpath for proxies> " + newLine +
-           "  [options]" + newLine +
-           newLine +
-           "Where options can be:" + newLine +
-           "  -mindep " + newLine +
-           "  -extraDependencies=<comma-separated list of classes>" + newLine +
-           "  -exportsymbols" + newLine +
-           "  -public    : Generate public fields and methods." + newLine +
-           "  -protected : Generate public, protected fields and methods." + newLine +
-           "  -package : Generate public, protected, package-private fields and methods." + newLine +
-           "  -private : Generate public, protected, package-private, private fields and methods.";
+    return "Usage: AutoProxy " + newLine + "  <" + File.pathSeparator + "-separated list of c++ header directories> "
+           + newLine + "  <" + File.pathSeparator + "-separated list of c++ source directories> " + newLine
+           + "  <destination proxy header directory> " + newLine + "  <destination proxy source directory> " + newLine
+           + "  <java classpath for proxies> " + newLine + "  [options]" + newLine + newLine + "Where options can be:"
+           + newLine + "  -mindep " + newLine + "  -extraDependencies=<comma-separated list of classes>" + newLine
+           + "  -exportsymbols" + newLine + "  -public    : Generate public fields and methods." + newLine
+           + "  -protected : Generate public, protected fields and methods." + newLine
+           + "  -package : Generate public, protected, package-private fields and methods." + newLine
+           + "  -private : Generate public, protected, package-private, private fields and methods.";
   }
 
   /**
@@ -400,8 +387,8 @@ public class AutoProxy
     }
 
     AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
-      Util.parseClasspath(classPath)).accessibility(accessibility).minimizeDependencies(minimizeDependencies).
-      exportSymbols(exportSymbols);
+      new ClassPath(Util.parseClasspath(classPath))).accessibility(accessibility).
+      minimizeDependencies(minimizeDependencies).exportSymbols(exportSymbols);
     for (TypeName dependency: extraDependencies)
       autoProxy.extraDependency(dependency);
     Logger log = LoggerFactory.getLogger(AutoProxy.class);
@@ -423,7 +410,7 @@ public class AutoProxy
     private final Collection<File> inputSources;
     private final File outputHeaders;
     private final File outputSources;
-    private final List<File> classPath;
+    private final ClassPath classPath;
     private AccessibilityType accessibility = AccessibilityType.PUBLIC;
     private boolean minimizeDependencies = true;
     private final Set<TypeName> extraDependencies = new HashSet<TypeName>();
@@ -448,7 +435,7 @@ public class AutoProxy
      *         the <code>inputHeaders</code>/<code>inputSources</code> elements is not adirectory or does not exist.
      */
     public Builder(Collection<File> inputHeaders, Collection<File> inputSources, File outputHeaders, File outputSources,
-                   List<File> classPath)
+                   ClassPath classPath)
       throws IllegalArgumentException
     {
       if (inputHeaders == null)
@@ -464,11 +451,11 @@ public class AutoProxy
       if (classPath == null)
         throw new IllegalArgumentException("classPath may not be null");
       if (!outputHeaders.isDirectory())
-        throw new IllegalArgumentException("outputHeaders must be an existing directory: " +
-                                           outputHeaders.getAbsolutePath());
+        throw new IllegalArgumentException("outputHeaders must be an existing directory: " + outputHeaders.
+          getAbsolutePath());
       if (!outputSources.isDirectory())
-        throw new IllegalArgumentException("outputSources must be an existing directory: " +
-                                           outputSources.getAbsolutePath());
+        throw new IllegalArgumentException("outputSources must be an existing directory: " + outputSources.
+          getAbsolutePath());
       this.inputHeaders = new ArrayList<File>(inputHeaders);
       this.inputSources = new ArrayList<File>(inputSources);
       for (File file: this.inputHeaders)

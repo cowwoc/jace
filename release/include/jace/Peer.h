@@ -63,7 +63,7 @@ public:
   /**
    * Returns the class type of the Java Peer.
    */
-  JACE_API virtual const JClass* getJavaJniClass() const throw ( JNIException ) = 0;
+  JACE_API virtual const JClass& getJavaJniClass() const throw ( JNIException ) = 0;
 
 protected:
   /**

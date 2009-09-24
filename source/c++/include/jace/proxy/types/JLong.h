@@ -96,16 +96,14 @@ public:
 	/**
 	 * Returns the JClass for this class.
 	 */
-	JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
+	JACE_API static const ::jace::JClass& staticGetJavaJniClass() throw ( ::jace::JNIException );
 
 	/**
 	 * Retrieves the JavaClass for this JObject.
 	 *
 	 * @throw JNIException if an error occurs while trying to retrieve the class.
 	 */
-	JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
-private:
-	static JClassImpl javaClass;
+	JACE_API virtual const ::jace::JClass& getJavaJniClass() const throw ( ::jace::JNIException );
 };
 
 

@@ -6,54 +6,71 @@
 #endif
 using jace::JClassImpl;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
-JClassImpl JBoolean::javaClass("boolean", "Z");
-
-JBoolean::JBoolean( jvalue value ) {
+JBoolean::JBoolean( jvalue value )
+{
   setJavaJniValue( value );
 }
 
-JBoolean::JBoolean( jboolean boolean_ ) {
+JBoolean::JBoolean( jboolean boolean_ )
+{
   jvalue value;
   value.z = boolean_;
   setJavaJniValue( value );
 }
 
-JBoolean::~JBoolean() {}
+JBoolean::~JBoolean()
+{}
 
-JBoolean::operator jboolean() const { 
+JBoolean::operator jboolean() const
+{ 
   return getJavaJniValue().z;
 }
 
-jboolean JBoolean::getBoolean() const {
+jboolean JBoolean::getBoolean() const
+{
   return getJavaJniValue().z;
 }
 
-bool JBoolean::operator==( const JBoolean& boolean_ ) const {
+bool JBoolean::operator==( const JBoolean& boolean_ ) const
+{
   return boolean_.getBoolean() == getBoolean();
 }
 
-bool JBoolean::operator!=( const JBoolean& boolean_ ) const {
+bool JBoolean::operator!=( const JBoolean& boolean_ ) const
+{
   return !( *this == boolean_ );
 }
 
-bool JBoolean::operator==( jboolean val ) const {
+bool JBoolean::operator==( jboolean val ) const
+{
   return val == getBoolean();
 }
 
-bool JBoolean::operator!=( jboolean val ) const {
+bool JBoolean::operator!=( jboolean val ) const
+{
   return ! ( *this == val );
 }
 
-const JClass* JBoolean::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JBoolean::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("boolean", "Z"));
+	return *result;
 }
 
-const JClass* JBoolean::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JBoolean::getJavaJniClass() const throw ( JNIException )
+{
   return JBoolean::staticGetJavaJniClass();
 }
 
-
 END_NAMESPACE_3( jace, proxy, types )
-

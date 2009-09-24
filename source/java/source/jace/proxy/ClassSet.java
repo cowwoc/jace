@@ -9,12 +9,10 @@ import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
 import jace.proxy.ProxyGenerator.AcceptAll;
 import jace.util.Util;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,7 @@ public class ClassSet
   /**
    * The classpath used to search for dependencies.
    */
-  private final List<File> classPath;
+  private final ClassPath classPath;
   private final Set<MetaClass> classes = new HashSet<MetaClass>();
   private boolean minimizeDependencies;
 
@@ -44,7 +42,7 @@ public class ClassSet
    * dependencies (arguments, return values, and fields). The latter is used to generate proxies for a Java library when
    * the input files are unknown.
    */
-  public ClassSet(List<File> classPath, boolean minimizeDependencies)
+  public ClassSet(ClassPath classPath, boolean minimizeDependencies)
   {
     this.classPath = classPath;
     this.minimizeDependencies = minimizeDependencies;
@@ -146,9 +144,8 @@ public class ClassSet
     }
 
     // handle the super class and interfaces next
-    ClassPath classSource = new ClassPath(classPath);
     TypeName typeName = TypeNameFactory.fromPath(plainClass.getFullyQualifiedTrueName("/"));
-    InputStream classInput = classSource.openClass(typeName);
+    InputStream classInput = classPath.openClass(typeName);
     ClassFile classFile = new ClassFile(classInput);
 
     try
@@ -159,8 +156,11 @@ public class ClassSet
     {
       log.warn("failed to close the class file", e);
     }
-    MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName());
-    addDependentClasses(result, superMetaClass);
+    if (classFile.getSuperClassName() != null)
+    {
+      MetaClass superMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName());
+      addDependentClasses(result, superMetaClass);
+    }
 
     for (TypeName i: classFile.getInterfaces())
     {
@@ -179,7 +179,7 @@ public class ClassSet
       return;
 
     // now handle all of the other classes
-    ProxyGenerator generator = new ProxyGenerator.Builder(classFile, new AcceptAll()).build();
+    ProxyGenerator generator = new ProxyGenerator.Builder(classPath, classFile, new AcceptAll()).build();
 
     for (MetaClass metaClass: generator.getDependentClasses(true))
       addDependentClasses(result, metaClass.unProxy());
@@ -231,7 +231,8 @@ public class ClassSet
    */
   public static void main(String[] args)
   {
-    ClassSet library = new ClassSet(Util.parseClasspath(args[0]), Boolean.valueOf(args[2]).booleanValue());
+    ClassSet library = new ClassSet(new ClassPath(Util.parseClasspath(args[0])),
+      Boolean.valueOf(args[2]).booleanValue());
     Set<MetaClass> classes = new HashSet<MetaClass>();
     library.addDependentClasses(classes, MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier(args[1])));
 

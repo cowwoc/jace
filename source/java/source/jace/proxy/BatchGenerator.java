@@ -9,6 +9,7 @@ import jace.proxy.ProxyGenerator.AccessibilityType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -25,6 +26,7 @@ import java.util.jar.JarInputStream;
 public class BatchGenerator
 {
   private static final String newLine = System.getProperty("line.separator");
+  private final ClassPath classPath;
   private final File outputHeaders;
   private final File outputSources;
   private final AccessibilityType accessibility;
@@ -32,12 +34,15 @@ public class BatchGenerator
   /**
    * Creates a new BatchGenerator
    *
+   * @param classPath the path to search for class files when resolving class dependencies
    * @param outputHeaders the directory to which the proxy header files should be written
    * @param outputSources the directory to which the proxy source files should be written
    * @param accessibility the class accessibility to expose
    */
-  public BatchGenerator(File outputHeaders, File outputSources, AccessibilityType accessibility)
+  public BatchGenerator(ClassPath classPath, File outputHeaders, File outputSources, AccessibilityType accessibility)
   {
+    if (classPath == null)
+      throw new IllegalArgumentException("classPath may not be null");
     if (outputHeaders == null)
       throw new IllegalArgumentException("outputHeaders may not be null");
     if (outputSources == null)
@@ -48,6 +53,7 @@ public class BatchGenerator
       throw new IllegalArgumentException("outputHeaders must be a directory");
     if (!outputSources.isDirectory())
       throw new IllegalArgumentException("outputSources must be a directory");
+    this.classPath = classPath;
     this.outputHeaders = outputHeaders;
     this.outputSources = outputSources;
     this.accessibility = accessibility;
@@ -95,8 +101,8 @@ public class BatchGenerator
       String classFileName = metaClass.getFileName();
       File targetHeaderFile = new File(outputHeaders, classFileName + ".h");
       File targetSourceFile = new File(outputSources, classFileName + ".cpp");
-      if (!(jarFile.lastModified() > targetSourceFile.lastModified() ||
-            jarFile.lastModified() > targetHeaderFile.lastModified()))
+      if (!(jarFile.lastModified() > targetSourceFile.lastModified() || jarFile.lastModified() > targetHeaderFile.
+        lastModified()))
       {
         // The source-file has not been modified since we last generated the
         // target source/header files.
@@ -105,7 +111,7 @@ public class BatchGenerator
       }
 
       ClassFile classFile = new ClassFile(in);
-      new ProxyGenerator.Builder(classFile, new AcceptAll()).accessibility(accessibility).build().
+      new ProxyGenerator.Builder(classPath, classFile, new AcceptAll()).accessibility(accessibility).build().
         writeProxy(outputHeaders, outputSources);
     }
     in.close();
@@ -118,15 +124,14 @@ public class BatchGenerator
    */
   private static String getUsage()
   {
-    return "Usage: BatchGenerator <jar or zip file containing classes>" + newLine +
-           "                      <destination directory for header files>" + newLine +
-           "                      <destination directory for source files>" + newLine +
-           "                     [ options ]" + newLine +
-           "Where options can be:" + newLine +
-           "  -public    : Generate public fields and methods." + newLine +
-           "  -protected : Generate public, protected fields and methods." + newLine +
-           "  -package : Generate public, protected, package-private fields and methods." + newLine +
-           "  -private : Generate public, protected, package-private, private fields and methods." + newLine;
+    return "Usage: BatchGenerator <jar or zip file containing classes>" + newLine
+           + "                      <destination directory for header files>" + newLine
+           + "                      <destination directory for source files>" + newLine
+           + "                     [ options ]" + newLine + "Where options can be:" + newLine
+           + "  -public    : Generate public fields and methods." + newLine
+           + "  -protected : Generate public, protected fields and methods." + newLine
+           + "  -package : Generate public, protected, package-private fields and methods." + newLine
+           + "  -private : Generate public, protected, package-private, private fields and methods." + newLine;
   }
 
   /**
@@ -165,7 +170,9 @@ public class BatchGenerator
     }
     try
     {
-      new BatchGenerator(new File(args[1]), new File(args[2]), accessibility).generateFromJar(new File(args[0]));
+      File jarFile = new File(args[0]);
+      new BatchGenerator(new ClassPath(Collections.singletonList(jarFile)), new File(args[1]),
+        new File(args[2]), accessibility).generateFromJar(jarFile);
     }
     catch (IOException e)
     {

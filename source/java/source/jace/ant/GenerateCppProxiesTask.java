@@ -3,6 +3,7 @@ package jace.ant;
 import jace.proxy.AutoProxy;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
+import jace.proxy.ClassPath;
 import jace.proxy.ProxyGenerator.AccessibilityType;
 import jace.util.Util;
 import java.io.File;
@@ -148,7 +149,7 @@ public class GenerateCppProxiesTask extends Task
     for (Dependency dependency: dependencies)
       extraDependencies.add(TypeNameFactory.fromIdentifier(dependency.getName()));
     AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
-      Util.parseClasspath(classpath.toString())).accessibility(accessibility).minimizeDependencies(true).
+      new ClassPath(Util.parseClasspath(classpath.toString()))).accessibility(accessibility).minimizeDependencies(true).
       exportSymbols(exportSymbols);
     for (TypeName dependency: extraDependencies)
       autoProxy.extraDependency(dependency);

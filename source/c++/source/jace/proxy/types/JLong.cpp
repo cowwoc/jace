@@ -6,59 +6,79 @@
 #endif
 using jace::JClassImpl;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
-JClassImpl JLong::javaClass("long", "J");
-
-JLong::JLong( jvalue value ) {
+JLong::JLong( jvalue value )
+{
   setJavaJniValue( value );
 }
 
-JLong::JLong( jlong long_ ) {
+JLong::JLong( jlong long_ )
+{
   jvalue value;
   value.j = long_;
   setJavaJniValue( value );
 }
 
-JLong::JLong( const JInt& int_ ) {
+JLong::JLong( const JInt& int_ )
+{
   jvalue value;
   value.j = int_.getInt();
   setJavaJniValue( value );
 }
 
 
-JLong::~JLong() {}
+JLong::~JLong()
+{}
 
-JLong::operator jlong() const {
+JLong::operator jlong() const
+{
   return getJavaJniValue().j;
 }
 
-jlong JLong::getLong() const {
+jlong JLong::getLong() const
+{
   return getJavaJniValue().j;
 }
 
-bool JLong::operator==( const JLong& long_ ) const {
+bool JLong::operator==( const JLong& long_ ) const
+{
   return long_.getLong() == getLong();
 }
 
-bool JLong::operator!=( const JLong& long_ ) const {
+bool JLong::operator!=( const JLong& long_ ) const
+{
   return !( *this == long_ );
 }
 
-bool JLong::operator==( jlong val ) const {
+bool JLong::operator==( jlong val ) const
+{
   return val == getLong();
 }
 
-bool JLong::operator!=( jlong val ) const {
+bool JLong::operator!=( jlong val ) const
+{
   return ! ( *this == val );
 }
 
-const JClass* JLong::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JLong::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("long", "J"));
+	return *result;
 }
 
-const JClass* JLong::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JLong::getJavaJniClass() const throw ( JNIException )
+{
   return JLong::staticGetJavaJniClass();
 }
 

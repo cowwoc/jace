@@ -7,52 +7,71 @@
 #endif
 using jace::JClassImpl;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
-JClassImpl JDouble::javaClass("double", "D");
-
-JDouble::JDouble( jvalue value ) {
+JDouble::JDouble( jvalue value )
+{
   setJavaJniValue( value );
 }
 
-JDouble::JDouble( jdouble double_ ) {
+JDouble::JDouble( jdouble double_ )
+{
   jvalue value;
   value.d = double_;
   setJavaJniValue( value );
 }
 
-JDouble::~JDouble() {}
+JDouble::~JDouble()
+{}
 
-JDouble::operator jdouble() const {
+JDouble::operator jdouble() const
+{
   return getJavaJniValue().d;
 }
 
-jdouble JDouble::getDouble() const {
+jdouble JDouble::getDouble() const
+{
   return getJavaJniValue().d;
 }
 
-bool JDouble::operator==( const JDouble& double_ ) const {
+bool JDouble::operator==( const JDouble& double_ ) const
+{
   return double_.getDouble() == getDouble();
 }
 
-bool JDouble::operator!=( const JDouble& double_ ) const {
+bool JDouble::operator!=( const JDouble& double_ ) const
+{
   return !( *this == double_ );
 }
 
-bool JDouble::operator==( jdouble val ) const {
+bool JDouble::operator==( jdouble val ) const
+{
   return val == getDouble();
 }
 
-bool JDouble::operator!=( jdouble val ) const {
+bool JDouble::operator!=( jdouble val ) const
+{
   return ! ( *this == val );
 }
 
-const JClass* JDouble::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JDouble::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("double", "D"));
+	return *result;
 }
 
-const JClass* JDouble::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JDouble::getJavaJniClass() const throw ( JNIException )
+{
   return JDouble::staticGetJavaJniClass();
 }
 

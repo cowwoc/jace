@@ -6,51 +6,70 @@
 #endif
 using jace::JClassImpl;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
-JClassImpl JByte::javaClass("byte", "B");
-
-JByte::JByte( jvalue value ) {
+JByte::JByte( jvalue value )
+{
   setJavaJniValue( value );
 }
 
-JByte::JByte( jbyte byte ) {
+JByte::JByte( jbyte byte )
+{
   jvalue value;
   value.b = byte;
   setJavaJniValue( value );
 }
 
-JByte::~JByte() {}
+JByte::~JByte()
+{}
 
-JByte::operator jbyte() const { 
+JByte::operator jbyte() const
+{ 
   return getJavaJniValue().b;
 }
 
-jbyte JByte::getByte() const {
+jbyte JByte::getByte() const
+{
   return getJavaJniValue().b;
 }
 
-bool JByte::operator==( const JByte& byte_ ) const {
+bool JByte::operator==( const JByte& byte_ ) const
+{
   return byte_.getByte() == getByte();
 }
 
-bool JByte::operator!=( const JByte& byte_ ) const {
+bool JByte::operator!=( const JByte& byte_ ) const
+{
   return !( *this == byte_ );
 }
 
-bool JByte::operator==( jbyte val ) const {
+bool JByte::operator==( jbyte val ) const
+{
   return val == getByte();
 }
 
-bool JByte::operator!=( jbyte val ) const {
+bool JByte::operator!=( jbyte val ) const
+{
   return ! ( *this == val );
 }
 
-const JClass* JByte::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JByte::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("byte", "B"));
+	return *result;
 }
 
-const JClass* JByte::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JByte::getJavaJniClass() const throw ( JNIException )
+{
   return JByte::staticGetJavaJniClass();
 }
 

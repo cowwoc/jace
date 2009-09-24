@@ -47,16 +47,14 @@ public:
 	 *
 	 * @throw JNIException if an error occurs while trying to retrieve the class.
 	 */
-	JACE_API virtual const ::jace::JClass* getJavaJniClass() const throw ( ::jace::JNIException );
+	JACE_API virtual const ::jace::JClass& getJavaJniClass() const throw ( ::jace::JNIException );
 
 	/**
 	 * Returns the JClass for the Void type.
 	 *
 	 * @throw JNIException if an error occurs while trying to retrieve the class.
 	 */
-	JACE_API static const ::jace::JClass* staticGetJavaJniClass() throw ( ::jace::JNIException );
-private:
-	static JClassImpl javaClass;
+	JACE_API static const ::jace::JClass& staticGetJavaJniClass() throw ( ::jace::JNIException );
 };
 
 

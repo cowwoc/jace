@@ -9,63 +9,84 @@ using jace::JClassImpl;
 #include <iostream>
 using std::ostream;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
-JClassImpl JInt::javaClass("int", "I");
-
-JInt::JInt( jvalue value ) {
+JInt::JInt( jvalue value )
+{
   setJavaJniValue( value );
 }
 
-JInt::JInt( const jint int_ ) {
+JInt::JInt( const jint int_ )
+{
   jvalue value;
   value.i = int_;
   setJavaJniValue( value );
 }
 
-JInt::JInt( const JByte& byte_ ) {
+JInt::JInt( const JByte& byte_ )
+{
   jvalue value;
   value.i = byte_.getByte();
   setJavaJniValue( value );
 }
 
 
-JInt::~JInt() {}
+JInt::~JInt()
+{}
 
-JInt::operator jint() { 
+JInt::operator jint()
+{ 
   return getJavaJniValue().i; 
 }
 
-jint JInt::getInt() const {
+jint JInt::getInt() const
+{
   return getJavaJniValue().i;
 }
 
-bool JInt::operator==( const JInt& int_ ) const {
+bool JInt::operator==( const JInt& int_ ) const
+{
   return int_.getInt() == getInt();
 }
 
-bool JInt::operator!=( const JInt& int_ ) const {
+bool JInt::operator!=( const JInt& int_ ) const
+{
   return !( *this == int_ );
 }
 
-bool JInt::operator==( jint val ) const {
+bool JInt::operator==( jint val ) const
+{
   return val == getInt();
 }
 
-bool JInt::operator!=( jint val ) const {
+bool JInt::operator!=( jint val ) const
+{
   return ! ( *this == val );
 }
 
-const JClass* JInt::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JInt::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("int", "I"));
+	return *result;
 }
 
-const JClass* JInt::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JInt::getJavaJniClass() const throw ( JNIException )
+{
   return JInt::staticGetJavaJniClass();
 }
 
-ostream& operator<<( ostream& stream, const JInt& val ) {
+ostream& operator<<( ostream& stream, const JInt& val )
+{
   return stream << val.getInt();
 }
 

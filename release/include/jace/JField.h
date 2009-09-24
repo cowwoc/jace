@@ -72,59 +72,54 @@ BEGIN_NAMESPACE( jace )
  * Represents a java field.
  *
  * @author Toby Reyelts
- *
  */
-template <class Type> class JField {
-
-
+template <class Type> class JField
+{
 public:
+	/**
+	 * Creates a new JField representing the field with the
+	 * given name.
+	 */
+	JField( const std::string& name ) : helper( name, Type::staticGetJavaJniClass() )
+	{
+	}
+
+	/**
+	 * Retrieves the field belonging to the given object.
+	 *
+	 * @throws JNIException if an error occurs while trying to retrieve the field.
+	 */
+	JFieldProxy<Type> get( ::jace::proxy::JObject& object )
+	{
+		jvalue value = helper.getField( object );
+		JFieldProxy<Type> fieldProxy( helper.getFieldID(), value, object.getJavaJniObject() );
+		JNIEnv* env = ::jace::helper::attach();
+		jace::helper::deleteLocalRef( env, value.l );
+		return fieldProxy;
+	}
 
 
-/**
- * Creates a new JField representing the field with the
- * given name.
- *
- */
-JField( const std::string& name ) : helper( name, Type::staticGetJavaJniClass() ) {
-}
-
-/**
- * Retrieves the field belonging to the given object.
- *
- * @throws JNIException if an error occurs while trying to retrieve the field.
- *
- */
-JFieldProxy<Type> get( ::jace::proxy::JObject& object ) {
-  jvalue value = helper.getField( object );
-  JFieldProxy<Type> fieldProxy( helper.getFieldID(), value, object.getJavaJniObject() );
-  JNIEnv* env = ::jace::helper::attach();
-  jace::helper::deleteLocalRef( env, value.l );
-  return fieldProxy;
-}
-
-
-/**
- * Retrieves the value of the static field belonging to the given class.
- *
- * @throws JNIException if an error occurs while trying to retrieve the value.
- *
- */
-JFieldProxy<Type> get( const ::jace::JClass* jClass ) {
-  jvalue value = helper.getField( jClass );
-  JFieldProxy<Type> fieldProxy( helper.getFieldID(), value, jClass->getClass() );
-  JNIEnv* env = ::jace::helper::attach();
-  jace::helper::deleteLocalRef( env, value.l );
-  return fieldProxy;
-}
+	/**
+	 * Retrieves the value of the static field belonging to the given class.
+	 *
+	 * @throws JNIException if an error occurs while trying to retrieve the value.
+	 */
+	JFieldProxy<Type> get( const ::jace::JClass& jClass )
+	{
+		jvalue value = helper.getField( jClass );
+		JFieldProxy<Type> fieldProxy( helper.getFieldID(), value, jClass.getClass() );
+		JNIEnv* env = ::jace::helper::attach();
+		jace::helper::deleteLocalRef( env, value.l );
+		return fieldProxy;
+	}
 
 private:
+	::jace::JFieldHelper helper;
 
-::jace::JFieldHelper helper;
-
-jfieldID getFieldID( const ::jace::JClass* parentClass, bool isStatic = false ) {
-  return helper.getFieldID( parentClass, isStatic );
-}
-
+	jfieldID getFieldID( const ::jace::JClass& parentClass, bool isStatic = false )
+	{
+		return helper.getFieldID( parentClass, isStatic );
+	}
 };
 
 END_NAMESPACE( jace )
@@ -140,4 +135,3 @@ END_NAMESPACE( jace )
 #endif
 
 #endif
-

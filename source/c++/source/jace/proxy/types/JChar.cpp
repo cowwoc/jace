@@ -10,56 +10,76 @@ using jace::JClassImpl;
 #include <iostream>
 using std::ostream;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
-JClassImpl JChar::javaClass("char", "C");
-
-JChar::JChar( jvalue value ) {
+JChar::JChar( jvalue value )
+{
   setJavaJniValue( value );
 }
 
-JChar::JChar( jchar char_ ) {
+JChar::JChar( jchar char_ )
+{
   jvalue value;
   value.c = char_;
   setJavaJniValue( value );
 }
 
-JChar::~JChar() {}
+JChar::~JChar()
+{}
 
-JChar::operator jchar() const {
+JChar::operator jchar() const
+{
   return getJavaJniValue().c;
 }
 
-jchar JChar::getChar() const {
+jchar JChar::getChar() const
+{
   return getJavaJniValue().c;
 }
 
-bool JChar::operator==( const JChar& char_ ) const {
+bool JChar::operator==( const JChar& char_ ) const
+{
   return char_.getChar() == getChar();
 }
 
-bool JChar::operator!=( const JChar& char_ ) const {
+bool JChar::operator!=( const JChar& char_ ) const
+{
   return !( *this == char_ );
 }
 
-bool JChar::operator==( jchar val ) const {
+bool JChar::operator==( jchar val ) const
+{
   return val == getChar();
 }
 
-bool JChar::operator!=( jchar val ) const {
+bool JChar::operator!=( jchar val ) const
+{
   return ! ( *this == val );
 }
 
-const JClass* JChar::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JChar::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("char", "C"));
+	return *result;
 }
 
-const JClass* JChar::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JChar::getJavaJniClass() const throw ( JNIException )
+{
   return JChar::staticGetJavaJniClass();
 }
 
-ostream& operator<<( ostream& stream, const JChar& val ) {
+ostream& operator<<( ostream& stream, const JChar& val )
+{
   return stream << ( char ) val.getChar();
 }
 

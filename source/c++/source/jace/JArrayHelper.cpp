@@ -7,10 +7,10 @@ using jace::proxy::types::JInt;
 BEGIN_NAMESPACE_2( jace, JArrayHelper )
 
 // Returns a local ref
-jobjectArray newArray( int size, const JClass* elementClass ) {
+jobjectArray newArray( int size, const JClass& elementClass ) {
   
   JNIEnv* env = helper::attach();
-  jobject obj = env->NewObjectArray( size, elementClass->getClass(), 0 );
+  jobject obj = env->NewObjectArray( size, elementClass.getClass(), 0 );
   jobjectArray array = static_cast<jobjectArray>( obj );
   helper::catchAndThrow();
 

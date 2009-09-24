@@ -35,7 +35,9 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 
 -------------- New changes in 1.1.2 (pending)
 
-- Jace now depends on Boost Threads. Be sure to copy the boost libraries alongside Jace.
+- Jace now depends on Boost Threads. Pre-built Boost binaries are included in the release/lib directory
+  but you must download the Boost header files separately from http://www.boost.org/users/download/
+  Please set the BOOST_HOME environment variable to the directory containing the Boost source-code.
 - Added EnhancePeer, PeerUptodate, GenerateProxies, GeneratePeer ant integration tasks
 - Added JNIHelper::attach(const jobject threadGroup, const char* name, const bool daemon)
 - AutoProxy now provides more information if a C++ file references a non-existent Java class
@@ -71,6 +73,8 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - Removed logback.xml because according to the author logging should only be configured by applications, not libraries.
 - Added new preprocessor symbols JACE_LINK_STATICALLY and JACE_PROXIES_LINK_STATICALLY for when developers wish to
 	link against Jace or C++ proxies statically (dynamic linking is the default).
+- staticGetJavaJniClass() now initializes class names on demand
+- JEnlister now only generated for exception classes
 
 Compatibility breakers:
 
@@ -89,6 +93,8 @@ Compatibility breakers:
 - Class Verbose now takes Verbose::ComponentType as input instead of String
 - Dropped support for old versions of Visual C++. We now only support Visual Studio 2008.
 - Renamed package jace.peergen to jace.peer, jace.proxygen to jace.proxy, jace.autoproxy to jace.proxy
+- The BatchGenerator, ProxyGenerator and ClassSet constructor signatures have changed (added ClassPath parameter)
+- Removed LibraryProxies which doesn't seem to be used anywhere
 
 -------------- New changes in 1.1.1
 

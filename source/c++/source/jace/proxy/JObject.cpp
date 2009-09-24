@@ -1,4 +1,3 @@
-
 #include "jace/proxy/JObject.h"
 
 #ifndef JACE_JNI_HELPER_H
@@ -32,6 +31,11 @@ using std::endl;
 #include <exception>
 using std::exception;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_2( jace, proxy )
 
 /**
@@ -46,22 +50,23 @@ const JObject::CopyConstructorSpecifier JObject::COPY_CONSTRUCTOR;
 
 /**
  * Creates a new JObject wrapping the existing jvalue.
- *
  */
-JObject::JObject( jvalue value ) {
+JObject::JObject( jvalue value )
+{
   setJavaJniValue( value );
 }
 
 /**
  * Creates a new JObject.
- *
  */
-JObject::JObject( jobject object ) {
+JObject::JObject( jobject object )
+{
   setJavaJniObject( object );
 }
 
 
-JObject::JObject() {
+JObject::JObject()
+{
   jvalue newValue;
   newValue.l = 0;
   JValue::setJavaJniValue( newValue );
@@ -81,8 +86,8 @@ JObject::JObject() {
  * All subclasses of JObject should provide this constructor
  * for their own subclasses.
  */
-JObject::JObject( const NoOp& ) {
-
+JObject::JObject( const NoOp& )
+{
   /* By default, all objects start out with a null reference,
    * so, in case of an exception, destruction will not fail on
    * an unitialized reference.
@@ -97,29 +102,32 @@ JObject::JObject( const NoOp& ) {
  * Destroys the existing java object.
  *
  */
-JObject::~JObject() throw () {
+JObject::~JObject() throw ()
+{
+	try
+	{
+		jobject ref = getJavaJniValue().l;
 
-  try {
-    jobject ref = getJavaJniValue().l;
-
-    // Save an attach and a delete if we are a null object.
-    if ( ref ) {
-      JNIEnv* env = helper::attach();
-      helper::deleteGlobalRef( env, ref );
-    }
-  }
-  catch ( exception& e ) {
-    cout << "JObject::~JObject - Unable to delete the global ref." << endl;
-    cout << e.what() << endl;
+		// Save an attach and a delete if we are a null object.
+		if ( ref )
+		{
+			JNIEnv* env = helper::attach();
+			helper::deleteGlobalRef( env, ref );
+		}
+	}
+	catch ( exception& e )
+	{
+		cout << "JObject::~JObject - Unable to delete the global ref." << endl;
+		cout << e.what() << endl;
   }
 }
 
 
 /** 
  * Returns the underlying JNI jobject for this JObject.
- *
  */
-jobject JObject::getJavaJniObject() {
+jobject JObject::getJavaJniObject()
+{
   return getJavaJniValue().l;
 }
 
@@ -132,9 +140,9 @@ jobject JObject::getJavaJniObject() {
  *
  * Users of this method should be careful not to modify the
  * object through calls against the returned jobject.
- *
  */
-jobject JObject::getJavaJniObject() const {
+jobject JObject::getJavaJniObject() const
+{
   return getJavaJniValue().l;
 }
 
@@ -144,18 +152,18 @@ jobject JObject::getJavaJniObject() const {
  *
  * If this method returns true, it is not safe to call any proxy
  * method on this JObject. Doing so will invoke undefined behavior.
- *
  */
-bool JObject::isNull() const {
+bool JObject::isNull() const
+{
   return getJavaJniObject() == 0;
 }
 
 
 /**
  * The implementation for operator=()
- *
  */
-JObject& JObject::operator=( const JObject& object ) {
+JObject& JObject::operator=( const JObject& object )
+{
   setJavaJniObject( object.getJavaJniObject() );
   return *this;
 }
@@ -166,9 +174,9 @@ JObject& JObject::operator=( const JObject& object ) {
  *
  * This method is simply a convenience method for calling 
  * setValue( jvalue ) with a jobject.
- *
  */
-void JObject::setJavaJniObject( jobject object ) throw ( JNIException ) {
+void JObject::setJavaJniObject( jobject object ) throw ( JNIException )
+{
   jvalue value;
   value.l = object;
   setJavaJniValue( value );
@@ -182,17 +190,17 @@ void JObject::setJavaJniObject( jobject object ) throw ( JNIException ) {
  *
  * @throw JNIException if the JVM runs out of memory while 
  *   trying to create a new global reference.
- *
  */
-void JObject::setJavaJniValue( jvalue value ) throw ( JNIException ) {
-
+void JObject::setJavaJniValue( jvalue value ) throw ( JNIException )
+{
   JNIEnv* env = helper::attach();
 
   // If we have previously referenced another java object,
   // we release that reference here.
   jobject oldRef = getJavaJniValue().l;
 
-  if ( oldRef ) {
+  if ( oldRef )
+	{
     // helper::printClass( oldRef );
     // helper::print( oldRef );
     helper::deleteGlobalRef( env, oldRef );
@@ -200,7 +208,8 @@ void JObject::setJavaJniValue( jvalue value ) throw ( JNIException ) {
 
   // If this is a null ref, we save a little time by not creating
   // a new global ref.
-  if ( ! value.l ) {
+  if ( ! value.l )
+	{
     // cout << "JObject::setJavaJniValue - Creating a NULL object." << endl;
     JValue::setJavaJniValue( value );
     return;
@@ -225,9 +234,9 @@ void JObject::setJavaJniValue( jvalue value ) throw ( JNIException ) {
  *
  * @return the JNI jobject representing the new object. 
  * The returned reference is a new local reference.
- *
  */
-jobject JObject::newObject( const JArguments& arguments ) {
+jobject JObject::newObject( const JArguments& arguments )
+{
   return JConstructor( getJavaJniClass() ).invoke( arguments );
 }
 
@@ -242,16 +251,25 @@ jobject JObject::newObject( const JArguments& arguments ) {
  * @throws JNIException if a JNI error occurs while trying to locate the method.
  * @throws the corresponding C++ proxy exception, if a java exception
  *   is thrown during method execution.
- *
  */
-jobject JObject::newObject( const JClass* jClass, const JArguments& arguments ) {
+jobject JObject::newObject( const JClass& jClass, const JArguments& arguments )
+{
   return JConstructor( jClass ).invoke( arguments );
 }
 
-// Placeholder
-const JClass* JObject::getJavaJniClass() const throw ( JNIException ) {
-  return 0;
+static boost::mutex javaClassMutex;
+const JClass& JObject::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("java/lang/Object"));
+	return *result;
+}
+
+const JClass& JObject::getJavaJniClass() const throw ( JNIException )
+{
+  return staticGetJavaJniClass();
 }
 
 END_NAMESPACE_2( jace, proxy )
-

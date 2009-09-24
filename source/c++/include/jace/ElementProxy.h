@@ -91,7 +91,7 @@ ElementProxy( jarray array, jvalue element, int index ) :
   // #error "ElementProxy was not properly specialized."
 
   std::cout << "ElementProxy was not properly specialized for " <<
-           ElementType::staticGetJavaJniClass()->getName() << std::endl;
+           ElementType::staticGetJavaJniClass().getName() << std::endl;
 }
 
 
@@ -101,7 +101,7 @@ ElementProxy( jarray array, jvalue element, int index ) :
  */
 ElementProxy( const ElementProxy& proxy ) : ElementType( 0 ), ::jace::proxy::JObject( NO_OP ), parent( proxy.parent ), mIndex( proxy.mIndex ) {
   std::cout << "ElementProxy was not properly specialized for " <<
-           ElementType::staticGetJavaJniClass()->getName() << std::endl;
+           ElementType::staticGetJavaJniClass().getName() << std::endl;
 }
 
 

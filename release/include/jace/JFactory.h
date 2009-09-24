@@ -12,8 +12,10 @@
 
 #include <jni.h>
 
-#include <memory>
-using std::auto_ptr;
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/shared_ptr.hpp>
+#pragma warning(pop)
 
 BEGIN_NAMESPACE_2( jace, proxy )
 class JValue;
@@ -41,17 +43,8 @@ public:
 /**
  * Creates a new instance of the value type
  * for this JFactory.
- *
  */
-
-/* We'd like to use the following definition, but due to a problem
- * with the Visual C++ compiler, this doesn't work.
- */
-#if 0
-  JACE_API virtual auto_ptr<JValue> create( jvalue val ) = 0;
-#endif
-
-JACE_API virtual ::jace::proxy::JValue* create( jvalue val ) = 0;
+JACE_API virtual boost::shared_ptr<::jace::proxy::JValue> create( jvalue val ) = 0;
 
 
 /**
@@ -73,7 +66,7 @@ JACE_API virtual void throwInstance( jvalue val ) = 0;
  * creates instances.
  *
  */
-JACE_API virtual const ::jace::JClass* getClass() = 0;
+JACE_API virtual const ::jace::JClass& getClass() = 0;
 
 /**
  * Destroys this JFactory.

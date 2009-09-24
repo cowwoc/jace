@@ -133,7 +133,7 @@ public class ClassFile
   /**
    * Returns the name of the super class.
    *
-   * @return the name of the super class
+   * @return null if the class is java.lang.Object
    */
   public TypeName getSuperClassName()
   {
@@ -365,6 +365,19 @@ public class ClassFile
       exception.initCause(e);
       throw exception;
     }
+    finally
+    {
+      try
+      {
+        input.close();
+      }
+      catch (IOException e)
+      {
+        ClassFormatError exception = new ClassFormatError("Cannot close the class InputStream");
+        exception.initCause(e);
+        throw exception;
+      }
+    }
   }
 
   /**
@@ -571,7 +584,7 @@ public class ClassFile
     superclassIndex = input.readUnsignedShort();
 
     if (superclassIndex == 0)
-      superclassName = TypeNameFactory.fromPath("java/lang/Object");
+      superclassName = null;
     else
     {
       ClassConstant superClass = (ClassConstant) constantPool.getConstantAt(superclassIndex);
@@ -690,8 +703,9 @@ public class ClassFile
   @Override
   public String toString()
   {
-    StringBuilder result = new StringBuilder("class " + getClassName().asIdentifier() + " extends " +
-                                             getSuperClassName().asIdentifier() + "\n");
+    StringBuilder result = new StringBuilder("class " + getClassName().asIdentifier());
+    if (getSuperClassName() != null)
+      result.append(" extends " + getSuperClassName().asIdentifier() + "\n");
     if (interfaces.size() > 0)
     {
       result.append(" implements");
@@ -716,8 +730,7 @@ public class ClassFile
       else
         constantExpression = "";
 
-      result.append(fieldAccessFlags + " " + type.asIdentifier() + " " + name + constantExpression +
-                    ";\n");
+      result.append(fieldAccessFlags + " " + type.asIdentifier() + " " + name + constantExpression + ";\n");
     }
 
     for (ClassMethod method: methods)

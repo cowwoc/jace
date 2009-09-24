@@ -9,7 +9,7 @@
 BEGIN_NAMESPACE( jace )
 
 template <> inline
-::jace::proxy::types::JBoolean JMethod< ::jace::proxy::types::JBoolean>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JBoolean JMethod< ::jace::proxy::types::JBoolean>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -21,9 +21,9 @@ template <> inline
   jboolean result;
   
   if ( arguments.asList().size() > 0 )
-    result = env->CallStaticBooleanMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+    result = env->CallStaticBooleanMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    result = env->CallStaticBooleanMethod( jClass->getClass(), methodID );
+    result = env->CallStaticBooleanMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -67,7 +67,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JByte JMethod< ::jace::proxy::types::JByte>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JByte JMethod< ::jace::proxy::types::JByte>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -79,9 +79,9 @@ template <> inline
   jbyte result;
   
   if ( arguments.asList().size() > 0 )
-    result = env->CallStaticByteMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+    result = env->CallStaticByteMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    result = env->CallStaticByteMethod( jClass->getClass(), methodID );
+    result = env->CallStaticByteMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -125,7 +125,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JChar JMethod< ::jace::proxy::types::JChar>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JChar JMethod< ::jace::proxy::types::JChar>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -137,9 +137,9 @@ template <> inline
   jchar result;
   
   if ( arguments.asList().size() > 0 )
-	result = env->CallStaticCharMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+	result = env->CallStaticCharMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    result = env->CallStaticCharMethod( jClass->getClass(), methodID );
+    result = env->CallStaticCharMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -183,7 +183,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JDouble JMethod< ::jace::proxy::types::JDouble>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JDouble JMethod< ::jace::proxy::types::JDouble>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -195,9 +195,9 @@ template <> inline
   jdouble result;
   
   if ( arguments.asList().size() > 0 )
-    result = env->CallStaticDoubleMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+    result = env->CallStaticDoubleMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    result = env->CallStaticDoubleMethod( jClass->getClass(), methodID );
+    result = env->CallStaticDoubleMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -241,7 +241,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JFloat JMethod< ::jace::proxy::types::JFloat>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JFloat JMethod< ::jace::proxy::types::JFloat>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -253,9 +253,9 @@ template <> inline
   jfloat result;
   
   if ( arguments.asList().size() > 0 )
-    result = env->CallStaticFloatMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+    result = env->CallStaticFloatMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    result = env->CallStaticFloatMethod( jClass->getClass(), methodID );
+    result = env->CallStaticFloatMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -299,7 +299,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JInt JMethod< ::jace::proxy::types::JInt>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JInt JMethod< ::jace::proxy::types::JInt>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -311,9 +311,9 @@ template <> inline
   jint result;
   
   if ( arguments.asList().size() > 0 )
-	result = env->CallStaticIntMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+	result = env->CallStaticIntMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    result = env->CallStaticIntMethod( jClass->getClass(), methodID );
+    result = env->CallStaticIntMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -357,7 +357,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JLong JMethod< ::jace::proxy::types::JLong>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JLong JMethod< ::jace::proxy::types::JLong>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -369,9 +369,9 @@ template <> inline
   jlong result;
   
   if ( arguments.asList().size() > 0 )
-	result = env->CallStaticLongMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+	result = env->CallStaticLongMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-	result = env->CallStaticLongMethod( jClass->getClass(), methodID );
+	result = env->CallStaticLongMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -415,7 +415,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JShort JMethod< ::jace::proxy::types::JShort>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JShort JMethod< ::jace::proxy::types::JShort>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -427,9 +427,9 @@ template <> inline
   jshort result;
   
   if ( arguments.asList().size() > 0 )
-    result = env->CallStaticShortMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+    result = env->CallStaticShortMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    result = env->CallStaticShortMethod( jClass->getClass(), methodID );
+    result = env->CallStaticShortMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.
@@ -473,7 +473,7 @@ template <> inline
 
 
 template <> inline
-::jace::proxy::types::JVoid JMethod< ::jace::proxy::types::JVoid>::invoke( const JClass* jClass, const JArguments& arguments ) {
+::jace::proxy::types::JVoid JMethod< ::jace::proxy::types::JVoid>::invoke( const JClass& jClass, const JArguments& arguments ) {
 
   /* Get the methodID for the method matching the given arguments.
    */
@@ -484,9 +484,9 @@ template <> inline
   JNIEnv* env = helper::attach();
   
   if ( arguments.asList().size() > 0 )
-    env->CallStaticVoidMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+    env->CallStaticVoidMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
   else
-    env->CallStaticVoidMethod( jClass->getClass(), methodID );
+    env->CallStaticVoidMethod( jClass.getClass(), methodID );
 
   /* Catch any java exception that occured during the method call,
    * and throw it as a C++ exception.

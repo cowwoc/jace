@@ -65,8 +65,9 @@ vector<jvalue> toVector( const JArguments& arguments ) {
  * Creates a new JConstructor for the given JClass.
  *
  */
-JConstructor::JConstructor( const JClass* javaClass ) :
-  mClass( javaClass ), mMethodID( 0 ) {
+JConstructor::JConstructor( const JClass& javaClass ) :
+  mClass( javaClass ), mMethodID( 0 )
+{
 }
 
 
@@ -78,9 +79,8 @@ JConstructor::JConstructor( const JClass* javaClass ) :
  * @throws a matching C++ proxy, if a java exception is thrown by the constructor.
  *
  */
-jobject JConstructor::invoke( const JArguments& arguments ) {
-
-
+jobject JConstructor::invoke( const JArguments& arguments )
+{
   /* Get the methodID for the constructor matching the given arguments.
    */
 //  cout << "JConstructor::invoke - Retrieving the methodID..." << endl;
@@ -98,9 +98,9 @@ jobject JConstructor::invoke( const JArguments& arguments ) {
 	vector<jvalue> argArray = toVector( arguments );
 
 	if (argArray.size() > 0)
-		result = env->NewObjectA( mClass->getClass(), methodID, &argArray[ 0 ] );
+		result = env->NewObjectA( mClass.getClass(), methodID, &argArray[ 0 ] );
 	else
-		result = env->NewObject( mClass->getClass(), methodID );
+		result = env->NewObject( mClass.getClass(), methodID );
 //  cout << "JConstructor::invoke - Created the object..." << endl;
 
   /* Catch any java exception that occured during the method call,
@@ -118,7 +118,7 @@ jobject JConstructor::invoke( const JArguments& arguments ) {
  * Gets the method id matching the given arguments.
  *
  */
-jmethodID JConstructor::getMethodID( const JClass* jClass, const JArguments& arguments ) {
+jmethodID JConstructor::getMethodID( const JClass& jClass, const JArguments& arguments ) {
 
   /* We cache the jmethodID locally, so if we've already found it,
    * we don't need to go looking for it again.
@@ -134,7 +134,7 @@ jmethodID JConstructor::getMethodID( const JClass* jClass, const JArguments& arg
   /* We construct this signature with a void return type,
    * because the return type for constructors is void.
    */
-  JSignature signature( *JVoid::staticGetJavaJniClass() ); 
+  JSignature signature( JVoid::staticGetJavaJniClass() ); 
   typedef list<JValue*> ValueList;
   ValueList args = arguments.asList();
   
@@ -143,7 +143,7 @@ jmethodID JConstructor::getMethodID( const JClass* jClass, const JArguments& arg
 
   for ( ; i != end; ++i ) {
     JValue* value = *i;
-    signature << *value->getJavaJniClass();
+    signature << value->getJavaJniClass();
   }
 
   string methodSignature = signature.toString();
@@ -154,11 +154,11 @@ jmethodID JConstructor::getMethodID( const JClass* jClass, const JArguments& arg
    */
   JNIEnv* env = helper::attach();
 
-  mMethodID = env->GetMethodID( jClass->getClass(), "<init>", methodSignature.c_str() );
+  mMethodID = env->GetMethodID( jClass.getClass(), "<init>", methodSignature.c_str() );
 
   if ( mMethodID == NULL ) {
     string msg = string( "JConstructor::getMethodID\n" ) +
-                 "Unable to find a constructor for " + jClass->getName() + "\n" +
+                 "Unable to find a constructor for " + jClass.getName() + "\n" +
                  "The signature is <" + methodSignature + ">";
 		try
 		{

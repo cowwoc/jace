@@ -52,7 +52,7 @@ public:
 	 *
 	 * For example, "Ljava/lang/Object;"
 	 */
-	JACE_API JClassImpl( const std::string name, const std::string nameAsType );
+	JACE_API JClassImpl( const std::string& name, const std::string& nameAsType );
 
 	/**
 	 * Creates a new JClassImpl with the given name.
@@ -75,7 +75,7 @@ public:
 	 *
 	 *  JClassImpl( "java/lang/String", "Ljava/lang/String;" );
 	 */
-	JACE_API JClassImpl( const std::string name );
+	JACE_API JClassImpl( const std::string& name );
 
 	/**
 	 * Destroys this JClassImpl.

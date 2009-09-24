@@ -60,16 +60,16 @@ template <typename T> T java_cast( jobject obj ) {
     throw JNIException( msg );
   }
 
-  const ::jace::JClass* resultClass = T::staticGetJavaJniClass();
+  const ::jace::JClass& resultClass = T::staticGetJavaJniClass();
 
-  bool isValid = env->IsAssignableFrom( argClass, resultClass->getClass() );
+  bool isValid = env->IsAssignableFrom( argClass, resultClass.getClass() );
   env->DeleteLocalRef( argClass );
 
   if ( isValid ) {
     return T( obj );
   }
 
-  std::string msg = "Can not cast to " + resultClass->getName();
+  std::string msg = "Can not cast to " + resultClass.getName();
   throw JNIException( msg );
 }
 
@@ -107,9 +107,9 @@ template <typename T> bool instanceof( const ::jace::proxy::JObject& object ) {
     throw JNIException( msg );
   }
 
-  const ::jace::JClass* resultClass = T::staticGetJavaJniClass();
+  const ::jace::JClass& resultClass = T::staticGetJavaJniClass();
 
-  bool isValid = env->IsAssignableFrom( argClass, resultClass->getClass() );
+  bool isValid = env->IsAssignableFrom( argClass, resultClass.getClass() );
   env->DeleteLocalRef( argClass );
 
   return isValid;

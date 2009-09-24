@@ -56,14 +56,13 @@ public class DelimitedCollection<T>
    * Returns the String representation of the collection.
    *
    * @param separator the separator string
-   * @param terminated indicated if the separator should be appended to the end of the string
    * @return the String representation of the collection
    */
-  public String toString(String separator, boolean terminated)
+  public String toString(String separator)
   {
     @SuppressWarnings("unchecked")
     Stringifier<T> stringifier = (Stringifier<T>) defaultStringifier;
-    return toString(stringifier, separator, terminated);
+    return toString(stringifier, separator);
   }
 
   /**
@@ -71,17 +70,16 @@ public class DelimitedCollection<T>
    *
    * @param stringifier generates the String representation of the collection elements
    * @param separator the separator string
-   * @param terminated indicated if the separator should be appended to the end of the string
    * @return the String representation of the collection
    */
-  public String toString(Stringifier<T> stringifier, String separator, boolean terminated)
+  public String toString(Stringifier<T> stringifier, String separator)
   {
     StringBuilder sb = new StringBuilder();
     for (Iterator<T> it = collection.iterator(); it.hasNext();)
     {
       sb.append(stringifier.toString(it.next()));
 
-      if (!it.hasNext() && !terminated)
+      if (!it.hasNext())
         return sb.toString();
       sb.append(separator);
     }

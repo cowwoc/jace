@@ -7,52 +7,71 @@
 #endif
 using jace::JClassImpl;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
-JClassImpl JShort::javaClass("short", "S");
-
-JShort::JShort( jvalue value ) {
+JShort::JShort( jvalue value )
+{
   setJavaJniValue( value );
 }
 
-JShort::JShort( jshort short_ ) {
+JShort::JShort( jshort short_ )
+{
   jvalue value;
   value.s = short_;
   setJavaJniValue( value );
 }
 
-JShort::~JShort() {}
+JShort::~JShort()
+{}
 
-JShort::operator jshort() const {
+JShort::operator jshort() const
+{
   return getJavaJniValue().s;
 }
 
-jshort JShort::getShort() const {
+jshort JShort::getShort() const
+{
   return getJavaJniValue().s;
 }
 
-bool JShort::operator==( const JShort& short_ ) const {
+bool JShort::operator==( const JShort& short_ ) const
+{
   return short_.getShort() == getShort();
 }
 
-bool JShort::operator!=( const JShort& short_ ) const {
+bool JShort::operator!=( const JShort& short_ ) const
+{
   return !( *this == short_ );
 }
 
-bool JShort::operator==( jshort val ) const {
+bool JShort::operator==( jshort val ) const
+{
   return val == getShort();
 }
 
-bool JShort::operator!=( jshort val ) const {
+bool JShort::operator!=( jshort val ) const
+{
   return ! ( *this == val );
 }
 
-const JClass* JShort::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JShort::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("short", "S"));
+	return *result;
 }
 
-const JClass* JShort::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JShort::getJavaJniClass() const throw ( JNIException )
+{
   return JShort::staticGetJavaJniClass();
 }
 

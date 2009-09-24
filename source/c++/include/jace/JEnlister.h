@@ -18,6 +18,12 @@
 #include "jace/JFactory.h"
 #endif
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/shared_ptr.hpp>
+#pragma warning(pop)
+
+
 BEGIN_NAMESPACE( jace )
 
 /**
@@ -30,76 +36,57 @@ BEGIN_NAMESPACE( jace )
  * @author Toby Reyelts
  *
  */
-template <class T> class JEnlister : public ::jace::JFactory {
-
+template <class T> class JEnlister : public ::jace::JFactory
+{
 public:
+	/**
+	 * Constructs this JEnlister and registers with the JNIHelper.
+	 */
+	JEnlister()
+	{
+		helper::enlist( this );
+	}
 
-/**
- * Constructs this JEnlister and registers with the JNIHelper.
- *
- */
-JEnlister() {
-  helper::enlist( this );
-}
+	/**
+	 * Creates a new instance of T.
+	 */
+	virtual boost::shared_ptr<jace::proxy::JValue> create( jvalue val )
+	{
+		return boost::shared_ptr<T>( new T( val ) );
+	}
 
+	/**
+	 * Creates a new instance of the value type for this JFactory
+	 * and throws that instance.
+	 *
+	 * This method is equivalent to 
+	 *
+	 *   throw * ( JFactory::create( aValue ) ).get();
+	 *
+	 * except that the return value's real type is preserved and 
+	 * not sliced to a JValue upon being thrown.
+	 */
+	virtual void throwInstance( jvalue val )
+	{
+		T t( val );
+		JNIEnv* env = helper::attach();
 
-/**
- * Creates a new instance of T.
- */
+		// We know that val is a jobject, because you can only throw exceptions.
+		helper::deleteLocalRef( env, val.l );
 
-/* We'd like to use the following definition, but due to a problem
- * with the Visual C++ compiler, this doesn't work.
- */
-#if 0
+		throw t;
+	}
 
-virtual auto_ptr<JValue> create( jvalue val ) {
-  return auto_ptr<T>( new T( val ) );
-}
-
-#endif
-
-virtual ::jace::proxy::JValue* create( jvalue val ) {
-  return new T( val );
-}
-
-
-/**
- * Creates a new instance of the value type for this JFactory
- * and throws that instance.
- *
- * This method is equivalent to 
- *
- *   throw * ( JFactory::create( aValue ) ).get();
- *
- * except that the return value's real type is preserved and 
- * not sliced to a JValue upon being thrown.
- *
- */
-virtual void throwInstance( jvalue val ) {
-
-  T t( val );
-  JNIEnv* env = helper::attach();
-
-  // We know that val is a jobject, because you can only throw exceptions.
-  helper::deleteLocalRef( env, val.l );
-
-  throw t;
-}
-
-/**
- * Returns the the class of which this factory
- * creates instances.
- *
- */
-virtual const ::jace::JClass* getClass() {
-  return T::staticGetJavaJniClass();
-}
-
-
+	/**
+	 * Returns the the class of which this factory
+	 * creates instances.
+	 */
+	virtual const ::jace::JClass& getClass()
+	{
+		return T::staticGetJavaJniClass();
+	}
 };
-
 
 END_NAMESPACE( jace )
 
 #endif // #ifndef JACE_JENLISTER_H
-

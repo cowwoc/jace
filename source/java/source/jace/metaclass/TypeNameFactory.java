@@ -102,7 +102,30 @@ public class TypeNameFactory
     return new FromDescriptor(descriptor);
   }
 
-  private static class FromDescriptor implements TypeName
+  /**
+   * Implements equals() and hashCode().
+   *
+   * @author Gili Tzabari
+   */
+  private static abstract class AbstractTypeName implements TypeName
+  {
+    @Override
+    public boolean equals(Object o)
+    {
+      if (!(o instanceof TypeName))
+        return false;
+      TypeName other = (TypeName) o;
+      return asIdentifier().equals(other.asIdentifier());
+    }
+
+    @Override
+    public int hashCode()
+    {
+      return asIdentifier().hashCode();
+    }
+  }
+
+  private static class FromDescriptor extends AbstractTypeName
   {
     private final String descriptor;
 
@@ -198,7 +221,7 @@ public class TypeNameFactory
     }
   }
 
-  private static class FromPath implements TypeName
+  private static class FromPath extends AbstractTypeName
   {
     private final String path;
 
@@ -241,7 +264,7 @@ public class TypeNameFactory
     }
   }
 
-  private static class FromIdentifier implements TypeName
+  private static class FromIdentifier extends AbstractTypeName
   {
     private final String name;
 
@@ -268,8 +291,8 @@ public class TypeNameFactory
     @Override
     public String asPath()
     {
-      throw new UnsupportedOperationException("There is no reliable way to convert an identifier to a " +
-                                              "path: " + name);
+      throw new UnsupportedOperationException("There is no reliable way to convert an identifier to a " + "path: "
+                                              + name);
     }
 
     @Override

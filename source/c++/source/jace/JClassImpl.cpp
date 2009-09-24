@@ -5,7 +5,6 @@
 #endif
 
 using std::string;
-using std::auto_ptr;
 
 #pragma warning(push)
 #pragma warning(disable: 4103 4244 4512)
@@ -30,8 +29,7 @@ BEGIN_NAMESPACE( jace )
  * For example, "Ljava/lang/Object;"
  *
  */
-// JClassImpl::JClassImpl( const string& name, const string& nameAsType ) :
-JClassImpl::JClassImpl( const string name, const string nameAsType ) :
+JClassImpl::JClassImpl( const string& name, const string& nameAsType ) :
   mName( name ), 
   mNameAsType( nameAsType ),
 	mClass( 0 )
@@ -62,8 +60,7 @@ JClassImpl::JClassImpl( const string name, const string nameAsType ) :
  *  JClassImpl( "java/lang/String", "Ljava/lang/String;" );
  *
  */
-// JClassImpl::JClassImpl( const string& name ) : 
-JClassImpl::JClassImpl( const string name ) : 
+JClassImpl::JClassImpl( const string& name ) : 
   mName( name ),
   mNameAsType( "L" + name + ";" ),
 	mClass ( 0 )

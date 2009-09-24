@@ -6,25 +6,26 @@
 #endif
 using jace::JClassImpl;
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/thread/mutex.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
 
-JClassImpl JVoid::javaClass("void", "V");
-
-/**
- * Returns the JClass for this class.
- *
- */
-const JClass* JVoid::staticGetJavaJniClass() throw ( JNIException ) {
-  return &javaClass;
+static boost::mutex javaClassMutex;
+const JClass& JVoid::staticGetJavaJniClass() throw ( JNIException )
+{
+	static boost::shared_ptr<JClassImpl> result;
+	boost::mutex::scoped_lock(javaClassMutex);
+	if (result == 0)
+		result = boost::shared_ptr<JClassImpl>(new JClassImpl("void", "V"));
+	return *result;
 }
 
-
-/**
- * Returns the JClass for this class.
- *
- */
-const JClass* JVoid::getJavaJniClass() const throw ( JNIException ) {
+const JClass& JVoid::getJavaJniClass() const throw ( JNIException )
+{
   return JVoid::staticGetJavaJniClass();
 }
 

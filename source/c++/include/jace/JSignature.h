@@ -17,6 +17,11 @@
 #include <string>
 #include <list>
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/ref.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE( jace )
 
 
@@ -75,9 +80,12 @@ JACE_API JSignature& add( const JClass& argumentType );
 JACE_API JSignature& operator<<( const JClass& argumentType );
 
 private:
-std::list<const JClass*> mTypes;
-const JClass* mResultType;
-
+	/**
+	 * Prevent assignment.
+	 */
+	JSignature& operator=(JSignature&);
+	std::list<boost::reference_wrapper<const JClass>> mTypes;
+	const JClass& mResultType;
 };
 
 

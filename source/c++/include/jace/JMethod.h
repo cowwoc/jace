@@ -91,14 +91,16 @@ JACE_API std::vector<jvalue> toVector( const JArguments& arguments );
  * @author Toby Reyelts
  *
  */
-template <class ResultType> class JMethod {
+template <class ResultType> class JMethod
+{
 public:
-  /**
-   * Creates a new JMethod representing the method with the
-   * given name, belonging to the given class.
-   *
-   */
-  JMethod( const std::string& name ) : mName( name ), mMethodID( 0 ) {}
+	/**
+	 * Creates a new JMethod representing the method with the
+	 * given name, belonging to the given class.
+	 *
+	 */
+	JMethod( const std::string& name ) : mName( name ), mMethodID( 0 )
+	{}
 
 	/**
 	 * Invokes the method with the given arguments.
@@ -108,12 +110,11 @@ public:
 	 * @throws a matching C++ proxy, if a java exception is thrown by the method.
 	 *
 	 */
-	ResultType invoke( const ::jace::proxy::JObject& object, const JArguments& arguments ) {
-
+	ResultType invoke( const ::jace::proxy::JObject& object, const JArguments& arguments )
+	{
 #ifdef JACE_CHECK_NULLS
-		if ( object.isNull() ) {
+		if ( object.isNull() )
 			throw JNIException( "[JMethod.invoke] Can not invoke an instance method on a null object." );
-		}
 #endif
 
 		// Get the methodID for the method matching the given arguments.
@@ -144,10 +145,9 @@ public:
 	 *
 	 * @throws JNIException if an error occurs while trying to invoke the method.
 	 * @throws a matching C++ proxy, if a java exception is thrown by the method.
-	 *
 	 */
-	ResultType invoke( const JClass* jClass, const JArguments& arguments ) {
-
+	ResultType invoke( const JClass& jClass, const JArguments& arguments )
+	{
 		// Get the methodID for the method matching the given arguments.
 		jmethodID methodID = getMethodID( jClass, arguments, true );
 
@@ -157,9 +157,9 @@ public:
 		jobject resultRef;
 
 		if ( arguments.asList().size() > 0 )
-			resultRef = env->CallStaticObjectMethodA( jClass->getClass(), methodID, &toVector( arguments )[ 0 ] );
+			resultRef = env->CallStaticObjectMethodA( jClass.getClass(), methodID, &toVector( arguments )[ 0 ] );
 		else
-			resultRef = env->CallStaticObjectMethod( jClass->getClass(), methodID );
+			resultRef = env->CallStaticObjectMethod( jClass.getClass(), methodID );
 
 		// Catch any java exception that occured during the method call, and throw it as a C++ exception.
 		helper::catchAndThrow();
@@ -171,30 +171,29 @@ public:
 	}
 
 
-	// private:
-
+private:
 	/**
 	 * Returns the jmethodID matching the signature for the given arguments.
-	 *
 	 */
-	jmethodID getMethodID( const JClass* jClass, const JArguments& arguments, bool isStatic = false ) {
-
+	jmethodID getMethodID( const JClass& jClass, const JArguments& arguments, bool isStatic = false )
+	{
 		// We cache the jmethodID locally, so if we've already found it, we don't need to go looking for it again.
 		if ( mMethodID ) {
 			return mMethodID;
 		}
 
 		// If we don't already have the jmethodID, we need to determine the signature of this method.
-		JSignature signature( *ResultType::staticGetJavaJniClass() );
+		JSignature signature( ResultType::staticGetJavaJniClass() );
 		typedef std::list< ::jace::proxy::JValue* > ValueList;
 		ValueList args = arguments.asList();
 
 		ValueList::iterator i = args.begin();
 		ValueList::iterator end = args.end();
 
-		for ( ; i != end; ++i ) {
+		for ( ; i != end; ++i )
+		{
 			::jace::proxy::JValue* value = *i;
-			signature << *value->getJavaJniClass();
+			signature << value->getJavaJniClass();
 		}
 
 		std::string methodSignature = signature.toString();
@@ -203,14 +202,13 @@ public:
 		// jmethodID corresponding to this method, but for now, we'll always find it.
 		JNIEnv* env = helper::attach();
 
-		if ( isStatic ) {
-			mMethodID = env->GetStaticMethodID( jClass->getClass(), mName.c_str(), methodSignature.c_str() );
-		}
-		else {
-			mMethodID = env->GetMethodID( jClass->getClass(), mName.c_str(), methodSignature.c_str() );
-		}
+		if ( isStatic )
+			mMethodID = env->GetStaticMethodID( jClass.getClass(), mName.c_str(), methodSignature.c_str() );
+		else
+			mMethodID = env->GetMethodID( jClass.getClass(), mName.c_str(), methodSignature.c_str() );
 
-		if ( mMethodID == 0 ) {
+		if ( mMethodID == 0 )
+		{
 			std::string msg = "JMethod::getMethodID\n" \
 				"Unable to find method <" + mName + "> with signature <" + methodSignature + ">";
 			try
@@ -226,7 +224,7 @@ public:
 		}
 
 		//  cout << "JMethod::getMethodID() - Found the method:" << endl;
-		//  cout << "  <" << mName << "> with signature <" << methodSignature << "> for " << jClass->getName() << endl;
+		//  cout << "  <" << mName << "> with signature <" << methodSignature << "> for " << jClass.getName() << endl;
 
 		return mMethodID;
 	}
@@ -234,7 +232,6 @@ public:
 
 	std::string mName;
 	jmethodID mMethodID;
-
 };
 
 END_NAMESPACE( jace )
@@ -250,5 +247,3 @@ END_NAMESPACE( jace )
 #endif
 
 #endif // #ifndef JACE_JMETHOD_H
-
-

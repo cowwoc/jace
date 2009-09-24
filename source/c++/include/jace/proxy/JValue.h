@@ -38,21 +38,24 @@ BEGIN_NAMESPACE_2( jace, proxy )
  *
  * - All JValues must implement the methods: 
  *
- *   static const JClass* staticGetJavaJniClass() throw ( JNIException ) and
- *   const JClass* getJavaJniClass() const throw ( JNIException )
+ *   static const JClass& staticGetJavaJniClass() throw ( JNIException ) and
+ *   const JClass& getJavaJniClass() const throw ( JNIException )
  *
  *   staticGetJavaJniClass() must return the same value as getJavaJniClass().
  *   For example, Object implements staticGetJavaJniClass() and getJavaJniClass()
  *   in a preferred fashion:
  *
  *
- *   JClassImpl JObject::javaClass("java/lang/Object"); // static member variable
- *
- *   const JClass* Object::staticGetJavaJniClass() throw ( JNIException ) {
- *     return &javaClass;
+ *   static boost::mutex javaClassMutex;
+ *   const JClass& Object::staticGetJavaJniClass() throw ( JNIException ) {
+ *     static boost::shared_ptr<JClassImpl> result;
+ *     boost::mutex::scoped_lock(javaClassMutex);
+ *     if (result == 0)
+ * 	     result = boost::shared_ptr<JClassImpl>(new JClassImpl("java/lang/Object"));
+ *     return *result;
  *   }
  *
- *   const JClass* Object::getJavaJniClass() const throw ( JNIException ) {
+ *   const JClass& Object::getJavaJniClass() const throw ( JNIException ) {
  *     return Object::staticGetJavaJniClass();
  *   }
  *
@@ -93,7 +96,7 @@ public:
 	 *
 	 * @throw JNIException if an error occurs while trying to retrieve the class.
 	 */
-	JACE_API virtual const ::jace::JClass* getJavaJniClass() const = 0;
+	JACE_API virtual const ::jace::JClass& getJavaJniClass() const = 0;
 
 protected:
 	/**

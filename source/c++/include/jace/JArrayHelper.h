@@ -26,7 +26,7 @@
 
 BEGIN_NAMESPACE_2( jace, JArrayHelper )
 
-JACE_API jobjectArray newArray( int size, const jace::JClass* elementClass );
+JACE_API jobjectArray newArray( int size, const jace::JClass& elementClass );
 JACE_API jace::proxy::types::JInt getLength( jobject obj );
 JACE_API jvalue getElement( jobject obj, int index );
 
