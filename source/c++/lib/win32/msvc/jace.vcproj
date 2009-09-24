@@ -102,7 +102,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_thread-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_date_time-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -190,7 +190,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_thread-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_date_time-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -275,7 +275,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_thread-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_date_time-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -362,7 +362,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_thread-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_date_time-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -549,10 +549,6 @@
 				>
 				<File
 					RelativePath="..\..\..\include\jace\BaseException.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\include\jace\counted_ptr.h"
 					>
 				</File>
 				<File

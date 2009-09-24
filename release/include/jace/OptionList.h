@@ -14,16 +14,18 @@
 #include "jace/JNIException.h"
 #endif
 
-#ifndef JACE_COUNTED_PTR_H
-#include "jace/counted_ptr.h"
-#endif
-
 #include <jni.h>
 
 #include <vector>
 #include <string>
 
+#pragma warning(push)
+#pragma warning(disable: 4103 4244 4512)
+#include <boost/shared_ptr.hpp>
+#pragma warning(pop)
+
 BEGIN_NAMESPACE( jace )
+
 
 /**
  * A Jvm option. These are supplied to jace::helper::createVm()
@@ -68,7 +70,7 @@ class Option {
  */
 class OptionList {
 public:
-  typedef ::jace::counted_ptr<Option> OptionPtr;
+  typedef ::boost::shared_ptr<Option> OptionPtr;
 
   /**
    * Creates a new empty OptionList.

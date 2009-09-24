@@ -48,7 +48,7 @@ string JSignature::toString() const {
 
   string signature = "(";
 
-	typedef list<boost::reference_wrapper<const JClass>> ClassList;
+	typedef list< ::boost::reference_wrapper<const JClass> > ClassList;
 
   ClassList::const_iterator end = mTypes.end();
 

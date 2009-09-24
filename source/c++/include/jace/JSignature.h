@@ -84,7 +84,7 @@ private:
 	 * Prevent assignment.
 	 */
 	JSignature& operator=(JSignature&);
-	std::list<boost::reference_wrapper<const JClass>> mTypes;
+	std::list< ::boost::reference_wrapper<const JClass> > mTypes;
 	const JClass& mResultType;
 };
 
