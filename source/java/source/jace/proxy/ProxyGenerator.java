@@ -198,10 +198,9 @@ public class ProxyGenerator
     output.write("using jace::JClassImpl;" + newLine);
     output.write(newLine);
 
-    output.write("#pragma warning(push)" + newLine);
-    output.write("#pragma warning(disable: 4103 4244 4512)" + newLine);
+    output.write("#include \"jace/BoostWarningOff.h\"" + newLine);
     output.write("#include <boost/thread/mutex.hpp>" + newLine);
-    output.write("#pragma warning(pop)" + newLine);
+    output.write("#include \"jace/BoostWarningOn.h\"" + newLine);
 
     output.write(newLine);
 
@@ -896,7 +895,7 @@ public class ProxyGenerator
     output.write("const JClass& " + className + "::staticGetJavaJniClass() throw ( ::jace::JNIException )" + newLine);
     output.write("{" + newLine);
     output.write("  static boost::shared_ptr<JClassImpl> result;" + newLine);
-    output.write("  boost::mutex::scoped_lock(javaClassMutex);" + newLine);
+    output.write("  boost::mutex::scoped_lock lock(javaClassMutex);" + newLine);
     output.write("  if (result == 0)" + newLine);
     output.write("    result = boost::shared_ptr<JClassImpl>(new JClassImpl(\"" + classFile.getClassName() + "\"));"
                  + newLine);
@@ -1014,9 +1013,9 @@ public class ProxyGenerator
       assert (superName != null): classFile.getClassName();
 
       Collection<String> constructors = new ArrayList<String>();
+      constructors.add(objectConstructor);
       constructors.add("::" + MetaClassFactory.getMetaClass(superName).proxy().getFullyQualifiedName("::")
                        + "( NO_OP )");
-      constructors.add(objectConstructor);
       if (forPeer)
         constructors.add("::jace::Peer( jPeer )");
       DelimitedCollection<String> delimited = new DelimitedCollection<String>(constructors);
@@ -1158,7 +1157,7 @@ public class ProxyGenerator
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( element ), mIndex( index )");
     else
-      output.write("    " + name + "( element ), Object( NO_OP ), mIndex( index )");
+      output.write("    Object( NO_OP ), " + name + "( element ), mIndex( index )");
     output.write(newLine);
 
     output.write("  {" + newLine);
@@ -1173,7 +1172,7 @@ public class ProxyGenerator
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( proxy.getJavaJniObject() ), mIndex( proxy.mIndex )");
     else
-      output.write("    " + name + "( proxy.getJavaJniObject() ), Object( NO_OP ), mIndex( proxy.mIndex )");
+      output.write("    Object( NO_OP ), " + name + "( proxy.getJavaJniObject() ), mIndex( proxy.mIndex )");
     output.write(newLine);
 
     output.write("  {" + newLine);
@@ -1200,7 +1199,7 @@ public class ProxyGenerator
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( value ), fieldID( fieldID_ )");
     else
-      output.write("    " + name + "( value ), Object( NO_OP ), fieldID( fieldID_ )");
+      output.write("    Object( NO_OP ), " + name + "( value ), fieldID( fieldID_ )");
     output.write(newLine);
 
     output.write("  {" + newLine);
@@ -1221,7 +1220,7 @@ public class ProxyGenerator
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( value ), fieldID( fieldID_ )");
     else
-      output.write("    " + name + "( value ), Object( NO_OP ), fieldID( fieldID_ )");
+      output.write("    Object( NO_OP ), " + name + "( value ), fieldID( fieldID_ )");
     output.write(newLine);
 
     output.write("  {" + newLine);
@@ -1238,7 +1237,7 @@ public class ProxyGenerator
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object( object.getJavaJniValue() )");
     else
-      output.write("    " + name + "( object.getJavaJniValue() ), Object( NO_OP )");
+      output.write("    Object( NO_OP ), " + name + "( object.getJavaJniValue() )");
     output.write(newLine);
 
     output.write("  {" + newLine);

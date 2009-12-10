@@ -99,7 +99,7 @@ ElementProxy( jarray array, jvalue element, int index ) :
  * Copy constructor. This constructor should also never be called. It should be specialized away.
  *
  */
-ElementProxy( const ElementProxy& proxy ) : ElementType( 0 ), ::jace::proxy::JObject( NO_OP ), parent( proxy.parent ), mIndex( proxy.mIndex ) {
+ElementProxy( const ElementProxy& proxy ) : ::jace::proxy::JObject( NO_OP ), ElementType( 0 ), parent( proxy.parent ), mIndex( proxy.mIndex ) {
   std::cout << "ElementProxy was not properly specialized for " <<
            ElementType::staticGetJavaJniClass().getName() << std::endl;
 }

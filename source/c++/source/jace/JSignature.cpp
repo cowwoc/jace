@@ -7,10 +7,9 @@ using std::string;
 #include <list>
 using std::list;
 
-#pragma warning(push)
-#pragma warning(disable: 4103 4244 4512)
+#include "jace/BoostWarningOff.h"
 #include <boost/ref.hpp>
-#pragma warning(pop)
+#include "jace/BoostWarningOn.h"
 
 
 /* The template implementation.

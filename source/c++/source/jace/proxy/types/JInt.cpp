@@ -9,10 +9,9 @@ using jace::JClassImpl;
 #include <iostream>
 using std::ostream;
 
-#pragma warning(push)
-#pragma warning(disable: 4103 4244 4512)
+#include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
-#pragma warning(pop)
+#include "jace/BoostWarningOn.h"
 
 BEGIN_NAMESPACE_3( jace, proxy, types )
 
@@ -74,7 +73,7 @@ static boost::mutex javaClassMutex;
 const JClass& JInt::staticGetJavaJniClass() throw ( JNIException )
 {
 	static boost::shared_ptr<JClassImpl> result;
-	boost::mutex::scoped_lock(javaClassMutex);
+	boost::mutex::scoped_lock lock(javaClassMutex);
 	if (result == 0)
 		result = boost::shared_ptr<JClassImpl>(new JClassImpl("int", "I"));
 	return *result;

@@ -18,10 +18,9 @@
 #include "jace/JFactory.h"
 #endif
 
-#pragma warning(push)
-#pragma warning(disable: 4103 4244 4512)
+#include "jace/BoostWarningOff.h"
 #include <boost/shared_ptr.hpp>
-#pragma warning(pop)
+#include "jace/BoostWarningOn.h"
 
 
 BEGIN_NAMESPACE( jace )

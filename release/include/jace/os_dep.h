@@ -46,6 +46,10 @@
  *
  */
 #if ( defined _MSC_VER && ! defined __COMO__  )
+  /**
+   * Indicate that we are using the MSVC compiler.
+   */
+  #define JACE_MSVC
 
   /**
    * Shut up about debug identifier truncation since we really

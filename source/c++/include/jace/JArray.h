@@ -65,10 +65,9 @@
 #include <string>
 #include <vector>
 
-#pragma warning(push)
-#pragma warning(disable: 4103 4244 4512)
+#include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
-#pragma warning(pop)
+#include "jace/BoostWarningOn.h"
 
 BEGIN_NAMESPACE( jace )
 
@@ -268,7 +267,7 @@ public:
 	static const ::jace::JClass& staticGetJavaJniClass() throw ( JNIException )
 	{
 		static boost::shared_ptr<JClassImpl> result;
-		boost::mutex::scoped_lock(javaClassMutex);
+		boost::mutex::scoped_lock lock(javaClassMutex);
 		if (result == 0)
 		{
 			const std::string nameAsType = "[" + ElementType::staticGetJavaJniClass().getNameAsType();
@@ -575,6 +574,7 @@ private:
 	static boost::mutex javaClassMutex;
 };
 
+template <class ElementType> boost::mutex JArray<ElementType>::javaClassMutex;
 
 END_NAMESPACE( jace )
 

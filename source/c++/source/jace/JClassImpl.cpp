@@ -6,10 +6,9 @@
 
 using std::string;
 
-#pragma warning(push)
-#pragma warning(disable: 4103 4244 4512)
+#include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
-#pragma warning(pop)
+#include "jace/BoostWarningOn.h"
 
 BEGIN_NAMESPACE( jace )
 

@@ -50,12 +50,11 @@ using std::map;
 using std::string;
 using std::wstring;
 
-#pragma warning(push)
-#pragma warning(disable: 4103 4244 4512)
+#include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/tss.hpp>
 #include <boost/shared_ptr.hpp>
-#pragma warning(pop)
+#include "jace/BoostWarningOn.h"
 
 BEGIN_NAMESPACE_2( jace, helper )
 

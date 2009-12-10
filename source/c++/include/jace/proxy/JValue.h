@@ -49,7 +49,7 @@ BEGIN_NAMESPACE_2( jace, proxy )
  *   static boost::mutex javaClassMutex;
  *   const JClass& Object::staticGetJavaJniClass() throw ( JNIException ) {
  *     static boost::shared_ptr<JClassImpl> result;
- *     boost::mutex::scoped_lock(javaClassMutex);
+ *     boost::mutex::scoped_lock lock(javaClassMutex);
  *     if (result == 0)
  * 	     result = boost::shared_ptr<JClassImpl>(new JClassImpl("java/lang/Object"));
  *     return *result;

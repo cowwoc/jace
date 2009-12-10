@@ -75,6 +75,8 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 	link against Jace or C++ proxies statically (dynamic linking is the default).
 - staticGetJavaJniClass() now initializes class names on demand
 - JEnlister now only generated for exception classes
+- staticGetJavaJniClass() was not acquiring locks properly (contributed by Otakar Leopold).
+- Fixed template specialization warnings under GCC (contributed by Otakar Leopold).
 
 Compatibility breakers:
 
