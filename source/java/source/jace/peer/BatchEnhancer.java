@@ -58,7 +58,7 @@ public class BatchEnhancer
   {
     String usage =
            "Usage: BatchEnhancer " + newLine +
-           "  <" + File.separator + "-separated list of sources>" + newLine +
+           "  <" + File.pathSeparator + "-separated list of sources>" + newLine +
            "  <comma-separated list of libraries>" + newLine +
            "  [options]" + newLine +
            newLine +

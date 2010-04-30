@@ -77,6 +77,9 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - JEnlister now only generated for exception classes
 - staticGetJavaJniClass() was not acquiring locks properly (contributed by Otakar Leopold).
 - Fixed template specialization warnings under GCC (contributed by Otakar Leopold).
+- "JObject::~JObject - Unable to delete the global ref" is no longer printed on JVM shutdown
+- Jace now throws a more specific exception (VirtualMachineShutdownError instead of JNIException) if a method is
+  invoked after the JVM has already shut down.
 
 Compatibility breakers:
 

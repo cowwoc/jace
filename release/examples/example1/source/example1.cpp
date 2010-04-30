@@ -13,6 +13,9 @@ using jace::JArray;
 #include "jace/JNIException.h"
 using jace::JNIException;
 
+#include "jace/VirtualMachineShutdownError.h"
+using jace::VirtualMachineShutdownError;
+
 #include "jace/proxy/java/lang/String.h"
 #include "jace/proxy/java/lang/System.h"
 #include "jace/proxy/java/io/PrintWriter.h"
@@ -43,10 +46,11 @@ using std::endl;
 int main() {
 
   try {
-    StaticVmLoader loader( JNI_VERSION_1_2 );
+    StaticVmLoader loader( JNI_VERSION_1_6 );
     OptionList list;
     list.push_back( jace::CustomOption( "-Xcheck:jni" ) );
     list.push_back( jace::CustomOption( "-Xmx16M" ) );
+		list.push_back( jace::ClassPath( "jace-runtime.jar" ) );
     jace::helper::createVm( loader, list, false );
 
     for ( int i = 0; i < 1000; ++i ) {
@@ -74,13 +78,17 @@ int main() {
     cout << ioe << endl;
     return -1;
   }
+	catch ( VirtualMachineShutdownError& ) {
+		cout << "The JVM was terminated in mid-execution. " << endl;
+    return -2;
+	}
   catch ( JNIException& jniException ) {
     cout << "An unexpected JNI error occured. " << jniException.what() << endl;
     return -2;
   }
   catch ( std::exception& e ) {
     cout << "An unexpected C++ error occured. " << e.what() << endl;
-    return -3;
+    return -2;
   }
 }
 

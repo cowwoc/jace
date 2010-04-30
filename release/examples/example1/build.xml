@@ -12,9 +12,11 @@
   <target name="proxy_generate">
 
     <delete dir="proxies" quiet="yes"/>
+    <mkdir dir="proxies/source"/>
+    <mkdir dir="proxies/include"/>
 
-    <java classname="jace.autoproxy.AutoProxy">
-      <arg path="include"/>
+    <java classname="jace.proxy.AutoProxy">
+      <arg path="source"/>
       <arg path="source"/>
       <arg path="proxies/include"/>
       <arg path="proxies/source"/>
@@ -23,6 +25,7 @@
         <fileset dir="../../lib">
           <include name="**/*.jar"/>
         </fileset>
+        <pathelement location="../../lib"/>
       </classpath>
       <arg value="-mindep"/>
     </java>

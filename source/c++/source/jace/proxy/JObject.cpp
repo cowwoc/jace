@@ -24,6 +24,11 @@ using jace::JMethod;
 #endif
 using jace::JArguments;
 
+#ifndef JACE_VIRTUAL_MACHINE_SHUTDOWN_ERROR_H
+#include "jace/VirtualMachineShutdownError.h"
+#endif
+using jace::VirtualMachineShutdownError;
+
 #include <iostream>
 using std::cout;
 using std::endl;
@@ -113,6 +118,10 @@ JObject::~JObject() throw ()
 			JNIEnv* env = helper::attach();
 			helper::deleteGlobalRef( env, ref );
 		}
+	}
+	catch ( VirtualMachineShutdownError& )
+	{
+		// instance already deleted
 	}
 	catch ( exception& e )
 	{

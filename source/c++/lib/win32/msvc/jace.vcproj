@@ -652,6 +652,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\include\jace\VirtualMachineShutdownError.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\include\jace\VmLoader.h"
 					>
 				</File>

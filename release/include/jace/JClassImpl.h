@@ -22,7 +22,7 @@ namespace boost
 {
 	// End-users shouldn't have to include Boost header files
 	class mutex;
-};
+}
 
 #include <string>
 

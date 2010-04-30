@@ -8,7 +8,7 @@
     <mkdir dir="classes"/>
     
     <!-- Compile all classes using Java 1.5 except ShutdownHook which uses Java 1.4 -->
-    <javac source="1.5" target="1.5" debug="true" srcdir="source" destdir="classes">
+    <javac source="1.5" target="1.5" debug="true" srcdir="source" destdir="classes" includeantruntime="false">
       <classpath>
         <fileset dir="lib">
           <include name="**/*.jar"/>

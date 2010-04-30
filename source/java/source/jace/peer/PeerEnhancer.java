@@ -316,9 +316,6 @@ public class PeerEnhancer
    */
   private void run() throws IOException
   {
-    final boolean[] alreadyEnhanced = new boolean[1];
-    alreadyEnhanced[0] = false;
-
     BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile));
     try
     {

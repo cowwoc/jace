@@ -29,6 +29,11 @@ using jace::Peer;
 #endif
 using ::jace::VmLoader;
 
+#ifndef JACE_VIRTUAL_MACHINE_SHUTDOWN_ERROR_H
+#include "jace/VirtualMachineShutdownError.h"
+#endif
+using jace::VirtualMachineShutdownError;
+
 #include <cstdarg>
 #include <stdlib.h>
 
@@ -340,7 +345,7 @@ JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) t
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
   if ( hasShutdown() )
-    throw JNIException( "The VM has already been shutdown." );
+    throw VirtualMachineShutdownError( "The virtual machine has already shut down" );
 
   JNIEnv* env;
 	JavaVMAttachArgs args = {0};
