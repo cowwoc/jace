@@ -36,6 +36,7 @@ using jace::VirtualMachineShutdownError;
 
 #include <cstdarg>
 #include <stdlib.h>
+#include <string.h>
 
 #include <iostream>
 using std::cout;
