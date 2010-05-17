@@ -100,6 +100,8 @@ Compatibility breakers:
 - Renamed package jace.peergen to jace.peer, jace.proxygen to jace.proxy, jace.autoproxy to jace.proxy
 - The BatchGenerator, ProxyGenerator and ClassSet constructor signatures have changed (added ClassPath parameter)
 - Removed LibraryProxies which doesn't seem to be used anywhere
+- Replaced jace::helper::shutdown() by jace::helper::destroyVm() and jace::helper::isShutdown() by jace::helper::isRunning().
+  jace::helper::destroyVm() invokes DestroyJavaVM() whereas jace::helper::shutdown() did not.
 
 -------------- New changes in 1.1.1
 

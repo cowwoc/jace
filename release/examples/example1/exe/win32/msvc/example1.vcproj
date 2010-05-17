@@ -28,6 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\i386\debug\jace.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -69,88 +70,10 @@
 				AdditionalDependencies="jvm.lib jace.lib"
 				OutputFile="$(OutDir)/example1.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(JAVA_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\i386\debug"
+				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\i386\debug"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/example1.pdb"
 				SubSystem="1"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="Release"
-			IntermediateDirectory="Release"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\..\proxies\include;..\..\..\..\..\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib jace.lib"
-				OutputFile="$(OutDir)/example1.exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(JAVA_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\i386\release"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -186,6 +109,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\amd64\debug\jace.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -228,7 +152,7 @@
 				AdditionalDependencies="jvm.lib jace.lib"
 				OutputFile="$(OutDir)/example1.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(JAVA_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\amd64\debug"
+				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\amd64\debug"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/example1.pdb"
 				SubSystem="1"
@@ -260,6 +184,85 @@
 			/>
 		</Configuration>
 		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\i386\release\jace.dll $(TargetDir)"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\..\..\proxies\include;..\..\..\..\..\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				RuntimeLibrary="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="jvm.lib jace.lib"
+				OutputFile="$(OutDir)/example1.exe"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\i386\release"
+				GenerateDebugInformation="true"
+				SubSystem="1"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
 			Name="Release|x64"
 			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
@@ -269,6 +272,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\amd64\release\jace.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -307,7 +311,7 @@
 				AdditionalDependencies="jvm.lib jace.lib"
 				OutputFile="$(OutDir)/example1.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(JAVA_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\i386\release"
+				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\i386\release"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"

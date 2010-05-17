@@ -10,7 +10,7 @@ BEGIN_NAMESPACE( jace )
 
 
 /**
- * Indicates that an operation has failed because the virtual machine has shut down.
+ * An operation has failed because the virtual machine has shut down.
  *
  * @author Toby Reyelts
  *

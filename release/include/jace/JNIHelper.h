@@ -69,6 +69,21 @@ JACE_API void createVm( const ::jace::VmLoader& loader,
                bool ignoreUnrecognized = true );
 
 /**
+ * Destroys the current Java Virtual Machine and tells Jace that it
+ * shouldn't try to re-attach any more threads.
+ * After calling this function, most other functions will fail.
+ *
+ * If the current thread is attached, the VM waits until the current
+ * thread is the only non-daemon user-level Java thread. If the
+ * current thread is not attached, the VM attaches the current thread
+ * and then waits until the current thread is the only non-daemon
+ * user-level thread. The JDK/JRE still does not support VM unloading, however.
+ *
+ * @see http://java.sun.com/javase/6/docs/technotes/guides/jni/spec/invocation.html#destroy_java_vm
+ */
+JACE_API void destroyVm();
+
+/**
  * Returns the current VmLoader.
  *
  */
@@ -133,18 +148,6 @@ JACE_API JNIEnv* attach(const jobject threadGroup, const char* name, const bool 
  * @see DetachCurrentThread
  */
 JACE_API void detach() throw ();
-
-
-/**
- * Tells Jace that the Java virtual machine has been shutdown,
- * and that it shouldn't try to re-attach any more threads.
- * After calling this function, most other functions will fail.
- *
- * This method is most appropriately called after a call to DestroyJavaVM.
- *
- */
-JACE_API void shutdown();
-
 
 /**
  * A central point for allocating new local references.
@@ -275,9 +278,9 @@ JACE_API void print( jobject obj );
 JACE_API void printClass( jobject obj );
 
 /**
- * Checks to see if the system has shutdown.
+ * Indicates if Java Virtual Machine is running.
  */
-JACE_API bool hasShutdown();
+JACE_API bool isRunning();
 
 END_NAMESPACE_2( jace, helper )
 

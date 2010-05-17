@@ -71,7 +71,6 @@ int main() {
      
       cout << i << endl;
     }
-  
     return 0;
   }
   catch ( IOException& ioe ) {

@@ -93,7 +93,7 @@ boost::shared_ptr<VmLoader> globalLoader;
 // (currently 3.2.2).
 //
 //
-bool globalHasShutdown = false;
+bool running = false;
 /**
  * Ensures that the JVM does not shut down while it is being used.
  */
@@ -114,7 +114,7 @@ void classLoaderDestructor( jobject* value )
 	if ( value == 0 )
 		return;
 	boost::mutex::scoped_lock lock(shutdownMutex);
-	if ( hasShutdown() )
+	if ( !isRunning() )
 		return;
 
 	// Read the thread state
@@ -189,6 +189,7 @@ void createVm( const VmLoader& loader,
     string msg = "Unable to create the virtual machine. The error was " + toString( rc );
     throw JNIException( msg );
   }
+	running = true;
 	registerShutdownHook( env );
 }
 
@@ -196,7 +197,7 @@ void createVm( const VmLoader& loader,
 void registerShutdownHook( JNIEnv *env )
 {
   jclass hookClass = env->FindClass( "jace/util/ShutdownHook" );
-  if ( ! hookClass )
+  if (!hookClass)
 	{
     string msg = "Assert failed: Unable to find the class, jace.util.ShutdownHook.";
     throw JNIException( msg );
@@ -259,7 +260,7 @@ void registerShutdownHook( JNIEnv *env )
 extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown( JNIEnv*, jclass )
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
-	globalHasShutdown = true;
+	running = false;
 }
 
 
@@ -302,13 +303,15 @@ JavaVM* getJavaVM() throw ( JNIException )
 }
 
 
-void shutdown()
+void destroyVm()
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
-  globalHasShutdown = true;
+	if (!isRunning())
+		return;
+  running = false;
 
-	// Currently (JDK 1.5) JVM unloading is not supported and DestroyJavaVM() always returns failure.
-	// We do our best to ensure that the JVM is not used past this point.
+	// Currently (JDK 1.6) JVM unloading is not supported. DestroyJavaVM()'s return value is only reliable under JDK 1.6 or newer; older
+	// versions always returned failure. We do our best to ensure that the JVM is not used past this point.
 	globalLoader->unloadVm();
 }
 
@@ -345,8 +348,8 @@ JNIEnv* attach() throw ( JNIException )
 JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw ( JNIException )
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
-  if ( hasShutdown() )
-    throw VirtualMachineShutdownError( "The virtual machine has already shut down" );
+  if ( !isRunning() )
+    throw VirtualMachineShutdownError( "The virtual machine is not running" );
 
   JNIEnv* env;
 	JavaVMAttachArgs args = {0};
@@ -422,10 +425,8 @@ jobject newLocalRef( JNIEnv* env, jobject ref ) {
 void deleteLocalRef( JNIEnv* env, jobject localRef )
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
-  if ( hasShutdown() ) {
+  if (!isRunning())
     return;
-  }
-
   env->DeleteLocalRef( localRef );
 }
 
@@ -446,7 +447,7 @@ jobject newGlobalRef( JNIEnv* env, jobject ref ) {
 void deleteGlobalRef( JNIEnv* env, jobject globalRef )
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
-  if ( hasShutdown() )
+  if (!isRunning())
     return;
   env->DeleteGlobalRef( globalRef );
 }
@@ -751,8 +752,8 @@ void printClass( jobject obj ) {
 }
 
 
-bool hasShutdown() {
-  return globalHasShutdown;
+bool isRunning() {
+  return running;
 }
 
 END_NAMESPACE_2( jace, helper )

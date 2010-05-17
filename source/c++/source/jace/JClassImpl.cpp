@@ -75,20 +75,11 @@ JClassImpl::~JClassImpl() throw ()
 	delete mutex;
 	if ( mClass )
 	{
-		//try
-		//{
-      if ( helper::hasShutdown() )
-        return;
+		if ( !helper::isRunning() )
+			return;
 
-      JNIEnv* env = helper::attach();
-      helper::deleteGlobalRef( env, mClass );
-  //  }
-  //  catch ( std::exception& )
-		//{
-		//	// Ignore silently. JClassImpls are often used statically, and don't undergo
-		//	// destruction until after their VM has already been destroyed. At that time,
-		//	// the attach will fail.
-  //  }
+		JNIEnv* env = helper::attach();
+		helper::deleteGlobalRef( env, mClass );
   }
 }
 
