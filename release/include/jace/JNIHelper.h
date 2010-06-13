@@ -94,8 +94,10 @@ JACE_API void setJavaVM(JavaVM* jvm) throw(JNIException);
 
 /**
  * Returns the current java virtual machine.
+ *
+ * @return null if no virtual machine is running
  */
-JACE_API JavaVM* getJavaVM()
+JACE_API JavaVM* getJavaVM();
 
 
 /**
