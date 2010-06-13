@@ -268,7 +268,7 @@ public class PeerGenerator
     output.write(newLine);
 
     Util.generateComment(output, "Called when the VM instantiates a new " + name + ".");
-    output.write(name + "( jobject obj );" + newLine);
+    output.write(name + "(jobject obj);" + newLine);
     output.write(newLine);
 
     Util.generateComment(output, "Called when the the user explicitly collects a " + name + newLine
@@ -276,8 +276,8 @@ public class PeerGenerator
     output.write("virtual ~" + name + "() throw ();" + newLine);
     output.write(newLine);
 
-    output.write("virtual const JClass& getJavaJniClass() const throw ( ::jace::JNIException );" + newLine);
-    output.write("static const JClass& staticGetJavaJniClass() throw ( ::jace::JNIException );" + newLine);
+    output.write("virtual const JClass& getJavaJniClass() const throw (::jace::JNIException);" + newLine);
+    output.write("static const JClass& staticGetJavaJniClass() throw (::jace::JNIException);" + newLine);
     output.write(newLine);
 
     if (userDefinedMembers)
@@ -368,7 +368,6 @@ public class PeerGenerator
     output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/Class.h\"" + newLine);
     output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/String.h\"" + newLine);
     output.write("#include \"jace/JNIHelper.h\"" + newLine);
-    output.write("#include \"jace/WrapperVmLoader.h\"" + newLine);
     output.write(newLine);
 
     for (MetaClass dependency: getDependencies(classFile))
@@ -400,25 +399,25 @@ public class PeerGenerator
       if (methodName.equals("jaceCreateInstance"))
       {
         output.write("extern \"C\" JNIEXPORT jlong JNICALL ");
-        output.write("Java_" + className + "_jaceCreateInstance( JNIEnv *env, jobject jPeer )" + newLine);
+        output.write("Java_" + className + "_jaceCreateInstance(JNIEnv *env, jobject jPeer)" + newLine);
         output.write("{" + newLine);
         output.write("  try" + newLine);
         output.write("  {" + newLine);
-        output.write("    ::jace::Peer* peer = new " + fullPeerName + "( jPeer );" + newLine);
+        output.write("    ::jace::Peer* peer = new " + fullPeerName + "(jPeer);" + newLine);
         output.write("    peer->initialize(); " + newLine);
-        output.write("    return reinterpret_cast<jlong>( peer );" + newLine);
+        output.write("    return reinterpret_cast<jlong>(peer);" + newLine);
         output.write("  }" + newLine);
-        output.write("  catch ( jace::proxy::java::lang::Throwable& t )" + newLine);
+        output.write("  catch (jace::proxy::java::lang::Throwable& t)" + newLine);
         output.write("  {" + newLine);
-        output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( t.getJavaJniObject() ) ) );" + newLine);
+        output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(t.getJavaJniObject())));" + newLine);
         output.write("    return 0;" + newLine);
         output.write("  }" + newLine);
-        output.write("  catch ( std::exception& e )" + newLine);
+        output.write("  catch (std::exception& e)" + newLine);
         output.write("  {" + newLine);
-        output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();"
+        output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
                      + newLine);
-        output.write("    jace::proxy::java::lang::RuntimeException ex( msg );" + newLine);
-        output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( ex.getJavaJniObject() ) ) );" + newLine);
+        output.write("    jace::proxy::java::lang::RuntimeException ex(msg);" + newLine);
+        output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(ex.getJavaJniObject())));" + newLine);
         output.write("    return 0;" + newLine);
         output.write("  }" + newLine);
         output.write("}" + newLine);
@@ -428,7 +427,7 @@ public class PeerGenerator
       else if (methodName.equals("jaceDestroyInstance"))
       {
         output.write("extern \"C\" JNIEXPORT void JNICALL ");
-        output.write("Java_" + className + "_jaceDestroyInstance( JNIEnv *env, jobject jPeer )" + newLine);
+        output.write("Java_" + className + "_jaceDestroyInstance(JNIEnv *env, jobject jPeer)" + newLine);
         output.write("{" + newLine);
         output.write("  try" + newLine);
         output.write("  {" + newLine);
@@ -437,13 +436,13 @@ public class PeerGenerator
         output.write("    if (fieldId == 0)" + newLine);
         output.write("      ::jace::helper::catchAndThrow();" + newLine);
         output.write("    jlong nativeHandle = env->GetLongField(jPeer, fieldId);" + newLine);
-        output.write("    ::jace::Peer* peer = reinterpret_cast<::jace::Peer*>( nativeHandle );" + newLine);
+        output.write("    ::jace::Peer* peer = reinterpret_cast<::jace::Peer*>(nativeHandle);" + newLine);
         output.write("    peer->destroy();" + newLine);
         output.write("    delete peer; " + newLine);
         output.write("  }" + newLine);
-        output.write("  catch ( std::exception& e )" + newLine);
+        output.write("  catch (std::exception& e)" + newLine);
         output.write("  {" + newLine);
-        output.write("    std::cerr << std::string( \"An unexpected JNI error has occurred: \" ) + e.what();" + newLine);
+        output.write("    std::cerr << std::string(\"An unexpected JNI error has occurred: \") + e.what();" + newLine);
         output.write("  }" + newLine);
         output.write("}" + newLine);
         output.write(newLine);
@@ -452,44 +451,54 @@ public class PeerGenerator
       else if (methodName.equals("jaceSetVm"))
       {
         output.write("extern \"C\" JNIEXPORT void JNICALL ");
-        output.write("Java_" + className + "_jaceSetVm( JNIEnv *env, jclass )" + newLine);
+        output.write("Java_" + className + "_jaceSetVm(JNIEnv *env, jclass)" + newLine);
         output.write("{" + newLine);
         output.write("  try" + newLine);
         output.write("  {" + newLine);
-        output.write("    jclass jClassClass = env->FindClass( \"java/lang/Class\" );" + newLine);
-        output.write("    jmethodID forName = env->GetStaticMethodID( jClassClass, \"forName\", "
-                     + "\"(Ljava/lang/String;)Ljava/lang/Class;\" );" + newLine);
-        output.write("    jstring objectClassStr = env->NewStringUTF( \"java.lang.Object\" );" + newLine);
-        output.write("    jobject loaderLock = env->CallStaticObjectMethod( jClassClass, forName, objectClassStr );"
+        output.write("    jclass jClassClass = env->FindClass(\"java/lang/Class\");" + newLine);
+        output.write("    jmethodID forName = env->GetStaticMethodID(jClassClass, \"forName\", "
+                     + "\"(Ljava/lang/String;)Ljava/lang/Class;\");" + newLine);
+        output.write("    jstring objectClassStr = env->NewStringUTF(\"java.lang.Object\");" + newLine);
+        output.write("    jobject loaderLock = env->CallStaticObjectMethod(jClassClass, forName, objectClassStr);"
                      + newLine);
         output.write(newLine);
-        output.write("    jint rc = env->MonitorEnter( loaderLock );" + newLine);
+        output.write("    jint rc = env->MonitorEnter(loaderLock);" + newLine);
         output.write(newLine);
-        output.write("    if ( rc < 0 )" + newLine);
+        output.write("    if (rc < 0)" + newLine);
         output.write("    {" + newLine);
         output.write("      std::string msg = \"Unable to obtain a lock on Object.class\";" + newLine);
         output.write("      std::cerr << msg;" + newLine);
         output.write("      return;" + newLine);
         output.write("    }" + newLine);
         output.write(newLine);
-        output.write("    if ( !::jace::helper::getVmLoader() )" + newLine);
+        output.write("    if (!::jace::helper::getJavaVM())" + newLine);
         output.write("    {" + newLine);
-        output.write("      ::jace::helper::setVmLoader( ::jace::WrapperVmLoader( env ) );" + newLine);
-        output.write("      ::jace::helper::registerShutdownHook(env);" + newLine);
+        output.write("      JavaVM* javaVM;" + newLine);
+        output.write("      jint result = env->GetJavaVM(&javaVM);" + newLine);
+        output.write(newLine);
+        output.write("      if (result != 0)" + newLine);
+        output.write("      {" + newLine);
+        output.write("        std::string msg = std::string(\"" + className + " ::jaceSetVm\\n\") + " + newLine);
+        output.write("          \"Unable to retrieve the JVM from the JNIEnv* object. The specific JNI error code is \" +"
+                     + newLine);
+        output.write("          ::jace::helper::toString(result);" + newLine);
+        output.write("        throw ::jace::JNIException(msg);" + newLine);
+        output.write("      }" + newLine);
+        output.write("      ::jace::helper::setJavaVM(javaVM);" + newLine);
         output.write("    }" + newLine);
         output.write(newLine);
-        output.write("    rc = env->MonitorExit( loaderLock );" + newLine);
+        output.write("    rc = env->MonitorExit(loaderLock);" + newLine);
         output.write(newLine);
-        output.write("    if ( rc < 0 )" + newLine);
+        output.write("    if (rc < 0)" + newLine);
         output.write("    {" + newLine);
         output.write("      std::string msg = \"Unable to release a lock on Object.class\";" + newLine);
         output.write("      std::cerr << msg;" + newLine);
         output.write("      return;" + newLine);
         output.write("    }" + newLine);
         output.write("  }" + newLine);
-        output.write("  catch ( std::exception& e )" + newLine);
+        output.write("  catch (std::exception& e)" + newLine);
         output.write("  {" + newLine);
-        output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();"
+        output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
                      + newLine);
         output.write("    std::cerr << msg;" + newLine);
         output.write("    return;" + newLine);
@@ -526,9 +535,9 @@ public class PeerGenerator
       }
 
       output.write("extern \"C\" JNIEXPORT " + returnType.getJniType() + " JNICALL " + functionName);
-      output.write("( JNIEnv* env, ");
+      output.write("(JNIEnv* env, ");
       output.write(new DelimitedCollection<String>(params).toString(", "));
-      output.write(" ) { " + newLine);
+      output.write(") { " + newLine);
       output.write(newLine);
 
       output.write("  try" + newLine);
@@ -539,7 +548,7 @@ public class PeerGenerator
       if (!isStatic)
       {
         output.write("    " + fullPeerName + "* peer = dynamic_cast< " + fullPeerName
-                     + "*>( ::jace::helper::getPeer( jP0 ) );" + newLine);
+                     + "*>(::jace::helper::getPeer(jP0));" + newLine);
         output.write("    assert(peer!=0);" + newLine);
         target = "peer->";
       }
@@ -551,7 +560,7 @@ public class PeerGenerator
       {
         MetaClass paramClass = MetaClassFactory.getMetaClass(param).proxy();
         output.write("    " + "::" + paramClass.getFullyQualifiedName("::"));
-        output.write(" p" + parameterIndex + "( jP" + parameterIndex + " );" + newLine);
+        output.write(" p" + parameterIndex + "(jP" + parameterIndex + ");" + newLine);
         ++parameterIndex;
       }
 
@@ -575,7 +584,7 @@ public class PeerGenerator
       {
         output.write("    return ");
         if (!returnType.isPrimitive())
-          output.write("static_cast<" + returnType.getJniType() + ">( env->NewLocalRef( ");
+          output.write("static_cast<" + returnType.getJniType() + ">(env->NewLocalRef(");
 
         output.write(target + methodName + "(");
         for (int i = 0; i < params.size() - 1; ++i)
@@ -587,24 +596,24 @@ public class PeerGenerator
         }
         output.write(")");
         if (!returnType.isPrimitive())
-          output.write(".getJavaJniObject() ) )");
+          output.write(".getJavaJniObject()))");
         output.write(";" + newLine);
       }
       output.write("  }" + newLine);
 
       String returnValue = returnType instanceof VoidClass ? "" : "NULL";
 
-      output.write("  catch ( jace::proxy::java::lang::Throwable& t )" + newLine);
+      output.write("  catch (jace::proxy::java::lang::Throwable& t)" + newLine);
       output.write("  {" + newLine);
-      output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( t.getJavaJniObject() ) ) );" + newLine);
+      output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(t.getJavaJniObject())));" + newLine);
       output.write("    return " + returnValue + ";" + newLine);
       output.write("  }" + newLine);
-      output.write("  catch ( std::exception& e )" + newLine);
+      output.write("  catch (std::exception& e)" + newLine);
       output.write("  {" + newLine);
-      output.write("    std::string msg = std::string( \"An unexpected JNI error has occurred: \" ) + e.what();"
+      output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
                    + newLine);
-      output.write("    jace::proxy::java::lang::RuntimeException ex( msg );" + newLine);
-      output.write("    env->Throw( static_cast<jthrowable>( env->NewLocalRef( ex.getJavaJniObject() ) ) );" + newLine);
+      output.write("    jace::proxy::java::lang::RuntimeException ex(msg);" + newLine);
+      output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(ex.getJavaJniObject())));" + newLine);
       output.write("    return " + returnValue + ";" + newLine);
       output.write("  }" + newLine);
       output.write("}" + newLine);
@@ -762,9 +771,9 @@ public class PeerGenerator
 
     StringBuilder namespace = new StringBuilder("BEGIN_NAMESPACE_");
     namespace.append(classPackage.getPath().size());
-    namespace.append("( ");
+    namespace.append("(");
     namespace.append(classPackage.toName(", ", false));
-    namespace.append(" )");
+    namespace.append(")");
     output.write(namespace + newLine);
   }
 
@@ -780,9 +789,9 @@ public class PeerGenerator
 
     StringBuilder namespace = new StringBuilder("END_NAMESPACE_");
     namespace.append(classPackage.getPath().size());
-    namespace.append("( ");
+    namespace.append("(");
     namespace.append(classPackage.toName(", ", false));
-    namespace.append(" )");
+    namespace.append(")");
     output.write(namespace + newLine);
   }
 

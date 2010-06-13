@@ -80,6 +80,8 @@ I need your support! If you can help developing Jace, please contact me at cowwo
 - "JObject::~JObject - Unable to delete the global ref" is no longer printed on JVM shutdown
 - Jace now throws a more specific exception (VirtualMachineShutdownError instead of JNIException) if a method is
   invoked after the JVM has already shut down.
+- jaceCreateInstance() would crash if the JVM was not created by Jace; fixed.
+- PeerEnhancer was generating invalid bytecode (INVOKEVIRTUAL instead of INVOKESPECIAL for private methods); fixed.
 
 Compatibility breakers:
 
@@ -102,6 +104,12 @@ Compatibility breakers:
 - Removed LibraryProxies which doesn't seem to be used anywhere
 - Replaced jace::helper::shutdown() by jace::helper::destroyVm() and jace::helper::isShutdown() by jace::helper::isRunning().
   jace::helper::destroyVm() invokes DestroyJavaVM() whereas jace::helper::shutdown() did not.
+- Replaced jace::helper::getVmLoader(), setVmLoader() by setJavaVM()
+- Removed VmLoader::loadVm(), unloadVm(), clone(). The loader constructor now loads the JVM library and the destructor
+  unloads it.
+- Renamed VmLoader::version() to getJniVersion()
+- jace::helper::registerShutdownHook() is now private
+- Removed WrapperVmLoader as it was replaced by jace::helper::setJavaVM()
 
 -------------- New changes in 1.1.1
 

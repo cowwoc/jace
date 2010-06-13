@@ -35,14 +35,14 @@
   using std::strstream;
 #endif
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 class Peer;
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #include <jni.h>
 
 
-BEGIN_NAMESPACE_2( jace, helper )
+BEGIN_NAMESPACE_2(jace, helper)
 
 
 /**
@@ -62,11 +62,10 @@ BEGIN_NAMESPACE_2( jace, helper )
  * VmLoader (for example, UnixVmLoader or Win32VmLoader).
  *
  * This call results in a call to setVmLoader internally.
- *
  */
 JACE_API void createVm( const ::jace::VmLoader& loader, 
                const ::jace::OptionList& options, 
-               bool ignoreUnrecognized = true );
+               bool ignoreUnrecognized = true);
 
 /**
  * Destroys the current Java Virtual Machine and tells Jace that it
@@ -84,24 +83,14 @@ JACE_API void createVm( const ::jace::VmLoader& loader,
 JACE_API void destroyVm();
 
 /**
- * Returns the current VmLoader.
- *
- */
-JACE_API ::jace::VmLoader* getVmLoader();
-
-/**
- * Sets the current VmLoader. This method can be used to implement a custom vm
+ * Sets the current running java virtual machine. This method can be used to implement a custom vm
  * loading policy outside of createVm.
  *
+ * @param jvm a running java virtual machine
+ * @throws JNIException if a JVM is already running or if an error occurs while registering
+ * the shutdown hook
  */
-JACE_API void setVmLoader( const ::jace::VmLoader& loader );
-
-/**
- * Registers the ShutdownHook using Runtime.addShutdownHook().
- *
- * @param env the JNI environment
- */
-JACE_API void registerShutdownHook( JNIEnv* env );
+JACE_API void setJavaVM(JavaVM* jvm) throw(JNIException);
 
 /**
  * Returns the current java virtual machine.
@@ -110,7 +99,7 @@ JACE_API void registerShutdownHook( JNIEnv* env );
  * the virtual machine.
  *
  */
-JACE_API JavaVM* getJavaVM() throw ( ::jace::JNIException );
+JACE_API JavaVM* getJavaVM() throw (::jace::JNIException);
 
 
 /**
@@ -123,8 +112,9 @@ JACE_API JavaVM* getJavaVM() throw ( ::jace::JNIException );
  * @throws JNIException if an error occurs while trying to attach the current thread.
  * @see AttachCurrentThread
  * @see attach(const jobject, const char*, const bool)
+ * @throws JNIException if an error occurs while attaching the current thread
  */
-JACE_API JNIEnv* attach() throw ( ::jace::JNIException );
+JACE_API JNIEnv* attach() throw (::jace::JNIException);
 
 
 /**
@@ -139,7 +129,8 @@ JACE_API JNIEnv* attach() throw ( ::jace::JNIException );
  * @see AttachCurrentThread
  * @see AttachCurrentThreadAsDaemon
  */
-JACE_API JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw ( ::jace::JNIException );
+JACE_API JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon)
+	throw (::jace::JNIException);
 
 
 /**
@@ -155,14 +146,14 @@ JACE_API void detach() throw ();
  *
  * @throws JNIException if the local reference can not be allocated.
  */
-JACE_API jobject newLocalRef( JNIEnv* env, jobject ref );
+JACE_API jobject newLocalRef(JNIEnv* env, jobject ref);
 
 
 /**
  * A central point for deleting local references.
  *
  */
-JACE_API void deleteLocalRef( JNIEnv* env, jobject localRef );
+JACE_API void deleteLocalRef(JNIEnv* env, jobject localRef);
 
 
 /**
@@ -171,14 +162,14 @@ JACE_API void deleteLocalRef( JNIEnv* env, jobject localRef );
  *
  * @throws JNIException if the global reference can not be allocated.
  */
-JACE_API jobject newGlobalRef( JNIEnv* env, jobject ref );
+JACE_API jobject newGlobalRef(JNIEnv* env, jobject ref);
 
 
 /**
  * A central point for deleting global references.
  *
  */
-JACE_API void deleteGlobalRef( JNIEnv* env, jobject globalRef );
+JACE_API void deleteGlobalRef(JNIEnv* env, jobject globalRef);
 
 
 /**
@@ -196,7 +187,7 @@ JACE_API void deleteGlobalRef( JNIEnv* env, jobject globalRef );
  * for itself.
  *
  */
-JACE_API void enlist( ::jace::JFactory* factory );
+JACE_API void enlist(::jace::JFactory* factory);
 
 
 /**
@@ -212,7 +203,7 @@ JACE_API void catchAndThrow();
  * Returns the Peer for a given java Peer.
  *
  */
-JACE_API ::jace::Peer* getPeer( jobject jPeer );
+JACE_API ::jace::Peer* getPeer(jobject jPeer);
 
 /**
  * Returns the ClassLoader being used by the current thread.
@@ -229,16 +220,16 @@ JACE_API jobject getClassLoader();
  * Java Webstart, Applets or any other framework that makes use
  * of custom ClassLoaders to load classes.
  *
- * NOTE: You must setClassLoader( 0 ) to release the ClassLoader
+ * NOTE: You must setClassLoader(0) to release the ClassLoader
  *       reference or detach() will do it for you on thread shutdown.
  *
  */
-JACE_API void setClassLoader( jobject classLoader );
+JACE_API void setClassLoader(jobject classLoader);
 
 /**
  * Returns the string representation of any type.
  */
-template <class T> std::string toString( T value )
+template <class T> std::string toString(T value)
 {
 #ifdef SUPPORTS_SSTREAM
     std::stringstream stream;
@@ -253,7 +244,7 @@ template <class T> std::string toString( T value )
 /**
  * Returns the wstring representation of any type.
  */
-template <class T> std::wstring toWString( T value )
+template <class T> std::wstring toWString(T value)
 {
     std::wstringstream stream;
     stream << value;
@@ -265,23 +256,23 @@ template <class T> std::wstring toWString( T value )
  * Returns the result of calling Object.toString() on obj.
  * Useful for low level debugging.
  */
-JACE_API std::string toString( jobject obj );
+JACE_API std::string toString(jobject obj);
 
 /**
- * Prints toString( obj ) to cout.
+ * Prints toString(obj) to cout.
  */
-JACE_API void print( jobject obj );
+JACE_API void print(jobject obj);
 
 /**
  * Prints the result of calling Object.getClass().toString() on obj to cout.
  */
-JACE_API void printClass( jobject obj );
+JACE_API void printClass(jobject obj);
 
 /**
  * Indicates if Java Virtual Machine is running.
  */
 JACE_API bool isRunning();
 
-END_NAMESPACE_2( jace, helper )
+END_NAMESPACE_2(jace, helper)
 
 #endif

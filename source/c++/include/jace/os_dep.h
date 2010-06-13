@@ -93,7 +93,8 @@
   #pragma warning( disable : 4673 )
 
 	/**
-	 * Disable warning about non-safe C/C++ functions.
+	 * Disable warning about non-safe C/C++ functions. For portability reasons, we can't migrate to
+	 * Microsoft's functions even if we wanted to.
 	 *
 	 * @see http://www.stonesteps.ca/services/consulting/faq.asp?qid=q20060128-01&topic=consulting
 	 *
@@ -148,6 +149,13 @@
 	 */
 	#if _MSC_VER >= 1500
 		#define SUPPORTS_SSTREAM
+	#endif
+
+	#ifdef _M_X64
+		/**
+		 * Indicate that we are using an amd64-class processor.
+		 */
+		#define JACE_AMD64
 	#endif
 
 /**

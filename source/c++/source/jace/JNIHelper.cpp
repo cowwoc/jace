@@ -39,6 +39,7 @@ using jace::VirtualMachineShutdownError;
 #include <string.h>
 
 #include <iostream>
+using std::cerr;
 using std::cout;
 using std::endl;
 
@@ -62,15 +63,14 @@ using std::wstring;
 #include <boost/shared_ptr.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_2( jace, helper )
+BEGIN_NAMESPACE_2(jace, helper)
 
 
 // A reference to the java virtual machine.
 // We're under the assumption that there will always only be one of these.
 //
 JavaVM* javaVM = 0;
-
-boost::shared_ptr<VmLoader> globalLoader;
+jint jniVersion = 0;
 
 // A workaround for Ctrl-C causing problems.
 // If Ctrl-C isn't handled by the program, and it causes
@@ -108,198 +108,79 @@ FactoryMap* getFactoryMap()
   return &factoryMap;
 }
 
-void classLoaderDestructor( jobject* value )
+void classLoaderDestructor(jobject* value)
 {
 	// Invoked by setClassLoader() or when the thread exits
-	if ( value == 0 )
+	if (value == 0)
 		return;
 	boost::mutex::scoped_lock lock(shutdownMutex);
-	if ( !isRunning() )
+	if (!isRunning())
 		return;
 
 	// Read the thread state
 	JavaVM* jvm = getJavaVM();
-	::jace::VmLoader* loader = getVmLoader();
 	JNIEnv* env;
-	bool isDetached = jvm->GetEnv( (void**) &env, loader->version() ) == JNI_EDETACHED;
+	bool isDetached = jvm->GetEnv((void**) &env, jniVersion) == JNI_EDETACHED;
 	assert(!isDetached);
 
-	env = helper::attach();
-	helper::deleteGlobalRef( env, *value );
+	env = attach();
+	deleteGlobalRef(env, *value);
 	delete[] value;
 
 	// Restore the thread state
 	if (isDetached)
-		jace::helper::detach();
+		detach();
 }
 
 boost::thread_specific_ptr<jobject> threadClassLoader(classLoaderDestructor);
 
-std::string asString( JNIEnv* env, jstring str )
+std::string asString(JNIEnv* env, jstring str)
 {
-  const char* utfString = env->GetStringUTFChars( str, 0 );
-  if ( ! utfString )
+  const char* utfString = env->GetStringUTFChars(str, 0);
+  if (!utfString)
 	{
     std::string msg = "Unable to retrieve the character string for an exception message.";
-    throw JNIException( msg );
+    throw JNIException(msg);
   }
   std::string stdString = utfString;
-  env->ReleaseStringUTFChars( str, utfString );
+  env->ReleaseStringUTFChars(str, utfString);
   return stdString;
 }
 
 
-::jace::VmLoader* getVmLoader()
+void createVm(const VmLoader& loader,
+              const OptionList& options,
+              bool ignoreUnrecognized)
 {
-  return globalLoader.get();
-}
-
-
-void setVmLoader( const ::jace::VmLoader& loader )
-{
-  globalLoader = boost::shared_ptr<VmLoader>( loader.clone() );
-}
-
-
-void createVm( const VmLoader& loader,
-               const OptionList& options,
-               bool ignoreUnrecognized )
-{
-  setVmLoader( loader );
-  globalLoader->loadVm();
-
-  JavaVM* vm;
+  if (isRunning())
+    throw VirtualMachineShutdownError("The virtual machine is already running");
+	JavaVM* jvm;
   JNIEnv* env;
-
   JavaVMInitArgs vm_args;
   JavaVMOption* jniOptions = options.createJniOptions();
 
-  vm_args.version = globalLoader->version();
+  vm_args.version = loader.getJniVersion();
   vm_args.options = jniOptions;
-  vm_args.nOptions = jint( options.size() );
-
+  vm_args.nOptions = jint(options.size());
   vm_args.ignoreUnrecognized = ignoreUnrecognized;
+  jint rc = loader.createJavaVM(&jvm, reinterpret_cast<void**>(&env), &vm_args);
+  options.destroyJniOptions(jniOptions);
 
-  jint rc = globalLoader->createJavaVM( &vm, reinterpret_cast<void**>( &env ), &vm_args );
-
-  options.destroyJniOptions( jniOptions );
-
-  if ( rc != 0 )
+  if (rc != 0)
 	{
-    string msg = "Unable to create the virtual machine. The error was " + toString( rc );
-    throw JNIException( msg );
+    string msg = "Unable to create the virtual machine. The error was " + toString(rc);
+    throw JNIException(msg);
   }
-	running = true;
-	registerShutdownHook( env );
-}
-
-
-void registerShutdownHook( JNIEnv *env )
-{
-  jclass hookClass = env->FindClass( "jace/util/ShutdownHook" );
-  if (!hookClass)
-	{
-    string msg = "Assert failed: Unable to find the class, jace.util.ShutdownHook.";
-    throw JNIException( msg );
-  }
-
-  jmethodID hookGetInstance = env->GetStaticMethodID( hookClass, "getInstance", "()Ljace/util/ShutdownHook;" );
-  if ( ! hookGetInstance )
-	{
-		deleteLocalRef( env, hookClass );
-    string msg = "Assert failed: Unable to find the method, ShutdownHook.getInstance().";
-    throw JNIException( msg );
-  }
-
-	jobject hookObject = env->CallStaticObjectMethod( hookClass, hookGetInstance );
-	if ( ! hookObject )
-	{
-		deleteLocalRef( env, hookClass );
-    string msg = "Unable to invoke ShutdownHook.getInstance()";
-		try
-		{
-			helper::catchAndThrow();
-		}
-		catch ( std::exception& e )
-		{
-			msg.append("\ncaused by:\n");
-			msg.append(e.what());
-		}
-    throw JNIException( msg );
-	}
-
-  jmethodID hookRegisterIfNecessary = env->GetMethodID( hookClass, "registerIfNecessary", "()V" );
-  if ( ! hookRegisterIfNecessary )
-	{
-		deleteLocalRef( env, hookObject );
-		deleteLocalRef( env, hookClass );
-    string msg = "Assert failed: Unable to find the method, ShutdownHook.registerIfNecessary().";
-    throw JNIException( msg );
-  }
-
-	env->CallObjectMethodA( hookObject, hookRegisterIfNecessary, 0 );
-	try
-	{
-		helper::catchAndThrow();
-	}
-	catch ( std::exception& e )
-	{
-		string msg = "Exception thrown invoking ShutdownHook.registerIfNecessary()";
-		msg.append("\ncaused by:\n");
-		msg.append(e.what());
-		throw JNIException( msg );
-	}
-	deleteLocalRef( env, hookObject );
-	deleteLocalRef( env, hookClass );
+	setJavaVM(jvm);
 }
 
 
 /**
  * Invoked by jace.util.ShutdownHook on VM shutdown.
  */
-extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown( JNIEnv*, jclass )
+extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown(JNIEnv*, jclass)
 {
-	boost::mutex::scoped_lock lock(shutdownMutex);
-	running = false;
-}
-
-
-/**
- * Returns the current java virtual machine.
- *
- */
-JavaVM* getJavaVM() throw ( JNIException )
-{
-  if ( ! javaVM )
-	{
-    jsize numVMs;
-		if (globalLoader.get() == 0)
-		{
-      string msg = string( "JNIHelper::getJavaVM\n" ) +
-                   "Unable to find the JVM loader";
-			throw JNIException( msg );
-		}
-    jint result = globalLoader->getCreatedJavaVMs( &javaVM, 1, &numVMs );
-
-    if ( result != 0 )
-		{
-      string msg = string( "JNIHelper::getJavaVM\n" ) +
-                   "Unable to find the JVM. The specific JNI error code is " +
-                   toString( result );
-      throw JNIException( msg );
-    }
-
-    if ( numVMs != 1 )
-		{
-      string msg = string( "JNIHelper::getJavaVM\n" ) +
-                   "Looking for exactly 1 JVM, but " +
-                   toString( numVMs ) +
-                   " were found.";
-      throw JNIException( msg );
-    }
-  }
-
-  return javaVM;
+	destroyVm();
 }
 
 
@@ -308,11 +189,16 @@ void destroyVm()
 	boost::mutex::scoped_lock lock(shutdownMutex);
 	if (!isRunning())
 		return;
-  running = false;
 
-	// Currently (JDK 1.6) JVM unloading is not supported. DestroyJavaVM()'s return value is only reliable under JDK 1.6 or newer; older
-	// versions always returned failure. We do our best to ensure that the JVM is not used past this point.
-	globalLoader->unloadVm();
+	// Currently (JDK 1.6) JVM unloading is not supported. DestroyJavaVM()'s return value is only reliable
+	// under JDK 1.6 or newer; older versions always return failure. We do our best to ensure that the JVM
+	// is not used past this point.
+	jint result = javaVM->DestroyJavaVM();
+	if (jniVersion >= JNI_VERSION_1_6 && result!=JNI_OK)
+		throw JNIException("DestroyJavaVM() returned " + toString(result));
+  running = false;
+	javaVM = 0;
+	jniVersion = 0;
 }
 
 
@@ -327,16 +213,45 @@ void destroyVm()
  * @see AttachCurrentThread
  * @see attach(const jobject, const char*, const bool)
  */
-JNIEnv* attach() throw ( JNIException )
+JNIEnv* attach() throw (JNIException)
 {
 	return attach(0, 0, false);
 }
 
 
 /**
- * Attaches the current thread to the virtual machine
- * and returns the appropriate JNIEnv for the thread.
- * If the thread is already attached, this method method does nothing.
+ * Implementation of attach() that assumes preconditions have been verified.
+ */
+JNIEnv* attachImpl(JavaVM* javaVM, const jobject threadGroup, const char* name, const bool daemon)
+	throw (JNIException)
+{
+  JNIEnv* env;
+	JavaVMAttachArgs args = {0};
+	args.version = jniVersion;
+	args.group = threadGroup;
+	if (name != 0)
+		strcpy(args.name, name);
+  jint result;
+	if (!daemon)
+		result = javaVM->AttachCurrentThread(reinterpret_cast<void**>(&env), &args);
+	else
+		result = javaVM->AttachCurrentThreadAsDaemon(reinterpret_cast<void**>(&env), &args);
+
+  if (result != 0)
+	{
+    string msg = string("JNIHelper::attach\n") +
+                 "Unable to attach the current thread. The specific JNI error code is " +
+                 toString(result);
+    throw JNIException(msg);
+  }
+
+  return env;
+}
+
+/**
+ * Attaches the current thread to the virtual machine and returns the appropriate
+ * JNIEnv for the thread. If the thread is already attached, this method method
+ * does nothing.
  *
  * @param threadGroup the ThreadGroup associated with the thread, or null
  * @param name the thread name, or null
@@ -345,34 +260,14 @@ JNIEnv* attach() throw ( JNIException )
  * @see AttachCurrentThread
  * @see AttachCurrentThreadAsDaemon
  */
-JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw ( JNIException )
+JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw (JNIException)
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
-  if ( !isRunning() )
-    throw VirtualMachineShutdownError( "The virtual machine is not running" );
+  if (!isRunning())
+    throw VirtualMachineShutdownError("The virtual machine is not running");
 
-  JNIEnv* env;
-	JavaVMAttachArgs args = {0};
-	args.version = globalLoader->version();
-	args.group = threadGroup;
-	if (name != 0)
-		strcpy(args.name, name);
-  jint result;
-	if (!daemon)
-		result = getJavaVM()->AttachCurrentThread( reinterpret_cast<void**>( &env ), &args );
-	else
-		result = getJavaVM()->AttachCurrentThreadAsDaemon( reinterpret_cast<void**>( &env ), &args );
-
-  if ( result != 0 ) {
-    string msg = "JNIHelper::attach\n" \
-                 "Unable to attach the current thread. The specific JNI error code is " +
-                 toString( result );
-    throw JNIException( msg );
-  }
-
-  return env;
+  return attachImpl(getJavaVM(), threadGroup, name, daemon);
 }
-
 
 /**
  * Detaches the current thread from the virtual machine.
@@ -398,58 +293,232 @@ void detach() throw () {
  * which is all that is required to register a new factory
  * for itself.
  */
-void enlist( JFactory* factory )
+void enlist(JFactory* factory)
 {
   string name = factory->getClass().getName();
-  replace( name.begin(), name.end(), '/', '.' );
-  getFactoryMap()->insert( FactoryMap::value_type( name, factory ) );
+  replace(name.begin(), name.end(), '/', '.');
+  getFactoryMap()->insert(FactoryMap::value_type(name, factory));
   //  cout << "helper::enlist - Enlisted " << name << endl;
 }
 
 
-jobject newLocalRef( JNIEnv* env, jobject ref ) {
+jobject newLocalRef(JNIEnv* env, jobject ref)
+{
+  jobject localRef = env->NewLocalRef(ref);
 
-  jobject localRef = env->NewLocalRef( ref );
-
-  if ( ! localRef ) {
-    string msg = string( "JNIHelper::newLocalRef\n" ) +
+  if (!localRef)
+	{
+    string msg = string("JNIHelper::newLocalRef\n") +
                  "Unable to create a new local reference.\n" +
                  "It is likely that you have exceeded the maximum local reference count.\n" +
                  "You can increase the maximum count with a call to EnsureLocalCapacity().";
-    throw JNIException( msg );
+    throw JNIException(msg);
   }
 
   return localRef;
 }
 
-void deleteLocalRef( JNIEnv* env, jobject localRef )
+void deleteLocalRef(JNIEnv* env, jobject localRef)
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
   if (!isRunning())
     return;
-  env->DeleteLocalRef( localRef );
+  env->DeleteLocalRef(localRef);
 }
 
-jobject newGlobalRef( JNIEnv* env, jobject ref ) {
+jobject newGlobalRef(JNIEnv* env, jobject ref)
+{
+  jobject globalRef = env->NewGlobalRef(ref);
 
-  jobject globalRef = env->NewGlobalRef( ref );
-
-  if ( ! globalRef ) {
-    string msg = string( "JNIHelper::newGlobalRef\n" ) +
+  if (!globalRef)
+	{
+    string msg = string("JNIHelper::newGlobalRef\n") +
                  "Unable to create a new global reference.\n" +
                  "It is likely that you have exceeded the max heap size of your virtual machine.";
-    throw JNIException( msg );
+    throw JNIException(msg);
   }
 
   return globalRef;
 }
 
-void deleteGlobalRef( JNIEnv* env, jobject globalRef )
+void deleteGlobalRef(JNIEnv* env, jobject globalRef)
 {
 	boost::mutex::scoped_lock lock(shutdownMutex);
   if (!isRunning())
     return;
-  env->DeleteGlobalRef( globalRef );
+  env->DeleteGlobalRef(globalRef);
+}
+
+/**
+ * Implementation of catchAndThrow() using a specific JNIEnv.
+ */
+void catchAndThrow(JNIEnv* env)
+{
+  if (!env->ExceptionCheck())
+    return;
+
+  jthrowable jexception = env->ExceptionOccurred();
+
+  // cout << "helper::catchAndThrow() - Discovered an exception: " << endl;
+  // print(jexception);
+
+  env->ExceptionClear();
+
+  // Find the fully qualified name for the exception type, so
+  // we can find a matching C++ proxy exception.
+  //
+  // In java, this looks like:
+  //   String typeName = exception.getClass().getName();
+  
+  //  cout << "helper::catchAndThrow() - Retrieving the exception class type..." << endl;
+  jclass throwableClass = env->FindClass("java/lang/Throwable");
+
+  if (!throwableClass)
+	{
+    string msg = "Assert failed: Unable to find the class, java.lang.Throwable.";
+    throw JNIException(msg);
+  }
+
+  jclass classClass = env->FindClass("java/lang/Class");
+
+  if (!classClass)
+	{
+    string msg = "Assert failed: Unable to find the class, java.lang.Class.";
+    throw JNIException(msg);
+  }
+
+  jmethodID throwableGetClass = env->GetMethodID(throwableClass, "getClass", "()Ljava/lang/Class;");
+
+  if (!throwableGetClass)
+	{
+    string msg = "Assert failed: Unable to find the method, Throwable.getClass().";
+    throw JNIException(msg);
+  }
+
+  deleteLocalRef(env, throwableClass);
+
+  jmethodID classGetName = env->GetMethodID(classClass, "getName", "()Ljava/lang/String;");
+
+  if (!classGetName)
+	{
+    string msg = "Assert failed: Unable to find the method, Class.getName().";
+    throw JNIException(msg);
+  }
+
+  jmethodID classGetSuperclass = env->GetMethodID(classClass, "getSuperclass", "()Ljava/lang/Class;");
+
+  if (!classGetSuperclass)
+	{
+    string msg = "Assert failed: Unable to find the method, Class.getSuperclass().";
+    throw JNIException(msg);
+  }
+
+  deleteLocalRef(env, classClass);
+
+  jobject exceptionClass = env->CallObjectMethod(jexception, throwableGetClass);
+
+  if (env->ExceptionOccurred())
+	{
+    env->ExceptionDescribe();
+    string msg = string("helper::catchAndThrow()\n") +
+                 "An error occurred while trying to call getClass() on the thrown exception.";
+    throw JNIException(msg);
+  }
+
+  jstring exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
+
+  if (env->ExceptionOccurred())
+	{
+    env->ExceptionDescribe();
+    string msg = string("helper::catchAndThrow()\n") +
+                 "An error occurred while trying to call getName() on the class of the thrown exception.";
+    throw JNIException(msg);
+  }
+
+  string exceptionTypeString = asString(env, exceptionType);
+
+  // Now, find the matching factory for this exception type.
+  while (true)
+	{
+    FactoryMap::iterator it = getFactoryMap()->find(exceptionTypeString);
+
+    // If we couldn't find a match, try to find the parent exception type.
+    if (it == getFactoryMap()->end())
+		{
+      // cout << "Finding super class for " << endl;
+      // print(exceptionClass);
+
+      jobject superClass = env->CallObjectMethod(exceptionClass, classGetSuperclass);
+
+      if (env->ExceptionOccurred())
+			{
+        env->ExceptionDescribe();
+        string msg = string("helper::catchAndThrow()\n") +
+                     "An error occurred while trying to call getSuperclass() on the thrown exception.";
+        throw JNIException(msg);
+      }
+
+      // We get NULL if we've already reached java.lang.Object, in which case,
+      // we couldn't find any match at all.
+      if (!superClass)
+        break;
+
+      deleteLocalRef(env, exceptionClass);
+      deleteLocalRef(env, exceptionType);
+      exceptionClass = superClass;
+
+      exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
+
+      if (env->ExceptionOccurred())
+			{
+        env->ExceptionDescribe();
+        throw JNIException("helper::catchAndThrow()\nAn error occurred while trying to call "
+					"getName() on the superclass of the thrown exception.");
+      }
+
+      exceptionTypeString = asString(env, exceptionType);
+			if (exceptionTypeString == "java.lang.Object")
+			{
+			  // Couldn't find a matching exception. Abort!
+				break;
+			}
+      continue;
+    }
+
+    // Ask the factory to throw the exception.
+    // cout << "helper::catchAndThrow() - Throwing the exception " << endl;
+    // print(jexception);
+
+    jvalue value;
+    value.l = jexception;
+    it->second->throwInstance(value);
+  }
+
+	exceptionClass = env->CallObjectMethod(jexception, throwableGetClass);
+
+  if (env->ExceptionOccurred())
+	{
+    env->ExceptionDescribe();
+    string msg = string("helper::catchAndThrow()\n") +
+                 "An error occurred while trying to call getClass() on the thrown exception.";
+    throw JNIException(msg);
+  }
+
+  exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
+
+  if (env->ExceptionOccurred())
+	{
+    env->ExceptionDescribe();
+    string msg = string("helper::catchAndThrow()\n") +
+                 "An error occurred while trying to call getName() on the class of the thrown exception.";
+    throw JNIException(msg);
+  }
+
+  exceptionTypeString = asString(env, exceptionType);
+  //    cout << "Unable to find an enlisted class factory matching the type <" + exceptionTypeString + ">" << endl;
+  //    cout << "Throwing Exception instead." << endl;
+  string msg = string("Can't find any linked in parent exception for ") + exceptionTypeString + "\n";
+  throw JNIException(msg);
 }
 
 /**
@@ -462,299 +531,217 @@ void deleteGlobalRef( JNIEnv* env, jobject globalRef )
  * it could throw any range of exceptions.
  *
  */
-void catchAndThrow() {
-
-  JNIEnv* env = attach();
-
-  if ( ! env->ExceptionCheck() ) {
-    return;
-  }
-
-  jthrowable jexception = env->ExceptionOccurred();
-
-  // cout << "helper::catchAndThrow() - Discovered an exception: " << endl;
-  // print( jexception );
-
-  env->ExceptionClear();
-
-  /* Find the fully qualified name for the exception type, so
-   * we can find a matching C++ proxy exception.
-   *
-   * In java, this looks like:
-   *   String typeName = exception.getClass().getName();
-   */
-  //  cout << "helper::catchAndThrow() - Retrieving the exception class type..." << endl;
-  jclass throwableClass = env->FindClass( "java/lang/Throwable" );
-
-  if ( ! throwableClass ) {
-    string msg = "Assert failed: Unable to find the class, java.lang.Throwable.";
-    throw JNIException( msg );
-  }
-
-  jclass classClass = env->FindClass( "java/lang/Class" );
-
-  if ( ! classClass ) {
-    string msg = "Assert failed: Unable to find the class, java.lang.Class.";
-    throw JNIException( msg );
-  }
-
-  jmethodID throwableGetClass = env->GetMethodID( throwableClass, "getClass", "()Ljava/lang/Class;" );
-
-  if ( ! throwableGetClass ) {
-    string msg = "Assert failed: Unable to find the method, Throwable.getClass().";
-    throw JNIException( msg );
-  }
-
-  deleteLocalRef( env, throwableClass );
-
-  jmethodID classGetName = env->GetMethodID( classClass, "getName", "()Ljava/lang/String;" );
-
-  if ( ! classGetName ) {
-    string msg = "Assert failed: Unable to find the method, Class.getName().";
-    throw JNIException( msg );
-  }
-
-  jmethodID classGetSuperclass = env->GetMethodID( classClass, "getSuperclass", "()Ljava/lang/Class;" );
-
-  if ( ! classGetSuperclass ) {
-    string msg = "Assert failed: Unable to find the method, Class.getSuperclass().";
-    throw JNIException( msg );
-  }
-
-  deleteLocalRef( env, classClass );
-
-  jobject exceptionClass = env->CallObjectMethod( jexception, throwableGetClass );
-
-  if ( env->ExceptionOccurred() ) {
-    env->ExceptionDescribe();
-    string msg = "helper::catchAndThrow()\n" \
-                 "An error occurred while trying to call getClass() on the thrown exception.";
-    throw JNIException( msg );
-  }
-
-  jstring exceptionType = static_cast<jstring>( env->CallObjectMethod( exceptionClass, classGetName ) );
-
-  if ( env->ExceptionOccurred() ) {
-    env->ExceptionDescribe();
-    string msg = "helper::catchAndThrow()\n" \
-                 "An error occurred while trying to call getName() on the class of the thrown exception.";
-    throw JNIException( msg );
-  }
-
-  string exceptionTypeString = asString( env, exceptionType );
-
-  /* Now, find the matching factory for this exception type.
-   */
-  while ( true ) {
-
-    FactoryMap::iterator it = getFactoryMap()->find( exceptionTypeString );
-
-    /* If we couldn't find a match, try to find the parent exception type.
-     */
-    if ( it == getFactoryMap()->end() ) {
-
-      // cout << "Finding super class for " << endl;
-      // print( exceptionClass );
-
-      jobject superClass = env->CallObjectMethod( exceptionClass, classGetSuperclass );
-
-      if ( env->ExceptionOccurred() ) {
-        env->ExceptionDescribe();
-        string msg = "helper::catchAndThrow()\n" \
-                     "An error occurred while trying to call getSuperclass() on the thrown exception.";
-        throw JNIException( msg );
-      }
-
-      /* We get NULL if we've already reached java.lang.Object, in which case,
-       * we couldn't find any match at all.
-       */
-      if ( ! superClass ) {
-        break;
-      }
-
-      deleteLocalRef( env, exceptionClass );
-      deleteLocalRef( env, exceptionType );
-      exceptionClass = superClass;
-
-      exceptionType = static_cast<jstring>( env->CallObjectMethod( exceptionClass, classGetName ) );
-
-      if ( env->ExceptionOccurred() ) {
-        env->ExceptionDescribe();
-        throw JNIException( "helper::catchAndThrow()\nAn error occurred while trying to call "
-					"getName() on the superclass of the thrown exception." );
-      }
-
-      exceptionTypeString = asString( env, exceptionType );
-			if ( exceptionTypeString == "java.lang.Object" ) {
-				/*
-				 * Couldn't find a matching exception. Abort!
-				 */
-				break;
-			}
-      continue;
-    }
-
-    // Ask the factory to throw the exception.
-    // cout << "helper::catchAndThrow() - Throwing the exception " << endl;
-    // print( jexception );
-
-    jvalue value;
-    value.l = jexception;
-    it->second->throwInstance( value );
-  }
-
-	exceptionClass = env->CallObjectMethod( jexception, throwableGetClass );
-
-  if ( env->ExceptionOccurred() ) {
-    env->ExceptionDescribe();
-    string msg = "helper::catchAndThrow()\n" \
-                 "An error occurred while trying to call getClass() on the thrown exception.";
-    throw JNIException( msg );
-  }
-
-  exceptionType = static_cast<jstring>( env->CallObjectMethod( exceptionClass, classGetName ) );
-
-  if ( env->ExceptionOccurred() ) {
-    env->ExceptionDescribe();
-    string msg = "helper::catchAndThrow()\n" \
-                 "An error occurred while trying to call getName() on the class of the thrown exception.";
-    throw JNIException( msg );
-  }
-
-  exceptionTypeString = asString( env, exceptionType );
-  //    cout << "Unable to find an enlisted class factory matching the type <" + exceptionTypeString + ">" << endl;
-  //    cout << "Throwing Exception instead." << endl;
-  string msg = string( "Can't find any linked in parent exception for " ) + exceptionTypeString + "\n";
-  throw JNIException( msg );
+void catchAndThrow()
+{
+	catchAndThrow(attach());
 }
 
-
-
-::jace::Peer* getPeer( jobject jPeer ) {
-
+::jace::Peer* getPeer(jobject jPeer)
+{
   JNIEnv* env = attach();
 
-  jclass peerClass = env->GetObjectClass( jPeer );
-  jmethodID handleID = env->GetMethodID( peerClass, "jaceGetNativeHandle", "()J" );
+  jclass peerClass = env->GetObjectClass(jPeer);
+  jmethodID handleID = env->GetMethodID(peerClass, "jaceGetNativeHandle", "()J");
 
-  if ( ! handleID ) {
+  if (!handleID)
+	{
     string msg = "Unable to locate the method, \"jaceGetNativeHandle\".\n" \
                  "The class has not been properly enhanced.";
 		try
 		{
-			helper::catchAndThrow();
+			catchAndThrow();
 		}
-		catch ( JNIException& e )
+		catch (JNIException& e)
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
 		}
-    throw JNIException( msg );
+    throw JNIException(msg);
   }
 
-  jlong nativeHandle = env->CallLongMethod( jPeer, handleID );
+  jlong nativeHandle = env->CallLongMethod(jPeer, handleID);
   catchAndThrow();
 
-  ::jace::Peer* peer = reinterpret_cast< ::jace::Peer*>( nativeHandle );
+  ::jace::Peer* peer = reinterpret_cast< ::jace::Peer*>(nativeHandle);
 
   return peer;
+}
+
+void registerShutdownHook(JNIEnv *env) throw (JNIException)
+{
+  jclass hookClass = env->FindClass("jace/util/ShutdownHook");
+  if (!hookClass)
+	{
+    string msg = "Assert failed: Unable to find the class, jace.util.ShutdownHook.";
+    throw JNIException(msg);
+  }
+
+  jmethodID hookGetInstance = env->GetStaticMethodID(hookClass, "getInstance", "()Ljace/util/ShutdownHook;");
+  if (!hookGetInstance)
+	{
+		deleteLocalRef(env, hookClass);
+    string msg = "Assert failed: Unable to find the method, ShutdownHook.getInstance().";
+    throw JNIException(msg);
+  }
+
+	jobject hookObject = env->CallStaticObjectMethod(hookClass, hookGetInstance);
+	if (!hookObject)
+	{
+		deleteLocalRef(env, hookClass);
+    string msg = "Unable to invoke ShutdownHook.getInstance()";
+		try
+		{
+			catchAndThrow(env);
+		}
+		catch (std::exception& e)
+		{
+			msg.append("\ncaused by:\n");
+			msg.append(e.what());
+		}
+    throw JNIException(msg);
+	}
+
+  jmethodID hookRegisterIfNecessary = env->GetMethodID(hookClass, "registerIfNecessary", "()V");
+  if (!hookRegisterIfNecessary)
+	{
+		deleteLocalRef(env, hookObject);
+		deleteLocalRef(env, hookClass);
+		throw JNIException("Unable to find the method, ShutdownHook.registerIfNecessary().");
+  }
+
+	env->CallObjectMethodA(hookObject, hookRegisterIfNecessary, 0);
+	try
+	{
+		catchAndThrow(env);
+	}
+	catch (std::exception& e)
+	{
+		string msg = "Exception thrown invoking ShutdownHook.registerIfNecessary()\n";
+		msg.append("caused by:\n");
+		msg.append(e.what());
+		throw JNIException(msg);
+	}
+	deleteLocalRef(env, hookObject);
+	deleteLocalRef(env, hookClass);
+}
+
+JavaVM* getJavaVM()
+{
+  return javaVM;
+}
+
+void setJavaVM(JavaVM* jvm) throw (JNIException)
+{
+  if (isRunning())
+    throw VirtualMachineShutdownError("The virtual machine is already running");
+	JNIEnv* env = attachImpl(jvm, 0, 0, false);
+	registerShutdownHook(env);
+  javaVM = jvm;
+	running = true;
+	jniVersion = env->GetVersion();
 }
 
 /**
  * Returns the ClassLoader being used by the current thread.
  *
  */
-jobject getClassLoader() {
+jobject getClassLoader()
+{
 	jobject* value = threadClassLoader.get();
 	if (value == 0)
 		return 0;
 	return value[0];
 }
 
-void setClassLoader(jobject classLoader) {
-
+void setClassLoader(jobject classLoader)
+{
 	JNIEnv* env = attach();
 
 	// boost::thread_specific_ptr can only store a pointer to jobject, but someone needs to keep
 	// the underlying jobject alive so we use a dynamically-allocated array.
 	jobject* ptr = new jobject[1];
-	if ( classLoader != 0 )
-		ptr[0] = newGlobalRef( env, classLoader );
+	if (classLoader != 0)
+		ptr[0] = newGlobalRef(env, classLoader);
 	else
 		ptr[0] = 0;
 	try
 	{
 		threadClassLoader.reset(ptr);
 	}
-	catch ( boost::thread_resource_error& e) {
-		throw JNIException( e.what() );
+	catch (boost::thread_resource_error& e) 
+	{
+		throw JNIException(e.what());
 	}
 }
 
-string toString( jobject obj ) {
-
+string toString(jobject obj)
+{
   JNIEnv* env = attach();
 
-  jclass objectClass = env->FindClass( "java/lang/Object" );
+  jclass objectClass = env->FindClass("java/lang/Object");
 
-  if ( ! objectClass ) {
+  if (!objectClass)
+	{
     string msg = "Assert failed: Unable to find the class, java.lang.Object.";
 		try
 		{
-			helper::catchAndThrow();
+			catchAndThrow();
 		}
-		catch ( JNIException& e )
+		catch (JNIException& e)
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
 		}
-    throw JNIException( msg );
+    throw JNIException(msg);
   }
 
-  jmethodID toString = env->GetMethodID( objectClass, "toString", "()Ljava/lang/String;" );
+  jmethodID toString = env->GetMethodID(objectClass, "toString", "()Ljava/lang/String;");
 
-  if ( ! toString ) {
+  if (!toString)
+	{
     string msg = "Assert failed: Unable to find the method, Object.toString().";
 		try
 		{
-			helper::catchAndThrow();
+			catchAndThrow();
 		}
-		catch ( JNIException& e )
+		catch (JNIException& e)
 		{
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
 		}
-    throw JNIException( msg );
+    throw JNIException(msg);
   }
 
-  jstring javaStr = static_cast<jstring>( env->CallObjectMethod( obj, toString ) );
+  jstring javaStr = static_cast<jstring>(env->CallObjectMethod(obj, toString));
 
-  const char* strBuf = env->GetStringUTFChars( javaStr, 0 );
-  string value = string( strBuf );
+  const char* strBuf = env->GetStringUTFChars(javaStr, 0);
+  string value = string(strBuf);
 
-  env->ReleaseStringUTFChars( javaStr, strBuf );
+  env->ReleaseStringUTFChars(javaStr, strBuf);
 
-  deleteLocalRef( env, javaStr );
-  deleteLocalRef( env, objectClass );
+  deleteLocalRef(env, javaStr);
+  deleteLocalRef(env, objectClass);
 
   return value;
 }
 
-void print( jobject obj ) {
-  cout << toString( obj ) << endl;
+void print(jobject obj)
+{
+  cout << toString(obj) << endl;
 }
 
-void printClass( jobject obj ) {
+void printClass(jobject obj)
+{
   JNIEnv* env = attach();
-  jclass objClass = env->GetObjectClass( obj );
-  print( objClass );
-  deleteLocalRef( env, objClass );
+  jclass objClass = env->GetObjectClass(obj);
+  print(objClass);
+  deleteLocalRef(env, objClass);
 }
 
-
-bool isRunning() {
+bool isRunning()
+{
   return running;
 }
 
-END_NAMESPACE_2( jace, helper )
+END_NAMESPACE_2(jace, helper)
 

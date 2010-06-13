@@ -28,7 +28,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\i386\debug\jace.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -98,6 +97,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\i386\debug\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -109,7 +109,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\amd64\debug\jace.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -180,7 +179,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\lib\msvc\amd64\debug\jace.dll $(TargetDir)"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\amd64\debug\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -193,7 +192,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\i386\release\jace.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -260,6 +258,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\i386\release\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -272,7 +271,6 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\amd64\release\jace.dll $(TargetDir)"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -311,7 +309,7 @@
 				AdditionalDependencies="jvm.lib jace.lib"
 				OutputFile="$(OutDir)/example1.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\i386\release"
+				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;..\..\..\..\..\lib\msvc\amd64\release"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -340,6 +338,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine="copy ..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\lib\msvc\amd64\release\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>

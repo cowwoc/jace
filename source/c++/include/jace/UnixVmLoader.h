@@ -33,10 +33,9 @@ BEGIN_NAMESPACE( jace )
  * @author Toby Reyelts
  *
  */
-class UnixVmLoader : public ::jace::VmLoader {
-
-  public:
-
+class UnixVmLoader : public ::jace::VmLoader
+{
+public:
   /**
    * Creates a new VM loader for the specified VM.
    * The VM to be loaded is specified by the path to the shared library.
@@ -46,22 +45,17 @@ class UnixVmLoader : public ::jace::VmLoader {
    * @param jniVersion - The version of JNI to use. For example, JNI_VERSION_1_2 or
    * JNI_VERSION_1_4.
    *
+	 * @throws JNIException if an error occurs while loading the JVM library
    */
-  JACE_API UnixVmLoader( std::string path_, jint jniVersion );
+  JACE_API UnixVmLoader( std::string _path, jint jniVersion ) throws (JNIException);
+	JACE_API virtual ~UnixVmLoader();
 
-  JACE_API void loadVm() throw ( ::jace::JNIException );
-  JACE_API void unloadVm();
-  JACE_API jint createJavaVM( JavaVM **pvm, void **env, void *args );
-  JACE_API jint getCreatedJavaVMs( JavaVM **vmBuf, jsize bufLen, jsize *nVMs );
-  JACE_API ::jace::VmLoader* clone() const;
-  JACE_API jint version();
+  JACE_API jint createJavaVM(JavaVM **pvm, void **env, void *args) const;
+  JACE_API jint getCreatedJavaVMs(JavaVM **vmBuf, jsize bufLen, jsize *nVMs) const;
 
-  private:
-
-  jint jniVersion;
-
-  typedef jint ( JNICALL *CreateJavaVM_t )( JavaVM **pvm, void **env, void *args );
-  typedef jint ( JNICALL *GetCreatedJavaVMs_t )( JavaVM **vmBuf, jsize bufLen, jsize *nVMs );
+private:
+  typedef jint (JNICALL *CreateJavaVM_t)(JavaVM **pvm, void **env, void *args);
+  typedef jint (JNICALL *GetCreatedJavaVMs_t)(JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
 
   CreateJavaVM_t createJavaVMPtr;
   GetCreatedJavaVMs_t getCreatedJavaVMsPtr;

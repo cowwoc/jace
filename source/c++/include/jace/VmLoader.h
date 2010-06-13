@@ -43,52 +43,40 @@ BEGIN_NAMESPACE( jace )
  *
  * @author Toby Reyelts
  */
-class VmLoader {
-
-  public:
-
-  /**
-   * Loads the virtual machine into memory.
-   *
-   */
-  JACE_API virtual void loadVm() throw ( ::jace::JNIException ) = 0;
-
-  /**
-   * Unloads the virtual machine from memory.
-   *
-   */
-  JACE_API virtual void unloadVm() = 0;
+class VmLoader
+{
+public:
+	/**
+	 * Creates a new VmLoader.
+	 *
+	 * @param jniVersion the JNI version the JVM must support
+	 */
+	JACE_API VmLoader(jint jniVersion);
 
   /**
-   * Returns the version of the virtual machine to be loaded.
-	 * The implementation should cache this value because it is used on JVM shutdown
-   * and might lead to deadlocks if jace::helper::attach() is called at that point.
+   * Returns the the JNI version the JVM must support.
    */
-  JACE_API virtual jint version() = 0;
+  JACE_API virtual jint getJniVersion() const;
 
   /**
-   * Creates a new dynamically allocated clone of this VmLoader.
+   * Invokes JNI_CreateJavaVM.
    */
-  JACE_API virtual VmLoader* clone() const = 0;
+  JACE_API virtual jint createJavaVM(JavaVM** pvm, void** env, void* args) const = 0;
 
   /**
-   * Calls into JNI_CreateJavaVM.
-   *
+   * Invokes JNI_GetCreatedJavaVMs.
    */
-  JACE_API virtual jint createJavaVM( JavaVM **pvm, void **env, void *args ) = 0;
+  JACE_API virtual jint getCreatedJavaVMs(JavaVM** vmBuf, jsize bufLen, jsize* nVMs) const = 0;
 
-  /**
-   * Calls into JNI_GetCreatedJavaVMs.
-   *
-   */
-  JACE_API virtual jint getCreatedJavaVMs( JavaVM **vmBuf, jsize bufLen, jsize *nVMs ) = 0;
-
-  virtual ~VmLoader() {
-  }
-
+	JACE_API virtual ~VmLoader() {}
+private:
+	/**
+	 * Prevent copying.
+	 */
+	VmLoader& operator=(VmLoader&);
+	const jint jniVersion;
 };
 
 END_NAMESPACE( jace )
 
 #endif // JACE_VM_LOADER
-

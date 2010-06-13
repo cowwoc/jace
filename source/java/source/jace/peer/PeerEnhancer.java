@@ -238,12 +238,12 @@ public class PeerEnhancer
     // Stack now contains: [this, this]
 
     // Invoke jaceCreateInstance()
-    result.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, className, jaceCreateInstance,
+    result.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, className, jaceCreateInstance,
       Type.getMethodDescriptor(Type.LONG_TYPE, new Type[0])));
 
     // Stack now contains: [this, result of jaceCreateInstance()]
-    // Invoke jaceSetNativeHandle(jaceCreateInstance())
-    result.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, className, jaceSetNativeHandle,
+    // Invoke jaceSetNativeHandle(jaceSetNativeHandle())
+    result.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, className, jaceSetNativeHandle,
       Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]
       {
         Type.LONG_TYPE
@@ -268,25 +268,25 @@ public class PeerEnhancer
       if (method.name.equals(deallocationMethod))
       {
         method.name = "jaceUserClose";
-        String[] exceptions = (String[]) method.exceptions.toArray(new String[0]);
-        classNode.methods.add(createDeallocationMethod(classNode.name, exceptions));
+        classNode.methods.add(createDeallocationMethod(classNode, method));
         return;
       }
     }
-    throw new RuntimeException("Unable to locate the method: " +
-                               TypeNameFactory.fromPath(classNode.name).asIdentifier() + "." + deallocationMethod +
-                               "." + newLine + "Peer enhancement will now stop.");
+    throw new RuntimeException("Unable to locate the method: " + TypeNameFactory.fromPath(classNode.name).asIdentifier()
+                               + "." + deallocationMethod + "." + newLine + "Peer enhancement will now stop.");
   }
 
   /**
    * Create a new deallocation method.
    *
-   * @param className the name of the class being enhanced
-   * @param exceptions the list of exceptions thrown by the deallocation method
+   * @param classNode the enclosing class
+   * @param userMethod the user's deallocation method
    * @return the deallocation method
    */
-  private MethodNode createDeallocationMethod(String className, String[] exceptions)
+  @SuppressWarnings("unchecked")
+  private MethodNode createDeallocationMethod(ClassNode classNode, MethodNode userMethod)
   {
+    String[] exceptions = (String[]) userMethod.exceptions.toArray(new String[0]);
     MethodNode result = new MethodNode(Opcodes.ACC_PUBLIC, deallocationMethod,
       Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]),
       null, exceptions);
@@ -295,14 +295,21 @@ public class PeerEnhancer
     result.visitVarInsn(Opcodes.ALOAD, 0);
 
     // Invoke the user's deallocation method
-    result.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
-      jaceUserClose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
+    int invocationType;
+    if ((userMethod.access & Opcodes.ACC_STATIC) != 0)
+      invocationType = Opcodes.INVOKESTATIC;
+    else if ((userMethod.access & Opcodes.ACC_PRIVATE) != 0)
+      invocationType = Opcodes.INVOKESPECIAL;
+    else
+      invocationType = Opcodes.INVOKEVIRTUAL;
+    result.visitMethodInsn(invocationType, classNode.name, jaceUserClose,
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 
     // Place copy of 'this' on the stack
     result.visitVarInsn(Opcodes.ALOAD, 0);
 
     // Invoke jaceDispose()
-    result.visitMethodInsn(Opcodes.INVOKEVIRTUAL, className,
+    result.visitMethodInsn(Opcodes.INVOKESPECIAL, classNode.name,
       jaceDispose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 
     result.visitInsn(Opcodes.RETURN);
@@ -405,12 +412,11 @@ public class PeerEnhancer
     }
 
     // Create method "private native static void jaceSetVm()"
-    classNode.methods.add(new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC |
-                                         Opcodes.ACC_NATIVE,
-      jaceSetVm, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null));
+    classNode.methods.add(new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_NATIVE | Opcodes.ACC_STATIC, jaceSetVm,
+      Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null));
 
     // Create class initializer
-    MethodNode classInitializer = new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, "<clinit>",
+    MethodNode classInitializer = new MethodNode(Opcodes.ACC_STATIC, "<clinit>",
       Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]), null, null);
     classNode.methods.add(classInitializer);
 
@@ -782,7 +788,7 @@ public class PeerEnhancer
     }
 
     // Invoke jaceDispose
-    finalize.visitMethodInsn(Opcodes.INVOKEVIRTUAL, classNode.name,
+    finalize.visitMethodInsn(Opcodes.INVOKESPECIAL, classNode.name,
       jaceDispose, Type.getMethodDescriptor(Type.VOID_TYPE, new Type[0]));
 
     finalize.visitInsn(Opcodes.RETURN);
@@ -791,15 +797,10 @@ public class PeerEnhancer
   public static String getUsage()
   {
     String usage =
-           "Usage: PeerEnhancer " + newLine +
-           "  <input file>" + newLine +
-           "  <output file>" + newLine +
-           "  <comma-separated list of libraries>" + newLine +
-           "  [options] " + newLine +
-           newLine +
-           "Where options can be:" + newLine +
-           "  -deallocator=<deallocation method>" + newLine +
-           "  -verbose " + newLine;
+           "Usage: PeerEnhancer " + newLine + "  <input file>" + newLine + "  <output file>" + newLine
+           + "  <comma-separated list of libraries>" + newLine + "  [options] " + newLine + newLine
+           + "Where options can be:" + newLine + "  -deallocator=<deallocation method>" + newLine + "  -verbose "
+           + newLine;
     return usage;
   }
 

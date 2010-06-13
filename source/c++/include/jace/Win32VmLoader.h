@@ -85,12 +85,12 @@ class Win32VmLoader : public ::jace::VmLoader {
    * @param jniVersion - The version of JNI to use. For example,
    * JNI_VERSION_1_2 or JNI_VERSION_1_4. The default is JNI_VERSION_1_2.
    *
-   * @throws JNIException if an error occurs while trying to look up the VM.
+   * @throws JNIException if an error occurs while loading the JVM library.
    */
-  JACE_API Win32VmLoader( JVMVendor jvmVendor = JVMV_SUN, 
-                 JVMType jvmType = JVMT_DEFAULT, 
-                 std::string version = "",
-                 jint jniVersion = JNI_VERSION_1_2 );
+  JACE_API Win32VmLoader(JVMVendor jvmVendor = JVMV_SUN, 
+		JVMType jvmType = JVMT_DEFAULT, 
+		std::string version = "",
+		jint jniVersion = JNI_VERSION_1_2) throw (JNIException);
 
   /**
    * Creates a new VM loader for the specified VM.
@@ -102,21 +102,16 @@ class Win32VmLoader : public ::jace::VmLoader {
    *
    * @param version - The version of JNI to use. For example,
    * JNI_VERSION_1_2 or JNI_VERSION_1_4.
-   *
+	 *
+   * @throws JNIException if an error occurs while loading the JVM library.
    */
-  JACE_API Win32VmLoader( std::string path_, jint jniVersion );
+  JACE_API Win32VmLoader(std::string path, jint jniVersion) throw (JNIException);
+	JACE_API virtual ~Win32VmLoader();
 
-	JACE_API void loadVm() throw ( ::jace::JNIException );
-  JACE_API void unloadVm();
-  JACE_API ::jace::VmLoader* clone() const;
-  JACE_API virtual jint version();
-  JACE_API jint getCreatedJavaVMs( JavaVM **vmBuf, jsize bufLen, jsize *nVMs );
-  JACE_API jint createJavaVM( JavaVM **pvm, void **env, void *args );
+  JACE_API jint getCreatedJavaVMs(JavaVM **vmBuf, jsize bufLen, jsize *nVMs) const;
+  JACE_API jint createJavaVM(JavaVM **pvm, void **env, void *args) const;
 
-  private:
-
-  jint jniVersion;
-
+private:
   typedef jint (JNICALL *GetCreatedJavaVMs_t)(JavaVM **vmBuf, jsize bufLen, jsize *nVMs);
   typedef jint (JNICALL *CreateJavaVM_t)(JavaVM **pvm, void **env, void *args);
 

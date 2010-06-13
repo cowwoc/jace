@@ -30,10 +30,9 @@ BEGIN_NAMESPACE( jace )
  * @author Gili Tzabari
  *
  */
-class WrapperVmLoader : public ::jace::VmLoader {
-
+class WrapperVmLoader : public ::jace::VmLoader
+{
   public:
-
 	/**
    * Wraps a preexisting JNIEnv* object in order to tap into its JVM.
    *
@@ -43,22 +42,8 @@ class WrapperVmLoader : public ::jace::VmLoader {
    */
   JACE_API WrapperVmLoader( JNIEnv* env );
 
-	JACE_API void loadVm() throw ( ::jace::JNIException );
-  JACE_API void unloadVm();
-  JACE_API ::jace::VmLoader* clone() const;
-  JACE_API virtual jint version();
   JACE_API jint getCreatedJavaVMs( JavaVM **vmBuf, jsize bufLen, jsize *nVMs );
   JACE_API jint createJavaVM( JavaVM **pvm, void **env, void *args );
-
-	private:
-	/**
-   * Wraps a preexisting JavaVM* object.
-   *
-   * @throws JNIException if an error occurs while trying to look up the VM.
-   */
-  JACE_API WrapperVmLoader();
-
-	jint jniVersion;
 };
 
 END_NAMESPACE( jace )

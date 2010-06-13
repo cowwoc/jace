@@ -477,10 +477,6 @@
 					RelativePath="..\..\..\source\jace\Win32VmLoader.cpp"
 					>
 				</File>
-				<File
-					RelativePath="..\..\..\source\jace\WrapperVmLoader.cpp"
-					>
-				</File>
 				<Filter
 					Name="proxy"
 					>
@@ -661,10 +657,6 @@
 				</File>
 				<File
 					RelativePath="..\..\..\include\jace\Win32VmLoader.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\include\jace\WrapperVmLoader.h"
 					>
 				</File>
 				<Filter
