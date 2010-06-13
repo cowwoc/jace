@@ -13,8 +13,8 @@ using std::string;
 
 BEGIN_NAMESPACE( jace )
 
-UnixVmLoader::UnixVmLoader( std::string path_, jint jniVer ) throws (JNIException) : 
-  jniVersion( jniVer ), path( path_ ), lib( 0 )
+UnixVmLoader::UnixVmLoader( std::string path_, jint jniVersion ) throw (JNIException) : 
+  VmLoader(jniVersion), path( path_ ), lib( 0 )
 {
   lib = dlopen( path.c_str(), RTLD_NOW | RTLD_GLOBAL );
   if (!lib)
@@ -41,11 +41,11 @@ UnixVmLoader::UnixVmLoader( std::string path_, jint jniVer ) throws (JNIExceptio
   }
 }
 
-jint UnixVmLoader::createJavaVM( JavaVM **pvm, void **env, void *args ) {
+jint UnixVmLoader::createJavaVM( JavaVM **pvm, void **env, void *args ) const {
   return createJavaVMPtr( pvm, env, args );
 }
 
-jint UnixVmLoader::getCreatedJavaVMs( JavaVM **vmBuf, jsize bufLen, jsize *nVMs ) {
+jint UnixVmLoader::getCreatedJavaVMs( JavaVM **vmBuf, jsize bufLen, jsize *nVMs ) const {
   return getCreatedJavaVMsPtr( vmBuf, bufLen, nVMs );
 }
 

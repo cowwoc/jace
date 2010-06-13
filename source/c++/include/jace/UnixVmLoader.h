@@ -47,7 +47,7 @@ public:
    *
 	 * @throws JNIException if an error occurs while loading the JVM library
    */
-  JACE_API UnixVmLoader( std::string _path, jint jniVersion ) throws (JNIException);
+  JACE_API UnixVmLoader( std::string _path, jint jniVersion ) throw (JNIException);
 	JACE_API virtual ~UnixVmLoader();
 
   JACE_API jint createJavaVM(JavaVM **pvm, void **env, void *args) const;
