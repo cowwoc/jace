@@ -180,7 +180,18 @@ void createVm(const VmLoader& loader,
  */
 extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown(JNIEnv*, jclass)
 {
-	destroyVm();
+	// Invoking destroyVm() may result in a deadlock because the shutdown hook is not guaranteed to be
+	// invoked from the main thread.
+	boost::mutex::scoped_lock lock(shutdownMutex);
+	if (!isRunning())
+		return;
+
+	// Currently (JDK 1.6) JVM unloading is not supported. DestroyJavaVM()'s return value is only reliable
+	// under JDK 1.6 or newer; older versions always return failure. We do our best to ensure that the JVM
+	// is not used past this point.
+	running = false;
+	javaVM = 0;
+	jniVersion = 0;
 }
 
 
