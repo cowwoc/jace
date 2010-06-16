@@ -39,7 +39,6 @@ public class Util
         if (i == -1)
         {
           output.write(newLine);
-          output.write(" *" + newLine);
           output.write(" */" + newLine);
           return;
         }

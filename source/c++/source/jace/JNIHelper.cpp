@@ -118,9 +118,8 @@ void classLoaderDestructor(jobject* value)
 		return;
 
 	// Read the thread state
-	JavaVM* jvm = getJavaVM();
 	JNIEnv* env;
-	bool isDetached = jvm->GetEnv((void**) &env, jniVersion) == JNI_EDETACHED;
+	bool isDetached = javaVM->GetEnv((void**) &env, jniVersion) == JNI_EDETACHED;
 	assert(!isDetached);
 
 	env = attach();
@@ -180,14 +179,13 @@ void createVm(const VmLoader& loader,
  */
 extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown(JNIEnv*, jclass)
 {
-	// Invoking destroyVm() may result in a deadlock because the shutdown hook is not guaranteed to be
+	// Invoking DestroyJavaVM() may result in a deadlock because the shutdown hook is not guaranteed to be
 	// invoked from the main thread.
 	boost::mutex::scoped_lock lock(shutdownMutex);
 	if (!isRunning())
 		return;
 
-	// Currently (JDK 1.6) JVM unloading is not supported. DestroyJavaVM()'s return value is only reliable
-	// under JDK 1.6 or newer; older versions always return failure. We do our best to ensure that the JVM
+	// Currently (JDK 1.6) JVM unloading is not supported. We do our best to ensure that the JVM
 	// is not used past this point.
 	running = false;
 	javaVM = 0;
@@ -197,19 +195,21 @@ extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown(J
 
 void destroyVm()
 {
-	boost::mutex::scoped_lock lock(shutdownMutex);
-	if (!isRunning())
-		return;
+	jint jniVersionBeforeShutdown;
+	{
+		boost::mutex::scoped_lock lock(shutdownMutex);
+		if (!isRunning())
+			return;
+		jniVersionBeforeShutdown = jniVersion;
+	}
 
-	// Currently (JDK 1.6) JVM unloading is not supported. DestroyJavaVM()'s return value is only reliable
-	// under JDK 1.6 or newer; older versions always return failure. We do our best to ensure that the JVM
-	// is not used past this point.
+	// DestroyJavaVM()'s return value is only reliable under JDK 1.6 or newer; older versions always
+	// return failure.
+	//
+	// NOTE: DestroyJavaVM() will block until the shutdown hook finishes executing
 	jint result = javaVM->DestroyJavaVM();
-	if (jniVersion >= JNI_VERSION_1_6 && result!=JNI_OK)
+	if (jniVersionBeforeShutdown >= JNI_VERSION_1_6 && result!=JNI_OK)
 		throw JNIException("DestroyJavaVM() returned " + toString(result));
-  running = false;
-	javaVM = 0;
-	jniVersion = 0;
 }
 
 
@@ -277,7 +277,7 @@ JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) t
   if (!isRunning())
     throw VirtualMachineShutdownError("The virtual machine is not running");
 
-  return attachImpl(getJavaVM(), threadGroup, name, daemon);
+  return attachImpl(javaVM, threadGroup, name, daemon);
 }
 
 /**
@@ -286,7 +286,7 @@ JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) t
  */
 void detach() throw () {
 
-  getJavaVM()->DetachCurrentThread();
+  javaVM->DetachCurrentThread();
 }
 
 
