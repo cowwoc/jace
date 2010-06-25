@@ -1,0 +1,46 @@
+
+<project name="Jace.Java" default="release" basedir=".">
+
+  <target name="init">
+    <tstamp/>
+  </target>
+
+  <!--
+    - Runs AutoProxy on the source code to generate the required proxies.
+    -
+    -->
+  <target name="proxy_generate">
+
+    <delete dir="proxies" quiet="true"/>
+
+    <java classname="jace.autoproxy.AutoProxy">
+      <arg path="source"/>
+      <arg path="source"/>
+      <arg path="proxies/include"/>
+      <arg path="proxies/source"/>
+      <arg path="${java.home}/lib/rt.jar"/>
+      <classpath>
+        <fileset dir="../../release/lib">
+          <include name="**/*.jar"/>
+        </fileset>
+      </classpath>
+      <arg value="-mindep"/>
+    </java>
+
+  </target>
+
+  <!-- 
+    - Jar up the classes (using the enhanced classes in preference to the
+    - non-enhanced versions).
+    -->
+  <target name="release" depends="proxy_generate">
+  </target>
+
+  <target name="clean">
+    <delete dir="temp_build"/>
+    <delete dir="classes"/>
+    <delete dir="release"/>
+  </target>
+
+</project>
+
