@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "array_example", "array_example.vcproj", "{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|amd64 = Debug|amd64
+		Debug|i386 = Debug|i386
+		Release|amd64 = Release|amd64
+		Release|i386 = Release|i386
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Debug|amd64.ActiveCfg = Debug|x64
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Debug|amd64.Build.0 = Debug|x64
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Debug|i386.ActiveCfg = Debug|Win32
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Debug|i386.Build.0 = Debug|Win32
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Release|amd64.ActiveCfg = Release|x64
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Release|amd64.Build.0 = Release|x64
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Release|i386.ActiveCfg = Release|Win32
+		{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}.Release|i386.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

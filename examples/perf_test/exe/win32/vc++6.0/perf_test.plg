@@ -1,0 +1,46 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: perf_test - Win32 Release--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\Toby\LOCALS~1\Temp\RSP370.tmp" with contents
+[
+/nologo /MD /W3 /GR /GX /O2 /I "..\..\..\include" /I "..\..\..\proxies\include" /I "..\..\..\..\..\include" /I "c:\java\jdk1.4\include" /I "c:\java\jdk1.4\include\win32" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /Fp"Release/perf_test.pch" /YX /Fo"Release/" /Fd"Release/" /FD /c 
+"C:\DATA\PROJECTS\JACE.1.1RC1_04\RELEASE\EXAMPLES\PERF_TEST\source\perf_test.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\Toby\LOCALS~1\Temp\RSP370.tmp" 
+Creating temporary file "C:\DOCUME~1\Toby\LOCALS~1\Temp\RSP371.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib jvm.lib jace.lib /nologo /subsystem:console /incremental:no /pdb:"Release/perf_test.pdb" /machine:I386 /out:"Release/perf_test.exe" /libpath:"..\..\..\..\..\lib\win32\vc++6.0" /libpath:"c:\java\jdk1.4\lib" 
+".\Release\CharSequence.obj"
+".\Release\Comparable.obj"
+".\Release\Exception.obj"
+".\Release\FilterOutputStream.obj"
+".\Release\IOException.obj"
+".\Release\Object.obj"
+".\Release\OutputStream.obj"
+".\Release\PrintStream.obj"
+".\Release\PrintWriter.obj"
+".\Release\Serializable.obj"
+".\Release\String.obj"
+".\Release\System.obj"
+".\Release\Throwable.obj"
+".\Release\Writer.obj"
+".\Release\perf_test.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\Toby\LOCALS~1\Temp\RSP371.tmp"
+<h3>Output Window</h3>
+Compiling...
+perf_test.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+perf_test.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
