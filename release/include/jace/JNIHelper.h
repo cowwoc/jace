@@ -14,6 +14,14 @@
 #include "jace/JNIException.h"
 #endif
 
+#ifndef JACE_VIRTUAL_MACHINE_RUNNING_ERROR_H
+#include "jace/VirtualMachineRunningError.h"
+#endif
+
+#ifndef JACE_VIRTUAL_MACHINE_SHUTDOWN_ERROR_H
+#include "jace/VirtualMachineShutdownError.h"
+#endif
+
 #ifndef JACE_JFACTORY_H
 #include "jace/JFactory.h"
 #endif
@@ -62,10 +70,13 @@ BEGIN_NAMESPACE_2(jace, helper)
  * VmLoader (for example, UnixVmLoader or Win32VmLoader).
  *
  * This call results in a call to setVmLoader internally.
+ * @throws VirtualMachineRunningError if the virtual machine is already running
+ * @throws JNIException if the virtual machine cannot be created
  */
-JACE_API void createVm( const ::jace::VmLoader& loader, 
-               const ::jace::OptionList& options, 
-               bool ignoreUnrecognized = true);
+JACE_API void createVm(const VmLoader& loader, 
+											 const OptionList& options, 
+											 bool ignoreUnrecognized = true)
+											 throw (VirtualMachineRunningError, JNIException);
 
 /**
  * Destroys the current Java Virtual Machine and tells Jace that it
@@ -79,25 +90,26 @@ JACE_API void createVm( const ::jace::VmLoader& loader,
  * user-level thread. The JDK/JRE still does not support VM unloading, however.
  *
  * @see http://java.sun.com/javase/6/docs/technotes/guides/jni/spec/invocation.html#destroy_java_vm
+ * @throws JNIException if the virtual machine fails to shut down
  */
-JACE_API void destroyVm();
+JACE_API void destroyVm() throw (JNIException);
 
 /**
  * Sets the current running java virtual machine. This method can be used to implement a custom vm
  * loading policy outside of createVm.
  *
  * @param jvm a running java virtual machine
- * @throws JNIException if a JVM is already running or if an error occurs while registering
- * the shutdown hook
+ * @throws VirtualMachineRunningError if a JVM is already running
+ * @throws JNIException if an error occurs while registering the shutdown hook
  */
-JACE_API void setJavaVM(JavaVM* jvm) throw(JNIException);
+JACE_API void setJavaVm(JavaVM* jvm) throw(VirtualMachineRunningError, JNIException);
 
 /**
  * Returns the current java virtual machine.
  *
  * @return null if no virtual machine is running
  */
-JACE_API JavaVM* getJavaVM();
+JACE_API JavaVM* getJavaVm();
 
 
 /**
@@ -111,8 +123,9 @@ JACE_API JavaVM* getJavaVM();
  * @see AttachCurrentThread
  * @see attach(const jobject, const char*, const bool)
  * @throws JNIException if an error occurs while attaching the current thread
+ * @throws VirtualMachineShutdownError if the virtual machine is not running
  */
-JACE_API JNIEnv* attach() throw (::jace::JNIException);
+JACE_API JNIEnv* attach() throw (JNIException, VirtualMachineShutdownError);
 
 
 /**
@@ -121,14 +134,16 @@ JACE_API JNIEnv* attach() throw (::jace::JNIException);
  * If the thread is already attached, this method method does nothing.
  *
  * @param threadGroup the ThreadGroup associated with the thread, or null
- * @param name the thread name, or null
+ * @param name the thread name as a modified UTF-8 string, or null
  * @param daemon true if the thread should be attached as a daemon thread
- * @throws JNIException if an error occurs while trying to attach the current thread.
  * @see AttachCurrentThread
  * @see AttachCurrentThreadAsDaemon
+ * @see http://en.wikipedia.org/wiki/UTF-8#Modified_UTF-8
+ * @throws JNIException if an error occurs while trying to attach the current thread.
+ * @throws VirtualMachineShutdownError if the virtual machine is not running
  */
 JACE_API JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon)
-	throw (::jace::JNIException);
+	throw (JNIException, VirtualMachineShutdownError);
 
 
 /**
@@ -150,22 +165,23 @@ JACE_API jobject newLocalRef(JNIEnv* env, jobject ref);
 /**
  * A central point for deleting local references.
  *
+ * @throws VirtualMachineShutdownError if the virtual machine is not running
  */
-JACE_API void deleteLocalRef(JNIEnv* env, jobject localRef);
+JACE_API void deleteLocalRef(JNIEnv* env, jobject localRef) throw (VirtualMachineShutdownError);
 
 
 /**
  * A central point for allocating new global references.
  * These references must be deallocated by a call to deleteGlobalRef.
  *
+ * @throws VirtualMachineShutdownError if the virtual machine is not running
  * @throws JNIException if the global reference can not be allocated.
  */
-JACE_API jobject newGlobalRef(JNIEnv* env, jobject ref);
+JACE_API jobject newGlobalRef(JNIEnv* env, jobject ref) throw (VirtualMachineShutdownError, JNIException);
 
 
 /**
  * A central point for deleting global references.
- *
  */
 JACE_API void deleteGlobalRef(JNIEnv* env, jobject globalRef);
 
@@ -183,9 +199,8 @@ JACE_API void deleteGlobalRef(JNIEnv* env, jobject globalRef);
  *
  * which is all that is required to register a new factory
  * for itself.
- *
  */
-JACE_API void enlist(::jace::JFactory* factory);
+JACE_API void enlist(JFactory* factory);
 
 
 /**
@@ -193,15 +208,13 @@ JACE_API void enlist(::jace::JFactory* factory);
  * 
  * If an exception has been thrown, a corresponding C++ proxy
  * exception is constructed and thrown.
- * 
  */
 JACE_API void catchAndThrow();
 
 /**
  * Returns the Peer for a given java Peer.
- *
  */
-JACE_API ::jace::Peer* getPeer(jobject jPeer);
+JACE_API Peer* getPeer(jobject jPeer);
 
 /**
  * Returns the ClassLoader being used by the current thread.
@@ -220,7 +233,6 @@ JACE_API jobject getClassLoader();
  *
  * NOTE: You must setClassLoader(0) to release the ClassLoader
  *       reference or detach() will do it for you on thread shutdown.
- *
  */
 JACE_API void setClassLoader(jobject classLoader);
 
@@ -244,9 +256,9 @@ template <class T> std::string toString(T value)
  */
 template <class T> std::wstring toWString(T value)
 {
-    std::wstringstream stream;
-    stream << value;
-    return stream.str();
+  std::wstringstream stream;
+  stream << value;
+  return stream.str();
 }
 #endif
 

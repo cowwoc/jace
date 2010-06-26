@@ -22,11 +22,12 @@
 #include "jace/JClassImpl.h"
 #endif
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 class JArguments;
-END_NAMESPACE( jace )
+class NoOp;
+END_NAMESPACE(jace)
 
-BEGIN_NAMESPACE_2( jace, proxy )
+BEGIN_NAMESPACE_2(jace, proxy)
 
 
 /**
@@ -40,7 +41,7 @@ BEGIN_NAMESPACE_2( jace, proxy )
  * also adhere to the following set of rules:
  *
  * - All JObject's must be constructable from a JNI jobject.
- *   For example: String::String( jobject ).
+ *   For example: String::String(jobject).
  *
  * ----------------------------------------------------------------------
  *
@@ -56,8 +57,9 @@ BEGIN_NAMESPACE_2( jace, proxy )
  *
  * The code:
  *
- * Java_com_foo_bar( jobject this, jstring aString ) {
- *   String( aString );
+ * Java_com_foo_bar(jobject this, jstring aString)
+ * {
+ *   String(aString);
  * }
  *
  * does not create a new java.lang.String, but simply wraps an
@@ -68,28 +70,36 @@ BEGIN_NAMESPACE_2( jace, proxy )
  * has ended.
  *
  * @author Toby Reyelts
- *
  */
-class JObject : public ::jace::proxy::JValue
+class JObject: public ::jace::proxy::JValue
 {
 public:
 	/**
 	 * Creates a new JObject wrapping the existing jvalue.
-	 *
 	 */
-	JACE_API JObject( jvalue value );
+	JACE_API JObject(jvalue value);
 
 	/**
 	 * Creates a new JObject wrapping the existing jobject.
-	 *
 	 */
-	JACE_API JObject( jobject object );
+	JACE_API JObject(jobject object);
+
+	/**
+	 * Creates a reference to an existing object.
+	 *
+	 * @param object the object
+	 */
+	JACE_API JObject(const JObject& object);
 
 	/**
 	 * Destroys the existing java object.
-	 *
 	 */
 	JACE_API virtual ~JObject() throw();
+
+	/**
+	 * Sets the reference to another object.
+	 */
+	JACE_API JObject& operator=(const JObject& other);
 
 	/**
 	 * Returns the underlying JNI jobject for this JObject.
@@ -128,59 +138,21 @@ public:
 	JACE_API bool isNull() const;
 
 	/**
-	 * An assignment operator for JObject's.
-	 */
-	JACE_API JObject& operator=( const JObject& object );
-
-	/**
 	 * Returns the JClass for this class.
 	 */
-	JACE_API static const ::jace::JClass& staticGetJavaJniClass() throw ( ::jace::JNIException );
+	JACE_API static const ::jace::JClass& staticGetJavaJniClass() throw (::jace::JNIException);
 
 	/**
 	 * Returns the JClass that represents the static type of this class.
 	 * For example, for a String Java object, referred to by a C++ proxy object,
-	 * this method returns JClassImpl( "java/lang/String" ).
+	 * this method returns JClassImpl("java/lang/String").
 	 */
-	JACE_API virtual const JClass& getJavaJniClass() const throw ( JNIException );
+	JACE_API virtual const JClass& getJavaJniClass() const throw (JNIException);
 
 protected:
 	/**
-	 * A dummy type used to signify that no operation
-	 * should take place. NoOp values are used to invoke
-	 * a no-op constructor.
-	 */
-	class NoOp {
-		public:
-		NoOp() {}
-	};
-
-
-	/**
-	 * A static instance of the NoOp class that can be used for
-	 * NoOp constructors.
-	 */
-	JACE_API static const NoOp NO_OP;
-
-
-	/**
-	 * A dummy type used to signify that the constructor is supposed
-	 * to represent a java copy constructor.
-	 */
-	class CopyConstructorSpecifier {
-		public:
-		CopyConstructorSpecifier() {}
-	};
-
-	/**
-	 * A static instance of the CopyConstructorSpecifier class that can be used for
-	 * copy constructors.
-	 */
-	JACE_API static const CopyConstructorSpecifier COPY_CONSTRUCTOR;
-
-	/**
 	 * This only exists for the broken way in which ElementProxys
-	 * must be handled. It operates in the same fashion as JObject( NoOp );
+	 * must be handled. It operates in the same fashion as JObject(::jace::NoOp);
 	 */
 	JACE_API JObject();
 
@@ -197,7 +169,7 @@ protected:
 	 * All subclasses of JObject should provide this constructor
 	 * for their own subclasses.
 	 */
-	JACE_API JObject( const NoOp& noOp );
+	JACE_API JObject(const ::jace::NoOp& noOp);
 
 	/**
 	 * Overridden so that a new global reference is created
@@ -210,15 +182,15 @@ protected:
 	 *   or if the JVM runs out of memory while trying to create
 	 *   a new global reference.
 	 */
-	JACE_API virtual void setJavaJniValue( jvalue value ) throw ( JNIException );
+	JACE_API virtual void setJavaJniValue(jvalue value) throw (JNIException);
 
 	/**
 	 * Sets the jobject for this JObject.
 	 *
 	 * This method is simply a convenience method for calling
-	 * setValue( jvalue ) with a jobject.
+	 * setValue(jvalue) with a jobject.
 	 */
-	JACE_API void setJavaJniObject( jobject object ) throw ( JNIException );
+	JACE_API void setJavaJniObject(jobject object) throw (JNIException);
 
 
 	/**
@@ -231,7 +203,7 @@ protected:
 	 * @throws the corresponding C++ proxy exception, if a java exception
 	 *   is thrown during method execution.
 	 */
-	JACE_API jobject newObject( const JArguments& arguments );
+	JACE_API jobject newObject(const JArguments& arguments);
 
 	/**
 	 * Constructs a new instance of the given class
@@ -243,11 +215,10 @@ protected:
 	 * @throws the corresponding C++ proxy exception, if a java exception
 	 *   is thrown during method execution.
 	 */
-	JACE_API jobject newObject( const JClass& jClass, const JArguments& arguments );
+	JACE_API jobject newObject(const JClass& jClass, const JArguments& arguments);
 };
 
 
-END_NAMESPACE_2( jace, proxy )
+END_NAMESPACE_2(jace, proxy)
 
 #endif
-

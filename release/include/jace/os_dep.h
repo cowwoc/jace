@@ -43,9 +43,9 @@
  *
  * It's possible to run Comeau in Microsoft compatibility mode.
  * In that case, we should deal with any Comeau issues separately.
- *
  */
-#if ( defined _MSC_VER && ! defined __COMO__  )
+#if (defined _MSC_VER && !defined __COMO__)
+
   /**
    * Indicate that we are using the MSVC compiler.
    */
@@ -54,41 +54,35 @@
   /**
    * Shut up about debug identifier truncation since we really
    * can't do anything about it anyway.
-   *
    */
   #pragma warning( disable : 4786 )
 
   /**
    * Shut up about 'performance warnings' related to boolean
    * conversions.
-   *
    */
   #pragma warning( disable : 4800 )
 
   /**
    * Turn off warnings about inheritance of methods via dominance
    * in virtual inheritance.
-	 *
    */
   #pragma warning( disable : 4250 )
 
   /**
    * Turn off warnings about unexpected storage-class
    * or type specifiers.
-	 *
    */
   #pragma warning( once : 4518 )
 
   /**
    * Turn off warnings about "conditional expression is constant" such as "while(true)".
-   *
    */
   #pragma warning( disable : 4127 )
 
   /**
    * Turn off warning to avoid a compiler bug triggered by the use of multiple inheritance.
    * @see http://groups.google.com/group/microsoft.public.vsnet.general/browse_thread/thread/1ec41da52896031d
-   *
    */
   #pragma warning( disable : 4673 )
 
@@ -97,7 +91,6 @@
 	 * Microsoft's functions even if we wanted to.
 	 *
 	 * @see http://www.stonesteps.ca/services/consulting/faq.asp?qid=q20060128-01&topic=consulting
-	 *
 	 */
 	#ifndef _SECURE_SCL
 		#define _SECURE_SCL 0
@@ -109,35 +102,26 @@
 	/**
    * Visual C++ 6.0 and earlier requires template specialization definitions
    * to appear in the header.
-   *
    */
   #define PUT_TSDS_IN_HEADER
 
   /**
-   * Virtual inheritance doesn't work like it should. When trying to initialize the
+   * 1. Virtual inheritance doesn't work like it should. When trying to initialize the
    * virtual base class in an initializer list, the compiler complains that
    * "the object has already been initialized". Pretty much a non-sensical error.
-   *
-   * Only Visual C++ 6.0 seems to be having a problem here.
 	 *
-   */
-  #if _MSC_VER <= 1200
-    #define VIRTUAL_INHERITANCE_IS_BROKEN
-  #endif
-
-  /**
-   * Visual C++ 6.0 has a problem where you must create using declarations
+   * 2. Visual C++ 6.0 has a problem where you must create using declarations
    * for each parameter type of a template class.
    *
+   * Only Visual C++ 6.0 seems to be having a problem here.
    */
   #if _MSC_VER <= 1200
-    #define JACE_BROKEN_USING_DECLARATION
+    #error Visual C++ 6.0 is not supported
   #endif
 
   /**
    * VC++ 7.0 doesn't support exception specifications correctly, so it generates hundreds
    * of warnings.
-   *
    */
   #if _MSC_VER >= 1300
     #pragma warning( disable : 4290 )
@@ -161,30 +145,25 @@
 /**
  * Deal with g++'isms. Jace has only been tested with g++3.0+, but we'll just treat
  * all versions the same way for now.
- *
  */
 #elif defined __GNUG__
 
 	/**
 	 * All symbols that aren't local or static are exported by default.
-	 *
 	 */
 	#define JACE_API
   /**
 	 * This is a win32-specific hack.
-	 *
 	 */
 	#define JACE_TEMPLATE_EXTERN
 
   /**
    * Requires template specialization definitions to appear in the header.
-   *
    */
   #define PUT_TSDS_IN_HEADER
 
   /**
    * Supports the new-style sstreams.
-   *
    */
   #define SUPPORTS_SSTREAM
 
@@ -194,12 +173,10 @@
 
 	/**
 	 * All symbols that aren't local or static are exported by default.
-	 *
 	 */
 	#define JACE_API
   /**
 	 * This is a win32-specific hack.
-	 *
 	 */
 	#define JACE_TEMPLATE_EXTERN
 	#define SUPPORTS_SSTREAM

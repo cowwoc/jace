@@ -13,7 +13,6 @@ BEGIN_NAMESPACE( jace )
  * An operation has failed because the virtual machine has shut down.
  *
  * @author Toby Reyelts
- *
  */
 class VirtualMachineShutdownError : public ::jace::JNIException
 {

@@ -1,6 +1,10 @@
 
 #include <string>
 
+#ifndef JACE_OPERATORS_H
+#include "jace/operators.h"
+#endif
+
 BEGIN_NAMESPACE( jace )
 
 /**

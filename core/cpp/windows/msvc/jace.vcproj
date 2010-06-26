@@ -21,11 +21,11 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\..\..\..\release\lib\windows\i386\$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\release\lib\windows\i386\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\include;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -102,16 +102,16 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_thread-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_date_time-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc*-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_thread-vc*-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_date_time-vc*-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -132,7 +132,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\include;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -190,16 +190,16 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_thread-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_date_time-vc90-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc*-mt-gd-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_thread-vc*-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_date_time-vc*-mt-gd-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\..\..\..\release\lib\windows\i386\$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\release\lib\windows\i386\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -221,7 +221,7 @@
 				AdditionalOptions="/MP"
 				Optimization="2"
 				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\include;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -275,16 +275,17 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_thread-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_date_time-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\boost_thread-vc*-mt-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_thread-vc*-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage32\lib\libboost_date_time-vc*-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)"
+			OutputDirectory="..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
+			CharacterSet="1"
+			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -307,7 +308,7 @@
 				AdditionalOptions="/MP"
 				Optimization="2"
 				FavorSizeOrSpeed="0"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\..\include;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(JAVA_HOME)\include&quot;;..\..\include;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;JACE_EXPORTS;BOOST_THREAD_DYN_LINK"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -362,7 +363,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc90-mt-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_thread-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_date_time-vc90-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
+				CommandLine="xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\boost_thread-vc*-mt-1*.dll&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_thread-vc*-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;xcopy /F /Y &quot;%BOOST_HOME%\stage64\lib\libboost_date_time-vc*-mt-1*.lib&quot; &quot;$(OutDir)&quot;&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -378,157 +379,157 @@
 				Name="jace"
 				>
 				<File
-					RelativePath="..\..\..\source\jace\BaseException.cpp"
+					RelativePath="..\..\source\jace\BaseException.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\ElementProxy.cpp"
+					RelativePath="..\..\source\jace\ElementProxy.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\ElementProxyHelper.cpp"
+					RelativePath="..\..\source\jace\ElementProxyHelper.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JArguments.cpp"
+					RelativePath="..\..\source\jace\JArguments.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JArray.cpp"
+					RelativePath="..\..\source\jace\JArray.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JArrayHelper.cpp"
+					RelativePath="..\..\source\jace\JArrayHelper.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JClass.cpp"
+					RelativePath="..\..\source\jace\JClass.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JClassImpl.cpp"
+					RelativePath="..\..\source\jace\JClassImpl.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JConstructor.cpp"
+					RelativePath="..\..\source\jace\JConstructor.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JEnlister.cpp"
+					RelativePath="..\..\source\jace\JEnlister.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JFactory.cpp"
+					RelativePath="..\..\source\jace\JFactory.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JField.cpp"
+					RelativePath="..\..\source\jace\JField.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JFieldHelper.cpp"
+					RelativePath="..\..\source\jace\JFieldHelper.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JFieldProxy.cpp"
+					RelativePath="..\..\source\jace\JFieldProxy.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JFieldProxyHelper.cpp"
+					RelativePath="..\..\source\jace\JFieldProxyHelper.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JMethod.cpp"
+					RelativePath="..\..\source\jace\JMethod.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JNIException.cpp"
+					RelativePath="..\..\source\jace\JNIException.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JNIHelper.cpp"
+					RelativePath="..\..\source\jace\JNIHelper.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\JSignature.cpp"
+					RelativePath="..\..\source\jace\JSignature.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\operators.cpp"
+					RelativePath="..\..\source\jace\operators.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\OptionList.cpp"
+					RelativePath="..\..\source\jace\OptionList.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\Peer.cpp"
+					RelativePath="..\..\source\jace\Peer.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\UnixVmLoader.cpp"
+					RelativePath="..\..\source\jace\UnixVmLoader.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\VmLoader.cpp"
+					RelativePath="..\..\source\jace\VmLoader.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\source\jace\Win32VmLoader.cpp"
+					RelativePath="..\..\source\jace\Win32VmLoader.cpp"
 					>
 				</File>
 				<Filter
 					Name="proxy"
 					>
 					<File
-						RelativePath="..\..\..\source\jace\proxy\JNull.cpp"
+						RelativePath="..\..\source\jace\proxy\JNull.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\source\jace\proxy\JObject.cpp"
+						RelativePath="..\..\source\jace\proxy\JObject.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\source\jace\proxy\JValue.cpp"
+						RelativePath="..\..\source\jace\proxy\JValue.cpp"
 						>
 					</File>
 					<Filter
 						Name="types"
 						>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JBoolean.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JBoolean.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JByte.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JByte.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JChar.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JChar.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JDouble.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JDouble.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JFloat.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JFloat.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JInt.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JInt.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JLong.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JLong.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JShort.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JShort.cpp"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\source\jace\proxy\types\JVoid.cpp"
+							RelativePath="..\..\source\jace\proxy\types\JVoid.cpp"
 							>
 						</File>
 					</Filter>
@@ -548,177 +549,177 @@
 				Name="jace"
 				>
 				<File
-					RelativePath="..\..\..\include\jace\BaseException.h"
+					RelativePath="..\..\include\jace\BaseException.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\ElementProxy.h"
+					RelativePath="..\..\include\jace\ElementProxy.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\ElementProxyHelper.h"
+					RelativePath="..\..\include\jace\ElementProxyHelper.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JArguments.h"
+					RelativePath="..\..\include\jace\JArguments.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JArray.h"
+					RelativePath="..\..\include\jace\JArray.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JArrayHelper.h"
+					RelativePath="..\..\include\jace\JArrayHelper.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JClass.h"
+					RelativePath="..\..\include\jace\JClass.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JClassImpl.h"
+					RelativePath="..\..\include\jace\JClassImpl.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JConstructor.h"
+					RelativePath="..\..\include\jace\JConstructor.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JEnlister.h"
+					RelativePath="..\..\include\jace\JEnlister.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JFactory.h"
+					RelativePath="..\..\include\jace\JFactory.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JField.h"
+					RelativePath="..\..\include\jace\JField.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JFieldHelper.h"
+					RelativePath="..\..\include\jace\JFieldHelper.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JFieldProxy.h"
+					RelativePath="..\..\include\jace\JFieldProxy.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JFieldProxyHelper.h"
+					RelativePath="..\..\include\jace\JFieldProxyHelper.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JMethod.h"
+					RelativePath="..\..\include\jace\JMethod.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JNIException.h"
+					RelativePath="..\..\include\jace\JNIException.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JNIHelper.h"
+					RelativePath="..\..\include\jace\JNIHelper.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\JSignature.h"
+					RelativePath="..\..\include\jace\JSignature.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\namespace.h"
+					RelativePath="..\..\include\jace\namespace.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\operators.h"
+					RelativePath="..\..\include\jace\operators.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\OptionList.h"
+					RelativePath="..\..\include\jace\OptionList.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\os_dep.h"
+					RelativePath="..\..\include\jace\os_dep.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\Peer.h"
+					RelativePath="..\..\include\jace\Peer.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\StaticVmLoader.h"
+					RelativePath="..\..\include\jace\StaticVmLoader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\UnixVmLoader.h"
+					RelativePath="..\..\include\jace\UnixVmLoader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\VirtualMachineRunningError.h"
+					RelativePath="..\..\include\jace\VirtualMachineRunningError.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\VirtualMachineShutdownError.h"
+					RelativePath="..\..\include\jace\VirtualMachineShutdownError.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\VmLoader.h"
+					RelativePath="..\..\include\jace\VmLoader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\include\jace\Win32VmLoader.h"
+					RelativePath="..\..\include\jace\Win32VmLoader.h"
 					>
 				</File>
 				<Filter
 					Name="proxy"
 					>
 					<File
-						RelativePath="..\..\..\include\jace\proxy\JNull.h"
+						RelativePath="..\..\include\jace\proxy\JNull.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\include\jace\proxy\JObject.h"
+						RelativePath="..\..\include\jace\proxy\JObject.h"
 						>
 					</File>
 					<File
-						RelativePath="..\..\..\include\jace\proxy\JValue.h"
+						RelativePath="..\..\include\jace\proxy\JValue.h"
 						>
 					</File>
 					<Filter
 						Name="types"
 						>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JBoolean.h"
+							RelativePath="..\..\include\jace\proxy\types\JBoolean.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JByte.h"
+							RelativePath="..\..\include\jace\proxy\types\JByte.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JChar.h"
+							RelativePath="..\..\include\jace\proxy\types\JChar.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JDouble.h"
+							RelativePath="..\..\include\jace\proxy\types\JDouble.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JFloat.h"
+							RelativePath="..\..\include\jace\proxy\types\JFloat.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JInt.h"
+							RelativePath="..\..\include\jace\proxy\types\JInt.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JLong.h"
+							RelativePath="..\..\include\jace\proxy\types\JLong.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JShort.h"
+							RelativePath="..\..\include\jace\proxy\types\JShort.h"
 							>
 						</File>
 						<File
-							RelativePath="..\..\..\include\jace\proxy\types\JVoid.h"
+							RelativePath="..\..\include\jace\proxy\types\JVoid.h"
 							>
 						</File>
 					</Filter>

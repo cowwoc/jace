@@ -75,6 +75,7 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <iostream>
 
 
 BEGIN_NAMESPACE( jace )

@@ -18,7 +18,7 @@
 #include "jace/JClass.h"
 #endif
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * The base class for all Jace Peers.
@@ -37,9 +37,9 @@ public:
   /**
    * Creates a new Peer based on the specified object.
    */
-  JACE_API Peer( jobject obj );
+  JACE_API Peer(jobject obj);
 
-  /**
+	/**
    * Called by Jace to initialize the Peer immediately after it has been constructed.
    *
    * Empty by default, this should be overriden by Developers to provide
@@ -63,7 +63,7 @@ public:
   /**
    * Returns the class type of the Java Peer.
    */
-  JACE_API virtual const JClass& getJavaJniClass() const throw ( JNIException ) = 0;
+  JACE_API virtual const JClass& getJavaJniClass() const throw (JNIException) = 0;
 
 protected:
   /**
@@ -81,15 +81,23 @@ protected:
    * Releases the specified global reference that was allocated
    * by a call to getGlobalRef.
    */
-  JACE_API void releaseGlobalRef( jobject ref );
+  JACE_API void releaseGlobalRef(jobject ref);
 
 private:
   /**
+   * Prevent copying.
+   */
+  Peer(const Peer&);
+  /**
+   * Prevent assignment.
+   */
+	Peer& operator=(const Peer&);
+  /**
 	 * The weak reference.
    */
-  jweak mWeakRef;
+  jweak weakRef;
 };
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif // #ifndef JACE_PEER_H

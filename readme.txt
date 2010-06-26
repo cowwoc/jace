@@ -25,6 +25,30 @@ This package includes the following:
 For questions about Jace, visit http://sourceforge.net/projects/jace/
 
 
+Building Boost C++
+------------------
+
+Jace's compilation depends upon the Boost C++ library. To build Boost C++ under Windows follow the following steps:
+
+1) Download the latest release of Boost C++ from http://sourceforge.net/projects/boost/files/
+2) Download the latest release of Boost Jam from http://sourceforge.net/projects/boost/files/boost-jam/
+3) Create a new system-wide environment variable called BOOST_HOME to denote Boost's installation directory
+4) Extract both packages into <BOOST_HOME>
+5) Open a Visual Studio Command Prompt
+6) cd <BOOST_HOME>
+7) To build the 32-bit version run "bjam toolset=msvc address-model=32 --stagedir=stage32 --build-type=complete stage"
+8) To build the 64-bit version run "bjam toolset=msvc address-model=64 --stagedir=stage64 --build-type=complete stage"
+
+A few notes:
+
+    * Notice that address-model isn't prefixed with the double dashes; that's intentional! If you prefix it,
+      it will not work.
+    * You can add -j%NUMBER_OF_PROCESSORS% to the bjam parameters. This will cause a number of commands
+      to execute in parallel if you've got more cores / CPUs.
+
+9) You're done. See http://www.boost.org/doc/libs/1_43_0/more/getting_started/index.html if you run into any trouble
+
+
 -------------- Future releases
 
 - Plan on fixing the Solaris link bug

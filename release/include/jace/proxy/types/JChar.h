@@ -102,7 +102,7 @@ public:
 	/**
 	 * Support printing of characters.
 	 */
-	friend std::ostream& operator<<( std::ostream& stream, const JChar& val );
+	JACE_API friend std::ostream& operator<<( std::ostream& stream, const JChar& val );
 };
 
 

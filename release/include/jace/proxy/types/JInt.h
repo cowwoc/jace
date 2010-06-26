@@ -41,7 +41,7 @@ BEGIN_NAMESPACE_3( jace, proxy, types )
  * @author Toby Reyelts
  *
  */
-class JInt : public JValue
+class JInt: public JValue
 {
 public:
 	/**
@@ -106,7 +106,7 @@ public:
 	 */
 	JACE_API virtual const ::jace::JClass& getJavaJniClass() const throw ( ::jace::JNIException );
 
-	friend std::ostream& operator<<( std::ostream& stream, const JInt& val );
+	JACE_API friend std::ostream& operator<<( std::ostream& stream, const JInt& val );
 };
 
 

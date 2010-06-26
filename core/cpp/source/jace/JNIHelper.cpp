@@ -513,8 +513,8 @@ JNIEnv* attach() throw (JNIException)
 JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw (JNIException)
 {
 	boost::mutex::scoped_lock lock(jvmMutex);
-  if (jvm == 0)
-    throw VirtualMachineShutdownError("The virtual machine is shut down");
+	if (jvm == 0)
+		throw VirtualMachineShutdownError("The virtual machine is shut down");
 	return attachImpl(jvm, threadGroup, name, daemon);
 }
 
