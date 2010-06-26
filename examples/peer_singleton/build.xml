@@ -10,7 +10,7 @@
     <property name="include_user_members" value="true"/>
     <property name="jar_release_name" value="peer_singleton.jar"/>
 
-    <property name="os" value="win32"/>
+    <property name="os" value="windows"/>
     <property name="platform" value="i386"/>
 
     <target name="-jace.task">
@@ -27,13 +27,6 @@
     <target name="compile">
         <mkdir dir="java/classes"/>
         <javac srcdir="java/jace" destdir="java/classes" includeantruntime="false"/>
-
-        <property environment="env"/>
-        <property name="native.compiler.path" value="${env.VS90COMNTOOLS}/../IDE"/>
-        <exec executable="${native.compiler.path}/devenv.com" failonerror="true">
-            <arg line="/build debug"/>
-            <arg file="cpp/lib/${os}/msvc/peer_singleton.sln"/>
-        </exec>
     </target>
 
     <target name="enhance" depends="-jace.task, compile" description="Runs PeerEnhancer against the peer Java class">
@@ -104,7 +97,7 @@
             </not>
         </condition>
 
-        <property name="libpath" value="cpp/lib/${os}/${platform}/debug${path-separator}../../lib/${os}/${platform}/debug"/>
+        <property name="libpath" value="cpp/${os}/${platform}/debug${path-separator}../../${os}/${platform}/debug"/>
 
         <java fork="true" classname="jace.examples.Singleton">
             <classpath>

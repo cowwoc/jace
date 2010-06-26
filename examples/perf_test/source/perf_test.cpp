@@ -1,4 +1,3 @@
-
 /**
  * Perf_Test
  *
@@ -6,9 +5,7 @@
  * comparisons to direct JNI.
  *
  * @author Toby Reyelts
- *
  */
-
 #include "jace/JMethod.h"
 #include "jace/proxy/types/JInt.h"
 #include "jace/JArguments.h"
@@ -24,7 +21,10 @@ using jace::OptionList;
 #include "jace/JNIException.h"
 using jace::JNIException;
 
-#include "jace/javacast.h"
+#include "jace/VirtualMachineShutdownError.h"
+using jace::VirtualMachineShutdownError;
+
+#include "jace/operators.h"
 using jace::java_cast;
 
 #include "jace/proxy/java/lang/String.h"
@@ -42,6 +42,7 @@ using std::string;
 #include <iostream>
 using std::cout;
 using std::endl;
+using std::cin;
 
 const long count = 500000;
 
@@ -138,12 +139,34 @@ struct JaceExceptionCheck {
 
 struct JaceGetMethod {
 
+	/**
+	 * Used to gain access to jace::Method::getMethodID().
+	 */
+	template<class ResultType> class ProfiledMethod: public jace::JMethod<ResultType>
+	{
+	public:
+		/**
+		 * Creates a new JMethod representing the method with the
+		 * given name, belonging to the given class.
+		 */
+		ProfiledMethod( const std::string& name ): jace::JMethod<ResultType>(name)
+		{}
+
+		/**
+		 * Expose method publically.
+		 */
+		jmethodID getMethodID( const jace::JClass& jClass, const jace::JArguments& arguments, bool isStatic = false )
+		{
+			return jace::JMethod<ResultType>::getMethodID(jClass, arguments, isStatic);
+		}
+	};
+
   void operator()() {
-    const jace::JClass* jClass = Object::staticGetJavaJniClass();
+    const jace::JClass& jClass = Object::staticGetJavaJniClass();
     jace::JArguments arguments;
 
     for ( int i = 0; i < count; ++i ) {
-      jace::JMethod<jace::proxy::types::JInt> method( "hashCode" );
+      ProfiledMethod<jace::proxy::types::JInt> method( "hashCode" );
       method.getMethodID( jClass, arguments );
     }
   }
@@ -162,9 +185,11 @@ template <class Op> void perform( Op& op, string msg ) {
 
 int main() {
 
-  jace::helper::createVm( StaticVmLoader( JNI_VERSION_1_2 ), OptionList() );
-
   try { 
+		OptionList list;
+		list.push_back( jace::ClassPath( "jace-runtime.jar" ) );
+	  jace::helper::createVm( StaticVmLoader( JNI_VERSION_1_2 ), list );
+
     perform( JniHashCodeInvoke(), "Average JNI Object.hashCode" );
     perform( JaceHashCodeInvoke(), "Average Jace Object.hashCode" );
     perform( JaceAttach(), "Average Jace attach" );
@@ -173,11 +198,20 @@ int main() {
     perform( JaceExceptionCheck(), "Average ExceptionCheck" );
     perform( JaceGetMethod(), "Average Method lookup" );
   }
+	catch ( VirtualMachineShutdownError& ) {
+		cout << "The JVM was terminated in mid-execution. " << endl;
+    return -2;
+	}
+  catch ( JNIException& jniException ) {
+    cout << "An unexpected JNI error occured. " << jniException.what() << endl;
+    return -2;
+  }
+	catch (Throwable& t) {
+		t.printStackTrace();
+		return -2;
+	}
   catch ( std::exception& e ) {
     cout << e.what() << endl;
   }
-
   return 0;
 }
-
-

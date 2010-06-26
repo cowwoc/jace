@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\include;..\..\..\..\..\..\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="..\..\include;..\..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -66,7 +66,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\..\..\lib\msvc\i386\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\..\release\lib\windows\i386\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"
@@ -91,7 +91,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\..\lib\msvc\i386\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\..\..\..\release\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\release\lib\windows\i386\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -120,7 +120,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\include;..\..\..\..\..\..\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="..\..\include;..\..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -142,7 +142,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\..\..\lib\msvc\amd64\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="17"
@@ -167,7 +167,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\..\lib\msvc\amd64\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\..\..\..\release\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -197,7 +197,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\include;..\..\..\..\..\..\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="..\..\include;..\..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -218,7 +218,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\..\..\lib\msvc\i386\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\..\release\lib\windows\i386\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -245,7 +245,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\..\lib\msvc\i386\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\..\..\..\release\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\release\lib\windows\i386\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 		<Configuration
@@ -276,7 +276,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\include;..\..\..\..\..\..\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
+				AdditionalIncludeDirectories="..\..\include;..\..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -297,7 +297,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\..\..\lib\msvc\amd64\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -324,7 +324,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy ..\..\..\..\..\..\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\..\lib\msvc\amd64\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
+				CommandLine="copy ..\..\..\..\..\release\lib\jace-runtime.jar $(TargetDir)&#x0D;&#x0A;copy ..\..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)\jace.dll $(TargetDir)&#x0D;&#x0A;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -349,31 +349,31 @@
 							Name="io"
 							>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\io\BufferedReader.cpp"
+								RelativePath="..\..\source\jace\proxy\java\io\BufferedReader.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\io\Closeable.cpp"
+								RelativePath="..\..\source\jace\proxy\java\io\Closeable.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\io\InputStream.cpp"
+								RelativePath="..\..\source\jace\proxy\java\io\InputStream.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\io\InputStreamReader.cpp"
+								RelativePath="..\..\source\jace\proxy\java\io\InputStreamReader.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\io\IOException.cpp"
+								RelativePath="..\..\source\jace\proxy\java\io\IOException.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\io\Reader.cpp"
+								RelativePath="..\..\source\jace\proxy\java\io\Reader.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\io\Serializable.cpp"
+								RelativePath="..\..\source\jace\proxy\java\io\Serializable.cpp"
 								>
 							</File>
 						</Filter>
@@ -381,62 +381,62 @@
 							Name="lang"
 							>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\CharSequence.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\CharSequence.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Class.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Class.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Comparable.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Comparable.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Exception.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Exception.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Integer.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Integer.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Number.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Number.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Object.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Object.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Readable.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Readable.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\RuntimeException.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\RuntimeException.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\String.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\String.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\lang\Throwable.cpp"
+								RelativePath="..\..\source\jace\proxy\java\lang\Throwable.cpp"
 								>
 							</File>
 							<Filter
 								Name="reflect"
 								>
 								<File
-									RelativePath="..\..\..\source\jace\proxy\java\lang\reflect\AnnotatedElement.cpp"
+									RelativePath="..\..\source\jace\proxy\java\lang\reflect\AnnotatedElement.cpp"
 									>
 								</File>
 								<File
-									RelativePath="..\..\..\source\jace\proxy\java\lang\reflect\GenericDeclaration.cpp"
+									RelativePath="..\..\source\jace\proxy\java\lang\reflect\GenericDeclaration.cpp"
 									>
 								</File>
 								<File
-									RelativePath="..\..\..\source\jace\proxy\java\lang\reflect\Type.cpp"
+									RelativePath="..\..\source\jace\proxy\java\lang\reflect\Type.cpp"
 									>
 								</File>
 							</Filter>
@@ -445,7 +445,7 @@
 							Name="net"
 							>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\java\net\URL.cpp"
+								RelativePath="..\..\source\jace\proxy\java\net\URL.cpp"
 								>
 							</File>
 						</Filter>
@@ -457,7 +457,7 @@
 							Name="examples"
 							>
 							<File
-								RelativePath="..\..\..\source\jace\proxy\jace\examples\PeerExample.cpp"
+								RelativePath="..\..\source\jace\proxy\jace\examples\PeerExample.cpp"
 								>
 							</File>
 						</Filter>
@@ -473,15 +473,15 @@
 							Name="examples"
 							>
 							<File
-								RelativePath="..\..\..\source\jace\peer\jace\examples\PeerExample_peer.cpp"
+								RelativePath="..\..\source\jace\peer\jace\examples\PeerExample_peer.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\peer\jace\examples\PeerExampleImpl.cpp"
+								RelativePath="..\..\source\jace\peer\jace\examples\PeerExampleImpl.cpp"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\source\jace\peer\jace\examples\PeerExampleMappings.cpp"
+								RelativePath="..\..\source\jace\peer\jace\examples\PeerExampleMappings.cpp"
 								>
 							</File>
 						</Filter>
@@ -507,31 +507,31 @@
 							Name="io"
 							>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\io\BufferedReader.h"
+								RelativePath="..\..\include\jace\proxy\java\io\BufferedReader.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\io\Closeable.h"
+								RelativePath="..\..\include\jace\proxy\java\io\Closeable.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\io\InputStream.h"
+								RelativePath="..\..\include\jace\proxy\java\io\InputStream.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\io\InputStreamReader.h"
+								RelativePath="..\..\include\jace\proxy\java\io\InputStreamReader.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\io\IOException.h"
+								RelativePath="..\..\include\jace\proxy\java\io\IOException.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\io\Reader.h"
+								RelativePath="..\..\include\jace\proxy\java\io\Reader.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\io\Serializable.h"
+								RelativePath="..\..\include\jace\proxy\java\io\Serializable.h"
 								>
 							</File>
 						</Filter>
@@ -539,62 +539,62 @@
 							Name="lang"
 							>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\CharSequence.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\CharSequence.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Class.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Class.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Comparable.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Comparable.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Exception.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Exception.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Integer.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Integer.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Number.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Number.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Object.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Object.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Readable.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Readable.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\RuntimeException.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\RuntimeException.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\String.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\String.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\lang\Throwable.h"
+								RelativePath="..\..\include\jace\proxy\java\lang\Throwable.h"
 								>
 							</File>
 							<Filter
 								Name="reflect"
 								>
 								<File
-									RelativePath="..\..\..\include\jace\proxy\java\lang\reflect\AnnotatedElement.h"
+									RelativePath="..\..\include\jace\proxy\java\lang\reflect\AnnotatedElement.h"
 									>
 								</File>
 								<File
-									RelativePath="..\..\..\include\jace\proxy\java\lang\reflect\GenericDeclaration.h"
+									RelativePath="..\..\include\jace\proxy\java\lang\reflect\GenericDeclaration.h"
 									>
 								</File>
 								<File
-									RelativePath="..\..\..\include\jace\proxy\java\lang\reflect\Type.h"
+									RelativePath="..\..\include\jace\proxy\java\lang\reflect\Type.h"
 									>
 								</File>
 							</Filter>
@@ -603,7 +603,7 @@
 							Name="net"
 							>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\java\net\URL.h"
+								RelativePath="..\..\include\jace\proxy\java\net\URL.h"
 								>
 							</File>
 						</Filter>
@@ -615,7 +615,7 @@
 							Name="examples"
 							>
 							<File
-								RelativePath="..\..\..\include\jace\proxy\jace\examples\PeerExample.h"
+								RelativePath="..\..\include\jace\proxy\jace\examples\PeerExample.h"
 								>
 							</File>
 						</Filter>
@@ -631,11 +631,11 @@
 							Name="examples"
 							>
 							<File
-								RelativePath="..\..\..\include\jace\peer\jace\examples\PeerExample.h"
+								RelativePath="..\..\include\jace\peer\jace\examples\PeerExample.h"
 								>
 							</File>
 							<File
-								RelativePath="..\..\..\include\jace\peer\jace\examples\PeerExample_user.h"
+								RelativePath="..\..\include\jace\peer\jace\examples\PeerExample_user.h"
 								>
 							</File>
 						</Filter>

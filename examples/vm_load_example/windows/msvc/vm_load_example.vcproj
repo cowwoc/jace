@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="array_example"
-	ProjectGUID="{4B0B99D1-FCDB-4E8D-A886-106ACA72351C}"
-	RootNamespace="array_example"
+	Name="vm_load_example"
+	ProjectGUID="{15FBB9D7-169D-4A39-B10E-68B7003F1009}"
+	RootNamespace="vm_load_example"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -49,7 +49,9 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
+				BrowseInformation="1"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -65,10 +67,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\i386\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -125,7 +131,9 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
+				BrowseInformation="1"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -141,10 +149,14 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(OutDir)/example1.pdb"
 				SubSystem="1"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -175,6 +187,7 @@
 			OutputDirectory="i386\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -195,12 +208,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\proxies\include;..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -217,12 +228,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\i386\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -253,6 +267,7 @@
 			OutputDirectory="amd64\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -274,12 +289,10 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\proxies\include;..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -296,12 +309,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib jace.lib"
+				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				RandomizedBaseAddress="2"
+				DataExecutionPrevention="2"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -336,120 +352,12 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
-			<File
-				RelativePath="..\..\source\array_example.cpp"
-				>
-			</File>
-			<Filter
-				Name="jace"
-				>
-				<Filter
-					Name="proxy"
-					>
-					<Filter
-						Name="java"
-						>
-						<Filter
-							Name="io"
-							>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\io\Serializable.cpp"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="lang"
-							>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\lang\CharSequence.cpp"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\lang\Comparable.cpp"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\lang\Integer.cpp"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\lang\Number.cpp"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\lang\Object.cpp"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\lang\String.cpp"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\source\jace\proxy\java\lang\Throwable.cpp"
-								>
-							</File>
-						</Filter>
-					</Filter>
-				</Filter>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<Filter
-				Name="jace"
-				>
-				<Filter
-					Name="proxy"
-					>
-					<Filter
-						Name="java"
-						>
-						<Filter
-							Name="io"
-							>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\io\Serializable.h"
-								>
-							</File>
-						</Filter>
-						<Filter
-							Name="lang"
-							>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\lang\CharSequence.h"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\lang\Comparable.h"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\lang\Integer.h"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\lang\Number.h"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\lang\Object.h"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\lang\String.h"
-								>
-							</File>
-							<File
-								RelativePath="..\..\proxies\include\jace\proxy\java\lang\Throwable.h"
-								>
-							</File>
-						</Filter>
-					</Filter>
-				</Filter>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

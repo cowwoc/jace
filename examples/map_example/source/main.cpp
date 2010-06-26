@@ -26,14 +26,23 @@ using jace::proxy::java::util::Map;
 #include "jace/proxy/java/util/HashMap.h"
 using jace::proxy::java::util::HashMap;
 
-#include "jace/proxy/java/util/Map.Entry.h"
+#include "jace/proxy/java/util/Map_Entry.h"
 using jace::proxy::java::util::Map_Entry;
 
 #include "jace/proxy/java/util/Iterator.h"
 using jace::proxy::java::util::Iterator;
 
-#include "jace/javacast.h"
+#include "jace/operators.h"
 using jace::java_cast;
+
+#include "jace/JNIException.h"
+using jace::JNIException;
+
+#include "jace/VirtualMachineShutdownError.h"
+using jace::VirtualMachineShutdownError;
+
+#include "jace/proxy/java/lang/Throwable.h"
+using jace::proxy::java::lang::Throwable;
 
 #include <vector>
 using std::vector;
@@ -47,7 +56,9 @@ int main() {
 
   try {
     StaticVmLoader loader( JNI_VERSION_1_2 );
-    jace::helper::createVm( loader, OptionList(), false );
+    OptionList list;
+		list.push_back( jace::ClassPath( "jace-runtime.jar" ) );
+    jace::helper::createVm( loader, list, false );
 
     for ( int i = 0; i < 1000; ++i ) {
 
@@ -67,6 +78,18 @@ int main() {
       }
     }
   }
+	catch ( VirtualMachineShutdownError& ) {
+		cout << "The JVM was terminated in mid-execution. " << endl;
+    return -2;
+	}
+  catch ( JNIException& jniException ) {
+    cout << "An unexpected JNI error occured. " << jniException.what() << endl;
+    return -2;
+  }
+	catch (Throwable& t) {
+		t.printStackTrace();
+		return -2;
+	}
   catch ( std::exception& e ) {
     cout << e.what() << endl;
     return -1;
