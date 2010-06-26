@@ -172,7 +172,7 @@ public:
 	}
 
 
-private:
+protected:
 	/**
 	 * Returns the jmethodID matching the signature for the given arguments.
 	 */
@@ -230,7 +230,7 @@ private:
 		return mMethodID;
 	}
 
-
+private:
 	std::string mName;
 	jmethodID mMethodID;
 };

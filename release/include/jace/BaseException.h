@@ -30,52 +30,51 @@ BEGIN_NAMESPACE( jace )
  * copy or assignment. I believe that there isn't any hope of
  * recovery anyway, if you're application runs out of memory
  * while trying to throw an exception. If somebody can think
- * of a better way of handling this, I'd like to here it.
+ * of a better way of handling this, I'd like to hear it.
  *
  * @author Toby Reyelts
  */
-class BaseException : public std::exception {
-
-
+class BaseException : public std::exception
+{
 public:
+	/**
+	 * Creates a new Exception with the given mesage.
+	 */
+	JACE_API BaseException( const std::string& value ) throw ();
 
-/**
- * Creates a new Exception with the given mesage.
- *
- */
-JACE_API BaseException( const std::string& value ) throw ();
+	/**
+	 * Creates a new Exception with the given mesage.
+	 */
+	JACE_API BaseException( const std::wstring& value ) throw ();
 
-/**
- * Creates a new Exception from the given Exception.
- *
- */
-JACE_API BaseException( const BaseException& rhs ) throw ();
+	/**
+	 * Creates a new Exception from the given Exception.
+	 */
+	JACE_API BaseException( const BaseException& rhs ) throw ();
 
-/**
- * Assigns this Exception to the given Exception.
- *
- */
-JACE_API BaseException& operator=( const BaseException& rhs ) throw ();
+	/**
+	 * Assigns this Exception to the given Exception.
+	 *
+	 */
+	JACE_API BaseException& operator=( const BaseException& rhs ) throw ();
 
-/**
- * Destroys this Exception.
- *
- */
-JACE_API virtual ~BaseException() throw ();
+	/**
+	 * Destroys this Exception.
+	 *
+	 */
+	JACE_API virtual ~BaseException() throw ();
 
-/**
- * Returns the message this Exception was created with.
- *
- */
-JACE_API virtual const char *what() const throw ();
-
+	/**
+	 * Returns the message this Exception was created with.
+	 *
+	 */
+	JACE_API virtual const char *what() const throw ();
 
 private:
-
-/* The message for this Exception.
- */
-std::string mValue;
-
+	/**
+	 * The message for this Exception.
+	 */
+	std::string mValue;
 };
 
 

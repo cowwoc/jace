@@ -1,6 +1,12 @@
 
 #include "jace/JNIHelper.h"
 
+#include "jace/JNIException.h"
+using jace::JNIException;
+
+#include "jace/VirtualMachineShutdownError.h"
+using jace::VirtualMachineShutdownError;
+
 #include "jace/OptionList.h"
 using jace::OptionList;
 using jace::Option;
@@ -77,20 +83,28 @@ int main( int argc, char* argv[] ) {
   OptionList options;
 
   options.push_back( ClassPath( "." ) );
-  options.push_back( Verbose( Verbose::Jni, Verbose::Class ) );
+	options.push_back( ClassPath( "jace-runtime.jar" ) );
+	//options.push_back( Verbose ( Verbose::JNI ) );
+	//options.push_back( Verbose ( Verbose::CLASS ) );
   options.push_back( CustomOption( "-Xmx128M" ) );
 
   try {
     jace::helper::createVm( loader, options );
+  }
+	catch ( VirtualMachineShutdownError& ) {
+		cout << "The JVM was terminated in mid-execution. " << endl;
+    return -2;
+	}
+  catch ( JNIException& jniException ) {
+    cout << "An unexpected JNI error occured. " << jniException.what() << endl;
+    return -2;
   }
   catch ( std::exception& e ) {
     cout << "Unable to create the virtual machine: " << endl;
     cout << e.what();
     return -2;
   }
-
   cout << "The virtual machine was successfully loaded." << endl;
-
   return 0;
 }
 

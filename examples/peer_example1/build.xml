@@ -13,8 +13,10 @@
     <property name="include_user_members" value="true"/>
     <property name="jar_release_name" value="peer_example1.jar"/>
 
-    <property name="os" value="win32"/>
+    <property name="os" value="windows"/>
     <property name="compiler" value="msvc"/>
+    <property name="platform" value="i386"/>
+    <property name="build.type" value="debug"/>
 
     <target name="-jace.task">
         <property environment="env"/>
@@ -101,10 +103,11 @@
             </not>
         </condition>
 
-        <property name="libpath" value="cpp/lib/${os}/${compiler}/debug${path-separator}../../lib/${os}/${compiler}"/>
+        <property name="libpath" value=".${path-separator}../../release/lib/${os}/${platform}/${build.type}"/>
 
-        <java fork="true" classname="jace.examples.PeerExample">
+        <java fork="true" classname="jace.examples.PeerExample" dir="cpp/${os}/${compiler}/${platform}/${build.type}">
             <classpath>
+            	<pathelement path="cpp/${os}/${compiler}/${platform}/${build.type}/jace-runtime.jar"/>
                 <fileset dir="java/release">
                     <include name="${jar_release_name}"/>
                 </fileset>

@@ -11,7 +11,9 @@
     <property name="jar_release_name" value="peer_singleton.jar"/>
 
     <property name="os" value="windows"/>
+    <property name="compiler" value="msvc"/>
     <property name="platform" value="i386"/>
+    <property name="build.type" value="debug"/>
 
     <target name="-jace.task">
         <property environment="env"/>
@@ -97,10 +99,11 @@
             </not>
         </condition>
 
-        <property name="libpath" value="cpp/${os}/${platform}/debug${path-separator}../../${os}/${platform}/debug"/>
+        <property name="libpath" value=".${path-separator}../../release/lib/${os}/${platform}/${build.type}"/>
 
-        <java fork="true" classname="jace.examples.Singleton">
+        <java fork="true" classname="jace.examples.Singleton" dir="cpp/${os}/${compiler}/${platform}/${build.type}">
             <classpath>
+            	<pathelement path="cpp/${os}/${compiler}/${platform}/${build.type}/jace-runtime.jar"/>
                 <fileset dir="java/release">
                     <include name="${jar_release_name}"/>
                 </fileset>

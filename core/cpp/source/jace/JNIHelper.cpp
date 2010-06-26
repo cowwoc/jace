@@ -434,6 +434,8 @@ void createVm(const VmLoader& loader,
   vm_args.options = jniOptions;
   vm_args.nOptions = jint(options.size());
   vm_args.ignoreUnrecognized = ignoreUnrecognized;
+
+	boost::mutex::scoped_lock lock(jvmMutex);
   jint rc = loader.createJavaVM(&jvm, reinterpret_cast<void**>(&env), &vm_args);
   options.destroyJniOptions(jniOptions);
 
@@ -442,7 +444,6 @@ void createVm(const VmLoader& loader,
     string msg = "Unable to create the virtual machine. The error was " + toString(rc);
     throw JNIException(msg);
   }
-	boost::mutex::scoped_lock lock(jvmMutex);
 	setJavaVmImpl(jvm);
 }
 
@@ -641,7 +642,7 @@ void setJavaVm(JavaVM* _jvm) throw (JNIException)
 	boost::mutex::scoped_lock lock(jvmMutex);
   if (jvm != 0)
     throw VirtualMachineRunningError("The virtual machine is already running");
-	setJavaVmImpl(jvm);
+	setJavaVmImpl(_jvm);
 }
 
 /**

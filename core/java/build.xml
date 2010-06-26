@@ -2,10 +2,15 @@
     <target name="compile">
     	<dirname property="imported.basedir" file="${ant.file.jace.java}"/>
     	
+    	<!--
+    	  -  Retroweaver strips away Generics. If we try compiling against existing classes we'll end up
+    	  -  with casting errors
+    	  -->
+	<delete dir="${imported.basedir}/classes"/>
         <mkdir dir="${imported.basedir}/classes"/>
-
-        <!-- Compile all classes using Java 1.5 except ShutdownHook which uses Java 1.4 -->
-        <javac source="1.5" target="1.5" debug="true" srcdir="source" destdir="classes" includeantruntime="false">
+	
+        <javac source="1.5" target="1.5" debug="true" srcdir="${imported.basedir}/source"
+        destdir="${imported.basedir}/classes" includeantruntime="false">
             <classpath>
                 <fileset dir="${imported.basedir}/lib">
                     <include name="**/*.jar"/>
@@ -13,7 +18,7 @@
             </classpath>
             <compilerarg value="-Xlint"/>
         </javac>
-        <copy todir="classes">
+        <copy todir="${imported.basedir}/classes">
             <fileset dir="${imported.basedir}/source">
                 <include name="jace/ant/task.properties"/>
                 <include name="logback.xml"/>
@@ -42,8 +47,10 @@
 
     <target name="release" depends="retroweaver">
         <mkdir dir="${imported.basedir}/../../release/lib"/>
-        <jar jarfile="${imported.basedir}/../../release/lib/jace.jar" basedir="${imported.basedir}/classes" excludes="jace/util/ShutdownHook.class"/>
-        <jar jarfile="${imported.basedir}/../../release/lib/jace-runtime.jar" basedir="${imported.basedir}/classes" includes="jace/util/ShutdownHook.class"/>
+        <jar jarfile="${imported.basedir}/../../release/lib/jace.jar" basedir="${imported.basedir}/classes"
+            excludes="jace/util/ShutdownHook.class"/>
+        <jar jarfile="${imported.basedir}/../../release/lib/jace-runtime.jar" basedir="${imported.basedir}/classes"
+            includes="jace/util/ShutdownHook.class"/>
         <copy file="${imported.basedir}/lib/retroweaver/retroweaver-rt-2.0.7.jar" todir="${imported.basedir}/../../release/lib"/>
         <copy file="${imported.basedir}/lib/asm/asm-3.3.jar" todir="${imported.basedir}/../../release/lib"/>
         <copy file="${imported.basedir}/lib/asm/asm-commons-3.3.jar" todir="${imported.basedir}/../../release/lib"/>

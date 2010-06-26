@@ -3,30 +3,33 @@
 
 #include <string>
 using std::string;
+using std::wstring;
 
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
-JNIException::JNIException( const string& value ) throw () : 
-  BaseException( value ) {
-}
+JNIException::JNIException(const string& value) throw (): 
+  BaseException(value)
+{}
+
+JNIException::JNIException(const wstring& value) throw (): 
+  BaseException(value)
+{}
+
+JNIException::JNIException(const JNIException& rhs) throw (): 
+  BaseException(rhs)
+{}
 
 
-JNIException::JNIException( const JNIException& rhs ) throw () : 
-  BaseException( rhs ) {
-}
+JNIException& JNIException::operator=(const JNIException& rhs) throw ()
+{
+  if (&rhs == this)
+		return *this;
 
-
-JNIException& JNIException::operator=( const JNIException& rhs ) throw () {
-
-  if ( &rhs == this ) {
-    return *this;
-  }
-
-  ( ( BaseException& ) *this ) = ( BaseException& ) rhs;
+  ((BaseException&) *this) = (BaseException&) rhs;
 
   return *this;
 }
 
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)

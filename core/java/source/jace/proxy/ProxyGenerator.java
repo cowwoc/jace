@@ -623,6 +623,7 @@ public class ProxyGenerator
       output.write("}" + newLine);
       output.write(newLine);
 
+      Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
       output.write("jstring String::createString( const std::string& str )" + newLine);
       output.write("{" + newLine);
       output.write("  JNIEnv* env = helper::attach();" + newLine);
@@ -1448,7 +1449,7 @@ public class ProxyGenerator
     }
     else if (fullyQualifiedName.equals("java.lang.String"))
     {
-      Util.generateComment(output, "Creates a String from a std::string using the default charset.");
+      Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
       output.write("String( const std::string& str );" + newLine);
@@ -1523,7 +1524,7 @@ public class ProxyGenerator
       output.write("private:" + newLine);
       output.write(newLine);
 
-      Util.generateComment(output, "Creates a new jstring from a std::string using the default charset.");
+      Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
       output.write("jstring createString( const std::string& str );" + newLine);
       output.write(newLine);
 

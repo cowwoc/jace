@@ -106,6 +106,22 @@ class Win32VmLoader : public ::jace::VmLoader {
    * @throws JNIException if an error occurs while loading the JVM library.
    */
   JACE_API Win32VmLoader(std::string path, jint jniVersion) throw (JNIException);
+
+	/**
+   * Creates a new VM loader for the specified VM.
+   * The VM to be loaded is specified by the path to the shared library.
+   *
+   * @param path - The path to the shared library implementing the VM. Specifying
+	 *               a filename with no path will result in the use of the standard
+	 *               library search path (see LoadLibrary() for more information).
+   *
+   * @param version - The version of JNI to use. For example,
+   * JNI_VERSION_1_2 or JNI_VERSION_1_4.
+	 *
+   * @throws JNIException if an error occurs while loading the JVM library.
+   */
+  JACE_API Win32VmLoader(std::wstring path, jint jniVersion) throw (JNIException);
+
 	JACE_API virtual ~Win32VmLoader();
 
   JACE_API jint getCreatedJavaVMs(JavaVM **vmBuf, jsize bufLen, jsize *nVMs) const;
@@ -118,7 +134,7 @@ private:
   GetCreatedJavaVMs_t getCreatedJavaVMsPtr;
   CreateJavaVM_t createJavaVMPtr;
 
-  std::string path;
+  std::wstring path;
   HINSTANCE handle;
 
   /**
@@ -138,12 +154,36 @@ private:
    */
   void specifyVm( JVMVendor jvmVendor, JVMType jvmType, std::string version );
 
-  /**
+	/**
+   * Method to specify a VM and initialize the VM entry points.
+   * The VM to be loaded could be selected by vendor, type and version parameters
+   *
+   * @param jvmVendor - Vendor of the VM to be loaded. Valid values are JVMV_IBM and JVMV_SUN
+   *        The default value is JVMV_SUN. 
+   * @param jvmType - Type of the VM to be loaded. Valid values are
+   *        JVMT_DEFAULT, JVMT_CLASSIC, JVMT_HOTSPOT, JVMT_SERVER, JVMT_CLIENT, JVMT_DEBUG.
+   *    		The default value is JVMT_DEFAULT, which means that the lastest Sun VM will be used.
+   *        Note, that not every combination with jvmVendor is possible.
+   * @param version - Version of the VM as String (e.g. "1.3.1", "1.4")
+   *        The default value is the version of the lastest Sun VM installed.
+   *
+   * @throws JNIException if an error occurs while trying to look up the VM.
+   */
+  void specifyVm( JVMVendor jvmVendor, JVMType jvmType, std::wstring version );
+
+	/**
    * Loads the VM at the specified path.
    *
    * @throws JNIException if an error occurs while trying to load the VM.
    */
   void loadVm( const std::string& path ) throw ( JNIException );
+
+	/**
+   * Loads the VM at the specified path.
+   *
+   * @throws JNIException if an error occurs while trying to load the VM.
+   */
+	void loadVm( const std::wstring& path ) throw ( JNIException );
 };
 
 END_NAMESPACE( jace )

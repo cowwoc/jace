@@ -10,9 +10,7 @@
         </taskdef>
     </target>
 
-    <!--
-    - Runs AutoProxy on the source code to generate the required proxies.
-    -->
+    <!-- Runs AutoProxy on the source code to generate the required proxies. -->
     <target name="proxy_generate" depends="-jace.task">
         <mkdir dir="proxies/source"/>
         <mkdir dir="proxies/include"/>

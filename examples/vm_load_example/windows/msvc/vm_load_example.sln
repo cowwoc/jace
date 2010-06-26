@@ -1,18 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vm_load_example", "vm_load_example.vcproj", "{15FBB9D7-169D-4A39-B10E-68B7003F1009}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vm_load_example", "vm_load_example.vcproj", "{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
-		Release|Win32 = Release|Win32
+		Debug|amd64 = Debug|amd64
+		Debug|i386 = Debug|i386
+		Release|amd64 = Release|amd64
+		Release|i386 = Release|i386
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{15FBB9D7-169D-4A39-B10E-68B7003F1009}.Debug|Win32.ActiveCfg = Debug|Win32
-		{15FBB9D7-169D-4A39-B10E-68B7003F1009}.Debug|Win32.Build.0 = Debug|Win32
-		{15FBB9D7-169D-4A39-B10E-68B7003F1009}.Release|Win32.ActiveCfg = Release|Win32
-		{15FBB9D7-169D-4A39-B10E-68B7003F1009}.Release|Win32.Build.0 = Release|Win32
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Debug|amd64.ActiveCfg = Debug|x64
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Debug|amd64.Build.0 = Debug|x64
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Debug|i386.ActiveCfg = Debug|Win32
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Debug|i386.Build.0 = Debug|Win32
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Release|amd64.ActiveCfg = Release|Win32
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Release|amd64.Build.0 = Release|Win32
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Release|i386.ActiveCfg = Release|Win32
+		{4DEA18CA-3BB5-4211-A063-AE7017C7C26F}.Release|i386.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
