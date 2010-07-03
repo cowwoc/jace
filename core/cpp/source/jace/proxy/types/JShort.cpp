@@ -1,29 +1,24 @@
-
-
 #include "jace/proxy/types/JShort.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
 
-JShort::JShort( jvalue value )
+JShort::JShort(jvalue value)
 {
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
-JShort::JShort( jshort short_ )
+JShort::JShort(jshort _short)
 {
   jvalue value;
-  value.s = short_;
-  setJavaJniValue( value );
+  value.s = _short;
+  setJavaJniValue(value);
 }
 
 JShort::~JShort()
@@ -31,36 +26,31 @@ JShort::~JShort()
 
 JShort::operator jshort() const
 {
-  return getJavaJniValue().s;
+  return static_cast<jvalue>(*this).s;
 }
 
-jshort JShort::getShort() const
+bool JShort::operator==(const JShort& _short) const
 {
-  return getJavaJniValue().s;
+  return static_cast<jshort>(_short) == static_cast<jshort>(*this);
 }
 
-bool JShort::operator==( const JShort& short_ ) const
+bool JShort::operator!=(const JShort& _short) const
 {
-  return short_.getShort() == getShort();
+  return !(*this == _short);
 }
 
-bool JShort::operator!=( const JShort& short_ ) const
+bool JShort::operator==(jshort val) const
 {
-  return !( *this == short_ );
+  return val == static_cast<jshort>(*this);
 }
 
-bool JShort::operator==( jshort val ) const
+bool JShort::operator!=(jshort val) const
 {
-  return val == getShort();
-}
-
-bool JShort::operator!=( jshort val ) const
-{
-  return ! ( *this == val );
+  return !(*this == val);
 }
 
 static boost::mutex javaClassMutex;
-const JClass& JShort::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JShort::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -69,11 +59,9 @@ const JClass& JShort::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JShort::getJavaJniClass() const throw ( JNIException )
+const JClass& JShort::getJavaJniClass() const throw (JNIException)
 {
   return JShort::staticGetJavaJniClass();
 }
 
-
-END_NAMESPACE_3( jace, proxy, types )
-
+END_NAMESPACE_3(jace, proxy, types)

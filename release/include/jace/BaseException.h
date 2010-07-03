@@ -1,19 +1,13 @@
-
 #ifndef JACE_BASE_EXCEPTION_H
 #define JACE_BASE_EXCEPTION_H
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
 
 #include <string>
 #include <exception>
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 
 /**
@@ -40,23 +34,23 @@ public:
 	/**
 	 * Creates a new Exception with the given mesage.
 	 */
-	JACE_API BaseException( const std::string& value ) throw ();
+	JACE_API BaseException(const std::string& value) throw ();
 
 	/**
 	 * Creates a new Exception with the given mesage.
 	 */
-	JACE_API BaseException( const std::wstring& value ) throw ();
+	JACE_API BaseException(const std::wstring& value) throw ();
 
 	/**
 	 * Creates a new Exception from the given Exception.
 	 */
-	JACE_API BaseException( const BaseException& rhs ) throw ();
+	JACE_API BaseException(const BaseException& rhs) throw ();
 
 	/**
 	 * Assigns this Exception to the given Exception.
 	 *
 	 */
-	JACE_API BaseException& operator=( const BaseException& rhs ) throw ();
+	JACE_API BaseException& operator=(const BaseException& rhs) throw ();
 
 	/**
 	 * Destroys this Exception.
@@ -77,9 +71,6 @@ private:
 	std::string mValue;
 };
 
-
-END_NAMESPACE( jace )
-
+END_NAMESPACE(jace)
 
 #endif
-

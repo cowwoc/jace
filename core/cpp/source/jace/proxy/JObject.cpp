@@ -1,33 +1,11 @@
 #include "jace/proxy/JObject.h"
 
-#ifndef JACE_JNI_HELPER_H
-#include "jace/JNIHelper.h"
-#endif
-
-#ifndef JACE_JCLASS_IMPL_H
+#include "jace/Jace.h"
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
-
-#ifndef JACE_JCONSTRUCTOR_H
 #include "jace/JConstructor.h"
-#endif
-using jace::JConstructor;
-
-#ifndef JACE_JMETHOD_H
 #include "jace/JMethod.h"
-#endif
-using jace::JMethod;
-
-#ifndef JACE_JARGUMENTS_H
 #include "jace/JArguments.h"
-#endif
-using jace::JArguments;
-
-#ifndef JACE_VIRTUAL_MACHINE_SHUTDOWN_ERROR_H
 #include "jace/VirtualMachineShutdownError.h"
-#endif
-using jace::VirtualMachineShutdownError;
 
 #include <iostream>
 using std::cout;
@@ -43,7 +21,7 @@ using std::exception;
 BEGIN_NAMESPACE_2(jace, proxy)
 
 /**
- * Creates a new JObject wrapping the existing jvalue.
+ * Creates a new reference to an existing jvalue.
  */
 JObject::JObject(jvalue value)
 {
@@ -51,34 +29,20 @@ JObject::JObject(jvalue value)
 }
 
 /**
- * Creates a new JObject.
+ * Creates a new reference to an existnig jobject.
  */
 JObject::JObject(jobject object)
 {
   setJavaJniObject(object);
 }
 
-JObject::JObject()
-{
-  jvalue newValue;
-  newValue.l = 0;
-  JValue::setJavaJniValue( newValue );
-}
-
 /**
- * Creates a new JObject that does not yet refer
- * to any java object.
- *
- * This constructor is provided for subclasses which
- * need to do their own initialization.
- *
- * @param noOp - A dummy argument that signifies that
- * this constructor should not do any work.
+ * Creates a new null reference.
  *
  * All subclasses of JObject should provide this constructor
  * for their own subclasses.
  */
-JObject::JObject(const NoOp&)
+JObject::JObject()
 {
   // By default, all objects start out with a null reference,
   // so, in case of an exception, destruction will not fail on
@@ -89,29 +53,29 @@ JObject::JObject(const NoOp&)
 }
 
 /**
- * Creates a reference to an existing object.
+ * Creates a new reference to an existing object.
  *
  * @param object the object
  */
 JObject::JObject(const JObject& other)
 {
-	JValue::setJavaJniValue(other.getJavaJniValue());
+	JValue::setJavaJniValue(static_cast<jvalue>(other));
 }
 
 /**
- * Destroys the existing java object.
+ * Destroys an object reference.
  */
 JObject::~JObject() throw ()
 {
 	try
 	{
-		jobject ref = getJavaJniValue().l;
+		jobject ref = *this;
 
 		// Save an attach and a delete if we are a null object.
 		if (ref)
 		{
-			JNIEnv* env = helper::attach();
-			helper::deleteGlobalRef(env, ref);
+			JNIEnv* env = attach();
+			deleteGlobalRef(env, ref);
 		}
 	}
 	catch (VirtualMachineShutdownError&)
@@ -129,24 +93,21 @@ JObject::~JObject() throw ()
 /** 
  * Returns the underlying JNI jobject for this JObject.
  */
-jobject JObject::getJavaJniObject()
+JObject::operator jobject()
 {
-  return getJavaJniValue().l;
+	return static_cast<jvalue>(*this).l;
 }
 
 
 /** 
  * Returns the underlying JNI jobject for this JObject.
  *
- * This is simply a convenience method for retrieving the jobject
- * member from the jvalue returned from getJavaJniValue.
- *
  * Users of this method should be careful not to modify the
  * object through calls against the returned jobject.
  */
-jobject JObject::getJavaJniObject() const
+JObject::operator jobject() const
 {
-  return getJavaJniValue().l;
+	return static_cast<jvalue>(*this).l;
 }
 
 
@@ -158,12 +119,12 @@ jobject JObject::getJavaJniObject() const
  */
 bool JObject::isNull() const
 {
-  return getJavaJniObject() == 0;
+  return static_cast<jobject>(*this) == 0;
 }
 
 JObject& JObject::operator=(const JObject& object)
 {
-  setJavaJniObject(object.getJavaJniObject());
+  setJavaJniObject(static_cast<jobject>(object));
   return *this;
 }
 
@@ -191,17 +152,17 @@ void JObject::setJavaJniObject(jobject object) throw (JNIException)
  */
 void JObject::setJavaJniValue(jvalue value) throw (JNIException)
 {
-  JNIEnv* env = helper::attach();
+  JNIEnv* env = attach();
 
   // If we have previously referenced another java object,
   // we release that reference here.
-  jobject oldRef = getJavaJniValue().l;
+  jobject oldRef = *this;
 
   if (oldRef)
 	{
-    // helper::printClass(oldRef);
-    // helper::print(oldRef);
-    helper::deleteGlobalRef(env, oldRef);
+    // printClass(oldRef);
+    // print(oldRef);
+    deleteGlobalRef(env, oldRef);
   }
 
   // If this is a null ref, we save a little time by not creating
@@ -214,7 +175,7 @@ void JObject::setJavaJniValue(jvalue value) throw (JNIException)
   }
 
   // cout << "JObject::setJavaJniValue - Creating a new reference to " << object << endl;
-  jobject object = helper::newGlobalRef(env, value.l);
+  jobject object = newGlobalRef(env, value.l);
   // cout << "JObject::setJavaJniValue - Created the reference." << endl;
 
   jvalue newValue;
@@ -224,20 +185,6 @@ void JObject::setJavaJniValue(jvalue value) throw (JNIException)
   JValue::setJavaJniValue(newValue);
   // cout << "JObject::setJavaJniValue - Called JValue::setJavaJniValue." << endl;
 }
-
-
-/**
- * Constructs a new instance of this object 
- * with the given arguments.
- *
- * @return the JNI jobject representing the new object. 
- * The returned reference is a new local reference.
- */
-jobject JObject::newObject(const JArguments& arguments)
-{
-  return JConstructor(getJavaJniClass()).invoke(arguments);
-}
-
 
 /**
  * Constructs a new instance of the given class

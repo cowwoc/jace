@@ -1,5 +1,5 @@
-
-#include "jace/JNIHelper.h"
+#include "jace/Jace.h"
+using jace::java_new;
 
 #include "jace/StaticVmLoader.h"
 using jace::StaticVmLoader;
@@ -41,54 +41,56 @@ using std::endl;
  * This program demonstrates a few different ways to print "Hello World"
  * to standard output. For more information about this example, please read
  * the "Jace Developer's Guide".
- *
  */
-int main() {
-
-  try {
-    StaticVmLoader loader( JNI_VERSION_1_6 );
+int main()
+{
+  try
+	{
+    StaticVmLoader loader(JNI_VERSION_1_2);
     OptionList list;
-    list.push_back( jace::CustomOption( "-Xcheck:jni" ) );
-    list.push_back( jace::CustomOption( "-Xmx16M" ) );
-		list.push_back( jace::ClassPath( "jace-runtime.jar" ) );
-    jace::helper::createVm( loader, list, false );
+    list.push_back(jace::CustomOption("-Xcheck:jni"));
+    list.push_back(jace::CustomOption("-Xmx16M"));
+		list.push_back(jace::ClassPath("jace-runtime.jar"));
+    jace::createVm(loader, list, false);
 
-    for ( int i = 0; i < 1000; ++i ) {
-
-      String s1 = "Hello World";
+    for (int i = 0; i < 1000; ++i)
+		{
+			String s1("Hello World");
       cout << s1 << endl;
 
-      String s2 = std::string( "Hello World" );
+			String s2(std::string("Hello World"));
       cout << s2 << endl;
 
-      String s3( "Hello World" );
-      PrintStream out( System::out() );
-      out.println( s3 );
+      String s3("Hello World");
+			PrintStream out(System::out());
+      out.println(s3);
 
-      PrintWriter writer( System::out() );
-      writer.println( "Hello World" );
+      PrintWriter writer(java_new<PrintWriter>(System::out()));
+      writer.println("Hello World");
       writer.flush();
      
       cout << i << endl;
     }
     return 0;
   }
-	catch ( VirtualMachineShutdownError& ) {
+	catch (VirtualMachineShutdownError&)
+	{
 		cout << "The JVM was terminated in mid-execution. " << endl;
     return -2;
 	}
-  catch ( JNIException& jniException ) {
-    cout << "An unexpected JNI error occured. " << jniException.what() << endl;
+  catch (JNIException& jniException)
+	{
+		cout << "An unexpected JNI error has occurred: " << jniException.what() << endl;
     return -2;
   }
-	catch (Throwable& t) {
+	catch (Throwable& t)
+	{
 		t.printStackTrace();
 		return -2;
 	}
-  catch ( std::exception& e ) {
-    cout << "An unexpected C++ error occured. " << e.what() << endl;
+  catch (std::exception& e)
+	{
+		cout << "An unexpected C++ error has occurred: " << e.what() << endl;
     return -2;
   }
 }
-
-

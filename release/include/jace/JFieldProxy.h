@@ -1,56 +1,20 @@
-
 #ifndef JACE_JFIELD_PROXY_H
 #define JACE_JFIELD_PROXY_H
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_JNI_HELPER_H
-#include "jace/JNIHelper.h"
-#endif
-
-#ifndef JACE_JFIELD_PROXY_HELPER_H
+#include "jace/Jace.h"
 #include "JFieldProxyHelper.h"
-#endif
-
-#ifndef JACE_TYPES_JBOOLEAN_H
 #include "jace/proxy/types/JBoolean.h"
-#endif
-
-#ifndef JACE_TYPES_JBYTE_H
 #include "jace/proxy/types/JByte.h"
-#endif
-
-#ifndef JACE_TYPES_JCHAR_H
 #include "jace/proxy/types/JChar.h"
-#endif
-
-#ifndef JACE_TYPES_JDOUBLE_H
 #include "jace/proxy/types/JDouble.h"
-#endif
-
-#ifndef JACE_TYPES_JFLOAT_H
 #include "jace/proxy/types/JFloat.h"
-#endif
-
-#ifndef JACE_TYPES_JINT_H
 #include "jace/proxy/types/JInt.h"
-#endif
-
-#ifndef JACE_TYPES_JLONG_H
 #include "jace/proxy/types/JLong.h"
-#endif
-
-#ifndef JACE_TYPES_JSHORT_H
 #include "jace/proxy/types/JShort.h"
-#endif
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * A JFieldProxy is a wrapper around a JField.
@@ -60,138 +24,131 @@ BEGIN_NAMESPACE( jace )
  *
  *
  * // Java class
- * public class Foo {
+ * public class Foo
+ * {
  *   public String bar;
  * }
  *
  * // C++ proxy class
- * class Foo : public Object {
- *   public:
+ * class Foo: public Object
+ * {
+ * public:
  *   JFieldProxy<String> bar();
  * }
  *
  * // C++ code.
- * Foo.bar() = String( "Hello!" );
+ * Foo.bar() = String("Hello!");
  *
  * @author Toby Reyelts
  *
  */
-template <class FieldType> class JFieldProxy : public FieldType {
-
+template <class FieldType> class JFieldProxy: public FieldType
+{
 public:
+	/**
+	 * Creates a new JFieldProxy that belongs to the given object,
+	 * and represents the given value.
+	 *
+	 * This constructor should always be specialized away by subclasses.
+	 */
+	JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+		FieldType(value), fieldID(_fieldID)
+	{
+		JNIEnv* env = attach();
 
-/**
- * Creates a new JFieldProxy that belongs to the given object,
- * and represents the given value.
- *
- * This constructor should always be specialized away by subclasses.
- *
- */
-JFieldProxy( jfieldID fieldID_, jvalue value, jobject parent_ ) :
-  FieldType( value ), fieldID( fieldID_ ) {
+		if (_parent)
+			parent = newGlobalRef(env, _parent);
+		else
+			parent = _parent;
 
-  JNIEnv* env = ::jace::helper::attach();
-
-  if ( parent_ ) {
-    parent = ::jace::helper::newGlobalRef( env, parent_ ); 
-  }
-  else {
-    parent = parent_;
-  }
-
-  parentClass = 0;
-}
+		parentClass = 0;
+	}
 
 
-/**
- * Creates a new JFieldProxy that belongs to the given class,
- * and represents the given value. (The field is a static one).
- *
- * This constructor should always be specialized away by subclasses.
- *
- */
-JFieldProxy( jfieldID fieldID_, jvalue value, jclass parentClass_ ) :
-  FieldType( value ), fieldID( fieldID_ ) {
-
-  parent = 0;
-  JNIEnv* env = ::jace::helper::attach();
-  parentClass = ::jace::helper::newGlobalRef( env, parentClass_ ); 
-}
-
-
-/**
- * Creates a new JFieldProxy that belongs to the given object,
- * and represents the given value.
- *
- * This copy constructor should always be specialized away by subclasses.
- *
- */
-JFieldProxy( const JFieldProxy& object ) : 
-  FieldType( object.getJavaJniValue() ) {
-  JNIEnv* env = ::jace::helper::attach();
-  if ( object.parent ) {
-    parent = ::jace::helper::newGlobalRef( env, object.parent ); 
-  }
-  else {
-    parent = 0;
-  }
-
-  if ( object.parentClass ) {
-    parentClass = static_cast<jclass>( ::jace::helper::newGlobalRef( env, object.parentClass )); 
-  }
-  else {
-    parentClass = 0;
-  }
-}
+	/**
+	 * Creates a new JFieldProxy that belongs to the given class,
+	 * and represents the given value. (The field is a static one).
+	 *
+	 * This constructor should always be specialized away by subclasses.
+	 */
+	JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+		FieldType(value), fieldID(_fieldID)
+	{
+		parent = 0;
+		JNIEnv* env = attach();
+		parentClass = newGlobalRef(env, _parentClass); 
+	}
 
 
-virtual ~JFieldProxy() throw() {
+	/**
+	 * Creates a new JFieldProxy that belongs to the given object,
+	 * and represents the given value.
+	 *
+	 * This copy constructor should always be specialized away by subclasses.
+	 */
+	JFieldProxy(const JFieldProxy& object):
+		FieldType(object.getJavaJniValue())
+	{
+		JNIEnv* env = attach();
+		if (object.parent)
+			parent = newGlobalRef(env, object.parent);
+		else
+			parent = 0;
 
-  if ( parent ) {
-    try {
-      JNIEnv* env = ::jace::helper::attach();
-      ::jace::helper::deleteGlobalRef( env, parent );
-    }
-    catch ( std::exception& ) {
-    }
-  }
+		if (object.parentClass)
+			parentClass = static_cast<jclass>(newGlobalRef(env, object.parentClass));
+		else
+			parentClass = 0;
+	}
 
-  if ( parentClass ) {
-    try {
-      JNIEnv* env = ::jace::helper::attach();
-      ::jace::helper::deleteGlobalRef( env, parentClass );
-    }
-    catch ( std::exception& ) {
-    }
-  }
-}
 
-/**
- * If someone assigns to this proxy, they're really assigning
- * to the field.
- *
- */
-FieldType& operator=( const FieldType& field ) {
+	virtual ~JFieldProxy() throw()
+	{
+		if (parent)
+		{
+			try
+			{
+				JNIEnv* env = attach();
+				deleteGlobalRef(env, parent);
+			}
+			catch (std::exception&)
+			{
+			}
+		}
 
-  if ( parent ) {
-    setJavaJniObject( JFieldProxyHelper::assign( field, parent, fieldID ) );
-  }
-  else {
-    setJavaJniObject( JFieldProxyHelper::assign( field, parentClass, fieldID ) );
-  }
+		if (parentClass)
+		{
+			try
+			{
+				JNIEnv* env = attach();
+				deleteGlobalRef(env, parentClass);
+			}
+			catch (std::exception&)
+			{
+			}
+		}
+	}
 
-  return *this;
-}
-
+	/**
+	 * If someone assigns to this proxy, they're really assigning
+	 * to the field.
+	 */
+	FieldType& operator=(const FieldType& field)
+	{
+		if (parent)
+			setJavaJniObject(JFieldProxyHelper::assign(field, parent, fieldID));
+		else
+			setJavaJniObject(JFieldProxyHelper::assign(field, parentClass, fieldID));
+		return *this;
+	}
 
 private:
-jobject parent;
-jclass parentClass;
-jfieldID fieldID;
-
+	jobject parent;
+	jclass parentClass;
+	jfieldID fieldID;
 };
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 /**
  * For those (oddball) compilers that need the template specialization
@@ -204,4 +161,3 @@ END_NAMESPACE( jace )
 #endif
 
 #endif // #ifndef JACE_JFIELD_PROXY_H
-

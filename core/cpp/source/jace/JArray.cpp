@@ -1,4 +1,3 @@
-
 #include "jace/JArray.h"
 
 /**

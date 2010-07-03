@@ -1,10 +1,6 @@
-
 #include "jace/proxy/types/JInt.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include <iostream>
 using std::ostream;
@@ -13,64 +9,59 @@ using std::ostream;
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
 
-JInt::JInt( jvalue value )
+JInt::JInt(jvalue value)
 {
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
-JInt::JInt( const jint int_ )
+JInt::JInt(const jint _int)
 {
   jvalue value;
-  value.i = int_;
-  setJavaJniValue( value );
+  value.i = _int;
+  setJavaJniValue(value);
 }
 
-JInt::JInt( const JByte& byte_ )
+JInt::JInt(const JByte& _byte)
 {
   jvalue value;
-  value.i = byte_.getByte();
-  setJavaJniValue( value );
+  value.i = static_cast<jbyte>(_byte);
+  setJavaJniValue(value);
 }
 
 
 JInt::~JInt()
 {}
 
-JInt::operator jint()
+JInt::operator jint() const
 { 
-  return getJavaJniValue().i; 
+  return static_cast<jvalue>(*this).i; 
 }
 
-jint JInt::getInt() const
+bool JInt::operator==(const JInt& _int) const
 {
-  return getJavaJniValue().i;
+  return static_cast<jint>(_int) == static_cast<jint>(*this);
 }
 
-bool JInt::operator==( const JInt& int_ ) const
+bool JInt::operator!=(const JInt& _int) const
 {
-  return int_.getInt() == getInt();
+  return !(*this == _int);
 }
 
-bool JInt::operator!=( const JInt& int_ ) const
+bool JInt::operator==(jint val) const
 {
-  return !( *this == int_ );
+  return val == static_cast<jint>(*this);
 }
 
-bool JInt::operator==( jint val ) const
+bool JInt::operator!=(jint val) const
 {
-  return val == getInt();
-}
-
-bool JInt::operator!=( jint val ) const
-{
-  return ! ( *this == val );
+  return !(*this == val);
 }
 
 static boost::mutex javaClassMutex;
-const JClass& JInt::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JInt::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -79,15 +70,14 @@ const JClass& JInt::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JInt::getJavaJniClass() const throw ( JNIException )
+const JClass& JInt::getJavaJniClass() const throw (JNIException)
 {
   return JInt::staticGetJavaJniClass();
 }
 
-ostream& operator<<( ostream& stream, const JInt& val )
+ostream& operator<<(ostream& stream, const JInt& val)
 {
-  return stream << val.getInt();
+  return stream << static_cast<jint>(val);
 }
 
-END_NAMESPACE_3( jace, proxy, types )
-
+END_NAMESPACE_3(jace, proxy, types)

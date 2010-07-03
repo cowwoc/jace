@@ -36,6 +36,7 @@ public class DelimitedCollection<T>
    */
   private static Stringifier<Object> defaultStringifier = new Stringifier<Object>()
   {
+    @Override
     public String toString(Object obj)
     {
       return obj.toString();

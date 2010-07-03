@@ -1,35 +1,31 @@
-
 #include "jace/proxy/types/JLong.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
 
-JLong::JLong( jvalue value )
+JLong::JLong(jvalue value)
 {
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
-JLong::JLong( jlong long_ )
+JLong::JLong(jlong _long)
 {
   jvalue value;
-  value.j = long_;
-  setJavaJniValue( value );
+  value.j = _long;
+  setJavaJniValue(value);
 }
 
-JLong::JLong( const JInt& int_ )
+JLong::JLong(const JInt& _int)
 {
   jvalue value;
-  value.j = int_.getInt();
-  setJavaJniValue( value );
+  value.j = static_cast<jint>(_int);
+  setJavaJniValue(value);
 }
 
 
@@ -38,36 +34,31 @@ JLong::~JLong()
 
 JLong::operator jlong() const
 {
-  return getJavaJniValue().j;
+  return static_cast<jvalue>(*this).j;
 }
 
-jlong JLong::getLong() const
+bool JLong::operator==(const JLong& _long) const
 {
-  return getJavaJniValue().j;
+  return static_cast<jlong>(_long) == static_cast<jlong>(*this);
 }
 
-bool JLong::operator==( const JLong& long_ ) const
+bool JLong::operator!=(const JLong& _long) const
 {
-  return long_.getLong() == getLong();
+  return !(*this == _long);
 }
 
-bool JLong::operator!=( const JLong& long_ ) const
+bool JLong::operator==(jlong val) const
 {
-  return !( *this == long_ );
+  return val == static_cast<jlong>(*this);
 }
 
-bool JLong::operator==( jlong val ) const
+bool JLong::operator!=(jlong val) const
 {
-  return val == getLong();
-}
-
-bool JLong::operator!=( jlong val ) const
-{
-  return ! ( *this == val );
+  return !(*this == val);
 }
 
 static boost::mutex javaClassMutex;
-const JClass& JLong::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JLong::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -76,10 +67,9 @@ const JClass& JLong::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JLong::getJavaJniClass() const throw ( JNIException )
+const JClass& JLong::getJavaJniClass() const throw (JNIException)
 {
   return JLong::staticGetJavaJniClass();
 }
 
-END_NAMESPACE_3( jace, proxy, types )
-
+END_NAMESPACE_3(jace, proxy, types)

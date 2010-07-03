@@ -1,26 +1,14 @@
-
 #ifndef JACE_STATIC_VM_LOADER
 #define JACE_STATIC_VM_LOADER
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
-
-#ifndef JACE_VM_LOADER
 #include "jace/VmLoader.h"
-#endif
 
 #include <jni.h>
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * The default VmLoader which works by statically linking to the JVM.
@@ -33,7 +21,7 @@ BEGIN_NAMESPACE( jace )
  *
  * @author Toby Reyelts
  */
-class StaticVmLoader : public ::jace::VmLoader
+class StaticVmLoader: public ::jace::VmLoader
 {
 public:
   StaticVmLoader(jint jniVersion):
@@ -44,7 +32,7 @@ public:
 	{
     // Prevent static linking if the user intends on dynamically loading 
     #ifndef JACE_WANT_DYNAMIC_LOAD
-      return JNI_GetCreatedJavaVMs( vmBuf, bufLen, nVMs );
+      return JNI_GetCreatedJavaVMs(vmBuf, bufLen, nVMs);
     #else
       return -1;
     #endif
@@ -54,14 +42,13 @@ public:
 	{
     // Prevent static linking if the user intends on dynamically loading
     #ifndef JACE_WANT_DYNAMIC_LOAD
-      return JNI_CreateJavaVM( pvm, env, args );
+      return JNI_CreateJavaVM(pvm, env, args);
     #else
       return -1;
     #endif
   }
 };
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif // JACE_STATIC_VM_LOADER
-

@@ -1,42 +1,27 @@
+#include "jace/Jace.h"
 
-#include "jace/JNIHelper.h"
-
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
 
-#ifndef JACE_JFACTORY_H
 #include "jace/JFactory.h"
-#endif
 using jace::JFactory;
 
-#ifndef JACE_JOBJECT_H
 #include "jace/proxy/JObject.h"
-#endif
 using jace::proxy::JObject;
 
-#ifndef JACE_PEER_H
+#include "jace/proxy/JValue.h"
+using jace::proxy::JValue;
+
 #include "jace/Peer.h"
-#endif
 using jace::Peer;
 
-#ifndef JACE_VM_LOADER
 #include "jace/VmLoader.h"
-#endif
 using ::jace::VmLoader;
 
-#ifndef JACE_VIRTUAL_MACHINE_SHUTDOWN_ERROR_H
 #include "jace/VirtualMachineShutdownError.h"
-#endif
 using jace::VirtualMachineShutdownError;
 
-#ifndef JACE_VIRTUAL_MACHINE_RUNNING_ERROR_H
 #include "jace/VirtualMachineRunningError.h"
-#endif
 using jace::VirtualMachineRunningError;
 
 #include <cstdarg>
@@ -68,8 +53,7 @@ using std::wstring;
 #include <boost/shared_ptr.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_2(jace, helper)
-
+BEGIN_NAMESPACE(jace)
 
 // A reference to the java virtual machine.
 // We're under the assumption that there will always only be one of these.
@@ -137,7 +121,7 @@ void catchAndThrow(JNIEnv* env)
 
   jthrowable jexception = env->ExceptionOccurred();
 
-  // cout << "helper::catchAndThrow() - Discovered an exception: " << endl;
+  // cout << "jace::catchAndThrow() - Discovered an exception: " << endl;
   // print(jexception);
 
   env->ExceptionClear();
@@ -148,7 +132,7 @@ void catchAndThrow(JNIEnv* env)
   // In java, this looks like:
   //   String typeName = exception.getClass().getName();
   
-  //  cout << "helper::catchAndThrow() - Retrieving the exception class type..." << endl;
+  //  cout << "jace::catchAndThrow() - Retrieving the exception class type..." << endl;
   jclass throwableClass = env->FindClass("java/lang/Throwable");
 
   if (!throwableClass)
@@ -198,7 +182,7 @@ void catchAndThrow(JNIEnv* env)
   if (env->ExceptionOccurred())
 	{
     env->ExceptionDescribe();
-    string msg = string("helper::catchAndThrow()\n") +
+    string msg = string("jace::catchAndThrow()\n") +
                  "An error occurred while trying to call getClass() on the thrown exception.";
     throw JNIException(msg);
   }
@@ -208,7 +192,7 @@ void catchAndThrow(JNIEnv* env)
   if (env->ExceptionOccurred())
 	{
     env->ExceptionDescribe();
-    string msg = string("helper::catchAndThrow()\n") +
+    string msg = string("jace::catchAndThrow()\n") +
                  "An error occurred while trying to call getName() on the class of the thrown exception.";
     throw JNIException(msg);
   }
@@ -231,7 +215,7 @@ void catchAndThrow(JNIEnv* env)
       if (env->ExceptionOccurred())
 			{
         env->ExceptionDescribe();
-        string msg = string("helper::catchAndThrow()\n") +
+        string msg = string("jace::catchAndThrow()\n") +
                      "An error occurred while trying to call getSuperclass() on the thrown exception.";
         throw JNIException(msg);
       }
@@ -250,7 +234,7 @@ void catchAndThrow(JNIEnv* env)
       if (env->ExceptionOccurred())
 			{
         env->ExceptionDescribe();
-        throw JNIException("helper::catchAndThrow()\nAn error occurred while trying to call "
+        throw JNIException("jace::catchAndThrow()\nAn error occurred while trying to call "
 					"getName() on the superclass of the thrown exception.");
       }
 
@@ -264,7 +248,7 @@ void catchAndThrow(JNIEnv* env)
     }
 
     // Ask the factory to throw the exception.
-    // cout << "helper::catchAndThrow() - Throwing the exception " << endl;
+    // cout << "jace::catchAndThrow() - Throwing the exception " << endl;
     // print(jexception);
 
     jvalue value;
@@ -277,7 +261,7 @@ void catchAndThrow(JNIEnv* env)
   if (env->ExceptionOccurred())
 	{
     env->ExceptionDescribe();
-    string msg = string("helper::catchAndThrow()\n") +
+    string msg = string("jace::catchAndThrow()\n") +
                  "An error occurred while trying to call getClass() on the thrown exception.";
     throw JNIException(msg);
   }
@@ -287,7 +271,7 @@ void catchAndThrow(JNIEnv* env)
   if (env->ExceptionOccurred())
 	{
     env->ExceptionDescribe();
-    string msg = string("helper::catchAndThrow()\n") +
+    string msg = string("jace::catchAndThrow()\n") +
                  "An error occurred while trying to call getName() on the class of the thrown exception.";
     throw JNIException(msg);
   }
@@ -399,7 +383,7 @@ JNIEnv* attachImpl(JavaVM* jvm, const jobject threadGroup, const char* name, con
 
   if (result != 0)
 	{
-    string msg = string("JNIHelper::attach\n") +
+    string msg = string("Jace::attach\n") +
                  "Unable to attach the current thread. The specific JNI error code is " +
                  toString(result);
     throw JNIException(msg);
@@ -529,9 +513,9 @@ void detach() throw ()
 
 
 /**
- * Enlists a new factory for a java class with the JNIHelper.
+ * Enlists a new factory for a java class with Jace.
  *
- * All java exception classes should enlist with the JNIHelper
+ * All java exception classes should enlist with Jace
  * on start-up. They can do this by adding a static member variable
  * of type JEnlister to their class definition.
  *
@@ -547,7 +531,7 @@ void enlist(JFactory* factory)
   string name = factory->getClass().getName();
   replace(name.begin(), name.end(), '/', '.');
   getFactoryMap()->insert(FactoryMap::value_type(name, factory));
-  //  cout << "helper::enlist - Enlisted " << name << endl;
+  //  cout << "jace::enlist - Enlisted " << name << endl;
 }
 
 
@@ -556,7 +540,7 @@ jobject newLocalRef(JNIEnv* env, jobject ref) throw (VirtualMachineShutdownError
   jobject localRef = env->NewLocalRef(ref);
   if (!localRef)
 	{
-    throw JNIException(string("JNIHelper::newLocalRef\n") +
+    throw JNIException(string("Jace::newLocalRef\n") +
                  "Unable to create a new local reference.\n" +
                  "It is likely that you have exceeded the maximum local reference count.\n" +
                  "You can increase the maximum count with a call to EnsureLocalCapacity().");
@@ -574,7 +558,7 @@ jobject newGlobalRef(JNIEnv* env, jobject ref) throw (VirtualMachineShutdownErro
   jobject globalRef = env->NewGlobalRef(ref);
   if (!globalRef)
 	{
-    throw JNIException(string("JNIHelper::newGlobalRef\n") +
+    throw JNIException(string("Jace::newGlobalRef\n") +
                  "Unable to create a new global reference.\n" +
                  "It is likely that you have exceeded the max heap size of your virtual machine.");
   }
@@ -627,7 +611,7 @@ void catchAndThrow()
   jlong nativeHandle = env->CallLongMethod(jPeer, handleID);
   catchAndThrow();
 
-  return reinterpret_cast< ::jace::Peer*>(nativeHandle);
+  return reinterpret_cast<::jace::Peer*>(nativeHandle);
 }
 
 JavaVM* getJavaVm()
@@ -744,4 +728,4 @@ bool isRunning()
   return jvm != 0;
 }
 
-END_NAMESPACE_2(jace, helper)
+END_NAMESPACE(jace)

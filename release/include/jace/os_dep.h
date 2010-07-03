@@ -1,4 +1,3 @@
-
 #ifndef JACE_OS_DEP_H
 #define JACE_OS_DEP_H
 
@@ -55,36 +54,36 @@
    * Shut up about debug identifier truncation since we really
    * can't do anything about it anyway.
    */
-  #pragma warning( disable : 4786 )
+  #pragma warning(disable : 4786)
 
   /**
    * Shut up about 'performance warnings' related to boolean
    * conversions.
    */
-  #pragma warning( disable : 4800 )
+  #pragma warning(disable : 4800)
 
   /**
    * Turn off warnings about inheritance of methods via dominance
    * in virtual inheritance.
    */
-  #pragma warning( disable : 4250 )
+  #pragma warning(disable : 4250)
 
   /**
    * Turn off warnings about unexpected storage-class
    * or type specifiers.
    */
-  #pragma warning( once : 4518 )
+  #pragma warning(once : 4518)
 
   /**
    * Turn off warnings about "conditional expression is constant" such as "while(true)".
    */
-  #pragma warning( disable : 4127 )
+  #pragma warning(disable : 4127)
 
   /**
    * Turn off warning to avoid a compiler bug triggered by the use of multiple inheritance.
    * @see http://groups.google.com/group/microsoft.public.vsnet.general/browse_thread/thread/1ec41da52896031d
    */
-  #pragma warning( disable : 4673 )
+  #pragma warning(disable : 4673)
 
 	/**
 	 * Disable warning about non-safe C/C++ functions. For portability reasons, we can't migrate to
@@ -124,7 +123,7 @@
    * of warnings.
    */
   #if _MSC_VER >= 1300
-    #pragma warning( disable : 4290 )
+    #pragma warning(disable : 4290)
   #endif
 
 	/**

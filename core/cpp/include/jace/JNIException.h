@@ -1,18 +1,9 @@
-
 #ifndef JACE_JNI_EXCEPTION_H
 #define JACE_JNI_EXCEPTION_H
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_BASE_EXCEPTION_H
 #include "jace/BaseException.h"
-#endif
 
 #include <string>
 

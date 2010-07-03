@@ -1,7 +1,5 @@
 #include "jace/BaseException.h"
 
-#include "jace/JNIHelper.h"
-
 BEGIN_NAMESPACE_1(jace)
 
 
@@ -107,4 +105,4 @@ const char* BaseException::what() const throw ()
   return mValue.c_str();
 }
 
-END_NAMESPACE_1( jace )
+END_NAMESPACE_1(jace)

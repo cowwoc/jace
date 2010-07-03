@@ -27,6 +27,7 @@ public class ClassMetaClass implements MetaClass
     mPackage = aPackage;
   }
 
+  @Override
   public String getSimpleName()
   {
     return mNewName;
@@ -55,6 +56,7 @@ public class ClassMetaClass implements MetaClass
     return mName;
   }
 
+  @Override
   public String getFullyQualifiedName(String separator)
   {
     return getPackage().toName(separator, true) + getSimpleName();
@@ -70,6 +72,7 @@ public class ClassMetaClass implements MetaClass
    *
    * @return the ClassPackage for this MetaClass
    */
+  @Override
   public ClassPackage getPackage()
   {
     return mPackage;
@@ -83,9 +86,9 @@ public class ClassMetaClass implements MetaClass
     return guardName.toString();
   }
 
+  @Override
   public String beginGuard()
   {
-
     StringBuilder beginGuard = new StringBuilder();
 
     String guardName = getGuardName();
@@ -96,27 +99,28 @@ public class ClassMetaClass implements MetaClass
     return beginGuard.toString();
   }
 
+  @Override
   public String endGuard()
   {
-
     StringBuilder guardName = new StringBuilder(mPackage.toName("_", true).toUpperCase());
     guardName.append(mNewName.toUpperCase()).append("_H");
 
     return "#endif // #ifndef " + guardName.toString();
   }
 
+  @Override
   public String include()
   {
-    StringBuilder include = new StringBuilder("#ifndef " + getGuardName() + newLine + "#include \"");
+    StringBuilder include = new StringBuilder("#include \"");
 
     String packageName = mPackage.toName("/", true);
     String includeName = mName.replace('$', '_');
     include.append(packageName).append(includeName).append(".h\"");
 
-    include.append(newLine + "#endif");
     return include.toString();
   }
 
+  @Override
   public String using()
   {
     StringBuilder using = new StringBuilder("using ");
@@ -126,15 +130,15 @@ public class ClassMetaClass implements MetaClass
     return using.toString();
   }
 
+  @Override
   public String forwardDeclare()
   {
-
     StringBuilder forwardDeclaration = new StringBuilder("BEGIN_NAMESPACE_");
-    String length = new Integer(mPackage.getPath().size()).toString();
+    String length = String.valueOf(mPackage.getPath().size());
 
-    StringBuilder namespace = new StringBuilder("( ");
+    StringBuilder namespace = new StringBuilder("(");
     namespace.append(mPackage.toName(", ", false));
-    namespace.append(" )");
+    namespace.append(")");
 
     forwardDeclaration.append(length).append(namespace.toString()).append(newLine);
     forwardDeclaration.append("class ").append(getSimpleName()).append(";").append(newLine);
@@ -143,6 +147,7 @@ public class ClassMetaClass implements MetaClass
     return forwardDeclaration.toString();
   }
 
+  @Override
   public ClassMetaClass proxy()
   {
     if (mPackage.isProxied())
@@ -153,6 +158,7 @@ public class ClassMetaClass implements MetaClass
     return new ClassMetaClass(mName, new ClassPackage(newPackage));
   }
 
+  @Override
   public ClassMetaClass unProxy()
   {
     if (!mPackage.isProxied())
@@ -171,11 +177,13 @@ public class ClassMetaClass implements MetaClass
     return new ClassMetaClass(mName, new ClassPackage(result));
   }
 
+  @Override
   public boolean isPrimitive()
   {
     return false;
   }
 
+  @Override
   public String getJniType()
   {
     String name = getFullyQualifiedTrueName(".");

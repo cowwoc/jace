@@ -1,11 +1,6 @@
-
-
 #include "jace/proxy/types/JChar.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include <iostream>
 using std::ostream;
@@ -14,19 +9,19 @@ using std::ostream;
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
 
-JChar::JChar( jvalue value )
+JChar::JChar(jvalue value)
 {
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
-JChar::JChar( jchar char_ )
+JChar::JChar(jchar _char)
 {
   jvalue value;
-  value.c = char_;
-  setJavaJniValue( value );
+  value.c = _char;
+  setJavaJniValue(value);
 }
 
 JChar::~JChar()
@@ -34,36 +29,31 @@ JChar::~JChar()
 
 JChar::operator jchar() const
 {
-  return getJavaJniValue().c;
+  return static_cast<jvalue>(*this).c;
 }
 
-jchar JChar::getChar() const
+bool JChar::operator==(const JChar& _char) const
 {
-  return getJavaJniValue().c;
+  return static_cast<jchar>(_char) == static_cast<jchar>(*this);
 }
 
-bool JChar::operator==( const JChar& char_ ) const
+bool JChar::operator!=(const JChar& _char) const
 {
-  return char_.getChar() == getChar();
+  return !(*this == _char);
 }
 
-bool JChar::operator!=( const JChar& char_ ) const
+bool JChar::operator==(jchar val) const
 {
-  return !( *this == char_ );
+  return val == static_cast<jchar>(*this);
 }
 
-bool JChar::operator==( jchar val ) const
+bool JChar::operator!=(jchar val) const
 {
-  return val == getChar();
-}
-
-bool JChar::operator!=( jchar val ) const
-{
-  return ! ( *this == val );
+  return !(*this == val);
 }
 
 static boost::mutex javaClassMutex;
-const JClass& JChar::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JChar::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -72,16 +62,15 @@ const JClass& JChar::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JChar::getJavaJniClass() const throw ( JNIException )
+const JClass& JChar::getJavaJniClass() const throw (JNIException)
 {
   return JChar::staticGetJavaJniClass();
 }
 
-ostream& operator<<( ostream& stream, const JChar& val )
+ostream& operator<<(ostream& stream, const JChar& val)
 {
-  return stream << ( char ) val.getChar();
+  return stream << static_cast<char>(val);
 }
 
 
-END_NAMESPACE_3( jace, proxy, types )
-
+END_NAMESPACE_3(jace, proxy, types)

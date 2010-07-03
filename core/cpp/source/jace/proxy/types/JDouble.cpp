@@ -1,29 +1,24 @@
-
-
 #include "jace/proxy/types/JDouble.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
 
-JDouble::JDouble( jvalue value )
+JDouble::JDouble(jvalue value)
 {
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
-JDouble::JDouble( jdouble double_ )
+JDouble::JDouble(jdouble _double)
 {
   jvalue value;
-  value.d = double_;
-  setJavaJniValue( value );
+  value.d = _double;
+  setJavaJniValue(value);
 }
 
 JDouble::~JDouble()
@@ -31,36 +26,31 @@ JDouble::~JDouble()
 
 JDouble::operator jdouble() const
 {
-  return getJavaJniValue().d;
+  return static_cast<jvalue>(*this).d;
 }
 
-jdouble JDouble::getDouble() const
+bool JDouble::operator==(const JDouble& _double) const
 {
-  return getJavaJniValue().d;
+  return static_cast<jdouble>(_double) == static_cast<jdouble>(*this);
 }
 
-bool JDouble::operator==( const JDouble& double_ ) const
+bool JDouble::operator!=(const JDouble& _double) const
 {
-  return double_.getDouble() == getDouble();
+  return !(*this == _double);
 }
 
-bool JDouble::operator!=( const JDouble& double_ ) const
+bool JDouble::operator==(jdouble val) const
 {
-  return !( *this == double_ );
+  return val == static_cast<jdouble>(*this);
 }
 
-bool JDouble::operator==( jdouble val ) const
+bool JDouble::operator!=(jdouble val) const
 {
-  return val == getDouble();
-}
-
-bool JDouble::operator!=( jdouble val ) const
-{
-  return ! ( *this == val );
+  return !(*this == val);
 }
 
 static boost::mutex javaClassMutex;
-const JClass& JDouble::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JDouble::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -69,11 +59,10 @@ const JClass& JDouble::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JDouble::getJavaJniClass() const throw ( JNIException )
+const JClass& JDouble::getJavaJniClass() const throw (JNIException)
 {
   return JDouble::staticGetJavaJniClass();
 }
 
 
-END_NAMESPACE_3( jace, proxy, types )
-
+END_NAMESPACE_3(jace, proxy, types)

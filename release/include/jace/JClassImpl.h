@@ -1,41 +1,27 @@
-
 #ifndef JACE_JCLASS_IMPL_H
 #define JACE_JCLASS_IMPL_H
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_JCLASS_H
 #include "jace/JClass.h"
-#endif
-
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
 
-namespace boost
-{
+BEGIN_NAMESPACE_1(boost)
 	// End-users shouldn't have to include Boost header files
 	class mutex;
-}
+END_NAMESPACE_1(boost)
 
 #include <string>
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 
 /**
  * The implementation of the JClass interface.
  *
  * @author Toby Reyelts
- *
  */
-class JClassImpl : public ::jace::JClass
+class JClassImpl: public ::jace::JClass
 {
 public:
 	/**
@@ -52,7 +38,7 @@ public:
 	 *
 	 * For example, "Ljava/lang/Object;"
 	 */
-	JACE_API JClassImpl( const std::string& name, const std::string& nameAsType );
+	JACE_API JClassImpl(const std::string& name, const std::string& nameAsType);
 
 	/**
 	 * Creates a new JClassImpl with the given name.
@@ -69,13 +55,13 @@ public:
 	 *
 	 * For example,
 	 *
-	 *  JClassImpl( "java/lang/String" );
+	 *  JClassImpl("java/lang/String");
 	 *
 	 * is equivalent to
 	 *
-	 *  JClassImpl( "java/lang/String", "Ljava/lang/String;" );
+	 *  JClassImpl("java/lang/String", "Ljava/lang/String;");
 	 */
-	JACE_API JClassImpl( const std::string& name );
+	JACE_API JClassImpl(const std::string& name);
 
 	/**
 	 * Destroys this JClassImpl.
@@ -101,7 +87,8 @@ public:
 	/**
 	 * Returns the JNI representation of this class.
 	 */
-	JACE_API virtual jclass getClass() const throw ( ::jace::JNIException );
+	JACE_API virtual jclass getClass() const throw (::jace::JNIException);
+
 private:
 	/**
 	 * Prevent copying.
@@ -118,6 +105,6 @@ private:
 };
 
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif

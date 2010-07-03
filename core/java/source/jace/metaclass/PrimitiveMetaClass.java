@@ -30,48 +30,53 @@ public abstract class PrimitiveMetaClass implements MetaClass
     this.isProxy = isProxy;
   }
 
+  @Override
   public String getFullyQualifiedName(String separator)
   {
     if (!isProxy)
       return getSimpleName();
-    return JaceConstants.getProxyPackage().asPath().replace("/", separator) + separator + "types" + separator +
-           getSimpleName();
+    return JaceConstants.getProxyPackage().asPath().replace("/", separator) + separator + "types" + separator
+           + getSimpleName();
   }
 
+  @Override
   public ClassPackage getPackage()
   {
     return new ClassPackage(Collections.<String>emptyList());
   }
 
+  @Override
   public String beginGuard()
   {
     return "JACE_TYPES_" + getSimpleName().toUpperCase() + "_H";
   }
 
+  @Override
   public String endGuard()
   {
     return "// #ifndef JACE_TYPES_" + getSimpleName().toUpperCase() + "_H";
   }
 
+  @Override
   public String include()
   {
-    return "#ifndef JACE_TYPES_" + getSimpleName().toUpperCase() + "_H" + newLine +
-           "#include \"" + JaceConstants.getProxyPackage().asPath() + "/types/" + getSimpleName() + ".h\"" + newLine +
-           "#endif";
+    return "#include \"" + JaceConstants.getProxyPackage().asPath() + "/types/" + getSimpleName() + ".h\"";
   }
 
+  @Override
   public String using()
   {
     return "using jace::proxy::types::" + getSimpleName() + ";";
   }
 
+  @Override
   public String forwardDeclare()
   {
-    return "BEGIN_NAMESPACE_3( jace, proxy, types )" + newLine +
-           "class " + getSimpleName() + ";" + newLine +
-           "END_NAMESPACE_3( jace, proxy, types )";
+    return "BEGIN_NAMESPACE_3(jace, proxy, types)" + newLine + "class " + getSimpleName() + ";" + newLine
+           + "END_NAMESPACE_3(jace, proxy, types)";
   }
 
+  @Override
   public MetaClass proxy()
   {
     if (isProxy)
@@ -79,6 +84,7 @@ public abstract class PrimitiveMetaClass implements MetaClass
     return newInstance(true);
   }
 
+  @Override
   public MetaClass unProxy()
   {
     if (!isProxy)

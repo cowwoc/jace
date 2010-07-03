@@ -94,9 +94,9 @@ public interface MetaClass
    *
    * For example:
    *
-   * BEGIN_NAMESPACE_3( jace, java, lang )
+   * BEGIN_NAMESPACE_3(jace, java, lang)
    * class String;
-   * END_NAMESPACE_3( jace, java, lang )
+   * END_NAMESPACE_3(jace, java, lang)
    *
    * @return a String which is a forward declaration for this class
    */

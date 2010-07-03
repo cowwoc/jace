@@ -391,6 +391,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\source\jace\Jace.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\source\jace\JArguments.cpp"
 					>
 				</File>
@@ -447,15 +451,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\source\jace\JNIHelper.cpp"
-					>
-				</File>
-				<File
 					RelativePath="..\..\source\jace\JSignature.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\jace\operators.cpp"
 					>
 				</File>
 				<File
@@ -481,10 +477,6 @@
 				<Filter
 					Name="proxy"
 					>
-					<File
-						RelativePath="..\..\source\jace\proxy\JNull.cpp"
-						>
-					</File>
 					<File
 						RelativePath="..\..\source\jace\proxy\JObject.cpp"
 						>
@@ -561,6 +553,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\include\jace\Jace.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\include\jace\JArguments.h"
 					>
 				</File>
@@ -617,10 +613,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\jace\JNIHelper.h"
-					>
-				</File>
-				<File
 					RelativePath="..\..\include\jace\JSignature.h"
 					>
 				</File>
@@ -671,10 +663,6 @@
 				<Filter
 					Name="proxy"
 					>
-					<File
-						RelativePath="..\..\include\jace\proxy\JNull.h"
-						>
-					</File>
 					<File
 						RelativePath="..\..\include\jace\proxy\JObject.h"
 						>

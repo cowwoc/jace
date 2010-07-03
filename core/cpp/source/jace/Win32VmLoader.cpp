@@ -8,7 +8,7 @@ using ::jace::VmLoader;
 using ::jace::Win32VmLoader;
 using ::jace::JNIException;
 
-#include <jace/JNIHelper.h>
+#include "jace/Jace.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -71,7 +71,7 @@ Win32VmLoader::Win32VmLoader(std::string _path, jint _jniVersion) throw (JNIExce
 {
   getCreatedJavaVMsPtr = 0;
   createJavaVMPtr = 0;
-	path = jace::helper::toWString(_path.c_str()); 
+	path = toWString(_path.c_str()); 
 	loadVm(path);
 }
 
@@ -86,7 +86,7 @@ Win32VmLoader::Win32VmLoader(std::wstring _path, jint _jniVersion) throw (JNIExc
 void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader::JVMType jvmType,
 															std::string version)
 {
-	specifyVm(jvmVendor, jvmType, ::jace::helper::toWString(version.c_str()));
+	specifyVm(jvmVendor, jvmType, toWString(version.c_str()));
 }
 
 void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader::JVMType jvmType, std::wstring version)
@@ -208,7 +208,7 @@ void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader:
 
 void Win32VmLoader::loadVm(const std::string &jvmPath) throw (JNIException)
 {
-	loadVm(jace::helper::toWString(jvmPath.c_str()));
+	loadVm(toWString(jvmPath.c_str()));
 }
 
 void Win32VmLoader::loadVm(const std::wstring &jvmPath) throw (JNIException)

@@ -1,14 +1,13 @@
-
 #include "jace/JFactory.h"
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * Destroys this JFactory.
  */
-JFactory::~JFactory() {
+JFactory::~JFactory()
+{
 }
 
 
-END_NAMESPACE( jace )
-
+END_NAMESPACE(jace)

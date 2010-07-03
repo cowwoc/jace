@@ -1,5 +1,4 @@
-
-#include "jace/JNIHelper.h"
+#include "jace/Jace.h"
 
 #include "jace/JNIException.h"
 using jace::JNIException;
@@ -36,16 +35,16 @@ using std::endl;
  * This example demonstrates the new virtual machine API.
  *
  * Starting with Jace 1.1 beta 3, you can now load a virtual
- * machine statically or dynamically. 
+ * machine statically or dynamically.
  *
  * To statically load a virtual machine, you must
- *   a) statically link with jvm.lib 
+ *   a) statically link with jvm.lib
  *
- *   b) use StaticVmLoader in your call to createVm(). 
+ *   b) use StaticVmLoader in your call to createVm().
  *
  * To dynamically load a virtual machine, you must
  *
- *   a) NOT statically link with jvm.lib, 
+ *   a) NOT statically link with jvm.lib,
  *
  *   b) globally #define JACE_WANT_DYNAMIC_LOAD. This prevents
  * StaticVmLoader from trying to statically bind with jvm.lib.
@@ -60,48 +59,52 @@ using std::endl;
  * which you pass in to the call to createVm().
  *
  */
-int main( int argc, char* argv[] ) {
-
+int main(int argc, char* argv[])
+{
   #ifdef JACE_WANT_DYNAMIC_LOAD
 
-    if ( argc != 2 ) {
+    if (argc != 2)
+		{
       cout << "Usage: vm_load_example <path to virtual machine>" << endl;
       return -1;
     }
 
-    string path = argv[ 1 ];
+    string path = argv[1];
 
     #ifdef _WIN32
-      Win32VmLoader loader( path, JNI_VERSION_1_2 );
+      Win32VmLoader loader(path, JNI_VERSION_1_2);
     #else
-      UnixVmLoader loader( path, JNI_VERSION_1_2 );
+      UnixVmLoader loader(path, JNI_VERSION_1_2);
     #endif
   #else
-    StaticVmLoader loader( JNI_VERSION_1_2 );
+    StaticVmLoader loader(JNI_VERSION_1_2);
   #endif
 
   OptionList options;
 
-  options.push_back( ClassPath( "." ) );
-	options.push_back( ClassPath( "jace-runtime.jar" ) );
-	//options.push_back( Verbose ( Verbose::JNI ) );
-	//options.push_back( Verbose ( Verbose::CLASS ) );
-  options.push_back( CustomOption( "-Xmx128M" ) );
+  options.push_back(ClassPath("."));
+	options.push_back(ClassPath("jace-runtime.jar"));
+	//options.push_back(Verbose (Verbose::JNI));
+	//options.push_back(Verbose (Verbose::CLASS));
+  options.push_back(CustomOption("-Xmx128M"));
 
-  try {
-    jace::helper::createVm( loader, options );
+  try
+	{
+    jace::createVm(loader, options);
   }
-	catch ( VirtualMachineShutdownError& ) {
+	catch (VirtualMachineShutdownError&)
+	{
 		cout << "The JVM was terminated in mid-execution. " << endl;
     return -2;
 	}
-  catch ( JNIException& jniException ) {
-    cout << "An unexpected JNI error occured. " << jniException.what() << endl;
+  catch (JNIException& jniException)
+	{
+    cout << "An unexpected JNI error has occured: " << jniException.what() << endl;
     return -2;
   }
-  catch ( std::exception& e ) {
-    cout << "Unable to create the virtual machine: " << endl;
-    cout << e.what();
+  catch (std::exception& e)
+	{
+    cout << "An unexpected C++ error has occurred: " << e.what() << endl;
     return -2;
   }
   cout << "The virtual machine was successfully loaded." << endl;

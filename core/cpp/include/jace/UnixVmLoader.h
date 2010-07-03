@@ -1,39 +1,27 @@
-
 #ifndef JACE_UNIX_VM_LOADER
 #define JACE_UNIX_VM_LOADER
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
 
 #ifdef JACE_GENERIC_UNIX
 
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_VM_LOADER
 #include "jace/VmLoader.h"
-#endif
-
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
 
 #include <jni.h>
 
 #include <string>
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * A generic Virtual Machine loader for Unix based operating systems.
  * This simple loader should work fine on most Unices.
  *
  * @author Toby Reyelts
- *
  */
-class UnixVmLoader : public ::jace::VmLoader
+class UnixVmLoader: public ::jace::VmLoader
 {
 public:
   /**
@@ -47,7 +35,7 @@ public:
    *
 	 * @throws JNIException if an error occurs while loading the JVM library
    */
-  JACE_API UnixVmLoader( std::string _path, jint jniVersion ) throw (JNIException);
+  JACE_API UnixVmLoader(std::string _path, jint jniVersion) throw (JNIException);
 	JACE_API virtual ~UnixVmLoader();
 
   JACE_API jint createJavaVM(JavaVM **pvm, void **env, void *args) const;
@@ -64,7 +52,7 @@ private:
   void* lib;
 };
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif // JACE_GENERIC_UNIX
 

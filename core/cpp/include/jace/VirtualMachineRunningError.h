@@ -1,12 +1,9 @@
-
 #ifndef JACE_VIRTUAL_MACHINE_RUNNING_ERROR_H
 #define JACE_VIRTUAL_MACHINE_RUNNING_ERROR_H
 
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 
 /**
@@ -14,18 +11,18 @@ BEGIN_NAMESPACE( jace )
  *
  * @author Gili Tzabari
  */
-class VirtualMachineRunningError : public ::jace::JNIException
+class VirtualMachineRunningError: public ::jace::JNIException
 {
 public:
 	/**
 	 * Creates a new VirtualMachineRunningError with the given message.
 	 */
-	VirtualMachineRunningError( const std::string& value ) throw ():
+	VirtualMachineRunningError(const std::string& value) throw ():
 			JNIException(value)
 	{}
 };
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif // #ifndef JACE_VIRTUAL_MACHINE_RUNNING_ERROR_H
 

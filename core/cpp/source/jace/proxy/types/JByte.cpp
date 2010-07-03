@@ -1,27 +1,23 @@
-
 #include "jace/proxy/types/JByte.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
-JByte::JByte( jvalue value )
+JByte::JByte(jvalue value)
 {
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
-JByte::JByte( jbyte byte )
+JByte::JByte(jbyte byte)
 {
   jvalue value;
   value.b = byte;
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
 JByte::~JByte()
@@ -29,36 +25,31 @@ JByte::~JByte()
 
 JByte::operator jbyte() const
 { 
-  return getJavaJniValue().b;
+  return static_cast<jvalue>(*this).b;
 }
 
-jbyte JByte::getByte() const
+bool JByte::operator==(const JByte& _byte) const
 {
-  return getJavaJniValue().b;
+  return static_cast<jbyte>(_byte) == static_cast<jbyte>(*this);
 }
 
-bool JByte::operator==( const JByte& byte_ ) const
+bool JByte::operator!=(const JByte& _byte) const
 {
-  return byte_.getByte() == getByte();
+  return !(*this == _byte);
 }
 
-bool JByte::operator!=( const JByte& byte_ ) const
+bool JByte::operator==(jbyte val) const
 {
-  return !( *this == byte_ );
+  return val == static_cast<jbyte>(*this);
 }
 
-bool JByte::operator==( jbyte val ) const
+bool JByte::operator!=(jbyte val) const
 {
-  return val == getByte();
-}
-
-bool JByte::operator!=( jbyte val ) const
-{
-  return ! ( *this == val );
+  return !(*this == val);
 }
 
 static boost::mutex javaClassMutex;
-const JClass& JByte::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JByte::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -67,11 +58,10 @@ const JClass& JByte::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JByte::getJavaJniClass() const throw ( JNIException )
+const JClass& JByte::getJavaJniClass() const throw (JNIException)
 {
   return JByte::staticGetJavaJniClass();
 }
 
 
-END_NAMESPACE_3( jace, proxy, types )
-
+END_NAMESPACE_3(jace, proxy, types)

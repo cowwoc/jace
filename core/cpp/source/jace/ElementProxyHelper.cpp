@@ -1,19 +1,15 @@
-
 #include "jace/ElementProxyHelper.h"
 
-using jace::proxy::JObject;
+#include "jace/Jace.h"
+using ::jace::proxy::JObject;
 
-#ifndef JACE_JNI_HELPER_H
-#include "jace/JNIHelper.h"
-#endif
+BEGIN_NAMESPACE_2(jace, ElementProxyHelper)
 
-BEGIN_NAMESPACE_2( jace, ElementProxyHelper )
-
-void assign( const JObject& element, int mIndex, jarray parent ) {
-  JNIEnv* env = helper::attach();
-  jobjectArray array = static_cast<jobjectArray>( parent );
-  jobject val = element.getJavaJniObject();
-  env->SetObjectArrayElement( array, mIndex, val );
+void assign(const JObject& element, int mIndex, jarray parent)
+{
+  JNIEnv* env = attach();
+  jobjectArray array = static_cast<jobjectArray>(parent);
+  env->SetObjectArrayElement(array, mIndex, element);
 }
 
-END_NAMESPACE_2( jace, ElementProxyHelper )
+END_NAMESPACE_2(jace, ElementProxyHelper)

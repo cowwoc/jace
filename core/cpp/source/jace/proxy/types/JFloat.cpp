@@ -1,29 +1,24 @@
-
-
 #include "jace/proxy/types/JFloat.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOff.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
 
-JFloat::JFloat( jvalue value )
+JFloat::JFloat(jvalue value)
 {
-  setJavaJniValue( value );
+  setJavaJniValue(value);
 }
 
-JFloat::JFloat( jfloat float_ )
+JFloat::JFloat(jfloat _float)
 {
   jvalue value;
-  value.f = float_;
-  setJavaJniValue( value );
+  value.f = _float;
+  setJavaJniValue(value);
 }
 
 JFloat::~JFloat()
@@ -31,36 +26,31 @@ JFloat::~JFloat()
 
 JFloat::operator jfloat() const
 {
-  return getJavaJniValue().f;
+  return static_cast<jvalue>(*this).f;
 }
 
-jfloat JFloat::getFloat() const
+bool JFloat::operator==(const JFloat& _float) const
 {
-  return getJavaJniValue().f;
+  return static_cast<jfloat>(_float) == static_cast<jfloat>(*this);
 }
 
-bool JFloat::operator==( const JFloat& float_ ) const
+bool JFloat::operator!=(const JFloat& _float) const
 {
-  return float_.getFloat() == getFloat();
+  return !(*this == _float);
 }
 
-bool JFloat::operator!=( const JFloat& float_ ) const
+bool JFloat::operator==(jfloat val) const
 {
-  return !( *this == float_ );
+  return val == static_cast<jfloat>(*this);
 }
 
-bool JFloat::operator==( jfloat val ) const
+bool JFloat::operator!=(jfloat val) const
 {
-  return val == getFloat();
-}
-
-bool JFloat::operator!=( jfloat val ) const
-{
-  return ! ( *this == val );
+  return !(*this == val);
 }
 
 static boost::mutex javaClassMutex;
-const JClass& JFloat::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JFloat::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -69,11 +59,11 @@ const JClass& JFloat::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JFloat::getJavaJniClass() const throw ( JNIException )
+const JClass& JFloat::getJavaJniClass() const throw (JNIException)
 {
   return JFloat::staticGetJavaJniClass();
 }
 
 
-END_NAMESPACE_3( jace, proxy, types )
+END_NAMESPACE_3(jace, proxy, types)
 

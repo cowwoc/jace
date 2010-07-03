@@ -1,5 +1,3 @@
-
-
 /**
  * Jace generates the class definition (PeerExample.h), JNI mappings (PeerExampleMappings.cpp),
  * and proxy methods and fields (PeerExample.cpp) for a class.
@@ -42,52 +40,52 @@ using std::endl;
  * getResources
  *
  */
-JArray<String> PeerExample::getResources( JArray<String> urls ) {
-
-  try {
-
-    String server_ = server();
+JArray<String> PeerExample::getResources(JArray<String> urls)
+{
+  try
+	{
+    String _server = server();
     int length = urls.length();
-    int port_ = port();
+    int _port = port();
 
-    JArray<String> returnValues( length );
+    JArray<String> returnValues(length);
 
     int i;
 
-    for ( i = 0; i < length; ++i ) {
-
-      String resource( urls[ i ] );
-      URL url( "http", server_, port_, resource );
-      InputStreamReader inputReader( url.openStream() );
-      BufferedReader reader( inputReader );
+    for (i = 0; i < length; ++i)
+		{
+      String resource(urls[i]);
+      URL url(java_new<URL>("http", _server, _port, resource));
+      InputStreamReader inputReader(java_new<InputStreamReader>(url.openStream()));
+      BufferedReader reader(java_new<BufferedReader>(inputReader));
 
       String buffer = "";
       String line;
 
-      while ( true ) {
+      while (true)
+			{
         line = reader.readLine();
-        if ( line.isNull() ) {
+        if (line.isNull())
           break;
-        }
-
         buffer = buffer + line;
       }
 
-      returnValues[ i ] = buffer;
+      returnValues[i] = buffer;
     }
 
     return returnValues;
   }
-  catch ( IOException& ioe ) {
+  catch (IOException& ioe)
+	{
     cout << "Caught the following exception, but letting it pass to the VM: " << std::endl;
     cout << ioe << std::endl;
     throw;
   }
-
-  return JArray<String>( 0 );
+  return JArray<String>(0);
 }
 
 
-void PeerExample::destroy() {
+void PeerExample::destroy()
+{
   cout << "C++ PeerExample destroyed." << endl;
 }

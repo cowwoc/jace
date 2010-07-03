@@ -1,6 +1,6 @@
-
-#include "jace/JNIHelper.h"
-using jace::OptionList;
+#include "jace/Jace.h"
+using jace::java_cast;
+using jace::java_new;
 
 #include "jace/StaticVmLoader.h"
 using jace::StaticVmLoader;
@@ -32,9 +32,6 @@ using jace::proxy::java::util::Map_Entry;
 #include "jace/proxy/java/util/Iterator.h"
 using jace::proxy::java::util::Iterator;
 
-#include "jace/operators.h"
-using jace::java_cast;
-
 #include "jace/JNIException.h"
 using jace::JNIException;
 
@@ -51,50 +48,53 @@ using std::vector;
 using std::cout;
 using std::endl;
 
+int main()
+{
+  try
+	{
+    StaticVmLoader loader(JNI_VERSION_1_2);
+    jace::OptionList list;
+		list.push_back(jace::ClassPath("jace-runtime.jar"));
+    jace::createVm(loader, list, false);
 
-int main() {
+    for (int i = 0; i < 1000; ++i)
+		{
+			Map map = java_new<HashMap>();
 
-  try {
-    StaticVmLoader loader( JNI_VERSION_1_2 );
-    OptionList list;
-		list.push_back( jace::ClassPath( "jace-runtime.jar" ) );
-    jace::helper::createVm( loader, list, false );
+			map.put(java_new<Integer>("1"), java_new<String>("Hello 1"));
+      map.put(java_new<Integer>("2"), java_new<String>("Hello 2"));
+      map.put(java_new<Integer>("3"), java_new<String>("Hello 3"));
 
-    for ( int i = 0; i < 1000; ++i ) {
+      Set entrySet(map.entrySet());
 
-      Map map = HashMap();
-
-      map.put( Integer( "1" ), String( "Hello 1" ) );
-      map.put( Integer( "2" ), String( "Hello 2" ) );
-      map.put( Integer( "3" ), String( "Hello 3" ) );
-
-      Set entrySet( map.entrySet() );
- 
-      for ( Iterator it( entrySet.iterator() ); it.hasNext(); ) {
-        Map_Entry entry = jace::java_cast<Map_Entry>( it.next() );
-        Integer key = jace::java_cast<Integer>( entry.getKey() );
-        String value = jace::java_cast<String>( entry.getValue() );
+      for (Iterator it(entrySet.iterator()); it.hasNext();)
+			{
+        Map_Entry entry = java_cast<Map_Entry>(it.next());
+        Integer key = java_cast<Integer>(entry.getKey());
+        String value = java_cast<String>(entry.getValue());
         cout << "key: <" << key << "> value: <" << value << ">" << endl;
       }
     }
   }
-	catch ( VirtualMachineShutdownError& ) {
+	catch (VirtualMachineShutdownError&)
+	{
 		cout << "The JVM was terminated in mid-execution. " << endl;
     return -2;
 	}
-  catch ( JNIException& jniException ) {
-    cout << "An unexpected JNI error occured. " << jniException.what() << endl;
+  catch (JNIException& jniException)
+	{
+    cout << "An unexpected JNI error has occurred: " << jniException.what() << endl;
     return -2;
   }
-	catch (Throwable& t) {
+	catch (Throwable& t)
+	{
 		t.printStackTrace();
 		return -2;
 	}
-  catch ( std::exception& e ) {
-    cout << e.what() << endl;
+  catch (std::exception& e)
+	{
+    cout << "An unexpected C++ error has occurred: " << e.what() << endl;
     return -1;
   }
-
   return 0;
 }
-

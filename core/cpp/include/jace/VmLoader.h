@@ -1,27 +1,18 @@
-
 #ifndef JACE_VM_LOADER
 #define JACE_VM_LOADER
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
 
 #include <jni.h>
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * The base interface for virtual machine loaders.
  * 
- * To create a virtual machine using jace::helper::createVm(),
+ * To create a virtual machine using jace::createVm(),
  * you need to specify a VmLoader.
  *
  * The default VmLoader is DefaultVmLoader. This loader statically links
@@ -77,6 +68,6 @@ private:
 	const jint jniVersion;
 };
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif // JACE_VM_LOADER

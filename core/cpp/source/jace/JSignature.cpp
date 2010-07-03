@@ -1,4 +1,3 @@
-
 #include "jace/JSignature.h"
 
 #include <string>
@@ -12,18 +11,18 @@ using std::list;
 #include "jace/BoostWarningOn.h"
 
 
-/* The template implementation.
- *
+/**
+ * The template implementation.
  */
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * Constructs a new JSignature with the given return type.
- *
  */
-JSignature::JSignature( const JClass& resultType ) :
+JSignature::JSignature(const JClass& resultType):
   mTypes(),
-  mResultType( resultType ) { 
+  mResultType(resultType)
+{ 
 }
 
 
@@ -34,31 +33,31 @@ JSignature::JSignature( const JClass& resultType ) :
  *
  * For example, the following JSignature:
  *
- *   JSignature( Void::staticGetJavaJniClass() ) signature 
+ *   JSignature(Void::staticGetJavaJniClass()) signature 
  *     << String::staticGetJavaJniClass() 
  *     << Url::staticGetJavaJniClass();
  *
  * returns the following string from a call toString:
  *
  *   "(Ljava/lang/String;Ljava/net/URL;)V"
- *
  */
-string JSignature::toString() const {
-
+string JSignature::toString() const
+{
   string signature = "(";
 
-	typedef list< ::boost::reference_wrapper<const JClass> > ClassList;
+	typedef list<::boost::reference_wrapper<const JClass>> ClassList;
 
   ClassList::const_iterator end = mTypes.end();
 
-  for ( ClassList::const_iterator i = mTypes.begin();
+  for (ClassList::const_iterator i = mTypes.begin();
         i != end;
-        ++i ) {
-    signature.append( i->get().getNameAsType() );
+        ++i)
+	{
+    signature.append(i->get().getNameAsType());
   }
 
-  signature.append( ")" );
-  signature.append( mResultType.getNameAsType() );
+  signature.append(")");
+  signature.append(mResultType.getNameAsType());
 
   return signature;
 }
@@ -68,12 +67,12 @@ string JSignature::toString() const {
  * Adds a new argument type to the method signature.
  *
  * A JSignature may have any arbitrary number of argument types.
- *
  */
-JSignature& JSignature::operator<<( const JClass& argumentType ) {
-	mTypes.push_back( boost::ref<const JClass>(argumentType) );
+JSignature& JSignature::operator<<(const JClass& argumentType)
+{
+	mTypes.push_back(boost::ref<const JClass>(argumentType));
   return *this;
 }
 
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)

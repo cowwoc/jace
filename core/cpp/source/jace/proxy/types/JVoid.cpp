@@ -1,20 +1,16 @@
-
 #include "jace/proxy/types/JVoid.h"
 
-#ifndef JACE_JCLASS_IMPL_H
 #include "jace/JClassImpl.h"
-#endif
-using jace::JClassImpl;
 
 #include "jace/BoostWarningOff.h"
 #include <boost/thread/mutex.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE_3( jace, proxy, types )
+BEGIN_NAMESPACE_3(jace, proxy, types)
 
 
 static boost::mutex javaClassMutex;
-const JClass& JVoid::staticGetJavaJniClass() throw ( JNIException )
+const JClass& JVoid::staticGetJavaJniClass() throw (JNIException)
 {
 	static boost::shared_ptr<JClassImpl> result;
 	boost::mutex::scoped_lock lock(javaClassMutex);
@@ -23,11 +19,9 @@ const JClass& JVoid::staticGetJavaJniClass() throw ( JNIException )
 	return *result;
 }
 
-const JClass& JVoid::getJavaJniClass() const throw ( JNIException )
+const JClass& JVoid::getJavaJniClass() const throw (JNIException)
 {
   return JVoid::staticGetJavaJniClass();
 }
 
-
-END_NAMESPACE_3( jace, proxy, types )
-
+END_NAMESPACE_3(jace, proxy, types)

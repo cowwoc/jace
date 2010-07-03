@@ -1,4 +1,3 @@
-
 #ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
 #endif
@@ -8,17 +7,9 @@
 #ifndef JACE_WIN32_VM_LOADER
 #define JACE_WIN32_VM_LOADER
 
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
-
-#ifndef JACE_VM_LOADER
 #include "jace/VmLoader.h"
-#endif
 
 #include <jni.h>
 
@@ -30,7 +21,7 @@
 
 #include <string>
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 /**
  * A generic Virtual Machine loader for Windows.
@@ -152,7 +143,7 @@ private:
    *
    * @throws JNIException if an error occurs while trying to look up the VM.
    */
-  void specifyVm( JVMVendor jvmVendor, JVMType jvmType, std::string version );
+  void specifyVm(JVMVendor jvmVendor, JVMType jvmType, std::string version);
 
 	/**
    * Method to specify a VM and initialize the VM entry points.
@@ -169,27 +160,25 @@ private:
    *
    * @throws JNIException if an error occurs while trying to look up the VM.
    */
-  void specifyVm( JVMVendor jvmVendor, JVMType jvmType, std::wstring version );
+  void specifyVm(JVMVendor jvmVendor, JVMType jvmType, std::wstring version);
 
 	/**
    * Loads the VM at the specified path.
    *
    * @throws JNIException if an error occurs while trying to load the VM.
    */
-  void loadVm( const std::string& path ) throw ( JNIException );
+  void loadVm(const std::string& path) throw (JNIException);
 
 	/**
    * Loads the VM at the specified path.
    *
    * @throws JNIException if an error occurs while trying to load the VM.
    */
-	void loadVm( const std::wstring& path ) throw ( JNIException );
+	void loadVm(const std::wstring& path) throw (JNIException);
 };
 
-END_NAMESPACE( jace )
-
-#endif // JACE_WIN32_VM_LOADER
+END_NAMESPACE(jace)
 
 #endif // _WIN32
 
-
+#endif // JACE_WIN32_VM_LOADER

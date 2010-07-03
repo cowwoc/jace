@@ -23,41 +23,49 @@ public class ArrayMetaClass implements MetaClass
     this.elementType = metaClass;
   }
 
+  @Override
   public String getSimpleName()
   {
-    return "JArray< " + elementType.getSimpleName() + " >";
+    return "JArray<" + elementType.getSimpleName() + ">";
   }
 
+  @Override
   public String getFullyQualifiedName(String separator)
   {
-    return "jace::JArray< " + "::" + elementType.getFullyQualifiedName(separator) + " >";
+    return "jace::JArray<" + "::" + elementType.getFullyQualifiedName(separator) + ">";
   }
 
+  @Override
   public ClassPackage getPackage()
   {
     return elementType.getPackage();
   }
 
+  @Override
   public String beginGuard()
   {
     return elementType.beginGuard();
   }
 
+  @Override
   public String endGuard()
   {
     return elementType.endGuard();
   }
 
+  @Override
   public String include()
   {
     return elementType.include();
   }
 
+  @Override
   public String using()
   {
     return elementType.using();
   }
 
+  @Override
   public String forwardDeclare()
   {
     return elementType.forwardDeclare();
@@ -80,6 +88,7 @@ public class ArrayMetaClass implements MetaClass
     return getElementType().equals(other.getElementType());
   }
 
+  @Override
   public int hashCode()
   {
     return getSimpleName().hashCode();
@@ -108,21 +117,25 @@ public class ArrayMetaClass implements MetaClass
     return result;
   }
 
+  @Override
   public MetaClass proxy()
   {
     return new ArrayMetaClass(getElementType().proxy());
   }
 
+  @Override
   public MetaClass unProxy()
   {
     return new ArrayMetaClass(getElementType().unProxy());
   }
 
+  @Override
   public boolean isPrimitive()
   {
     return false;
   }
 
+  @Override
   public String getJniType()
   {
     if (elementType instanceof BooleanClass)

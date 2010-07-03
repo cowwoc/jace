@@ -134,6 +134,21 @@ Compatibility breakers:
 - Renamed VmLoader::version() to getJniVersion()
 - jace::helper::registerShutdownHook() is now private
 - Removed WrapperVmLoader as it was replaced by jace::helper::setJavaVM()
+- Refactored C++ proxy constructors so that Map() creates a Java reference while Map::Factory::create() creates
+  a Java object.
+  
+  Beware! "Map map = HashMap();" or "Map map;" now assigns a null pointer to "map". The code should be refactored as:
+  "Map map = jace::java_new<HashMap>()"
+- Replaced getJavaJniObject() and getJavaJniValue() by "operator jobject()" and "operator jvalue()" respectively
+- Proxy(jobject) constructors are now public (but marked as explicit)
+- JBoolean.getBoolean() replaced by JBoolean::operator jboolean()
+- JByte.getByte() replaced by JByte::operator jbyte()
+- JChar.getChar() replaced by JChar::operator jchar()
+- JDouble.getDouble() replaced by JDouble::operator jdouble()
+- JFloat.getFloat() replaced by JFloat::operator jfloat()
+- JInt.getInt() replaced by JInt::operator jint()
+- JShort.getShort() replaced by JShort::operator jshort()
+- JLong.getLong() replaced by JLong::operator jlong()
 
 -------------- New changes in 1.1.1
 

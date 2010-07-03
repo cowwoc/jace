@@ -1,31 +1,22 @@
 #ifndef JACE_JCLASS_H
 #define JACE_JCLASS_H
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
 
 #include <jni.h>
 
 #include <string>
 #include <memory>
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 
 /**
  * An interface that represents a java class.
  *
  * @author Toby Reyelts
- *
  */
 class JClass
 {
@@ -54,10 +45,10 @@ public:
 	/**
 	 * Returns the JNI representation of this class.
 	 */
-	JACE_API virtual jclass getClass() const throw ( jace::JNIException ) = 0;
+	JACE_API virtual jclass getClass() const throw (jace::JNIException) = 0;
 };
 
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif

@@ -10,7 +10,8 @@
 #include "jace/proxy/types/JInt.h"
 #include "jace/JArguments.h"
 
-#include "jace/JNIHelper.h"
+#include "jace/Jace.h"
+using jace::java_cast;
 
 #include "jace/StaticVmLoader.h"
 using jace::StaticVmLoader;
@@ -23,9 +24,6 @@ using jace::JNIException;
 
 #include "jace/VirtualMachineShutdownError.h"
 using jace::VirtualMachineShutdownError;
-
-#include "jace/operators.h"
-using jace::java_cast;
 
 #include "jace/proxy/java/lang/String.h"
 #include "jace/proxy/java/lang/System.h"
@@ -46,99 +44,115 @@ using std::cin;
 
 const long count = 500000;
 
-struct JaceHashCodeInvoke {
-
+struct JaceHashCodeInvoke
+{
   Object obj;
 
-  void operator()() {
-    for ( int i = 0; i < count; ++i ) {
+	JaceHashCodeInvoke()
+	{
+		obj = jace::java_new<Object>();
+	}
+
+  void operator()()
+	{
+    for (int i = 0; i < count; ++i)
       obj.hashCode();
-    }
   }
 };
 
-struct JniHashCodeInvoke {
-
+struct JniHashCodeInvoke
+{
   jobject obj;
   jclass objClass;
   jmethodID hashCodeMethod;
   JNIEnv* env;
 
-  JniHashCodeInvoke() {
-    Object ob;
-    env = jace::helper::attach();
-    obj = env->NewLocalRef( jace::java_cast<jobject>( ob ) );
-    objClass = env->FindClass( "java/lang/Object" );
-    hashCodeMethod = env->GetMethodID( objClass, "hashCode", "()I" );
+  JniHashCodeInvoke()
+	{
+		Object ob = jace::java_new<Object>();
+    env = jace::attach();
+    obj = env->NewLocalRef(ob);
+    objClass = env->FindClass("java/lang/Object");
+    hashCodeMethod = env->GetMethodID(objClass, "hashCode", "()I");
   }
 
-  void operator()() {
-    for ( int i = 0; i < count; ++i ) {
-      // hashCodeMethod = env->GetMethodID( objClass, "hashCode", "()I" );
-      env->CallIntMethod( obj, hashCodeMethod );
+  void operator()()
+	{
+    for (int i = 0; i < count; ++i)
+		{
+      // hashCodeMethod = env->GetMethodID(objClass, "hashCode", "()I");
+      env->CallIntMethod(obj, hashCodeMethod);
     }
   }
 };
 
-struct JaceAttach {
+struct JaceAttach
+{
 
-  void operator()() {
-    for ( int i = 0; i < count; ++i ) {
-      jace::helper::attach();
-    }
+  void operator()()
+	{
+    for (int i = 0; i < count; ++i)
+      jace::attach();
   }
 };
 
-struct JaceGlobalRef {
-
+struct JaceGlobalRef
+{
   JNIEnv* env;
   jobject obj;
 
-  JaceGlobalRef() {
-    Object ob;
-    env = jace::helper::attach();
-    obj = env->NewLocalRef( jace::java_cast<jobject>( ob ) );
+  JaceGlobalRef()
+	{
+    Object ob = jace::java_new<Object>();
+    env = jace::attach();
+    obj = env->NewLocalRef(ob);
   }
 
-  void operator()() { 
-    for ( int i = 0; i < count; ++i ) {
-      jobject ref = jace::helper::newGlobalRef( env, obj );
-      jace::helper::deleteGlobalRef( env, ref );
+  void operator()()
+	{
+    for (int i = 0; i < count; ++i)
+		{
+      jobject ref = jace::newGlobalRef(env, obj);
+      jace::deleteGlobalRef(env, ref);
     }
   }
 };
 
-struct JaceLocalRef {
-
+struct JaceLocalRef
+{
   JNIEnv* env;
   jobject obj;
 
-  JaceLocalRef() {
-    Object ob;
-    env = jace::helper::attach();
-    obj = env->NewLocalRef( jace::java_cast<jobject>( ob ) );
+  JaceLocalRef()
+	{
+    Object ob = jace::java_new<Object>();
+    env = jace::attach();
+    obj = env->NewLocalRef(ob);
   }
 
-  void operator()() { 
-    for ( int i = 0; i < count; ++i ) {
-      jobject ref = jace::helper::newLocalRef( env, obj );
-      jace::helper::deleteLocalRef( env, ref );
+  void operator()()
+	{
+    for (int i = 0; i < count; ++i)
+		{
+      jobject ref = jace::newLocalRef(env, obj);
+      jace::deleteLocalRef(env, ref);
     }
   }
 };
 
-struct JaceExceptionCheck {
-  void operator()() {
-    JNIEnv* env = jace::helper::attach();
+struct JaceExceptionCheck
+{
+  void operator()()
+	{
+    JNIEnv* env = jace::attach();
 
-    for ( int i = 0; i < count; ++i ) {
+    for (int i = 0; i < count; ++i)
       env->ExceptionCheck();
-    }
   }
 };
 
-struct JaceGetMethod {
-
+struct JaceGetMethod
+{
 	/**
 	 * Used to gain access to jace::Method::getMethodID().
 	 */
@@ -149,69 +163,76 @@ struct JaceGetMethod {
 		 * Creates a new JMethod representing the method with the
 		 * given name, belonging to the given class.
 		 */
-		ProfiledMethod( const std::string& name ): jace::JMethod<ResultType>(name)
+		ProfiledMethod(const std::string& name): jace::JMethod<ResultType>(name)
 		{}
 
 		/**
 		 * Expose method publically.
 		 */
-		jmethodID getMethodID( const jace::JClass& jClass, const jace::JArguments& arguments, bool isStatic = false )
+		jmethodID getMethodID(const jace::JClass& jClass, const jace::JArguments& arguments, bool isStatic = false)
 		{
 			return jace::JMethod<ResultType>::getMethodID(jClass, arguments, isStatic);
 		}
 	};
 
-  void operator()() {
+  void operator()()
+	{
     const jace::JClass& jClass = Object::staticGetJavaJniClass();
     jace::JArguments arguments;
 
-    for ( int i = 0; i < count; ++i ) {
-      ProfiledMethod<jace::proxy::types::JInt> method( "hashCode" );
-      method.getMethodID( jClass, arguments );
+    for (int i = 0; i < count; ++i)
+		{
+      ProfiledMethod<jace::proxy::types::JInt> method("hashCode");
+      method.getMethodID(jClass, arguments);
     }
   }
 };
 
-template <class Op> void perform( Op& op, string msg ) {
-
+template <class Op> void perform(Op& op, string msg)
+{
   jlong startTime = System::currentTimeMillis();
   op();
   jlong endTime = System::currentTimeMillis();
   jlong elapsedTime = endTime - startTime;
-  double average = ( elapsedTime * 1.0 ) / count;
+  double average = (elapsedTime * 1.0) / count;
 
   cout << msg << " " << average << " (ms) " << endl;
 }
 
-int main() {
-
-  try { 
+int main()
+{
+  try
+	{
 		OptionList list;
-		list.push_back( jace::ClassPath( "jace-runtime.jar" ) );
-	  jace::helper::createVm( StaticVmLoader( JNI_VERSION_1_2 ), list );
+		list.push_back(jace::ClassPath("jace-runtime.jar"));
+	  jace::createVm(StaticVmLoader(JNI_VERSION_1_2), list);
 
-    perform( JniHashCodeInvoke(), "Average JNI Object.hashCode" );
-    perform( JaceHashCodeInvoke(), "Average Jace Object.hashCode" );
-    perform( JaceAttach(), "Average Jace attach" );
-    perform( JaceGlobalRef(), "Average Jace NewGlobalRef+DeleteGlobalRef" );
-    perform( JaceLocalRef(), "Average Jace NewLocalRef+DeleteLocalRef" );
-    perform( JaceExceptionCheck(), "Average ExceptionCheck" );
-    perform( JaceGetMethod(), "Average Method lookup" );
+    perform(JniHashCodeInvoke(), "Average JNI Object.hashCode");
+    perform(JaceHashCodeInvoke(), "Average Jace Object.hashCode");
+    perform(JaceAttach(), "Average Jace attach");
+    perform(JaceGlobalRef(), "Average Jace NewGlobalRef+DeleteGlobalRef");
+    perform(JaceLocalRef(), "Average Jace NewLocalRef+DeleteLocalRef");
+    perform(JaceExceptionCheck(), "Average ExceptionCheck");
+    perform(JaceGetMethod(), "Average Method lookup");
   }
-	catch ( VirtualMachineShutdownError& ) {
+	catch (VirtualMachineShutdownError&)
+	{
 		cout << "The JVM was terminated in mid-execution. " << endl;
     return -2;
 	}
-  catch ( JNIException& jniException ) {
-    cout << "An unexpected JNI error occured. " << jniException.what() << endl;
+  catch (JNIException& jniException)
+	{
+    cout << "An unexpected JNI error has occurred: " << jniException.what() << endl;
     return -2;
   }
-	catch (Throwable& t) {
+	catch (Throwable& t)
+	{
 		t.printStackTrace();
 		return -2;
 	}
-  catch ( std::exception& e ) {
-    cout << e.what() << endl;
+  catch (std::exception& e)
+	{
+    cout << "An unexpected C++ error has occurred: " << e.what() << endl;
   }
   return 0;
 }

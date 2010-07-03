@@ -1,35 +1,30 @@
-
 #include "jace/JFieldProxyHelper.h"
 
 using jace::proxy::JObject;
 using jace::JClass;
 
-#ifndef JACE_JNI_HELPER_H
-#include "jace/JNIHelper.h"
+#ifndef JACE_JACE_H
+#include "jace/Jace.h"
 #endif
 
-BEGIN_NAMESPACE_2( jace, JFieldProxyHelper )
+BEGIN_NAMESPACE_2(jace, JFieldProxyHelper)
 
 
-jobject assign( const JObject& field, jobject parent, jfieldID fieldID ) {
+jobject assign(const JObject& field, jobject parent, jfieldID fieldID)
+{
+  JNIEnv* env = attach();
+  jobject object = static_cast<jobject>(field);
+  env->SetObjectField(parent, fieldID, object);
+  return object;
+}
 
-  JNIEnv* env = helper::attach();
-  jobject object = field.getJavaJniObject();
-  env->SetObjectField( parent, fieldID, object );
-
+jobject assign(const JObject& field, jclass parentClass, jfieldID fieldID)
+{
+  JNIEnv* env = attach();
+  jobject object = static_cast<jobject>(field);
+  env->SetStaticObjectField(parentClass, fieldID, object);
   return object;
 }
 
 
-jobject assign( const JObject& field, jclass parentClass, jfieldID fieldID ) {
-
-  JNIEnv* env = helper::attach();
-  jobject object = field.getJavaJniObject();
-
-  env->SetStaticObjectField( parentClass, fieldID, object );
-
-  return object;
-}
-
-
-END_NAMESPACE_2( jace, JFieldProxyHelper )
+END_NAMESPACE_2(jace, JFieldProxyHelper)

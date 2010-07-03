@@ -7,6 +7,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Util
 {
@@ -98,5 +100,27 @@ public class Util
         result.add(new File(path));
     }
     return result;
+  }
+
+  /**
+   * Inserts indents at the beginning of each line of text.
+   *
+   * @param text the text to indent
+   * @param indentSize the number of space characters to insert
+   * @return the indented text
+   * @throws IllegalArgumentException if text is null
+   */
+  public static String indent(String text, int indentSize) throws IllegalArgumentException
+  {
+    if (text == null)
+      throw new IllegalArgumentException("text may not be null");
+    // insert an indent after all newlines except the last one
+    StringBuilder indentBuilder = new StringBuilder(indentSize);
+    for (int i = 0; i < indentSize; ++i)
+      indentBuilder.append(" ");
+    String indent = indentBuilder.toString();
+    // insert an indent after all newlines except the last one
+    return indent + text.replaceAll(Pattern.quote(newLine) + "(?!$)", Matcher.quoteReplacement(newLine)
+                                                                      + "  ");
   }
 }

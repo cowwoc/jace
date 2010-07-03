@@ -1,18 +1,9 @@
-
 #ifndef JACE_OPTION_LIST_H
 #define JACE_OPTION_LIST_H
 
-#ifndef JACE_OS_DEP_H
 #include "jace/os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "jace/namespace.h"
-#endif
-
-#ifndef JACE_JNI_EXCEPTION_H
 #include "jace/JNIException.h"
-#endif
 
 #include <jni.h>
 
@@ -23,26 +14,23 @@
 #include <boost/shared_ptr.hpp>
 #include "jace/BoostWarningOn.h"
 
-BEGIN_NAMESPACE( jace )
+BEGIN_NAMESPACE(jace)
 
 
 /**
- * A Jvm option. These are supplied to jace::helper::createVm()
+ * A Jvm option. These are supplied to jace::createVm()
  * in an OptionList.
  *
  * @author Toby Reyelts
- *
  */
-class Option {
-
-  public:
-
+class Option
+{
+public:
   JACE_API virtual ~Option() {}
 
   /**
    * Returns the text string value of the option.
    * For example, "-Djava.class.path=c:\foo\myclasses"
-   *
    */
   JACE_API virtual const std::string stringValue() const = 0;
 
@@ -50,54 +38,47 @@ class Option {
    * Returns the extra data required for an option,
    * for example, a pointer to a vfprintf hook.
    * Returns NULL if no extra data is required.
-   *
    */
   JACE_API virtual void* extraInfo() = 0;
 
   /**
    * Returns a dynamically allocated copy of the Option.
-   *
    */
   JACE_API virtual Option* clone() const = 0;
 };
 
 /**
- * A List of Options. An OptionList is supplied to jace::helper::createVm()
+ * A List of Options. An OptionList is supplied to jace::createVm()
  * to specify the set of virtual machine options to be used in creating
  * a virtual machine.
- *
  */
-class OptionList {
+class OptionList
+{
 public:
   typedef ::boost::shared_ptr<Option> OptionPtr;
 
   /**
    * Creates a new empty OptionList.
-   *
    */
   JACE_API OptionList();
 
   /**
    * Adds a clone of option to the list.
-   *
    */
-  JACE_API void push_back( const Option& option );
+  JACE_API void push_back(const Option& option);
 
   /**
    * Returns the size of the list.
-   *
    */
   JACE_API size_t size() const;
 
   /**
    * Returns an iterator to the beginning of the list.
-   *
    */
 	JACE_API std::vector<OptionPtr>::const_iterator begin() const;
  
   /**
    * Returns an iterator to the beginning of the list.
-   *
    */
   JACE_API std::vector<OptionPtr>::const_iterator end() const;
 
@@ -106,21 +87,19 @@ public:
    *
    * The caller must deallocate the options by making a call
    * to destroyJniOptions().
-   *
    */
   JACE_API JavaVMOption* createJniOptions() const;
 
   /**
    * Releases the options created by a call to createJniOptions().
-   *
    */
-  JACE_API void destroyJniOptions( JavaVMOption* jniOptions ) const;
+  JACE_API void destroyJniOptions(JavaVMOption* jniOptions) const;
 
 private:
 	/**
 	 * Prevent assignment.
 	 */
-	OptionList& operator=( const OptionList& other);
+	OptionList& operator=(const OptionList& other);
 
   std::vector<OptionPtr> options;
 };
@@ -129,20 +108,19 @@ private:
  * A specific type of Option, the SystemProperty tells the
  * virtual machine to set the named system property to the
  * specified value.
- *
  */
-class SystemProperty : public Option {
+class SystemProperty: public Option
+{
 public:
   /**
    * Creates a new SystemProperty with the specified name and value.
-   *
    */
-  JACE_API SystemProperty( const std::string& name_, const std::string& value_ );
+  JACE_API SystemProperty(const std::string& name_, const std::string& _value);
 
 	/**
 	 * Copy constructor.
 	 */
-	JACE_API SystemProperty( const SystemProperty& other);
+	JACE_API SystemProperty(const SystemProperty& other);
   
 	/**
    * Returns the name of the SystemProperty.
@@ -164,7 +142,7 @@ private:
 	/**
 	 * Prevent assignment.
 	 */
-	SystemProperty& operator=( const SystemProperty& other);
+	SystemProperty& operator=(const SystemProperty& other);
 
   const std::string mName;
   const std::string mValue;
@@ -175,116 +153,144 @@ private:
   // Predefined SystemProperty instances
   //-------------------------------------------------------------------------
 
-  class Version : public SystemProperty {
-    public: Version( const std::string& value ) : SystemProperty( "java.version", value ) {}
+  class Version: public SystemProperty
+	{
+    public: Version(const std::string& value ): SystemProperty("java.version", value) {}
   };
 
-  class Vendor : public SystemProperty {
-    public: Vendor( const std::string& value ) : SystemProperty( "java.vendor", value ) {}
+  class Vendor: public SystemProperty
+	{
+    public: Vendor(const std::string& value): SystemProperty("java.vendor", value) {}
   };
 
-  class VendorUrl : public SystemProperty {
-    public: VendorUrl( const std::string& value ) : SystemProperty( "java.vendor.url", value ) {}
+  class VendorUrl: public SystemProperty
+	{
+    public: VendorUrl(const std::string& value): SystemProperty("java.vendor.url", value) {}
   };
 
-  class Home : public SystemProperty {
-    public: Home( const std::string& value ) : SystemProperty( "java.home", value ) {}
+  class Home: public SystemProperty
+	{
+    public: Home(const std::string& value): SystemProperty("java.home", value) {}
   };
 
-  class VmSpecificationVersion : public SystemProperty {
-    public: VmSpecificationVersion( const std::string& value ) : SystemProperty( "java.vm.specification.version", value ) {}
+  class VmSpecificationVersion: public SystemProperty
+	{
+    public: VmSpecificationVersion(const std::string& value): SystemProperty("java.vm.specification.version", value) {}
   };
 
-  class VmSpecificationVendor : public SystemProperty {
-    public: VmSpecificationVendor( const std::string& value ) : SystemProperty( "java.vm.specification.vendor", value ) {}
+  class VmSpecificationVendor: public SystemProperty
+	{
+    public: VmSpecificationVendor(const std::string& value): SystemProperty("java.vm.specification.vendor", value) {}
   };
 
-  class VmSpecificationName : public SystemProperty {
-    public: VmSpecificationName( const std::string& value ) : SystemProperty( "java.vm.specification.name", value ) {}
+  class VmSpecificationName: public SystemProperty
+	{
+    public: VmSpecificationName(const std::string& value): SystemProperty("java.vm.specification.name", value) {}
   };
 
-  class VmVersion : public SystemProperty {
-    public: VmVersion( const std::string& value ) : SystemProperty( "java.vm.version", value ) {}
+  class VmVersion: public SystemProperty
+	{
+    public: VmVersion(const std::string& value): SystemProperty("java.vm.version", value) {}
   };
 
-  class VmVendor : public SystemProperty {
-    public: VmVendor( const std::string& value ) : SystemProperty( "java.vm.vendor", value ) {}
+  class VmVendor: public SystemProperty
+	{
+    public: VmVendor(const std::string& value): SystemProperty("java.vm.vendor", value) {}
   };
 
-  class VmName : public SystemProperty {
-    public: VmName( const std::string& value ) : SystemProperty( "java.vm.name", value ) {}
+  class VmName: public SystemProperty
+	{
+    public: VmName(const std::string& value): SystemProperty("java.vm.name", value) {}
   };
 
-  class SpecificationVersion : public SystemProperty {
-    public: SpecificationVersion( const std::string& value ) : SystemProperty( "java.specification.version", value ) {}
+  class SpecificationVersion: public SystemProperty
+	{
+    public: SpecificationVersion(const std::string& value): SystemProperty("java.specification.version", value) {}
   };
 
-  class SpecificationVendor : public SystemProperty {
-    public: SpecificationVendor( const std::string& value ) : SystemProperty( "java.specification.vendor", value ) {}
+  class SpecificationVendor: public SystemProperty
+	{
+    public: SpecificationVendor(const std::string& value): SystemProperty("java.specification.vendor", value) {}
   };
 
-  class SpecificationName : public SystemProperty {
-    public: SpecificationName( const std::string& value ) : SystemProperty( "java.specification.name", value ) {}
+  class SpecificationName: public SystemProperty
+	{
+    public: SpecificationName(const std::string& value): SystemProperty("java.specification.name", value) {}
   };
 
-  class ClassVersion : public SystemProperty {
-    public: ClassVersion( const std::string& value ) : SystemProperty( "java.class.version", value ) {}
+  class ClassVersion: public SystemProperty
+	{
+    public: ClassVersion(const std::string& value): SystemProperty("java.class.version", value) {}
   };
 
-  class ClassPath : public SystemProperty {
-    public: ClassPath( const std::string& value ) : SystemProperty( "java.class.path", value ) {}
+  class ClassPath: public SystemProperty
+	{
+    public: ClassPath(const std::string& value): SystemProperty("java.class.path", value) {}
   };
 
-  class LibraryPath : public SystemProperty {
-    public: LibraryPath( const std::string& value ) : SystemProperty( "java.library.path", value ) {}
+  class LibraryPath: public SystemProperty
+	{
+    public: LibraryPath(const std::string& value): SystemProperty("java.library.path", value) {}
   };
 
-  class IoTmpDir : public SystemProperty {
-    public: IoTmpDir( const std::string& value ) : SystemProperty( "java.io.tmpdir", value ) {}
+  class IoTmpDir: public SystemProperty
+	{
+    public: IoTmpDir(const std::string& value): SystemProperty("java.io.tmpdir", value) {}
   };
 
-  class Compiler : public SystemProperty {
-    public: Compiler( const std::string& value ) : SystemProperty( "java.compiler", value ) {}
+  class Compiler: public SystemProperty
+	{
+    public: Compiler(const std::string& value): SystemProperty("java.compiler", value) {}
   };
 
-  class ExtDirs : public SystemProperty {
-    public: ExtDirs( const std::string& value ) : SystemProperty( "java.ext.dirs", value ) {}
+  class ExtDirs: public SystemProperty
+	{
+    public: ExtDirs(const std::string& value): SystemProperty("java.ext.dirs", value) {}
   };
 
-  class OsName : public SystemProperty {
-    public: OsName( const std::string& value ) : SystemProperty( "java.os.name", value ) {}
+  class OsName: public SystemProperty
+	{
+    public: OsName(const std::string& value): SystemProperty("java.os.name", value) {}
   };
 
-  class OsArch : public SystemProperty {
-    public: OsArch( const std::string& value ) : SystemProperty( "java.os.arch", value ) {}
+  class OsArch: public SystemProperty
+	{
+    public: OsArch(const std::string& value): SystemProperty("java.os.arch", value) {}
   };
 
-  class OsVersion : public SystemProperty {
-    public: OsVersion( const std::string& value ) : SystemProperty( "java.os.version", value ) {}
+  class OsVersion: public SystemProperty
+	{
+    public: OsVersion(const std::string& value): SystemProperty("java.os.version", value) {}
   };
 
-  class FileSeparator : public SystemProperty {
-    public: FileSeparator( const std::string& value ) : SystemProperty( "file.separator", value ) {}
+  class FileSeparator: public SystemProperty
+	{
+    public: FileSeparator(const std::string& value): SystemProperty("file.separator", value) {}
   };
 
-  class PathSeparator : public SystemProperty {
-    public: PathSeparator( const std::string& value ) : SystemProperty( "path.separator", value ) {}
+  class PathSeparator: public SystemProperty
+	{
+    public: PathSeparator(const std::string& value): SystemProperty("path.separator", value) {}
   };
 
-  class LineSeparator : public SystemProperty {
-    public: LineSeparator( const std::string& value ) : SystemProperty( "line.separator", value ) {}
+  class LineSeparator: public SystemProperty
+	{
+    public: LineSeparator(const std::string& value ): SystemProperty("line.separator", value) {}
   };
 
-  class UserName : public SystemProperty {
-    public: UserName( const std::string& value ) : SystemProperty( "user.name", value ) {}
+  class UserName: public SystemProperty
+	{
+    public: UserName(const std::string& value): SystemProperty("user.name", value) {}
   };
 
-  class UserHome : public SystemProperty {
-    public: UserHome( const std::string& value ) : SystemProperty( "user.home", value ) {}
+  class UserHome: public SystemProperty
+	{
+    public: UserHome(const std::string& value): SystemProperty("user.home", value) {}
   };
 
-  class UserDir : public SystemProperty {
-    public: UserDir( const std::string& value ) : SystemProperty( "user.dir", value ) {}
+  class UserDir: public SystemProperty
+	{
+    public: UserDir(const std::string& value) : SystemProperty("user.dir", value) {}
   };
 
 
@@ -320,12 +326,12 @@ public:
 	 *
 	 * @param component the component type
 	 */
-  JACE_API Verbose( ComponentType component );
+  JACE_API Verbose(ComponentType component);
 
 	/**
 	 * Copy constructor.
 	 */
-	JACE_API Verbose( const Verbose& other );
+	JACE_API Verbose(const Verbose& other);
   
   JACE_API virtual const std::string stringValue() const;
   JACE_API virtual void* extraInfo();
@@ -335,7 +341,7 @@ private:
 	/**
 	 * Prevent assignment.
 	 */
-	Verbose& operator=( const Verbose& other);
+	Verbose& operator=(const Verbose& other);
 	/**
 	 * Converts a ComponentType to a string.
 	 *
@@ -358,7 +364,7 @@ public:
 	 *
 	 * @param path the path to the JavaAgent
 	 */
-  JACE_API JavaAgent( const std::string& path );
+  JACE_API JavaAgent(const std::string& path);
 
 	/**
 	 * Creates a new JavaAgent.
@@ -366,12 +372,12 @@ public:
 	 * @param path the path to the JavaAgent
 	 * @param options the agent options
 	 */
-	JACE_API JavaAgent( const std::string& path, const std::string& options );
+	JACE_API JavaAgent(const std::string& path, const std::string& options);
 
 	/**
 	 * Copy constructor.
 	 */
-	JACE_API JavaAgent( const JavaAgent& other);
+	JACE_API JavaAgent(const JavaAgent& other);
   
 	/**
    * Returns the path of the Java agent.
@@ -392,14 +398,14 @@ private:
 	/**
 	 * Prevent assignment.
 	 */
-	JavaAgent& operator=( const JavaAgent& other);
+	JavaAgent& operator=(const JavaAgent& other);
 	/**
 	 * Removes the leading and trailing whitespace from a string.
 	 *
 	 * @param text the input string
 	 * @return the output string
 	 */
-	std::string trim( const std::string& text );
+	std::string trim(const std::string& text);
 
 	const std::string mPath;
   const std::string mOptions;
@@ -414,14 +420,15 @@ private:
  * "-X" or "_" string.
  *
  */
-class CustomOption : public Option {
+class CustomOption: public Option
+{
 public:
-  JACE_API CustomOption( const std::string& value_ );
+  JACE_API CustomOption(const std::string& _value);
 
 	/**
 	 * Copy constructor.
 	 */
-	JACE_API CustomOption( const CustomOption& other);
+	JACE_API CustomOption(const CustomOption& other);
   
 	JACE_API virtual const std::string stringValue() const;
   JACE_API virtual void* extraInfo();
@@ -431,7 +438,7 @@ private:
 	/**
 	 * Prevent assignment.
 	 */
-	CustomOption& operator=( const CustomOption& other);
+	CustomOption& operator=(const CustomOption& other);
 
   const std::string value;
 };
@@ -439,76 +446,68 @@ private:
 
 /**
  * A virtual machine option that lets you hook into a specific function.
- *
  */
-class Hook : public Option {
+class Hook : public Option
+{
 };
 
 
 /**
  * Lets you hook into the vfprintf() function.
- *
  */
-class VfprintfHook : public Hook {
+class VfprintfHook: public Hook
+{
+public:
+  typedef int (*vfprintf_t)(FILE* fp, const char* format, va_list arg);
 
-  public:
-
-  typedef int ( *vfprintf_t )( FILE* fp, const char* format, va_list arg );
-
-  JACE_API VfprintfHook( vfprintf_t hook_ );
+  JACE_API VfprintfHook(vfprintf_t hook_);
 
   JACE_API virtual const std::string stringValue() const;
   JACE_API virtual void* extraInfo();
   JACE_API virtual Option* clone() const;
 
-  private:
+private:
   vfprintf_t hook;
 };
 
 /**
  * Lets you hook into the exit() function.
- *
  */
-class ExitHook : public Hook {
+class ExitHook: public Hook
+{
+public:
+  typedef void (*exit_t)(int status); 
 
-  public:
-
-  typedef void ( *exit_t )( int status ); 
-
-  JACE_API ExitHook( exit_t hook_ );
+  JACE_API ExitHook(exit_t _hook);
 
   JACE_API virtual const std::string stringValue() const;
   JACE_API virtual void* extraInfo();
   JACE_API virtual Option* clone() const;
 
-  private:
-
+private:
   exit_t hook;
 };
 
 
 /**
  * Lets you hook into the abort() function.
- *
  */
-class AbortHook : public Hook {
+class AbortHook: public Hook
+{
+public:
+  typedef void (*abort_t) (void); 
 
-  public:
-
-  typedef void ( *abort_t ) ( void ); 
-
-  JACE_API AbortHook( abort_t hook_ );
+  JACE_API AbortHook(abort_t _hook);
 
   JACE_API virtual const std::string stringValue() const;
   JACE_API virtual void* extraInfo();
   JACE_API virtual Option* clone() const;
 
-  private:
-
+private:
   abort_t hook;
 };
 
-END_NAMESPACE( jace )
+END_NAMESPACE(jace)
 
 #endif // JACE_OPTION_LIST_H
 

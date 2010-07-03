@@ -9,7 +9,6 @@ import jace.metaclass.MetaClassFactory;
 import jace.metaclass.JaceConstants;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
-import jace.parser.ClassAccessFlag;
 import jace.parser.ClassFile;
 import jace.parser.field.ClassField;
 import jace.parser.field.FieldAccessFlag;
@@ -25,12 +24,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -174,27 +175,19 @@ public class ProxyGenerator
   {
     Util.generateComment(output, "Standard Jace headers needed to implement this class.");
 
-    output.write("#ifndef JACE_JARGUMENTS_H" + newLine);
     output.write("#include \"jace/JArguments.h\"" + newLine);
-    output.write("#endif" + newLine);
     output.write("using jace::JArguments;" + newLine);
     output.write(newLine);
 
-    output.write("#ifndef JACE_JMETHOD_H" + newLine);
     output.write("#include \"jace/JMethod.h\"" + newLine);
-    output.write("#endif" + newLine);
     output.write("using jace::JMethod;" + newLine);
     output.write(newLine);
 
-    output.write("#ifndef JACE_JFIELD_H" + newLine);
     output.write("#include \"jace/JField.h\"" + newLine);
-    output.write("#endif" + newLine);
     output.write("using jace::JField;" + newLine + newLine);
     output.write(newLine);
 
-    output.write("#ifndef JACE_JCLASS_IMPL_H" + newLine);
     output.write("#include \"jace/JClassImpl.h\"" + newLine);
-    output.write("#endif" + newLine);
     output.write("using jace::JClassImpl;" + newLine);
     output.write(newLine);
 
@@ -273,7 +266,7 @@ public class ProxyGenerator
     output.write(newLine);
 
     // Define (if necessary) the ElementProxy specializations
-    output.write("BEGIN_NAMESPACE( jace )" + newLine);
+    output.write("BEGIN_NAMESPACE(jace)" + newLine);
     output.write(newLine);
     output.write("#ifndef PUT_TSDS_IN_HEADER" + newLine);
     printElementProxyTsd(output, metaClass);
@@ -284,7 +277,7 @@ public class ProxyGenerator
     printFieldProxyTsd(output, metaClass);
     output.write("#endif" + newLine);
     output.write(newLine);
-    output.write("END_NAMESPACE( jace )" + newLine);
+    output.write("END_NAMESPACE(jace)" + newLine);
   }
 
   /**
@@ -382,9 +375,7 @@ public class ProxyGenerator
 
       // If this is a static initializer, then we don't need to declare it
       if (methodName.equals("<clinit>"))
-      {
         continue;
-      }
 
       boolean isConstructor = methodName.equals("<init>");
       MethodAccessFlagSet accessFlagSet = method.getAccessFlags();
@@ -403,7 +394,7 @@ public class ProxyGenerator
 
       // If this is a constructor, there is no return-type
       if (isConstructor)
-        output.write(className + "::" + className);
+        output.write(className + " " + className + "::Factory::create");
       else
       {
         // handle clashes between C++ keywords and java identifiers
@@ -430,33 +421,17 @@ public class ProxyGenerator
           return "::" + mc.getFullyQualifiedName("::") + " p" + current++;
         }
       };
-      String parameterListStr = parameterList.toString(sf, ", ");
-
-      // When a Java constructor collides with the C++ copy-constructor, users
-      // must pass this additional argument to indicate that the Java constructor
-      // should be invoked. For example: Foo(Foo&) becomes Foo(Foo&, JavaMethod)
-      if (isConstructor && parameterTypes.size() == 1)
-      {
-        MetaClass argType = MetaClassFactory.getMetaClass(parameterTypes.iterator().next()).proxy();
-        if (argType.equals(metaClass))
-          parameterListStr += ", JavaMethod";
-      }
-
-      if (!parameterListStr.equals(""))
-        parameterListStr = " " + parameterListStr + " ";
-
-      output.write(parameterListStr);
-      output.write(") ");
+      output.write(parameterList.toString(sf, ", ") + ")");
 
       // If this is a constructor, we need to handle it differently from other methods
       if (isConstructor)
       {
         // initialize parent classes
-        output.write(getInitializerName() + newLine);
+        output.write(" " + getInitializerName() + newLine);
         output.write("{" + newLine);
 
         // initialize any arguments we have
-        output.write("  ::jace::JArguments arguments;" + newLine);
+        output.write("  JArguments arguments;" + newLine);
 
         if (parameterTypes.size() > 0)
         {
@@ -467,19 +442,21 @@ public class ProxyGenerator
         }
 
         // set the jni object for this c++ object to the result of the call to newObject
-        output.write("  jobject localRef = newObject( arguments );" + newLine);
-        output.write("  setJavaJniObject( localRef );" + newLine);
-        output.write("  JNIEnv* env = ::jace::helper::attach();" + newLine);
-        output.write("  ::jace::helper::deleteLocalRef( env, localRef );" + newLine);
+        output.write("  jobject localRef = newObject(" + className + "::staticGetJavaJniClass(), arguments);" + newLine);
+        output.write("  " + className + " result = " + className + "(localRef);" + newLine);
+        output.write("  JNIEnv* env = attach();" + newLine);
+        output.write("  deleteLocalRef(env, localRef);" + newLine);
+        output.write("  return result;" + newLine);
       }
       else
       {
 //        if (!accessFlagSet.contains(MethodAccessFlag.STATIC))
-//          output.write( "const " + newLine);
+//          output.write("const " + newLine);
+        output.write(newLine);
         output.write("{" + newLine);
 
         // Initialize any arguments we have
-        output.write("  ::jace::JArguments arguments;" + newLine);
+        output.write("  JArguments arguments;" + newLine);
 
         if (parameterTypes.size() > 0)
         {
@@ -497,18 +474,47 @@ public class ProxyGenerator
         if (!returnType.getSimpleName().equals("JVoid"))
           output.write("return ");
 
-        output.write("::jace::JMethod< ");
+        output.write("JMethod<");
         output.write("::" + returnType.getFullyQualifiedName("::"));
-        output.write(" >");
-        output.write("( \"" + methodName + "\" ).invoke( ");
+        output.write(">");
+        output.write("(\"" + methodName + "\").invoke(");
 
         // If this method is static, we need to provide the class info, otherwise we provide a reference to itself.
         if (method.getAccessFlags().contains(MethodAccessFlag.STATIC))
           output.write("staticGetJavaJniClass()");
         else
           output.write("*this");
-        output.write(", arguments );" + newLine);
+        output.write(", arguments);" + newLine);
       }
+      output.write("}" + newLine);
+      output.write(newLine);
+    }
+
+    if (!forPeer)
+    {
+      Util.generateComment(output, "Creates a new null reference." + newLine + newLine
+                                   + "All subclasses of JObject should provide this constructor" + newLine
+                                   + "for their own subclasses.");
+      output.write(className + "::" + className + "()" + newLine);
+      output.write("{}" + newLine);
+      output.write(newLine);
+
+      output.write(className + "::" + className + "(jvalue value) " + getInitializerName() + newLine);
+      output.write("{" + newLine);
+      output.write("  setJavaJniValue(value);" + newLine);
+      output.write("}" + newLine);
+      output.write(newLine);
+
+      output.write(className + "::" + className + "(jobject object) " + getInitializerName() + newLine);
+      output.write("{" + newLine);
+      output.write("  setJavaJniObject(object);" + newLine);
+      output.write("}" + newLine);
+      output.write(newLine);
+
+      output.write(className + "::" + className + "(const " + className + "& object) " + getInitializerName()
+                   + newLine);
+      output.write("{" + newLine);
+      output.write("  setJavaJniObject(object);" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
     }
@@ -519,7 +525,7 @@ public class ProxyGenerator
     if (fullyQualifiedName.equals("java.lang.Object"))
     {
       Util.generateComment(output, "Provide the standard \"System.out.println()\" semantics for ostreams.");
-      output.write("std::ostream& operator<<( std::ostream& out, Object& object )" + newLine);
+      output.write("std::ostream& operator<<(std::ostream& out, Object& object)" + newLine);
       output.write("{" + newLine);
       output.write("  out << object.toString();" + newLine);
       output.write("  return out;" + newLine);
@@ -527,95 +533,96 @@ public class ProxyGenerator
     }
     else if (fullyQualifiedName.equals("java.lang.String"))
     {
-      output.write("String::String( const std::string& str ) : Object( NO_OP )" + newLine);
+      output.write("String::String(const char* str)" + newLine);
       output.write("{" + newLine);
-      output.write("  jstring strRef = createString( str );" + newLine);
-      output.write("  setJavaJniObject( strRef );" + newLine);
-      output.write("  JNIEnv* env = ::jace::helper::attach();" + newLine);
-      output.write("  ::jace::helper::deleteLocalRef( env, strRef );" + newLine);
+      output.write("  jstring strRef = createString(str);" + newLine);
+      output.write("  setJavaJniObject(strRef);" + newLine);
+      output.write("  JNIEnv* env = attach();" + newLine);
+      output.write("  deleteLocalRef(env, strRef);" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("String::String( const std::wstring& str ) : Object( NO_OP )" + newLine);
+      output.write("String::String(const std::string& str)" + newLine);
       output.write("{" + newLine);
-      output.write("  JNIEnv* env = ::jace::helper::attach();" + newLine);
+      output.write("  jstring strRef = createString(str);" + newLine);
+      output.write("  setJavaJniObject(strRef);" + newLine);
+      output.write("  JNIEnv* env = attach();" + newLine);
+      output.write("  deleteLocalRef(env, strRef);" + newLine);
+      output.write("}" + newLine);
+      output.write(newLine);
+
+      output.write("String::String(const std::wstring& str)" + newLine);
+      output.write("{" + newLine);
+      output.write("  JNIEnv* env = attach();" + newLine);
       output.write("  size_t nativeLength = str.size();" + newLine);
-      output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE())) { "
+      output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE()))"
                    + newLine);
-      output.write("    throw ::jace::JNIException( std::string(\"String::String ( const std::wstring& str ) - "
+      output.write("  {" + newLine);
+      output.write("    throw JNIException(std::string(\"String::String(const std::wstring& str) - "
                    + "str.size() (\") +" + newLine);
-      output.write("      jace::helper::toString(nativeLength) + \") > Integer.MAX_VALUE.\" );" + newLine);
+      output.write("      jace::toString(nativeLength) + \") > Integer.MAX_VALUE.\");" + newLine);
       output.write("  }" + newLine);
-      output.write("  jsize length = jsize( str.size() );" + newLine);
-      output.write("  jstring strRef = env->NewString( reinterpret_cast<const jchar*>( str.c_str() ), length );"
+      output.write("  jsize length = jsize(str.size());" + newLine);
+      output.write("  jstring strRef = env->NewString(reinterpret_cast<const jchar*>(str.c_str()), length);"
                    + newLine);
-      output.write("  setJavaJniObject( strRef );" + newLine);
-      output.write("  ::jace::helper::deleteLocalRef( env, strRef );" + newLine);
+      output.write("  setJavaJniObject(strRef);" + newLine);
+      output.write("  deleteLocalRef(env, strRef);" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("String::String( const char* str ) : Object( NO_OP )" + newLine);
+      output.write("String& String::operator=(const String& str)" + newLine);
       output.write("{" + newLine);
-      output.write("  jstring strRef = createString( str );" + newLine);
-      output.write("  setJavaJniObject( strRef );" + newLine);
-      output.write("  JNIEnv* env = ::jace::helper::attach();" + newLine);
-      output.write("  ::jace::helper::deleteLocalRef( env, strRef );" + newLine);
-      output.write("}" + newLine);
-      output.write(newLine);
-
-      output.write("String& String::operator=( const String& str )" + newLine);
-      output.write("{" + newLine);
-      output.write("  setJavaJniObject( str.getJavaJniObject() );" + newLine);
+      output.write("  setJavaJniObject(str);" + newLine);
       output.write("  return *this;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
       output.write("String::operator std::string() const" + newLine);
       output.write("{" + newLine);
-      output.write("  JNIEnv* env = helper::attach();" + newLine);
-      output.write("  jstring thisString = static_cast<jstring>( getJavaJniObject() );" + newLine);
+      output.write("  JNIEnv* env = attach();" + newLine);
+      output.write("  jstring thisString = static_cast<jstring>(static_cast<jobject>(*this));" + newLine);
       output.write("  jclass cls = getJavaJniClass().getClass();" + newLine);
-      output.write("  jmethodID getBytes = env->GetMethodID( cls, \"getBytes\", \"()[B\" );" + newLine);
-      output.write("  jbyteArray array = static_cast<jbyteArray>( env->CallObjectMethod( thisString, getBytes ) );"
+      output.write("  jmethodID getBytes = env->GetMethodID(cls, \"getBytes\", \"()[B\");" + newLine);
+      output.write("  jbyteArray array = static_cast<jbyteArray>(env->CallObjectMethod(thisString, getBytes));"
                    + newLine);
       output.write(newLine);
-      output.write("  if ( !array )" + newLine);
+      output.write("  if (!array)" + newLine);
       output.write("  {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    throw ::jace::JNIException( \"String::operator std::string()- Unable to get the contents of the java String.\" );"
+      output.write("    throw JNIException(\"String::operator std::string()- Unable to get the contents of the java String.\");"
                    + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
-      output.write("  int arraySize = env->GetArrayLength( array );" + newLine);
-      output.write("  jbyte* byteArray = env->GetByteArrayElements( array, 0 );" + newLine);
+      output.write("  int arraySize = env->GetArrayLength(array);" + newLine);
+      output.write("  jbyte* byteArray = env->GetByteArrayElements(array, 0);" + newLine);
       output.write(newLine);
-      output.write("  if ( !byteArray )" + newLine);
+      output.write("  if (!byteArray)" + newLine);
       output.write("  {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    throw ::jace::JNIException( \"String::operator std::string() - Unable to get the "
-                   + "contents of the java String.\" );" + newLine);
+      output.write("    throw JNIException(\"String::operator std::string() - Unable to get the "
+                   + "contents of the java String.\");" + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
-      output.write("  std::string str( ( char* ) byteArray, ( char* ) byteArray + arraySize );" + newLine);
-      output.write("  env->ReleaseByteArrayElements( array, byteArray, JNI_ABORT );" + newLine);
-      output.write("  ::jace::helper::deleteLocalRef( env, array );" + newLine);
+      output.write("  std::string str((char*) byteArray, (char*) byteArray + arraySize);" + newLine);
+      output.write("  env->ReleaseByteArrayElements(array, byteArray, JNI_ABORT);" + newLine);
+      output.write("  deleteLocalRef(env, array);" + newLine);
       output.write("  return str;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
       output.write("String::operator std::wstring() const" + newLine);
       output.write("{" + newLine);
-      output.write("  JNIEnv* env = helper::attach();" + newLine);
-      output.write("  jstring thisString = static_cast<jstring>( getJavaJniObject() );" + newLine);
+      output.write("  JNIEnv* env = attach();" + newLine);
+      output.write("  jstring thisString = static_cast<jstring>(static_cast<jobject>(*this));" + newLine);
       output.write("  const jchar* buffer = env->GetStringChars(thisString, 0);" + newLine);
-      output.write("  if ( !buffer )" + newLine);
+      output.write("  if (!buffer)" + newLine);
       output.write("  {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    throw ::jace::JNIException( \"String::operator std::wstring() - Unable to get the "
-                   + "contents of the java String.\" );" + newLine);
+      output.write("    throw JNIException(\"String::operator std::wstring() - Unable to get the "
+                   + "contents of the java String.\");" + newLine);
       output.write("  }" + newLine);
       output.write("  std::wstring result = reinterpret_cast<const wchar_t*>(buffer);" + newLine);
       output.write("  env->ReleaseStringChars(thisString, buffer);" + newLine);
@@ -624,75 +631,76 @@ public class ProxyGenerator
       output.write(newLine);
 
       Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
-      output.write("jstring String::createString( const std::string& str )" + newLine);
+      output.write("jstring String::createString(const std::string& str)" + newLine);
       output.write("{" + newLine);
-      output.write("  JNIEnv* env = helper::attach();" + newLine);
+      output.write("  JNIEnv* env = attach();" + newLine);
       output.write("  size_t nativeLength = str.size();" + newLine);
-      output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE())) { "
+      output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE()))"
                    + newLine);
-      output.write("    throw ::jace::JNIException( std::string(\"String::String ( const std::string& str ) - "
+      output.write("  {" + newLine);
+      output.write("    throw JNIException(std::string(\"String::String(const std::string& str) - "
                    + "str.size() (\") +" + newLine);
-      output.write("      jace::helper::toString(nativeLength) + \") > Integer.MAX_VALUE.\" );" + newLine);
+      output.write("      jace::toString(nativeLength) + \") > Integer.MAX_VALUE.\");" + newLine);
       output.write("  }" + newLine);
-      output.write("  jsize bufLen = jsize( nativeLength );" + newLine);
-      output.write("  jbyteArray jbuf = env->NewByteArray( bufLen );" + newLine + newLine);
-      output.write("  if ( !jbuf )" + newLine);
+      output.write("  jsize bufLen = jsize(nativeLength);" + newLine);
+      output.write("  jbyteArray jbuf = env->NewByteArray(bufLen);" + newLine + newLine);
+      output.write("  if (!jbuf)" + newLine);
       output.write("  {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    throw ::jace::JNIException( \"String::createString - Unable to allocate a new java String.\" );"
+      output.write("    throw JNIException(\"String::createString - Unable to allocate a new java String.\");"
                    + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
-      output.write("  env->SetByteArrayRegion( jbuf, 0, bufLen, ( jbyte* ) str.c_str() );" + newLine);
+      output.write("  env->SetByteArrayRegion(jbuf, 0, bufLen, (jbyte*) str.c_str());" + newLine);
       output.write("  jclass cls = getJavaJniClass().getClass();" + newLine);
-      output.write("  jmethodID init = env->GetMethodID( cls, \"<init>\", \"([BII)V\");" + newLine);
-      output.write("  jstring jstr = ( jstring ) env->NewObject( cls, init, jbuf, 0, bufLen); " + newLine);
+      output.write("  jmethodID init = env->GetMethodID(cls, \"<init>\", \"([BII)V\");" + newLine);
+      output.write("  jstring jstr = static_cast<jstring>(env->NewObject(cls, init, jbuf, 0, bufLen)); " + newLine);
       output.write(newLine);
-      output.write("  if ( !jstr )" + newLine);
+      output.write("  if (!jstr)" + newLine);
       output.write("  {" + newLine);
       output.write("    env->ExceptionDescribe();" + newLine);
       output.write("    env->ExceptionClear();" + newLine);
-      output.write("    throw ::jace::JNIException( \"String::createString - Unable to allocate a new java String.\" );"
+      output.write("    throw JNIException(\"String::createString - Unable to allocate a new java String.\");"
                    + newLine);
       output.write("  }" + newLine);
       output.write(newLine);
-      output.write("  ::jace::helper::deleteLocalRef( env, jbuf );" + newLine);
+      output.write("  deleteLocalRef(env, jbuf);" + newLine);
       output.write("  return jstr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("std::ostream& operator<<( std::ostream& stream, const String& str )" + newLine);
+      output.write("std::ostream& operator<<(std::ostream& stream, const String& str)" + newLine);
       output.write("{" + newLine);
       output.write("  return stream << (std::string) str;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("std::string operator+( const std::string& stdStr, const String& jStr )" + newLine);
+      output.write("std::string operator+(const std::string& stdStr, const String& jStr)" + newLine);
       output.write("{" + newLine);
       output.write("  return stdStr + (std::string) jStr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("std::string operator+( const String& jStr, const std::string& stdStr )" + newLine);
+      output.write("std::string operator+(const String& jStr, const std::string& stdStr)" + newLine);
       output.write("{" + newLine);
       output.write("  return (std::string) jStr + stdStr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("String String::operator+( String str )" + newLine);
+      output.write("String String::operator+(String str)" + newLine);
       output.write("{" + newLine);
       output.write("  return (std::string) *this + (std::string) str;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("bool operator==( const std::string& stdStr, const String& str )" + newLine);
+      output.write("bool operator==(const std::string& stdStr, const String& str)" + newLine);
       output.write("{" + newLine);
       output.write("  return (std::string) str == stdStr;" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
-      output.write("bool operator==( const String& str, const std::string& stdStr )" + newLine);
+      output.write("bool operator==(const String& str, const std::string& stdStr)" + newLine);
       output.write("{" + newLine);
       output.write("  return (std::string) str == stdStr;" + newLine);
       output.write("}" + newLine);
@@ -708,7 +716,7 @@ public class ProxyGenerator
       output.write("{" + newLine);
       output.write("  // JACE really isn't const correct like it should be, yet." + newLine);
       output.write("  // For now, the easiest way to get around this is to cast constness away." + newLine);
-      output.write("  Throwable* t = const_cast<Throwable*>( this );" + newLine);
+      output.write("  Throwable* t = const_cast<Throwable*>(this);" + newLine);
       output.write(newLine);
       output.write("  /* Get the string contents of this exception." + newLine);
       output.write("   */" + newLine);
@@ -771,10 +779,10 @@ public class ProxyGenerator
       // handle clashes between C++ keywords and java identifiers
       name = CKeyword.adjust(name);
 
-      // handle clashes with method names by appending an underscore to the field name
+      // handle clashes with method names by prefixing an underscore to the field name
       if (methodNames.contains(name))
       {
-        name = name + "_";
+        name = "_" + name;
       }
 
       // handle clashes with "reserved fields"
@@ -783,8 +791,8 @@ public class ProxyGenerator
         name += "_Jace";
       }
 
-      String fieldType = "::jace::JField< " + "::" + mc.getFullyQualifiedName("::") + " >";
-      String proxyType = "::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
+      String fieldType = "::jace::JField<" + "::" + mc.getFullyQualifiedName("::") + ">";
+      String proxyType = "::jace::JFieldProxy<" + "::" + mc.getFullyQualifiedName("::") + ">";
       FieldAccessFlagSet accessFlagSet = field.getAccessFlags();
 
       Util.generateComment(output, accessFlagSet.getName() + " " + name);
@@ -798,7 +806,7 @@ public class ProxyGenerator
 
       output.write(modifiers + proxyType + " " + className + "::" + name + "()" + newLine);
       output.write("{" + newLine);
-      output.write("  return " + fieldType + "( \"" + name + "\" ).get( ");
+      output.write("  return " + fieldType + "(\"" + name + "\").get(");
 
       // if this field is static, we need to provide the class info, otherwise we provide a reference to itself
       if (accessFlagSet.contains(FieldAccessFlag.STATIC))
@@ -806,7 +814,7 @@ public class ProxyGenerator
       else
         output.write("*this");
 
-      output.write(" );" + newLine);
+      output.write(");" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
     }
@@ -839,47 +847,11 @@ public class ProxyGenerator
     Util.generateComment(output, "The following methods are required to integrate this class" + newLine
                                  + "with the Jace framework.");
 
-    if (!forPeer)
-    {
-      // If we're an interface, we declare a no argument constructor that delegates to Object( NO_OP )
-      // to make virtual inheritance of interfaces easier.
-      if (classFile.getAccessFlags().contains(ClassAccessFlag.INTERFACE))
-      {
-        Util.generateComment(output, "Special no arg constructor for interface virtual inheritance");
-        output.write(className + "::" + className + "() : Object( NO_OP ) { " + newLine);
-        output.write("}" + newLine);
-        output.write(newLine);
-      }
-
-      output.write(className + "::" + className + "( jvalue value ) " + getInitializerName() + newLine);
-      output.write("{" + newLine);
-      output.write("  setJavaJniValue( value );" + newLine);
-      output.write("}" + newLine);
-      output.write(newLine);
-
-      output.write(className + "::" + className + "( jobject object ) " + getInitializerName() + newLine);
-      output.write("{" + newLine);
-      output.write("  setJavaJniObject( object );" + newLine);
-      output.write("}" + newLine);
-      output.write(newLine);
-
-      output.write(className + "::" + className + "( const " + className + "& object ) " + getInitializerName()
-                   + newLine);
-      output.write("{" + newLine);
-      output.write("  setJavaJniObject( object.getJavaJniObject() );" + newLine);
-      output.write("}" + newLine);
-      output.write(newLine);
-
-      output.write(className + "::" + className + "( const NoOp& ) " + getInitializerName() + newLine);
-      output.write("{}" + newLine);
-      output.write(newLine);
-    }
-
     if (forPeer)
     {
-      output.write(className + "::" + className + "( jobject jPeer ) " + getInitializerName() + newLine);
+      output.write(className + "::" + className + "(jobject jPeer) " + getInitializerName() + newLine);
       output.write("{" + newLine);
-      output.write("  setJavaJniObject( jPeer );" + newLine);
+      output.write("  setJavaJniObject(jPeer);" + newLine);
       output.write("}" + newLine);
       output.write(newLine);
 
@@ -889,7 +861,7 @@ public class ProxyGenerator
     }
 
     output.write("static boost::mutex javaClassMutex;" + newLine);
-    output.write("const JClass& " + className + "::staticGetJavaJniClass() throw ( ::jace::JNIException )" + newLine);
+    output.write("const JClass& " + className + "::staticGetJavaJniClass() throw (::jace::JNIException)" + newLine);
     output.write("{" + newLine);
     output.write("  static boost::shared_ptr<JClassImpl> result;" + newLine);
     output.write("  boost::mutex::scoped_lock lock(javaClassMutex);" + newLine);
@@ -900,25 +872,28 @@ public class ProxyGenerator
     output.write("}" + newLine);
     output.write(newLine);
 
-    output.write("const JClass& " + className + "::getJavaJniClass() const throw ( ::jace::JNIException )" + newLine);
+    output.write("const JClass& " + className + "::getJavaJniClass() const throw (::jace::JNIException)" + newLine);
     output.write("{" + newLine);
     output.write("  return " + className + "::staticGetJavaJniClass();" + newLine);
     output.write("}" + newLine);
-    output.write(newLine);
 
     if (forPeer)
     {
+      output.write(newLine);
       output.write("::" + classMetaClass.getFullyQualifiedName("::") + " " + className + "::getJaceProxy()" + newLine);
       output.write("{" + newLine);
-      output.write("  return ::" + classMetaClass.getFullyQualifiedName("::") + "(getJavaJniObject());" + newLine);
+      output.write("  return ::" + classMetaClass.getFullyQualifiedName("::") + "(static_cast<jobject>(static_cast<Object>(*this)));"
+                   + newLine);
       output.write("}" + newLine);
-      output.write(newLine);
     }
 
     try
     {
       if (!forPeer && isException(classFile.getClassName()))
+      {
+        output.write(newLine);
         output.write("JEnlister<" + className + "> " + className + "::enlister;" + newLine);
+      }
     }
     catch (ClassNotFoundException e)
     {
@@ -961,7 +936,7 @@ public class ProxyGenerator
   /**
    * Returns the initializer list for the current class.
    *
-   * For example, ": Object( NO_OP ), OutputStream( NO_OP )"
+   * For example, ": Object(), OutputStream()"
    *
    * This could probably be placed in MetaClass. It might not hurt to
    * put the initializers in some sort of array instead of a formatted
@@ -977,8 +952,6 @@ public class ProxyGenerator
   public String getInitializerValue(boolean forPeer)
   {
     TypeName objectName = TypeNameFactory.fromPath("java/lang/Object");
-    String objectConstructor = "::" + MetaClassFactory.getMetaClass(objectName).proxy().getFullyQualifiedName("::")
-                               + "( NO_OP )";
 
     TypeName superName = classFile.getSuperClassName();
 
@@ -991,24 +964,22 @@ public class ProxyGenerator
       definition.append("#define " + initializerName + newLine);
     else if (superName.equals(objectName))
     {
-      definition.append("#define " + initializerName + " : " + objectConstructor);
+      definition.append("#define " + initializerName);
       if (forPeer)
-        definition.append(", ::jace::Peer( jPeer )");
+        definition.append(" : ::jace::Peer(jPeer)");
       definition.append(newLine);
     }
     else
     {
-      assert (superName != null): classFile.getClassName();
-
       Collection<String> constructors = new ArrayList<String>();
-      constructors.add(objectConstructor);
-      constructors.add("::" + MetaClassFactory.getMetaClass(superName).proxy().getFullyQualifiedName("::")
-                       + "( NO_OP )");
       if (forPeer)
-        constructors.add("::jace::Peer( jPeer )");
+        constructors.add("::jace::Peer(jPeer)");
       DelimitedCollection<String> delimited = new DelimitedCollection<String>(constructors);
 
-      definition.append("#define " + initializerName + " : " + delimited.toString(", ") + newLine);
+      definition.append("#define " + initializerName);
+      if (!constructors.isEmpty())
+        definition.append(" : " + delimited.toString(", "));
+      definition.append(newLine);
     }
     return definition.toString();
   }
@@ -1044,13 +1015,9 @@ public class ProxyGenerator
                                  + "overwritten." + newLine
                                  + "For more information, please refer to the Jace Developer's Guide.");
 
-    output.write("class ");
-    output.write(metaClass.getSimpleName());
-    output.write(" : ");
+    output.write("class " + metaClass.getSimpleName() + ": public ");
 
     // Write out the super classes.
-    output.write("public ");
-
     TypeName superName = classFile.getSuperClassName();
     if (superName == null)
       output.write("virtual JObject");
@@ -1077,12 +1044,15 @@ public class ProxyGenerator
     output.write(newLine);
 
     output.write("{" + newLine);
-    output.write("public: " + newLine);
-    output.write(newLine);
+    StringWriter contents = new StringWriter();
 
-    generateMethodDeclarations(output);
-    generateFieldDeclarations(output, false);
-    generateJaceDeclarations(output);
+    generateMethodDeclarations(contents);
+    generateFieldDeclarations(contents, false);
+    output.write(Util.indent(contents.toString(), 2));
+    contents = new StringWriter();
+    output.write("private:" + newLine);
+    generateJaceDeclarations(contents);
+    output.write(Util.indent(contents.toString(), 2));
 
     output.write("};" + newLine);
     output.write(newLine);
@@ -1093,13 +1063,13 @@ public class ProxyGenerator
     // declare (and if necessary define) the ElementProxy specialization
     String fullName = "::" + metaClass.getFullyQualifiedName("::");
 
-    output.write("BEGIN_NAMESPACE( jace )" + newLine);
+    output.write("BEGIN_NAMESPACE(jace)" + newLine);
     output.write(newLine);
     output.write("#ifndef PUT_TSDS_IN_HEADER" + newLine);
-    output.write("  template <> ElementProxy< " + fullName
-                 + ">::ElementProxy( jarray array, jvalue element, int index );" + newLine);
-    output.write("  template <> ElementProxy< " + fullName + ">::ElementProxy( const jace::ElementProxy< " + fullName
-                 + ">& proxy );" + newLine);
+    output.write("  template <> ElementProxy<" + fullName
+                 + ">::ElementProxy(jarray array, jvalue element, int index);" + newLine);
+    output.write("  template <> ElementProxy<" + fullName + ">::ElementProxy(const jace::ElementProxy<" + fullName
+                 + ">& proxy);" + newLine);
     output.write("#else" + newLine);
     printElementProxyTsd(output, metaClass);
     output.write("#endif" + newLine);
@@ -1107,17 +1077,17 @@ public class ProxyGenerator
 
     // declare (and if necessary define) the FieldProxy specialization
     output.write("#ifndef PUT_TSDS_IN_HEADER" + newLine);
-    output.write("  template <> JFieldProxy< " + fullName
-                 + ">::JFieldProxy( jfieldID fieldID_, jvalue value, jobject parent_ );" + newLine);
-    output.write("  template <> JFieldProxy< " + fullName
-                 + ">::JFieldProxy( jfieldID fieldID_, jvalue value, jclass parentClass_ );" + newLine);
-    output.write("  template <> JFieldProxy< " + fullName + ">::JFieldProxy( const ::jace::JFieldProxy< " + fullName
-                 + ">& object );" + newLine);
+    output.write("  template <> JFieldProxy<" + fullName
+                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent);" + newLine);
+    output.write("  template <> JFieldProxy<" + fullName
+                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass);" + newLine);
+    output.write("  template <> JFieldProxy<" + fullName + ">::JFieldProxy(const ::jace::JFieldProxy<" + fullName
+                 + ">& object);" + newLine);
     output.write("#else" + newLine);
     printFieldProxyTsd(output, metaClass);
     output.write("#endif" + newLine);
     output.write(newLine);
-    output.write("END_NAMESPACE( jace )" + newLine);
+    output.write("END_NAMESPACE(jace)" + newLine);
   }
 
   /**
@@ -1132,33 +1102,33 @@ public class ProxyGenerator
     String name = "::" + mc.getFullyQualifiedName("::");
 
     // normal constructor
-    output.write("  template <> inline ElementProxy< " + name
-                 + ">::ElementProxy( jarray array, jvalue element, int index ) : " + newLine);
+    output.write("  template <> inline ElementProxy<" + name
+                 + ">::ElementProxy(jarray array, jvalue element, int index): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
-      output.write("    Object( element ), mIndex( index )");
+      output.write("    Object(element), mIndex(index)");
     else
-      output.write("    Object( NO_OP ), " + name + "( element ), mIndex( index )");
+      output.write("    " + name + "(element), mIndex(index)");
     output.write(newLine);
 
     output.write("  {" + newLine);
-    output.write("    JNIEnv* env = ::jace::helper::attach();" + newLine);
-    output.write("    parent = static_cast<jarray>( ::jace::helper::newGlobalRef( env, array ) );" + newLine);
+    output.write("    JNIEnv* env = attach();" + newLine);
+    output.write("    parent = static_cast<jarray>(newGlobalRef(env, array));" + newLine);
     output.write("  }" + newLine);
 
     // copy constructor
-    output.write("  template <> inline ElementProxy< " + name + ">::ElementProxy( const jace::ElementProxy< " + name
-                 + ">& proxy ) : " + newLine);
+    output.write("  template <> inline ElementProxy<" + name + ">::ElementProxy(const jace::ElementProxy<" + name
+                 + ">& proxy): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
-      output.write("    Object( proxy.getJavaJniObject() ), mIndex( proxy.mIndex )");
+      output.write("    Object(proxy), mIndex(proxy.mIndex)");
     else
-      output.write("    Object( NO_OP ), " + name + "( proxy.getJavaJniObject() ), mIndex( proxy.mIndex )");
+      output.write("    " + name + "(proxy), mIndex(proxy.mIndex)");
     output.write(newLine);
 
     output.write("  {" + newLine);
-    output.write("    JNIEnv* env = ::jace::helper::attach();" + newLine);
-    output.write("    parent = static_cast<jarray>( ::jace::helper::newGlobalRef( env, proxy.parent ) );" + newLine);
+    output.write("    JNIEnv* env = attach();" + newLine);
+    output.write("    parent = static_cast<jarray>(newGlobalRef(env, proxy.parent));" + newLine);
     output.write("  }" + newLine);
   }
 
@@ -1174,68 +1144,68 @@ public class ProxyGenerator
     String name = "::" + mc.getFullyQualifiedName("::");
 
     // normal constructor
-    output.write("  template <> inline JFieldProxy< " + name
-                 + ">::JFieldProxy( jfieldID fieldID_, jvalue value, jobject parent_ ) : " + newLine);
+    output.write("  template <> inline JFieldProxy<" + name
+                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
-      output.write("    Object( value ), fieldID( fieldID_ )");
+      output.write("    Object(value), fieldID(_fieldID)");
     else
-      output.write("    Object( NO_OP ), " + name + "( value ), fieldID( fieldID_ )");
+      output.write("    " + name + "(value), fieldID(_fieldID)");
     output.write(newLine);
 
     output.write("  {" + newLine);
-    output.write("    JNIEnv* env = ::jace::helper::attach();" + newLine);
+    output.write("    JNIEnv* env = attach();" + newLine);
     output.write(newLine);
-    output.write("    if ( parent_ )" + newLine);
-    output.write("      parent = ::jace::helper::newGlobalRef( env, parent_ );" + newLine);
+    output.write("    if (_parent)" + newLine);
+    output.write("      parent = newGlobalRef(env, _parent);" + newLine);
     output.write("    else" + newLine);
-    output.write("      parent = parent_;" + newLine);
+    output.write("      parent = _parent;" + newLine);
     output.write(newLine);
     output.write("    parentClass = 0;" + newLine);
     output.write("  }" + newLine);
 
     // static normal constructor
-    output.write("  template <> inline JFieldProxy< " + name
-                 + ">::JFieldProxy( jfieldID fieldID_, jvalue value, jclass parentClass_ ) : " + newLine);
+    output.write("  template <> inline JFieldProxy<" + name
+                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
-      output.write("    Object( value ), fieldID( fieldID_ )");
+      output.write("    Object(value), fieldID(_fieldID)");
     else
-      output.write("    Object( NO_OP ), " + name + "( value ), fieldID( fieldID_ )");
+      output.write("    " + name + "(value), fieldID(_fieldID)");
     output.write(newLine);
 
     output.write("  {" + newLine);
-    output.write("    JNIEnv* env = ::jace::helper::attach();" + newLine);
+    output.write("    JNIEnv* env = attach();" + newLine);
     output.write(newLine);
     output.write("    parent = 0;" + newLine);
-    output.write("    parentClass = static_cast<jclass>( ::jace::helper::newGlobalRef( env, parentClass_ ) );" + newLine);
+    output.write("    parentClass = static_cast<jclass>(newGlobalRef(env, _parentClass));" + newLine);
     output.write("  }" + newLine);
 
     // copy constructor
-    output.write("  template <> inline JFieldProxy< " + name + ">::JFieldProxy( const ::jace::JFieldProxy< " + name
-                 + ">& object ) : " + newLine);
+    output.write("  template <> inline JFieldProxy<" + name + ">::JFieldProxy(const JFieldProxy<" + name
+                 + ">& object): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
-      output.write("    Object( object.getJavaJniValue() )");
+      output.write("    Object(object)");
     else
-      output.write("    Object( NO_OP ), " + name + "( object.getJavaJniValue() )");
+      output.write("    " + name + "(object)");
     output.write(newLine);
 
     output.write("  {" + newLine);
     output.write("    fieldID = object.fieldID; " + newLine);
     output.write(newLine);
-    output.write("    if ( object.parent )" + newLine);
+    output.write("    if (object.parent)" + newLine);
     output.write("    {" + newLine);
-    output.write("      JNIEnv* env = ::jace::helper::attach();" + newLine);
-    output.write("      parent = ::jace::helper::newGlobalRef( env, object.parent );" + newLine);
+    output.write("      JNIEnv* env = attach();" + newLine);
+    output.write("      parent = newGlobalRef(env, object.parent);" + newLine);
     output.write("    }" + newLine);
     output.write("    else" + newLine);
     output.write("      parent = 0;" + newLine);
     output.write(newLine);
-    output.write("    if ( object.parentClass )" + newLine);
+    output.write("    if (object.parentClass)" + newLine);
     output.write("    {" + newLine);
-    output.write("      JNIEnv* env = ::jace::helper::attach();" + newLine);
-    output.write("      parentClass = static_cast<jclass>( ::jace::helper::newGlobalRef( env, object.parentClass ) );"
+    output.write("      JNIEnv* env = attach();" + newLine);
+    output.write("      parentClass = static_cast<jclass>(newGlobalRef(env, object.parentClass));"
                  + newLine);
     output.write("    }" + newLine);
     output.write("    else" + newLine);
@@ -1287,21 +1257,6 @@ public class ProxyGenerator
   }
 
   /**
-   * Same as generateMethodDeclaration(output, metaClass, method, InvokeStyle.NORMAL).
-   *
-   * @param output the output writer
-   * @param metaClass the MetaClass describing the class
-   * @param method the method
-   * @throws IOException if an error occurs while writing
-   * @see generateMethodDeclaration(Writer, MetaClass, ClassMethod, InvokeStyle)
-   */
-  public void generateMethodDeclaration(Writer output, MetaClass metaClass, ClassMethod method) throws
-    IOException
-  {
-    generateMethodDeclaration(output, metaClass, method, InvokeStyle.NORMAL);
-  }
-
-  /**
    * Generates the method declaration.
    *
    * @param output the output writer
@@ -1331,14 +1286,14 @@ public class ProxyGenerator
     if (methodName.equals("<clinit>"))
       return;
 
-    Util.generateComment(output, isConstructor ? className : methodName);
+    Util.generateComment(output, isConstructor ? "Creates a new " + className + "." : methodName);
 
     if (exportSymbols)
       output.write("JACE_PROXY_API ");
 
     // if this is a constructor, there is no return-type
     if (isConstructor)
-      output.write(className);
+      output.write("static " + className + " create");
     else
     {
       if (accessFlagSet.contains(MethodAccessFlag.STATIC))
@@ -1375,33 +1330,16 @@ public class ProxyGenerator
         return "::" + mc.getFullyQualifiedName("::") + " p" + current++;
       }
     };
-    String parameterListStr = parameterList.toString(sf, ", ");
-
-    // When a Java constructor collides with the C++ copy-constructor, users
-    // must pass this additional argument to indicate that the Java constructor
-    // should be invoked. For example: Foo(Foo&) becomes Foo(Foo&, JavaMethod)
-    if (isConstructor && parameterTypes.size() == 1)
-    {
-      MetaClass argType = MetaClassFactory.getMetaClass(parameterTypes.iterator().next()).proxy();
-      if (argType.equals(metaClass))
-        parameterListStr += ", JavaMethod";
-    }
-
-    if (!parameterListStr.equals(""))
-      parameterListStr = " " + parameterListStr + " ";
-
-    output.write(parameterListStr);
-    output.write(")");
+    output.write(parameterList.toString(sf, ", ") + ")");
 
     if (!isConstructor && !accessFlagSet.contains(MethodAccessFlag.STATIC))
     {
       // All of the methods should be declared const so that you can
       // call methods on const fields.
-      // output.write( " const" );
+      // output.write(" const");
     }
 
     output.write(";" + newLine);
-    output.write(newLine);
   }
 
   /**
@@ -1416,8 +1354,12 @@ public class ProxyGenerator
 
     Collection<ClassMethod> methods = classFile.getMethods();
     String fullyQualifiedName = classFile.getClassName().asIdentifier();
-    for (ClassMethod method: methods)
+    StringWriter constructors = new StringWriter();
+    StringWriter nonConstructors = new StringWriter();
+    for (Iterator<ClassMethod> i = methods.iterator(); i.hasNext();)
     {
+      ClassMethod method = i.next();
+      String methodName = method.getName();
       // Hack in special support for org.omg.CORBA.Object
       // This is the only class that causes Jace to break, based on the
       // special way it creates dependencies between subclasses and superclasses.
@@ -1427,15 +1369,58 @@ public class ProxyGenerator
       // it's just not important enough to deal with right now.
       if (fullyQualifiedName.equals("org.omg.CORBA.Object"))
       {
-        String methodName = method.getName();
         if (methodName.equals("_get_policy") || methodName.equals("_get_domain_managers") || methodName.equals(
           "_set_policy_override"))
         {
           continue;
         }
       }
-      generateMethodDeclaration(output, metaClass, method);
+      Writer writer;
+      if (methodName.equals("<init>"))
+        writer = constructors;
+      else
+        writer = nonConstructors;
+      generateMethodDeclaration(writer, metaClass, method, InvokeStyle.NORMAL);
     }
+    String factoryBody = constructors.toString();
+
+    // Interfaces do not have constructors
+    if (!factoryBody.isEmpty())
+    {
+      output.write("class Factory" + newLine);
+      output.write("{" + newLine);
+      output.write("public:" + newLine);
+      output.write(Util.indent(factoryBody.toString(), 2));
+      output.write("};" + newLine);
+      output.write(newLine);
+    }
+    output.write("public: " + newLine);
+    Util.generateComment(output, "Creates a new null reference." + newLine + newLine
+                                 + "All subclasses of JObject should provide this constructor" + newLine
+                                 + "for their own subclasses.");
+    if (exportSymbols)
+      output.write("JACE_PROXY_API ");
+    output.write("explicit " + metaClass.getSimpleName() + "();" + newLine);
+
+    Util.generateComment(output, "Creates a copy of an existing reference.");
+    if (exportSymbols)
+      output.write("JACE_PROXY_API ");
+    output.write(metaClass.getSimpleName() + "(const " + metaClass.getSimpleName() + "& object);" + newLine);
+
+    output.write(nonConstructors.toString());
+
+    if (exportSymbols)
+      output.write("JACE_PROXY_API ");
+    output.write("virtual const JClass& getJavaJniClass() const throw (::jace::JNIException);" + newLine);
+    if (exportSymbols)
+      output.write("JACE_PROXY_API ");
+    output.write("static const JClass& staticGetJavaJniClass() throw (::jace::JNIException);" + newLine);
+    if (exportSymbols)
+      output.write("JACE_PROXY_API ");
+    output.write("explicit " + metaClass.getSimpleName() + "(jvalue value);" + newLine);
+    if (exportSymbols)
+      output.write("JACE_PROXY_API ");
+    output.write("explicit " + metaClass.getSimpleName() + "(jobject object);" + newLine);
 
     // now declare the special "one-off" methods that we add to classes like, Object, String, and Throwable to provide
     // better C++ and Java integration
@@ -1444,33 +1429,29 @@ public class ProxyGenerator
       Util.generateComment(output, "Provide the standard \"System.out.println()\" semantics for ostreams.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend std::ostream& operator<<( std::ostream& out, Object& object );" + newLine);
-      output.write(newLine);
+      output.write("friend std::ostream& operator<<(std::ostream& out, Object& object);" + newLine);
     }
     else if (fullyQualifiedName.equals("java.lang.String"))
     {
+      Util.generateComment(output, "Creates a String from a C string.");
+      if (exportSymbols)
+        output.write("JACE_PROXY_API ");
+      output.write("String(const char* str);" + newLine);
+
       Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String( const std::string& str );" + newLine);
-      output.write(newLine);
+      output.write("String(const std::string& str);" + newLine);
 
       Util.generateComment(output, "Creates a String from a std::wstring.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String( const std::wstring& str );" + newLine);
-      output.write(newLine);
-
-      Util.generateComment(output, "Creates a String from a c string.");
-      if (exportSymbols)
-        output.write("JACE_PROXY_API ");
-      output.write("String( const char* str );" + newLine);
-      output.write(newLine);
+      output.write("String(const std::wstring& str);" + newLine);
 
       Util.generateComment(output, "Handle assignment between two Strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String& operator=( const String& str );" + newLine);
+      output.write("String& operator=(const String& str);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Converts a String to a std::string.");
@@ -1488,47 +1469,37 @@ public class ProxyGenerator
       Util.generateComment(output, "Allows Strings to be written to ostreams.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend std::ostream& operator<<( std::ostream& stream, const String& str );" + newLine);
+      output.write("friend std::ostream& operator<<(std::ostream& stream, const String& str);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide concatentation for Strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String operator+( String str );" + newLine);
+      output.write("String operator+(String str);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide concatenation between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend std::string operator+( const std::string& stdStr, const String& jStr );" + newLine);
+      output.write("friend std::string operator+(const std::string& stdStr, const String& jStr);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide concatenation between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend std::string operator+( const String& jStr, const std::string& stdStr );" + newLine);
+      output.write("friend std::string operator+(const String& jStr, const std::string& stdStr);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide comparison between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend bool operator==( const std::string& stdStr, const String& str );" + newLine);
+      output.write("friend bool operator==(const std::string& stdStr, const String& str);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide comparison between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend bool operator==( const String& str, const std::string& stdStr );" + newLine);
-      output.write(newLine);
-
-      output.write("private:" + newLine);
-      output.write(newLine);
-
-      Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
-      output.write("jstring createString( const std::string& str );" + newLine);
-      output.write(newLine);
-
-      output.write("public:" + newLine);
+      output.write("friend bool operator==(const String& str, const std::string& stdStr);" + newLine);
       output.write(newLine);
     }
     else if (fullyQualifiedName.equals("java.lang.Throwable"))
@@ -1542,7 +1513,7 @@ public class ProxyGenerator
       Util.generateComment(output, "Overrides std::exception::what() by returning this.toString();");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("const char *what() const throw();" + newLine);
+      output.write("const char* what() const throw();" + newLine);
       output.write(newLine);
     }
   }
@@ -1587,15 +1558,15 @@ public class ProxyGenerator
       // identifier
       name = CKeyword.adjust(name);
 
-      // handle clashes with method names by appending an underscore to the field name
+      // handle clashes with method names by prefixing an underscore to the field name
       if (methodNames.contains(name))
-        name = name + "_";
+        name = "_" + name;
 
       // handle clashes with "reserved fields"
       if (reservedFields.contains(name))
         name += "_Jace";
 
-      String type = "::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
+      String type = "::jace::JFieldProxy<" + "::" + mc.getFullyQualifiedName("::") + ">";
       FieldAccessFlagSet accessFlagSet = field.getAccessFlags();
 
       Util.generateComment(output, accessFlagSet.getName() + " " + name);
@@ -1607,9 +1578,8 @@ public class ProxyGenerator
       // Can't call non-const methods on const fields. There's probably
       // a better way of going about doing this.
       //
-      // if ( accessFlagSet.contains( FieldAccessFlag.FINAL ) ) {
+      // if (accessFlagSet.contains(FieldAccessFlag.FINAL))
       // modifiers = modifiers + "const ";
-      // }
 
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
@@ -1639,49 +1609,53 @@ public class ProxyGenerator
    */
   private void generateJaceDeclarations(Writer output) throws IOException
   {
-    MetaClass classMetaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-    String className = classMetaClass.getSimpleName();
+    MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
+    String className = metaClass.getSimpleName();
 
     Util.generateComment(output, "The following methods are required to integrate this class" + newLine
                                  + "with the Jace framework.");
-
-    // if we're an interface, we declare a no argument constructor that delegates to Object( NO_OP ) to make virtual
-    // inheritance of interfaces easier
-    if (classFile.getAccessFlags().contains(ClassAccessFlag.INTERFACE))
-    {
-      Util.generateComment(output, "Special no arg constructor for interface virtual inheritance");
-      if (exportSymbols)
-        output.write("JACE_PROXY_API ");
-      output.write(className + "();" + newLine);
-    }
-
-    if (exportSymbols)
-      output.write("JACE_PROXY_API ");
-    output.write(className + "( jvalue value );" + newLine);
-    if (exportSymbols)
-      output.write("JACE_PROXY_API ");
-    output.write(className + "( jobject object );" + newLine);
-    if (exportSymbols)
-      output.write("JACE_PROXY_API ");
-    output.write(className + "( const " + className + "& object );" + newLine);
-    if (exportSymbols)
-      output.write("JACE_PROXY_API ");
-    output.write(className + "( const NoOp& noOp );" + newLine);
-    if (exportSymbols)
-      output.write("JACE_PROXY_API ");
-    output.write("virtual const JClass& getJavaJniClass() const throw ( ::jace::JNIException );" + newLine);
-    if (exportSymbols)
-      output.write("JACE_PROXY_API ");
-    output.write("static const JClass& staticGetJavaJniClass() throw ( ::jace::JNIException );" + newLine);
     try
     {
       if (isException(classFile.getClassName()))
+      {
         output.write("static JEnlister<" + className + "> enlister;" + newLine);
+        output.write("template <typename T> friend class ::jace::JEnlister;" + newLine);
+      }
     }
     catch (ClassNotFoundException e)
     {
       throw new IOException(e);
     }
+    if (classFile.getClassName().asIdentifier().equals("java.lang.String"))
+    {
+      Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
+      output.write("jstring createString(const std::string& str);" + newLine);
+      output.write(newLine);
+    }
+    // Function namespace and return-type must be separated using parenthesis:
+    //
+    // REFERENCE: http://stackoverflow.com/questions/2358524/why-does-this-separate-definition-cause-an-error/2358557#2358557
+    output.write("template <typename T> friend T (::jace::java_cast)(const ::jace::proxy::JObject&);" + newLine);
+    for (int i = 0; i < 11; ++i)
+    {
+      output.write("template <typename T");
+      for (int j = 0; j < i; ++j)
+        output.write(", typename A" + j);
+      output.write("> friend T (::jace::java_new)(");
+      for (int j = 0; j < i; ++j)
+      {
+        output.write("A" + j + " a" + j);
+        if (j < i - 1)
+          output.write(", ");
+      }
+      output.write(");" + newLine);
+    }
+    output.write("template <typename T> friend T (::jace::java_new)(const char*);" + newLine);
+    output.write("template <typename T> friend T (::jace::java_new)(const ::std::string&);" + newLine);
+    output.write("template <typename T> friend T (::jace::java_new)(const ::std::wstring&);" + newLine);
+    output.write("template <typename T> friend class ::jace::ElementProxy;" + newLine);
+    output.write("template <typename T> friend class ::jace::JFieldProxy;" + newLine);
+    output.write("template <typename T> friend class ::jace::JMethod;" + newLine);
   }
 
   /**
@@ -1701,9 +1675,9 @@ public class ProxyGenerator
 
     StringBuilder namespace = new StringBuilder("BEGIN_NAMESPACE_");
     namespace.append(path.size());
-    namespace.append("( ");
+    namespace.append("(");
     namespace.append(classPackage.toName(", ", false));
-    namespace.append(" )");
+    namespace.append(")");
     output.write(namespace.toString() + newLine);
   }
 
@@ -1724,9 +1698,9 @@ public class ProxyGenerator
 
     StringBuilder namespace = new StringBuilder("END_NAMESPACE_");
     namespace.append(path.size());
-    namespace.append("( ");
+    namespace.append("(");
     namespace.append(classPackage.toName(", ", false));
-    namespace.append(" )");
+    namespace.append(")");
     output.write(namespace.toString() + newLine);
   }
 
@@ -1739,52 +1713,29 @@ public class ProxyGenerator
    */
   public void includeStandardHeaders(Writer output, boolean forPeer) throws IOException
   {
-    // We don't need to include any of the primitive types ( JInt, JByte, etc... )
+    // We don't need to include any of the primitive types (JInt, JByte, etc...)
     // because they are all included by both JArray.h and JFieldProxy.h
-    output.write("#ifndef JACE_OS_DEP_H" + newLine);
     output.write("#include \"jace/os_dep.h\"" + newLine);
-    output.write("#endif" + newLine);
-    output.write(newLine);
-
-    output.write("#ifndef JACE_NAMESPACE_H" + newLine);
     output.write("#include \"jace/namespace.h\"" + newLine);
-    output.write("#endif" + newLine);
-    output.write(newLine);
 
     if (!forPeer)
     {
-      output.write("#ifndef JACE_JOBJECT_H" + newLine);
       output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/JObject.h\"" + newLine);
-      output.write("#endif" + newLine);
-      output.write(newLine);
       try
       {
         if (isException(classFile.getClassName()))
-        {
-          output.write("#ifndef JACE_JENLISTER_H" + newLine);
           output.write("#include \"jace/JEnlister.h\"" + newLine);
-          output.write("#endif" + newLine);
-          output.write(newLine);
-        }
       }
       catch (ClassNotFoundException e)
       {
         throw new IOException(e);
       }
 
-      output.write("#ifndef JACE_JARRAY_H" + newLine);
       output.write("#include \"jace/JArray.h\"" + newLine);
-      output.write("#endif" + newLine);
-      output.write(newLine);
-
-      output.write("#ifndef JACE_JFIELD_PROXY_H" + newLine);
       output.write("#include \"jace/JFieldProxy.h\"" + newLine);
-      output.write("#endif" + newLine);
-      output.write(newLine);
-
-      output.write("#ifndef JACE_JCLASSIMPL_H" + newLine);
+      output.write("#include \"jace/JMethod.h\"" + newLine);
+      output.write("#include \"jace/JField.h\"" + newLine);
       output.write("#include \"jace/JClassImpl.h\"" + newLine);
-      output.write("#endif" + newLine);
       output.write(newLine);
 
       String className = classFile.getClassName().asIdentifier();
@@ -1887,7 +1838,7 @@ public class ProxyGenerator
    * @param fullyDependent true if the method is to return classes which need to
    * be fully defined before reference. This includes fields and the array elements.
    * Otherwise, false if the method is to return classes which may be forward
-   * declared ( all other parameter types and exceptions ).
+   * declared (all other parameter types and exceptions).
    *
    * @return a list of the dependee MetaClasses for this class. It does not
    * include the super class, and the interfaces implemented by this class.
@@ -1950,7 +1901,7 @@ public class ProxyGenerator
    * @param fullyDependent true if the method is to return classes which need to
    * be fully defined before reference. This includes fields and the array elements.
    * Otherwise, false if the method is to return classes which may be forward
-   * declared ( all other parameter types and exceptions ).
+   * declared (all other parameter types and exceptions).
    * @param classType the class
    * @param excludedClasses the dependencies to exclude from the set
    */
@@ -2049,10 +2000,10 @@ public class ProxyGenerator
   private static String getUsage()
   {
     return "Usage: ProxyGenerator <class file> <header | source> [ options ]" + newLine + "Where options can be:"
-           + newLine + "  -public : Generate public fields and members (default)" + newLine
-           + "  -protected : Generate public, protected fields and members" + newLine
-           + "  -package : Generate public, protected, package-private fields and methods." + newLine
-           + "  -private : Generate public, protected, package-private, private fields and methods." + newLine;
+           + newLine + "  -public: Generate public fields and members (default)" + newLine
+           + "  -protected: Generate public, protected fields and members" + newLine
+           + "  -package: Generate public, protected, package-private fields and methods." + newLine
+           + "  -private: Generate public, protected, package-private, private fields and methods." + newLine;
   }
 
   /**
