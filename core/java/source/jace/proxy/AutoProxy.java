@@ -387,8 +387,8 @@ public class AutoProxy
     }
 
     AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
-      new ClassPath(Util.parseClasspath(classPath))).accessibility(accessibility).
-      minimizeDependencies(minimizeDependencies).exportSymbols(exportSymbols);
+      new ClassPath(classPath)).accessibility(accessibility).minimizeDependencies(minimizeDependencies).exportSymbols(
+      exportSymbols);
     for (TypeName dependency: extraDependencies)
       autoProxy.extraDependency(dependency);
     Logger log = LoggerFactory.getLogger(AutoProxy.class);

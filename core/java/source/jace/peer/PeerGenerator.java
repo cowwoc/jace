@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -149,7 +148,7 @@ public class PeerGenerator
     output.write(newLine);
 
     // Generate the #includes
-    ProxyGenerator proxyGen = new ProxyGenerator.Builder(new ClassPath(Collections.<File>emptyList()), classFile,
+    ProxyGenerator proxyGen = new ProxyGenerator.Builder(new ClassPath(System.getProperty("java.class.path")), classFile,
       new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
     proxyGen.includeStandardHeaders(output, true);
     output.write(newLine);
@@ -269,7 +268,11 @@ public class PeerGenerator
     output.write(newLine);
 
     Util.generateComment(output, "Called when the VM instantiates a new " + name + ".");
-    output.write("explicit " + name + "(jobject obj);" + newLine);
+    output.write("explicit " + name + "(jobject);" + newLine);
+    output.write(newLine);
+
+    Util.generateComment(output, "Copy an existing reference.");
+    output.write(name + "(const " + name + "&);" + newLine);
     output.write(newLine);
 
     Util.generateComment(output, "Called when the the user explicitly collects a " + name + newLine
@@ -312,18 +315,15 @@ public class PeerGenerator
     Util.generateComment(output, "This is the source for the implementation of the Jace Peer for " + fullName + "."
                                  + newLine + "Please do not edit this source. Any changes made will be overwritten."
                                  + newLine + newLine
-                                 + "For more information, please refer to the Jace Developer's Guide." + newLine);
+                                 + "For more information, please refer to the Jace Developer's Guide.");
     output.write(newLine);
 
-    ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(Collections.<File>emptyList()), classFile,
-      new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
+    ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(System.getProperty("java.class.path")),
+      classFile, new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
     generator.includeStandardSourceHeaders(output);
 
     for (MetaClass dependency: getDependencies(classFile))
-    {
       output.write(dependency.include() + newLine);
-      output.write(newLine);
-    }
 
     output.write(metaClass.toPeer().include() + newLine);
     output.write(newLine);
@@ -360,7 +360,7 @@ public class PeerGenerator
                                  + "For more information, please refer to the Jace Developer's Guide.");
     output.write(newLine);
 
-    ProxyGenerator proxy = new ProxyGenerator.Builder(new ClassPath(Collections.<File>emptyList()), classFile,
+    ProxyGenerator proxy = new ProxyGenerator.Builder(new ClassPath(System.getProperty("java.class.path")), classFile,
       new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
     proxy.includeStandardHeaders(output, true);
 
@@ -373,10 +373,7 @@ public class PeerGenerator
     output.write(newLine);
 
     for (MetaClass dependency: getDependencies(classFile))
-    {
       output.write(dependency.include() + newLine);
-      output.write(newLine);
-    }
 
     output.write(metaClass.toPeer().include() + newLine);
     output.write(newLine);

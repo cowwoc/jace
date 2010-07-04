@@ -29,7 +29,7 @@ JObject::JObject(jvalue value)
 }
 
 /**
- * Creates a new reference to an existnig jobject.
+ * Creates a new reference to an existing jobject.
  */
 JObject::JObject(jobject object)
 {
@@ -44,12 +44,6 @@ JObject::JObject(jobject object)
  */
 JObject::JObject()
 {
-  // By default, all objects start out with a null reference,
-  // so, in case of an exception, destruction will not fail on
-  // an uninitialized reference.
-  jvalue newValue;
-  newValue.l = 0;
-  JValue::setJavaJniValue(newValue);
 }
 
 /**
@@ -70,10 +64,9 @@ JObject::~JObject() throw ()
 	try
 	{
 		jobject ref = *this;
-
-		// Save an attach and a delete if we are a null object.
 		if (ref)
 		{
+			// skip for null references
 			JNIEnv* env = attach();
 			deleteGlobalRef(env, ref);
 		}
@@ -124,6 +117,7 @@ bool JObject::isNull() const
 
 JObject& JObject::operator=(const JObject& object)
 {
+	// We don't check if (this == &object) because setJavaJniObject() already does
   setJavaJniObject(static_cast<jobject>(object));
   return *this;
 }
@@ -150,40 +144,32 @@ void JObject::setJavaJniObject(jobject object) throw (JNIException)
  * @throw JNIException if the JVM runs out of memory while 
  *   trying to create a new global reference.
  */
-void JObject::setJavaJniValue(jvalue value) throw (JNIException)
+void JObject::setJavaJniValue(jvalue newValue) throw (JNIException)
 {
   JNIEnv* env = attach();
 
-  // If we have previously referenced another java object,
-  // we release that reference here.
-  jobject oldRef = *this;
+	// Save a copy of the old value
+  jobject oldValue = *this;
+	if (env->IsSameObject(newValue.l, oldValue) == JNI_TRUE)
+		return;
+	jvalue ourCopy;
 
-  if (oldRef)
+  if (!newValue.l)
 	{
-    // printClass(oldRef);
-    // print(oldRef);
-    deleteGlobalRef(env, oldRef);
+		// If the new value is a null reference, we save time by not creating a new global reference.
+		ourCopy = newValue;
   }
-
-  // If this is a null ref, we save a little time by not creating
-  // a new global ref.
-  if (!value.l)
+	else
 	{
-    // cout << "JObject::setJavaJniValue - Creating a NULL object." << endl;
-    JValue::setJavaJniValue(value);
-    return;
-  }
+		// Create our own global reference to the object
+		jobject object = newGlobalRef(env, newValue.l);
+		ourCopy.l = object;
+	}
 
-  // cout << "JObject::setJavaJniValue - Creating a new reference to " << object << endl;
-  jobject object = newGlobalRef(env, value.l);
-  // cout << "JObject::setJavaJniValue - Created the reference." << endl;
-
-  jvalue newValue;
-  newValue.l = object;
-
-  // cout << "JObject::setJavaJniValue - Calling JValue::setJavaJniValue..." << endl;
-  JValue::setJavaJniValue(newValue);
-  // cout << "JObject::setJavaJniValue - Called JValue::setJavaJniValue." << endl;
+	// Delete the old value
+  if (oldValue)
+    deleteGlobalRef(env, oldValue);
+  JValue::setJavaJniValue(ourCopy);
 }
 
 /**

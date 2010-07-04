@@ -29,7 +29,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -176,33 +175,16 @@ public class ProxyGenerator
     Util.generateComment(output, "Standard Jace headers needed to implement this class.");
 
     output.write("#include \"jace/JArguments.h\"" + newLine);
-    output.write("using jace::JArguments;" + newLine);
-    output.write(newLine);
-
     output.write("#include \"jace/JMethod.h\"" + newLine);
-    output.write("using jace::JMethod;" + newLine);
-    output.write(newLine);
-
     output.write("#include \"jace/JField.h\"" + newLine);
-    output.write("using jace::JField;" + newLine + newLine);
-    output.write(newLine);
-
     output.write("#include \"jace/JClassImpl.h\"" + newLine);
-    output.write("using jace::JClassImpl;" + newLine);
-    output.write(newLine);
+    String className = classFile.getClassName().asIdentifier();
+    if (className.equals("java.lang.String"))
+      output.write("#include \"jace/proxy/java/lang/Integer.h\"" + newLine);
 
     output.write("#include \"jace/BoostWarningOff.h\"" + newLine);
     output.write("#include <boost/thread/mutex.hpp>" + newLine);
     output.write("#include \"jace/BoostWarningOn.h\"" + newLine);
-
-    output.write(newLine);
-
-    String className = classFile.getClassName().asIdentifier();
-    if (className.equals("java.lang.String"))
-    {
-      output.write(newLine);
-      output.write("#include \"jace/proxy/java/lang/Integer.h\"" + newLine);
-    }
   }
 
   /**
@@ -221,21 +203,20 @@ public class ProxyGenerator
       if (!dependencyFilter.accept(dependentMetaClass))
         continue;
 
-      // Hack in special support for org.omg.CORBA.Object
-      // This is the only class that causes Jace to break, based on the
-      // special way it creates dependencies between subclasses and superclasses.
-      //
-      // The better way to deal with this would be by handling the case generically,
-      // but since we only see one example of this out of over 10,000 cases,
-      // it's just not important enough to deal with right now.
-      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
-      {
-        String dependentName = dependentMetaClass.getSimpleName();
-        if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
-          continue;
-      }
+//      // Hack in special support for org.omg.CORBA.Object
+//      // This is the only class that causes Jace to break, based on the
+//      // special way it creates dependencies between subclasses and superclasses.
+//      //
+//      // The better way to deal with this would be by handling the case generically,
+//      // but since we only see one example of this out of over 10,000 cases,
+//      // it's just not important enough to deal with right now.
+//      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
+//      {
+//        String dependentName = dependentMetaClass.getSimpleName();
+//        if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
+//          continue;
+//      }
       output.write(dependentMetaClass.include() + newLine);
-      output.write(newLine);
     }
   }
 
@@ -357,21 +338,21 @@ public class ProxyGenerator
       MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
       String methodName = method.getName();
 
-      // Hack in special support for org.omg.CORBA.Object
-      // This is the only class that causes Jace to break, based on the
-      // special way it creates dependencies between subclasses and superclasses.
-      //
-      // The better way to deal with this would be by handling the case generically,
-      // but since we only see one example of this out of over 10,000 cases,
-      // it's just not important enough to deal with right now.
-      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
-      {
-        if (methodName.equals("_get_policy") || methodName.equals("_get_domain_managers") || methodName.equals(
-          "_set_policy_override"))
-        {
-          continue;
-        }
-      }
+//      // Hack in special support for org.omg.CORBA.Object
+//      // This is the only class that causes Jace to break, based on the
+//      // special way it creates dependencies between subclasses and superclasses.
+//      //
+//      // The better way to deal with this would be by handling the case generically,
+//      // but since we only see one example of this out of over 10,000 cases,
+//      // it's just not important enough to deal with right now.
+//      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
+//      {
+//        if (methodName.equals("_get_policy") || methodName.equals("_get_domain_managers") || methodName.equals(
+//          "_set_policy_override"))
+//        {
+//          continue;
+//        }
+//      }
 
       // If this is a static initializer, then we don't need to declare it
       if (methodName.equals("<clinit>"))
@@ -855,6 +836,16 @@ public class ProxyGenerator
       output.write("}" + newLine);
       output.write(newLine);
 
+      output.write(className + "::" + className + "(const " + className + "& jPeer) " + getInitializerName() + newLine);
+      output.write("{" + newLine);
+      output.write("  // The default copy-constructor causes JObject::setJavaJniValue()" + newLine);
+      output.write("  // to get invoked multiple times (once per superclass). Instead" + newLine);
+      output.write("  // we invoke each superclass' default constructor and initialize" + newLine);
+      output.write("  // JObject once." + newLine);
+      output.write("  setJavaJniValue(jPeer);" + newLine);
+      output.write("}" + newLine);
+      output.write(newLine);
+
       output.write(className + "::~" + className + "() throw ()" + newLine);
       output.write("{}" + newLine);
       output.write(newLine);
@@ -882,7 +873,8 @@ public class ProxyGenerator
       output.write(newLine);
       output.write("::" + classMetaClass.getFullyQualifiedName("::") + " " + className + "::getJaceProxy()" + newLine);
       output.write("{" + newLine);
-      output.write("  return ::" + classMetaClass.getFullyQualifiedName("::") + "(static_cast<jobject>(static_cast<Object>(*this)));"
+      output.write("  return ::" + classMetaClass.getFullyQualifiedName("::")
+                   + "(static_cast<jobject>(static_cast<Object>(*this)));"
                    + newLine);
       output.write("}" + newLine);
     }
@@ -1360,21 +1352,21 @@ public class ProxyGenerator
     {
       ClassMethod method = i.next();
       String methodName = method.getName();
-      // Hack in special support for org.omg.CORBA.Object
-      // This is the only class that causes Jace to break, based on the
-      // special way it creates dependencies between subclasses and superclasses.
-      //
-      // The better way to deal with this would be by handling the case generically,
-      // but since we only see one example of this out of over 10,000 cases,
-      // it's just not important enough to deal with right now.
-      if (fullyQualifiedName.equals("org.omg.CORBA.Object"))
-      {
-        if (methodName.equals("_get_policy") || methodName.equals("_get_domain_managers") || methodName.equals(
-          "_set_policy_override"))
-        {
-          continue;
-        }
-      }
+//      // Hack in special support for org.omg.CORBA.Object
+//      // This is the only class that causes Jace to break, based on the
+//      // special way it creates dependencies between subclasses and superclasses.
+//      //
+//      // The better way to deal with this would be by handling the case generically,
+//      // but since we only see one example of this out of over 10,000 cases,
+//      // it's just not important enough to deal with right now.
+//      if (fullyQualifiedName.equals("org.omg.CORBA.Object"))
+//      {
+//        if (methodName.equals("_get_policy") || methodName.equals("_get_domain_managers") || methodName.equals(
+//          "_set_policy_override"))
+//        {
+//          continue;
+//        }
+//      }
       Writer writer;
       if (methodName.equals("<init>"))
         writer = constructors;
@@ -1402,10 +1394,10 @@ public class ProxyGenerator
       output.write("JACE_PROXY_API ");
     output.write("explicit " + metaClass.getSimpleName() + "();" + newLine);
 
-    Util.generateComment(output, "Creates a copy of an existing reference.");
+    Util.generateComment(output, "Copy an existing reference.");
     if (exportSymbols)
       output.write("JACE_PROXY_API ");
-    output.write(metaClass.getSimpleName() + "(const " + metaClass.getSimpleName() + "& object);" + newLine);
+    output.write(metaClass.getSimpleName() + "(const " + metaClass.getSimpleName() + "&);" + newLine);
 
     output.write(nonConstructors.toString());
 
@@ -1417,10 +1409,10 @@ public class ProxyGenerator
     output.write("static const JClass& staticGetJavaJniClass() throw (::jace::JNIException);" + newLine);
     if (exportSymbols)
       output.write("JACE_PROXY_API ");
-    output.write("explicit " + metaClass.getSimpleName() + "(jvalue value);" + newLine);
+    output.write("explicit " + metaClass.getSimpleName() + "(jvalue);" + newLine);
     if (exportSymbols)
       output.write("JACE_PROXY_API ");
-    output.write("explicit " + metaClass.getSimpleName() + "(jobject object);" + newLine);
+    output.write("explicit " + metaClass.getSimpleName() + "(jobject);" + newLine);
 
     // now declare the special "one-off" methods that we add to classes like, Object, String, and Throwable to provide
     // better C++ and Java integration
@@ -1436,17 +1428,17 @@ public class ProxyGenerator
       Util.generateComment(output, "Creates a String from a C string.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String(const char* str);" + newLine);
+      output.write("String(const char*);" + newLine);
 
       Util.generateComment(output, "Creates a new jstring from a std::string using the platform's default charset.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String(const std::string& str);" + newLine);
+      output.write("String(const std::string&);" + newLine);
 
       Util.generateComment(output, "Creates a String from a std::wstring.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String(const std::wstring& str);" + newLine);
+      output.write("String(const std::wstring&);" + newLine);
 
       Util.generateComment(output, "Handle assignment between two Strings.");
       if (exportSymbols)
@@ -1475,31 +1467,31 @@ public class ProxyGenerator
       Util.generateComment(output, "Provide concatentation for Strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("String operator+(String str);" + newLine);
+      output.write("String operator+(String);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide concatenation between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend std::string operator+(const std::string& stdStr, const String& jStr);" + newLine);
+      output.write("friend std::string operator+(const std::string&, const String&);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide concatenation between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend std::string operator+(const String& jStr, const std::string& stdStr);" + newLine);
+      output.write("friend std::string operator+(const String&, const std::string&);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide comparison between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend bool operator==(const std::string& stdStr, const String& str);" + newLine);
+      output.write("friend bool operator==(const std::string&, const String&);" + newLine);
       output.write(newLine);
 
       Util.generateComment(output, "Provide comparison between Strings and std::strings.");
       if (exportSymbols)
         output.write("JACE_PROXY_API ");
-      output.write("friend bool operator==(const String& str, const std::string& stdStr);" + newLine);
+      output.write("friend bool operator==(const String&, const std::string&);" + newLine);
       output.write(newLine);
     }
     else if (fullyQualifiedName.equals("java.lang.Throwable"))
@@ -1762,7 +1754,6 @@ public class ProxyGenerator
       Util.generateComment(output, "The super class for this class.");
       MetaClass superClassMetaClass = MetaClassFactory.getMetaClass(classFile.getSuperClassName()).proxy();
       output.write(superClassMetaClass.include() + newLine);
-      output.write(newLine);
     }
 
     Collection<TypeName> interfaces = classFile.getInterfaces();
@@ -1773,7 +1764,6 @@ public class ProxyGenerator
       {
         MetaClass interfaceClass = MetaClassFactory.getMetaClass(i).proxy();
         output.write(interfaceClass.include() + newLine);
-        output.write(newLine);
       }
     }
 
@@ -1791,21 +1781,20 @@ public class ProxyGenerator
         if (dependentMetaClass instanceof ArrayMetaClass)
           dependentMetaClass = ((ArrayMetaClass) dependentMetaClass).getInnermostElementType();
 
-        // Hack in special support for org.omg.CORBA.Object
-        // This is the only class that causes Jace to break, based on the
-        // special way it creates dependencies between subclasses and superclasses.
-        //
-        // The better way to deal with this would be by handling the case generically,
-        // but since we only see one example of this out of over 10,000 cases,
-        // it's just not important enough to deal with right now.
-        if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
-        {
-          String dependentName = dependentMetaClass.getSimpleName();
-          if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
-            continue;
-        }
+//        // Hack in special support for org.omg.CORBA.Object
+//        // This is the only class that causes Jace to break, based on the
+//        // special way it creates dependencies between subclasses and superclasses.
+//        //
+//        // The better way to deal with this would be by handling the case generically,
+//        // but since we only see one example of this out of over 10,000 cases,
+//        // it's just not important enough to deal with right now.
+//        if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
+//        {
+//          String dependentName = dependentMetaClass.getSimpleName();
+//          if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
+//            continue;
+//        }
         output.write(dependentMetaClass.include() + newLine);
-        output.write(newLine);
       }
     }
   }
@@ -1999,61 +1988,14 @@ public class ProxyGenerator
    */
   private static String getUsage()
   {
-    return "Usage: ProxyGenerator <class file> <header | source> [ options ]" + newLine + "Where options can be:"
-           + newLine + "  -public: Generate public fields and members (default)" + newLine
-           + "  -protected: Generate public, protected fields and members" + newLine
-           + "  -package: Generate public, protected, package-private fields and methods." + newLine
-           + "  -private: Generate public, protected, package-private, private fields and methods." + newLine;
-  }
-
-  /**
-   * Generates a C++ proxy for a java class.
-   *
-   * @param args the command-line argument
-   */
-  public static void main(String[] args)
-  {
-    if (args.length < 2)
-    {
-      System.out.println(getUsage());
-      return;
-    }
-
-    AccessibilityType accessibility = AccessibilityType.PUBLIC;
-    for (int i = 2; i < args.length; ++i)
-    {
-      String option = args[i];
-
-      if (option.equals("-public"))
-        accessibility = AccessibilityType.PUBLIC;
-      if (option.equals("-protected"))
-        accessibility = AccessibilityType.PROTECTED;
-      else if (option.equals("-package"))
-        accessibility = AccessibilityType.PACKAGE;
-      else if (option.equals("-private"))
-        accessibility = AccessibilityType.PRIVATE;
-      else
-      {
-        System.out.println("Not an understood option: " + option);
-        System.out.println();
-        System.out.println(getUsage());
-        return;
-      }
-    }
-
-    ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(Collections.<File>emptyList()),
-      new ClassFile(new File(args[0])), new AcceptAll()).accessibility(accessibility).build();
-    try
-    {
-      if (args[1].equals("header"))
-        generator.generateHeader(new OutputStreamWriter(System.out));
-      else if (args[1].equals("source"))
-        generator.generateSource(new OutputStreamWriter(System.out));
-    }
-    catch (IOException e)
-    {
-      generator.getLogger().error("", e);
-    }
+    return "Usage: ProxyGenerator <class file> <header | source> [ options ]" + newLine + "Where:" + newLine
+           + "  \"class file\" is the path of the Java class to process" + newLine
+           + "  \"header\" indicates that a proxy header file should be generated" + newLine
+           + "  \"source\" indicates that a proxy source file should be generated" + newLine + "  \"options\" can be:"
+           + newLine + "    -public: Generate public fields and members (default)" + newLine
+           + "    -protected: Generate public, protected fields and members" + newLine
+           + "    -package: Generate public, protected, package-private fields and methods." + newLine
+           + "    -private: Generate public, protected, package-private, private fields and methods." + newLine;
   }
 
   /**
@@ -2168,6 +2110,58 @@ public class ProxyGenerator
     public boolean accept(MetaClass candidate)
     {
       return collection.contains(candidate);
+    }
+  }
+
+  /**
+   * Generates a C++ proxy for a java class.
+   *
+   * @param args the command-line argument
+   */
+  public static void main(String[] args)
+  {
+    if (args.length < 2)
+    {
+      System.out.println(getUsage());
+      return;
+    }
+
+    AccessibilityType accessibility = AccessibilityType.PUBLIC;
+    for (int i = 2; i < args.length; ++i)
+    {
+      String option = args[i];
+
+      if (option.equals("-public"))
+        accessibility = AccessibilityType.PUBLIC;
+      if (option.equals("-protected"))
+        accessibility = AccessibilityType.PROTECTED;
+      else if (option.equals("-package"))
+        accessibility = AccessibilityType.PACKAGE;
+      else if (option.equals("-private"))
+        accessibility = AccessibilityType.PRIVATE;
+      else
+      {
+        System.out.println("Not an understood option: " + option);
+        System.out.println();
+        System.out.println(getUsage());
+        return;
+      }
+    }
+
+    ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(System.getProperty("java.class.path")),
+      new ClassFile(new File(args[0])), new AcceptAll()).accessibility(accessibility).build();
+    try
+    {
+      OutputStreamWriter writer = new OutputStreamWriter(System.out);
+      if (args[1].equals("header"))
+        generator.generateHeader(writer);
+      else if (args[1].equals("source"))
+        generator.generateSource(writer);
+      writer.flush();
+    }
+    catch (IOException e)
+    {
+      generator.getLogger().error("", e);
     }
   }
 }

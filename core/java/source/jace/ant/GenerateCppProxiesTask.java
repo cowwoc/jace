@@ -5,7 +5,6 @@ import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.proxy.ClassPath;
 import jace.proxy.ProxyGenerator.AccessibilityType;
-import jace.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -149,7 +148,7 @@ public class GenerateCppProxiesTask extends Task
     for (Dependency dependency: dependencies)
       extraDependencies.add(TypeNameFactory.fromIdentifier(dependency.getName()));
     AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders, outputSources,
-      new ClassPath(Util.parseClasspath(classpath.toString()))).accessibility(accessibility).minimizeDependencies(true).
+      new ClassPath(classpath.toString())).accessibility(accessibility).minimizeDependencies(true).
       exportSymbols(exportSymbols);
     for (TypeName dependency: extraDependencies)
       autoProxy.extraDependency(dependency);
@@ -214,8 +213,8 @@ public class GenerateCppProxiesTask extends Task
   @Override
   public String toString()
   {
-    return getClass().getSimpleName() + "[inputHeaders=" + inputHeaders + ", inputSources=" + inputSources +
-           ", outputHeader=" + outputHeaders + ", outputSources=" + outputSources + ", exportSymbols=" + exportSymbols +
-           "]";
+    return getClass().getSimpleName() + "[inputHeaders=" + inputHeaders + ", inputSources=" + inputSources
+           + ", outputHeader=" + outputHeaders + ", outputSources=" + outputSources + ", exportSymbols=" + exportSymbols
+           + "]";
   }
 }

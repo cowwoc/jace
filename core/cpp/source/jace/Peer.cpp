@@ -1,4 +1,3 @@
-
 #include "jace/Peer.h"
 
 #include <string>
@@ -33,7 +32,7 @@ Peer::Peer(const Peer& other)
 
 Peer& Peer::operator=(const Peer& other)
 {
-	if (&other==this)
+	if (this == &other)
 		return *this;
   JNIEnv* env = attach();
 
@@ -47,26 +46,6 @@ Peer& Peer::operator=(const Peer& other)
 	weakRef = newReference;
 	return *this;
 }
-
-///** 
-// * Returns the underlying JNI jobject for this peer.
-// */
-//Peer::operator jobject()
-//{
-//	return weakRef;
-//}
-//
-//
-///** 
-// * Returns the underlying JNI jobject for this peer.
-// *
-// * Users of this method should be careful not to modify the
-// * object through calls against the returned jobject.
-// */
-//Peer::operator jobject() const
-//{
-//	return weakRef;
-//}
 
 Peer::~Peer()
 {

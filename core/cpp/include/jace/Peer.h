@@ -58,23 +58,6 @@ public:
    */
   JACE_API virtual void destroy();
 
-	///**
-	// * Returns the underlying JNI jobject for this JObject.
-	// *
-	// * WARNING: The returned jobject is a weak reference.
-	// */
-	//JACE_API operator jobject();
-
-	///**
-	// * Returns the underlying JNI jobject for this JObject.
-	// *
-	// * WARNING: The returned jobject is a weak reference.
-	// *
-	// * Users of this method should be careful not to modify the
-	// * object through calls against the returned jobject.
-	// */
-	//JACE_API operator jobject() const;
-
 	/**
    * Returns the class type of the Java Peer.
    */

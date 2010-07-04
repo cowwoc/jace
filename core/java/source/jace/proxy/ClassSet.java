@@ -8,7 +8,6 @@ import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
 import jace.proxy.ProxyGenerator.AcceptAll;
-import jace.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -231,8 +230,7 @@ public class ClassSet
    */
   public static void main(String[] args)
   {
-    ClassSet library = new ClassSet(new ClassPath(Util.parseClasspath(args[0])),
-      Boolean.valueOf(args[2]).booleanValue());
+    ClassSet library = new ClassSet(new ClassPath(args[0]), Boolean.valueOf(args[2]).booleanValue());
     Set<MetaClass> classes = new HashSet<MetaClass>();
     library.addDependentClasses(classes, MetaClassFactory.getMetaClass(TypeNameFactory.fromIdentifier(args[1])));
 

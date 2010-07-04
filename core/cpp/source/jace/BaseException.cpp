@@ -91,7 +91,7 @@ BaseException::BaseException(const BaseException& rhs) throw ()
 
 BaseException& BaseException::operator=(const BaseException& rhs) throw ()
 {
-  if (&rhs == this)
+  if (this == &rhs)
     return *this;
   mValue = rhs.mValue;
   return *this;

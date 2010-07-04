@@ -7,12 +7,14 @@ import jace.metaclass.MetaClassFactory;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.parser.ClassFile;
-import jace.util.Util;
+import jace.util.WildcardFileFilter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -33,12 +35,57 @@ public class ClassPath
    * Creates a new ClassPath.
    *
    * @param elements the paths to be used to search for classes
+   * @throws IllegalArgumentException if elements is null
    */
   public ClassPath(List<File> elements)
   {
     if (elements == null)
       throw new IllegalArgumentException("classPath may not be null");
     this.elements = elements;
+  }
+
+  /**
+   * Creates a new ClassPath.
+   *
+   * @param text the String representation of the classpath
+   * @throws IllegalArgumentException if text is null
+   */
+  public ClassPath(String text)
+  {
+    if (text == null)
+      throw new IllegalArgumentException("text may not be null");
+    this.elements = new ArrayList<File>();
+    List<String> classPathArray = Arrays.asList(text.split(File.pathSeparator));
+    for (String path: classPathArray)
+    {
+      if (path.contains("*") || path.contains("?"))
+      {
+        path = path.replace(File.separator, "/");
+        int index = path.lastIndexOf("/");
+        String directory;
+        String filename;
+        if (index == -1)
+        {
+          directory = ".";
+          filename = path;
+        }
+        else
+        {
+          directory = path.substring(0, index);
+          filename = path.substring(index + "/".length());
+        }
+        if (directory.contains("*") || directory.contains("?"))
+        {
+          throw new IllegalArgumentException("classpath directories may not contain wildcards");
+        }
+        WildcardFileFilter filter = new WildcardFileFilter(filename);
+        File[] files = new File(directory).listFiles(filter);
+        for (File file: files)
+          elements.add(file);
+      }
+      else
+        elements.add(new File(path));
+    }
   }
 
   /**
@@ -203,7 +250,7 @@ public class ClassPath
   public static void main(String[] args)
   {
     String classPath = args[0];
-    ClassPath source = new ClassPath(Util.parseClasspath(classPath));
+    ClassPath source = new ClassPath(classPath);
     InputStream input = source.openClass(TypeNameFactory.fromPath(args[1]));
     ClassFile classFile = new ClassFile(input);
     System.out.println(classFile.toString());

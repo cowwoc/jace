@@ -23,11 +23,10 @@ JNIException::JNIException(const JNIException& rhs) throw ():
 
 JNIException& JNIException::operator=(const JNIException& rhs) throw ()
 {
-  if (&rhs == this)
+  if (this == &rhs)
 		return *this;
 
   ((BaseException&) *this) = (BaseException&) rhs;
-
   return *this;
 }
 

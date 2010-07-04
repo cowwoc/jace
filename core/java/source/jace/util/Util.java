@@ -1,12 +1,8 @@
 package jace.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,52 +50,6 @@ public class Util
           break;
       }
     }
-  }
-
-  /**
-   * Parses a String classpath to a {@code List<File>} format.
-   *
-   * @param classPath the String representation of the classpath
-   * @return the {@code List<File>} making up the classpath
-   * @throws IllegalArgumentException if classPath is null
-   */
-  public static List<File> parseClasspath(String classPath) throws IllegalArgumentException
-  {
-    if (classPath == null)
-      throw new IllegalArgumentException("classPath may not be null");
-    List<File> result = new ArrayList<File>();
-    List<String> classPathArray = Arrays.asList(classPath.split(File.pathSeparator));
-    for (String path: classPathArray)
-    {
-      if (path.contains("*") || path.contains("?"))
-      {
-        path = path.replace(File.separator, "/");
-        int index = path.lastIndexOf("/");
-        String directory;
-        String filename;
-        if (index == -1)
-        {
-          directory = ".";
-          filename = path;
-        }
-        else
-        {
-          directory = path.substring(0, index);
-          filename = path.substring(index + "/".length());
-        }
-        if (directory.contains("*") || directory.contains("?"))
-        {
-          throw new IllegalArgumentException("classpath directories may not contain wildcards");
-        }
-        WildcardFileFilter filter = new WildcardFileFilter(filename);
-        File[] files = new File(directory).listFiles(filter);
-        for (File file: files)
-          result.add(file);
-      }
-      else
-        result.add(new File(path));
-    }
-    return result;
   }
 
   /**
