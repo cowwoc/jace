@@ -30,23 +30,36 @@ Building Boost C++
 
 Jace's compilation depends upon the Boost C++ library. To build Boost C++ under Windows follow the following steps:
 
-1) Download the latest release of Boost C++ from http://sourceforge.net/projects/boost/files/
+1) Download the latest release of Boost C++ from http://sourceforge.net/projects/boost/files/boost/
 2) Download the latest release of Boost Jam from http://sourceforge.net/projects/boost/files/boost-jam/
-3) Create a new system-wide environment variable called BOOST_HOME to denote Boost's installation directory
-4) Extract both packages into <BOOST_HOME>
-5) Open a Visual Studio Command Prompt
-6) cd <BOOST_HOME>
-7) To build the 32-bit version run "bjam toolset=msvc address-model=32 --stagedir=stage32 --build-type=complete stage"
-8) To build the 64-bit version run "bjam toolset=msvc address-model=64 --stagedir=stage64 --build-type=complete stage"
+3) Create a system-wide environment variable called %BOOST_HOME% to denote Boost's installation directory
+4) Extract Boost C++ into %BOOST_HOME%
+5) Extract bjam.exe into %BOOST_HOME%
+6) Open a Visual Studio Command Prompt
+7) cd %BOOST_HOME%
+8) To build the 32-bit version run "bjam toolset=msvc address-model=32 --stagedir=stage32 --build-type=complete stage"
+9) To build the 64-bit version run "bjam toolset=msvc address-model=64 --stagedir=stage64 --build-type=complete stage"
 
 A few notes:
 
     * Notice that address-model isn't prefixed with the double dashes; that's intentional! If you prefix it,
       it will not work.
-    * You can add -j%NUMBER_OF_PROCESSORS% to the bjam parameters. This will cause a number of commands
+    * You can add "-j %NUMBER_OF_PROCESSORS%" to the bjam parameters. This will cause a number of commands
       to execute in parallel if you've got more cores / CPUs.
 
-9) You're done. See http://www.boost.org/doc/libs/1_43_0/more/getting_started/index.html if you run into any trouble
+10) You're done. See http://www.boost.org/doc/libs/1_43_0/more/getting_started/index.html if you run into any trouble
+
+
+Building Jace
+-------------
+
+1) Create a system-wide environment variable called %JACE_HOME% that denotes Jace's installastion directory
+2) Open %JACE_HOME%/core/cpp/windows/msvc/jace.sln
+3) Set the solution platform to "i386" for 32-bit mode or "amd64" for 64-bit mode
+4) Build the solution to generate the Jace binary files
+5) Run "ant" in %JACE_HOME% to generate the Jace header files
+6) You'er done.
+
 
 
 -------------- Future releases

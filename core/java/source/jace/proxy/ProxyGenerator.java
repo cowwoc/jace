@@ -133,6 +133,7 @@ public class ProxyGenerator
     includeStandardHeaders(output, false);
     includeDependentHeaders(output);
     makeForwardDeclarations(output);
+    output.write(newLine);
 
     generateClassDeclaration(output);
     output.write(newLine);
@@ -202,20 +203,6 @@ public class ProxyGenerator
       // Skip includes for classes that aren't part of our dependency list
       if (!dependencyFilter.accept(dependentMetaClass))
         continue;
-
-//      // Hack in special support for org.omg.CORBA.Object
-//      // This is the only class that causes Jace to break, based on the
-//      // special way it creates dependencies between subclasses and superclasses.
-//      //
-//      // The better way to deal with this would be by handling the case generically,
-//      // but since we only see one example of this out of over 10,000 cases,
-//      // it's just not important enough to deal with right now.
-//      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
-//      {
-//        String dependentName = dependentMetaClass.getSimpleName();
-//        if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
-//          continue;
-//      }
       output.write(dependentMetaClass.include() + newLine);
     }
   }
@@ -337,22 +324,6 @@ public class ProxyGenerator
 
       MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
       String methodName = method.getName();
-
-//      // Hack in special support for org.omg.CORBA.Object
-//      // This is the only class that causes Jace to break, based on the
-//      // special way it creates dependencies between subclasses and superclasses.
-//      //
-//      // The better way to deal with this would be by handling the case generically,
-//      // but since we only see one example of this out of over 10,000 cases,
-//      // it's just not important enough to deal with right now.
-//      if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
-//      {
-//        if (methodName.equals("_get_policy") || methodName.equals("_get_domain_managers") || methodName.equals(
-//          "_set_policy_override"))
-//        {
-//          continue;
-//        }
-//      }
 
       // If this is a static initializer, then we don't need to declare it
       if (methodName.equals("<clinit>"))
@@ -1352,21 +1323,6 @@ public class ProxyGenerator
     {
       ClassMethod method = i.next();
       String methodName = method.getName();
-//      // Hack in special support for org.omg.CORBA.Object
-//      // This is the only class that causes Jace to break, based on the
-//      // special way it creates dependencies between subclasses and superclasses.
-//      //
-//      // The better way to deal with this would be by handling the case generically,
-//      // but since we only see one example of this out of over 10,000 cases,
-//      // it's just not important enough to deal with right now.
-//      if (fullyQualifiedName.equals("org.omg.CORBA.Object"))
-//      {
-//        if (methodName.equals("_get_policy") || methodName.equals("_get_domain_managers") || methodName.equals(
-//          "_set_policy_override"))
-//        {
-//          continue;
-//        }
-//      }
       Writer writer;
       if (methodName.equals("<init>"))
         writer = constructors;
@@ -1781,19 +1737,6 @@ public class ProxyGenerator
         if (dependentMetaClass instanceof ArrayMetaClass)
           dependentMetaClass = ((ArrayMetaClass) dependentMetaClass).getInnermostElementType();
 
-//        // Hack in special support for org.omg.CORBA.Object
-//        // This is the only class that causes Jace to break, based on the
-//        // special way it creates dependencies between subclasses and superclasses.
-//        //
-//        // The better way to deal with this would be by handling the case generically,
-//        // but since we only see one example of this out of over 10,000 cases,
-//        // it's just not important enough to deal with right now.
-//        if (classFile.getClassName().asIdentifier().equals("org.omg.CORBA.Object"))
-//        {
-//          String dependentName = dependentMetaClass.getSimpleName();
-//          if (dependentName.equals("DomainManager") || dependentName.equals("Policy"))
-//            continue;
-//        }
         output.write(dependentMetaClass.include() + newLine);
       }
     }
@@ -1808,16 +1751,19 @@ public class ProxyGenerator
    */
   public void makeForwardDeclarations(Writer output) throws IOException
   {
-    Util.generateComment(output, "Forward declarations for the classes that this class uses.");
-
-    for (MetaClass mc: getDependentClasses(false))
+    Collection<MetaClass> dependentClasses = getDependentClasses(false);
+    if (!dependentClasses.isEmpty())
     {
-      // Don't include classes that aren't in our dependency list
-      if (!dependencyFilter.accept(mc))
-        continue;
+      Util.generateComment(output, "Forward declarations for the classes that this class uses.");
+      for (MetaClass mc: dependentClasses)
+      {
+        // Don't include classes that aren't in our dependency list
+        if (!dependencyFilter.accept(mc))
+          continue;
 
-      output.write(mc.forwardDeclare() + newLine);
-      output.write(newLine);
+        output.write(mc.forwardDeclare() + newLine);
+        output.write(newLine);
+      }
     }
   }
 
@@ -1825,9 +1771,9 @@ public class ProxyGenerator
    * Returns the classes which the class we are generating is dependent upon.
    *
    * @param fullyDependent true if the method is to return classes which need to
-   * be fully defined before reference. This includes fields and the array elements.
+   * be fully defined before reference (such as fields).
    * Otherwise, false if the method is to return classes which may be forward
-   * declared (all other parameter types and exceptions).
+   * declared (array elements, exceptions and all other parameter types).
    *
    * @return a list of the dependee MetaClasses for this class. It does not
    * include the super class, and the interfaces implemented by this class.
@@ -1859,25 +1805,36 @@ public class ProxyGenerator
       }
     }
 
-    // now we check for method parameters and exceptions
-    for (ClassMethod method: classFile.getMethods())
+    if (!fullyDependent)
     {
-      if (shouldBeSkipped(method))
-        continue;
-
-      MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
-      addDependentClass(result, fullyDependent, returnType, excludedClasses);
-
-      for (TypeName parameter: method.getParameterTypes())
+      // now we check for method parameters and exceptions
+      for (ClassMethod method: classFile.getMethods())
       {
-        MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
-        addDependentClass(result, fullyDependent, parameterType, excludedClasses);
-      }
+        if (shouldBeSkipped(method))
+          continue;
 
-      for (TypeName exception: method.getExceptions())
-      {
-        MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();
-        addDependentClass(result, fullyDependent, exceptionType, excludedClasses);
+        MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
+        addDependentClass(result, returnType, excludedClasses);
+
+        for (TypeName parameter: method.getParameterTypes())
+        {
+          MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
+          addDependentClass(result, parameterType, excludedClasses);
+        }
+
+        // We must #include exception classes in order to initialize their JEnlister references.
+        // The point of this registration is so that Jace can instantiate a matching C++ exception
+        // for a Java exception when it is thrown. If you don't #include the header file, then
+        // Jace won't be able to find a matching C++ proxy.
+        //
+        // In general, you DO NOT want exception specifications in C++: If an exception gets thrown
+        // that doesn't match the exception specification, it causes an instantaneous abort of the
+        // program.
+        for (TypeName exception: method.getExceptions())
+        {
+          MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();
+          addDependentClass(result, exceptionType, excludedClasses);
+        }
       }
     }
     return result;
@@ -1887,28 +1844,20 @@ public class ProxyGenerator
    * Adds class dependencies to a set.
    *
    * @param result the set to add to
-   * @param fullyDependent true if the method is to return classes which need to
-   * be fully defined before reference. This includes fields and the array elements.
-   * Otherwise, false if the method is to return classes which may be forward
-   * declared (all other parameter types and exceptions).
    * @param classType the class
    * @param excludedClasses the dependencies to exclude from the set
    */
-  private void addDependentClass(Collection<MetaClass> result, boolean fullyDependent, MetaClass classType,
-                                 Set<MetaClass> excludedClasses)
+  private void addDependentClass(Collection<MetaClass> result, MetaClass classType, Set<MetaClass> excludedClasses)
   {
     if (classType instanceof ArrayMetaClass)
     {
-      if (fullyDependent)
-      {
-        ArrayMetaClass arrayType = (ArrayMetaClass) classType;
-        MetaClass elementType = arrayType.getInnermostElementType();
+      ArrayMetaClass arrayType = (ArrayMetaClass) classType;
+      MetaClass elementType = arrayType.getInnermostElementType();
 
-        if (!excludedClasses.contains(elementType))
-          result.add(elementType);
-      }
+      if (!excludedClasses.contains(elementType))
+        result.add(elementType);
     }
-    else if (!fullyDependent && !excludedClasses.contains(classType))
+    else if (!excludedClasses.contains(classType))
       result.add(classType);
   }
 

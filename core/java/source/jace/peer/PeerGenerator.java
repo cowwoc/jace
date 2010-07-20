@@ -711,6 +711,14 @@ public class PeerGenerator
         addDependentClass(result, parameterType);
       }
 
+      // We must #include exception classes in order to initialize their JEnlister references.
+	  // The point of this registration is so that Jace can instantiate a matching C++ exception
+	  // for a Java exception when it is thrown. If you don't #include the header file, then
+	  // Jace won't be able to find a matching C++ proxy.
+	  //
+	  // In general, you DO NOT want exception specifications in C++: If an exception gets thrown
+	  // that doesn't match the exception specification, it causes an instantaneous abort of the
+	  // program.
       for (TypeName exception: method.getExceptions())
       {
         MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();

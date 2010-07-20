@@ -23,8 +23,8 @@
         <taskdef resource="jace/ant/task.properties">
             <classpath>
                 <!-- use logback.xml from jace -->
-                <pathelement location="${env.JACE_HOME}/lib"/>
-                <fileset dir="${env.JACE_HOME}/lib" includes="**/*.jar"/>
+                <pathelement location="${env.JACE_HOME}/release/lib"/>
+                <fileset dir="${env.JACE_HOME}/release/lib" includes="**/*.jar"/>
             </classpath>
         </taskdef>
     </target>

@@ -38,15 +38,15 @@ BEGIN_NAMESPACE(jace)
  *   JArray<String> myArray(10);
  *
  *   // Sets the 3rd element to the String, "Hello World".
- *   myArray[ 3 ] = String("Hello World");
+ *   myArray[3] = String("Hello World");
  *
  *   // Retrieves the String, "Hello World" from the array.
- *   String hw = myArray[ 3 ];
+ *   String hw = myArray[3];
  *
  * @author Toby Reyelts
  *
  */
-template <class ElementType> class JArray : public ::jace::proxy::JObject
+template <class ElementType> class JArray: public ::jace::proxy::JObject
 {
 public:
 	/**
@@ -112,7 +112,6 @@ public:
 		#endif
 
 		jobjectArray localArray = ::jace::JArrayHelper::newArray(values.size(), ElementType::staticGetJavaJniClass());
-
 		this->setJavaJniObject(localArray);
 
 		int i = 0;
@@ -231,7 +230,8 @@ public:
 		if (result == 0)
 		{
 			const std::string nameAsType = "[" + ElementType::staticGetJavaJniClass().getNameAsType();
-			// Aparently there is a bug in the JNI docs and arrays require the L...; around objects
+
+			// REFERENCE: http://java.sun.com/javase/6/docs/technotes/guides/jni/spec/types.html#wp16432
 			const std::string name = nameAsType;
 
 			result = boost::shared_ptr<JClassImpl>(new JClassImpl(name, nameAsType));
@@ -263,7 +263,7 @@ public:
 	 *
 	 * <code>
 	 * JArray<JBoolean> javaArray = ...;
-	 * jboolean* nativeArray = new jboolean[ javaArray.size() ];
+	 * jboolean* nativeArray = new jboolean[javaArray.size()];
 	 *
 	 * std::copy(myArray.begin(), myArray.end(), nativeArray);
 	 * </code>
@@ -276,18 +276,18 @@ public:
 	 * is alive. Accessing an Iterator after the destruction of the
 	 * parent array causes undefined behavior.
 	 */
-	class Iterator : public std::iterator<std::random_access_iterator_tag, ElementType>
+	class Iterator: public std::iterator<std::random_access_iterator_tag, ElementType>
 	{
 	public:
-		Iterator(JArray<ElementType>* parent_, int begin_, int end_) :
+		Iterator(JArray<ElementType>* parent_, int _begin, int _end) :
 			parent(parent_),
-			current(begin_),
-			end(end_)
+			current(_begin),
+			end(_end)
 		{
 			#ifdef JACE_CHECK_ARRAYS
-				if (begin_ < 0 || begin_ > parent->length())
+				if (_begin < 0 || _begin > parent->length())
 					throw ::jace::JNIException("[JArray::Iterator::Iterator] begin is out of bounds.");
-				if ((end_ < begin_ && end_ != -1) || end > parent->length())
+				if ((_end < _begin && _end != -1) || end > parent->length())
 					throw ::jace::JNIException("[JArray::Iterator::Iterator] end is out of bounds.");
 			#endif
 
@@ -502,9 +502,6 @@ private:
 	{}
 
 	void release(int begin, int end)
-	{}
-
-	void setElement(ElementType& element, int index)
 	{}
 
 	friend class Iterator;
