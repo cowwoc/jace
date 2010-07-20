@@ -19,7 +19,7 @@
                             outputSources="proxies/source"
                             exportSymbols="true">
             <classpath>
-                <pathelement location="${env.JAVA_HOME}/lib/rt.jar"/>
+                <pathelement location="${java.home}/lib/rt.jar"/>
             </classpath>
             <inputHeaders dir="source"/>
             <inputSources dir="source"/>

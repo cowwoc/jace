@@ -57,7 +57,7 @@
                             outputSources="cpp/source"
                             exportSymbols="true">
             <classpath>
-                <pathelement location="${env.JAVA_HOME}/jre/lib/rt.jar"/>
+                <pathelement location="${java.home}/jre/lib/rt.jar"/>
                 <pathelement path="java/classes"/>
             </classpath>
         </GenerateCppProxies>
