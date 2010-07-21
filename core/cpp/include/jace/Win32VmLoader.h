@@ -30,26 +30,24 @@ BEGIN_NAMESPACE(jace)
  * including Win95, Win98, WinNT*, Win2K, and WinXP.
  *
  * @author Toby Reyelts
- *
  */
-class Win32VmLoader : public ::jace::VmLoader {
-
-  public:
-
+class Win32VmLoader : public ::jace::VmLoader
+{
+public:
   /**
    * The JVM Vendors supported by this loader.
-   *
    */
-  JACE_API enum JVMVendor {
+  JACE_API enum JVMVendor
+	{
     JVMV_SUN,
     JVMV_IBM
   };
 
   /**
    * JVM types supported by this loader.
-   *
    */
-  JACE_API enum JVMType {
+  JACE_API enum JVMType
+	{
     JVMT_DEFAULT, 
     JVMT_CLASSIC, // Up to 1.3
     JVMT_HOTSPOT, // Up to 1.3

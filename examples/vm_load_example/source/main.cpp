@@ -61,8 +61,9 @@ using std::endl;
  */
 int main(int argc, char* argv[])
 {
+  try
+	{
   #ifdef JACE_WANT_DYNAMIC_LOAD
-
     if (argc != 2)
 		{
       cout << "Usage: vm_load_example <path to virtual machine>" << endl;
@@ -80,16 +81,14 @@ int main(int argc, char* argv[])
     StaticVmLoader loader(JNI_VERSION_1_2);
   #endif
 
-  OptionList options;
+		OptionList options;
 
-  options.push_back(ClassPath("."));
-	options.push_back(ClassPath("jace-runtime.jar"));
-	//options.push_back(Verbose (Verbose::JNI));
-	//options.push_back(Verbose (Verbose::CLASS));
-  options.push_back(CustomOption("-Xmx128M"));
+		options.push_back(ClassPath("."));
+		options.push_back(ClassPath("jace-runtime.jar"));
+		//options.push_back(Verbose (Verbose::JNI));
+		//options.push_back(Verbose (Verbose::CLASS));
+		options.push_back(CustomOption("-Xmx128M"));
 
-  try
-	{
     jace::createVm(loader, options);
   }
 	catch (VirtualMachineShutdownError&)

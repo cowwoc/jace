@@ -45,7 +45,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\proxies\include;..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;JACE_PROXY_EXPORTS;JACE_WANT_DYNAMIC_LOAD"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib jace.lib"
+				AdditionalDependencies="jace.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\i386\$(ConfigurationName)&quot;"
@@ -127,7 +127,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\proxies\include;..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;JACE_PROXY_EXPORTS;JACE_WANT_DYNAMIC_LOAD"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -148,7 +148,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib jace.lib"
+				AdditionalDependencies="jace.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)&quot;"
@@ -209,7 +209,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\proxies\include;..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS;JACE_WANT_DYNAMIC_LOAD"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -227,7 +227,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib jace.lib"
+				AdditionalDependencies="jace.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(JAVA32_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\i386\$(ConfigurationName)&quot;"
@@ -290,7 +290,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\proxies\include;..\..\..\..\release\include;&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;&quot;$(BOOST_HOME)&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;JACE_PROXY_EXPORTS;JACE_WANT_DYNAMIC_LOAD"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -308,7 +308,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib jace.lib"
+				AdditionalDependencies="jace.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(JAVA64_HOME)\lib&quot;;&quot;..\..\..\..\release\lib\windows\amd64\$(ConfigurationName)&quot;"

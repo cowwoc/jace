@@ -1,17 +1,9 @@
 #ifndef JACE_ELEMENT_PROXY_HELPER
 #define JACE_ELEMENT_PROXY_HELPER
 
-#ifndef JACE_OS_DEP_H
 #include "os_dep.h"
-#endif
-
-#ifndef JACE_NAMESPACE_H
 #include "namespace.h"
-#endif
-
-#ifndef JACE_JOBJECT_H
 #include "jace/proxy/JObject.h"
-#endif
 
 #include "jni.h"
 

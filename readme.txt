@@ -54,11 +54,13 @@ Building Jace
 -------------
 
 1) Create a system-wide environment variable called %JACE_HOME% that denotes Jace's installastion directory
-2) Open %JACE_HOME%/core/cpp/windows/msvc/jace.sln
-3) Set the solution platform to "i386" for 32-bit mode or "amd64" for 64-bit mode
-4) Build the solution to generate the Jace binary files
-5) Run "ant" in %JACE_HOME% to generate the Jace header files
-6) You'er done.
+2) Create a system-wide environment variable called %JAVA32_HOME% that denotes the installation directory of the 32-bit JDK
+3) Create a system-wide environment variable called %JAVA64_HOME% that denotes the installation directory of the 64-bit JDK
+4) Open %JACE_HOME%/core/cpp/windows/msvc/jace.sln
+5) Set the solution platform to "i386" for 32-bit mode or "amd64" for 64-bit mode
+6) Build the solution to generate the Jace binary files
+7) Run "ant" in %JACE_HOME% to generate the Jace header files
+8) You're done
 
 
 
