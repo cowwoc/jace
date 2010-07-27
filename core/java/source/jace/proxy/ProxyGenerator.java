@@ -426,9 +426,9 @@ public class ProxyGenerator
         if (!returnType.getSimpleName().equals("JVoid"))
           output.write("return ");
 
-        output.write("JMethod<");
+        output.write("JMethod< ");
         output.write("::" + returnType.getFullyQualifiedName("::"));
-        output.write(">");
+        output.write(" >");
         output.write("(\"" + methodName + "\").invoke(");
 
         // If this method is static, we need to provide the class info, otherwise we provide a reference to itself.
@@ -743,8 +743,8 @@ public class ProxyGenerator
         name += "_Jace";
       }
 
-      String fieldType = "::jace::JField<" + "::" + mc.getFullyQualifiedName("::") + ">";
-      String proxyType = "::jace::JFieldProxy<" + "::" + mc.getFullyQualifiedName("::") + ">";
+      String fieldType = "::jace::JField< " + "::" + mc.getFullyQualifiedName("::") + " >";
+      String proxyType = "::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
       FieldAccessFlagSet accessFlagSet = field.getAccessFlags();
 
       Util.generateComment(output, accessFlagSet.getName() + " " + name);
@@ -855,7 +855,7 @@ public class ProxyGenerator
       if (!forPeer && isException(classFile.getClassName()))
       {
         output.write(newLine);
-        output.write("JEnlister<" + className + "> " + className + "::enlister;" + newLine);
+        output.write("JEnlister< " + className + " > " + className + "::enlister;" + newLine);
       }
     }
     catch (ClassNotFoundException e)
@@ -1029,10 +1029,10 @@ public class ProxyGenerator
     output.write("BEGIN_NAMESPACE(jace)" + newLine);
     output.write(newLine);
     output.write("#ifndef PUT_TSDS_IN_HEADER" + newLine);
-    output.write("  template <> ElementProxy<" + fullName
-                 + ">::ElementProxy(jarray array, jvalue element, int index);" + newLine);
-    output.write("  template <> ElementProxy<" + fullName + ">::ElementProxy(const jace::ElementProxy<" + fullName
-                 + ">& proxy);" + newLine);
+    output.write("  template <> ElementProxy< " + fullName
+                 + " >::ElementProxy(jarray array, jvalue element, int index);" + newLine);
+    output.write("  template <> ElementProxy< " + fullName + " >::ElementProxy(const jace::ElementProxy< " + fullName
+                 + " >& proxy);" + newLine);
     output.write("#else" + newLine);
     printElementProxyTsd(output, metaClass);
     output.write("#endif" + newLine);
@@ -1040,12 +1040,12 @@ public class ProxyGenerator
 
     // declare (and if necessary define) the FieldProxy specialization
     output.write("#ifndef PUT_TSDS_IN_HEADER" + newLine);
-    output.write("  template <> JFieldProxy<" + fullName
-                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent);" + newLine);
-    output.write("  template <> JFieldProxy<" + fullName
-                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass);" + newLine);
-    output.write("  template <> JFieldProxy<" + fullName + ">::JFieldProxy(const ::jace::JFieldProxy<" + fullName
-                 + ">& object);" + newLine);
+    output.write("  template <> JFieldProxy< " + fullName
+                 + " >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent);" + newLine);
+    output.write("  template <> JFieldProxy< " + fullName
+                 + " >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass);" + newLine);
+    output.write("  template <> JFieldProxy< " + fullName + " >::JFieldProxy(const ::jace::JFieldProxy< " + fullName
+                 + " >& object);" + newLine);
     output.write("#else" + newLine);
     printFieldProxyTsd(output, metaClass);
     output.write("#endif" + newLine);
@@ -1065,8 +1065,8 @@ public class ProxyGenerator
     String name = "::" + mc.getFullyQualifiedName("::");
 
     // normal constructor
-    output.write("  template <> inline ElementProxy<" + name
-                 + ">::ElementProxy(jarray array, jvalue element, int index): " + newLine);
+    output.write("  template <> inline ElementProxy< " + name
+                 + " >::ElementProxy(jarray array, jvalue element, int index): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object(element), mIndex(index)");
@@ -1080,8 +1080,8 @@ public class ProxyGenerator
     output.write("  }" + newLine);
 
     // copy constructor
-    output.write("  template <> inline ElementProxy<" + name + ">::ElementProxy(const jace::ElementProxy<" + name
-                 + ">& proxy): " + newLine);
+    output.write("  template <> inline ElementProxy< " + name + " >::ElementProxy(const jace::ElementProxy< " + name
+                 + " >& proxy): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object(proxy), mIndex(proxy.mIndex)");
@@ -1107,8 +1107,8 @@ public class ProxyGenerator
     String name = "::" + mc.getFullyQualifiedName("::");
 
     // normal constructor
-    output.write("  template <> inline JFieldProxy<" + name
-                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent): " + newLine);
+    output.write("  template <> inline JFieldProxy< " + name
+                 + " >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object(value), fieldID(_fieldID)");
@@ -1128,8 +1128,8 @@ public class ProxyGenerator
     output.write("  }" + newLine);
 
     // static normal constructor
-    output.write("  template <> inline JFieldProxy<" + name
-                 + ">::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass): " + newLine);
+    output.write("  template <> inline JFieldProxy< " + name
+                 + " >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object(value), fieldID(_fieldID)");
@@ -1145,8 +1145,8 @@ public class ProxyGenerator
     output.write("  }" + newLine);
 
     // copy constructor
-    output.write("  template <> inline JFieldProxy<" + name + ">::JFieldProxy(const JFieldProxy<" + name
-                 + ">& object): " + newLine);
+    output.write("  template <> inline JFieldProxy< " + name + " >::JFieldProxy(const JFieldProxy< " + name
+                 + " >& object): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
       output.write("    Object(object)");
@@ -1514,7 +1514,7 @@ public class ProxyGenerator
       if (reservedFields.contains(name))
         name += "_Jace";
 
-      String type = "::jace::JFieldProxy<" + "::" + mc.getFullyQualifiedName("::") + ">";
+      String type = "::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
       FieldAccessFlagSet accessFlagSet = field.getAccessFlags();
 
       Util.generateComment(output, accessFlagSet.getName() + " " + name);
@@ -1566,7 +1566,7 @@ public class ProxyGenerator
     {
       if (isException(classFile.getClassName()))
       {
-        output.write("static JEnlister<" + className + "> enlister;" + newLine);
+        output.write("static JEnlister< " + className + " > enlister;" + newLine);
         output.write("template <typename T> friend class ::jace::JEnlister;" + newLine);
       }
     }

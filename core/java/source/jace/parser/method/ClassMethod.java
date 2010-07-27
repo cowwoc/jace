@@ -232,7 +232,7 @@ public class ClassMethod
     // read the opening '('
     if (reader.read() != '(')
     {
-      throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
+      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
                                  "It does not begin its parameter list with a '('");
     }
 
@@ -246,13 +246,13 @@ public class ClassMethod
     }
     catch (RuntimeException e)
     {
-      throw new RuntimeException("The descriptor <" + descriptor + "> is invalid", e);
+      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid", e);
     }
 
     // read the closing ')'
     if (reader.read() != ')')
     {
-      throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
+      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
                                  "It does not end its parameter list with a ')'");
     }
 
@@ -263,18 +263,18 @@ public class ClassMethod
     }
     catch (RuntimeException e)
     {
-      throw new RuntimeException("The descriptor <" + descriptor + "> is invalid", e);
+      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid", e);
     }
 
     if (returnType == null)
     {
-      throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
+      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
                                  "It does not specify a valid return type.");
     }
 
     if (reader.read() != -1)
     {
-      throw new RuntimeException("The descriptor <" + descriptor + "> is invalid. " +
+      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
                                  "It does not end after specifying the return type.");
     }
   }

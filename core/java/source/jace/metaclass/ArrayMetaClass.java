@@ -26,13 +26,13 @@ public class ArrayMetaClass implements MetaClass
   @Override
   public String getSimpleName()
   {
-    return "JArray<" + elementType.getSimpleName() + ">";
+    return "JArray< " + elementType.getSimpleName() + " >";
   }
 
   @Override
   public String getFullyQualifiedName(String separator)
   {
-    return "jace::JArray<" + "::" + elementType.getFullyQualifiedName(separator) + ">";
+    return "jace::JArray< " + "::" + elementType.getFullyQualifiedName(separator) + " >";
   }
 
   @Override

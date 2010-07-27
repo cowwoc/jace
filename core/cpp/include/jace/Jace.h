@@ -9,6 +9,8 @@
 #include "jace/JFactory.h"
 #include "jace/VmLoader.h"
 #include "jace/OptionList.h"
+#include "jace/JClass.h"
+#include "jace/proxy/JObject.h"
 
 #ifdef SUPPORTS_SSTREAM
   #include <sstream>
@@ -21,7 +23,6 @@ class Peer;
 END_NAMESPACE(jace)
 
 BEGIN_NAMESPACE_2(jace, proxy)
-class JObject;
 class JValue;
 END_NAMESPACE_2(jace, proxy)
 
@@ -51,7 +52,7 @@ BEGIN_NAMESPACE(jace)
 JACE_API void createVm(const VmLoader& loader,
 											 const OptionList& options,
 											 bool ignoreUnrecognized = true)
-											 throw (VirtualMachineRunningError, JNIException);
+											 throw (JNIException);
 
 /**
  * Destroys the current Java Virtual Machine and tells Jace that it
@@ -134,15 +135,13 @@ JACE_API void detach() throw ();
  *
  * @throws JNIException if the local reference can not be allocated.
  */
-JACE_API jobject newLocalRef(JNIEnv* env, jobject ref);
+JACE_API jobject newLocalRef(JNIEnv* env, jobject ref) throw (JNIException);
 
 
 /**
  * A central point for deleting local references.
- *
- * @throws VirtualMachineShutdownError if the virtual machine is not running
  */
-JACE_API void deleteLocalRef(JNIEnv* env, jobject localRef) throw (VirtualMachineShutdownError);
+JACE_API void deleteLocalRef(JNIEnv* env, jobject localRef);
 
 
 /**

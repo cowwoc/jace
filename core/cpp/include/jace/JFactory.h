@@ -35,7 +35,7 @@ public:
 	 * Creates a new instance of the value type
 	 * for this JFactory.
 	 */
-	JACE_API virtual boost::shared_ptr<::jace::proxy::JValue> create(jvalue val) = 0;
+	JACE_API virtual boost::shared_ptr< ::jace::proxy::JValue > create(jvalue val) = 0;
 
 
 	/**

@@ -39,7 +39,7 @@ public class ConstantFactory {
     ConstantReader reader = getReader(tag);
 
     if (reader == null) {
-      throw new ClassFormatError("Unrecognized constant tag value <" + tag + ">");
+      throw new ClassFormatError("Unrecognized constant tag value < " + tag + " >");
     }
 
     return reader.readConstant(input, pool);

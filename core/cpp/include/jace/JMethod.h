@@ -33,7 +33,7 @@ BEGIN_NAMESPACE(jace)
 /**
  * Transforms a JArguments to a vector of jvalue's.
  */
-JACE_API std::vector<const jvalue> toVector(const JArguments& arguments);
+JACE_API std::vector<jvalue> toVector(const JArguments& arguments);
 
 /**
  * Represents a java method.

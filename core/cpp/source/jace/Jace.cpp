@@ -407,7 +407,7 @@ void setJavaVmImpl(JavaVM* _jvm) throw (JNIException)
 
 void createVm(const VmLoader& loader,
               const OptionList& options,
-              bool ignoreUnrecognized)
+              bool ignoreUnrecognized) throw (JNIException)
 {
 	JavaVM* jvm;
   JNIEnv* env;
@@ -447,7 +447,7 @@ extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown(J
 }
 
 
-void destroyVm()
+void destroyVm() throw (JNIException)
 {
 	jint jniVersionBeforeShutdown;
 	JavaVM* jvmBeforeShutdown;
@@ -475,10 +475,11 @@ void destroyVm()
  * This method is equivilent to attach(0, 0, false).
  *
  * @throws JNIException if an error occurs while trying to attach the current thread.
+ * @throws VirtualMachineShutdownError if the virtual machine is shut down
  * @see AttachCurrentThread
  * @see attach(const jobject, const char*, const bool)
  */
-JNIEnv* attach() throw (JNIException)
+JNIEnv* attach() throw (JNIException, VirtualMachineShutdownError)
 {
 	return attach(0, 0, false);
 }
@@ -492,10 +493,11 @@ JNIEnv* attach() throw (JNIException)
  * @param name the thread name, or null
  * @param daemon true if the thread should be attached as a daemon thread
  * @throws JNIException if an error occurs while trying to attach the current thread.
+ * @throws VirtualMachineShutdownError if the virtual machine is shut down
  * @see AttachCurrentThread
  * @see AttachCurrentThreadAsDaemon
  */
-JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw (JNIException)
+JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) throw (JNIException, VirtualMachineShutdownError)
 {
 	boost::mutex::scoped_lock lock(jvmMutex);
 	if (jvm == 0)
@@ -535,7 +537,7 @@ void enlist(JFactory* factory)
 }
 
 
-jobject newLocalRef(JNIEnv* env, jobject ref) throw (VirtualMachineShutdownError)
+jobject newLocalRef(JNIEnv* env, jobject ref) throw (JNIException)
 {
   jobject localRef = env->NewLocalRef(ref);
   if (!localRef)
@@ -611,7 +613,7 @@ void catchAndThrow()
   jlong nativeHandle = env->CallLongMethod(jPeer, handleID);
   catchAndThrow();
 
-  return reinterpret_cast<::jace::Peer*>(nativeHandle);
+  return reinterpret_cast< ::jace::Peer* >(nativeHandle);
 }
 
 JavaVM* getJavaVm()
@@ -619,7 +621,7 @@ JavaVM* getJavaVm()
   return jvm;
 }
 
-void setJavaVm(JavaVM* _jvm) throw (JNIException)
+void setJavaVm(JavaVM* _jvm) throw (VirtualMachineRunningError, JNIException)
 {
 	if (_jvm == 0)
 		throw new JNIException("jvm may not be null");

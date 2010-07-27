@@ -7,7 +7,7 @@ BEGIN_NAMESPACE (jace)
  *
  */
 template <> inline
-ElementProxy<::jace::proxy::types::JBoolean>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JBoolean >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JBoolean(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -15,7 +15,7 @@ ElementProxy<::jace::proxy::types::JBoolean>::ElementProxy(jarray array, jvalue 
 }
 
 template <> inline
-::jace::proxy::types::JBoolean& ElementProxy<::jace::proxy::types::JBoolean>::operator=(const ::jace::proxy::types::JBoolean& type)
+::jace::proxy::types::JBoolean& ElementProxy< ::jace::proxy::types::JBoolean >::operator=(const ::jace::proxy::types::JBoolean& type)
 {
   JNIEnv* env = attach();
   jbooleanArray array = static_cast<jbooleanArray>(parent);
@@ -25,7 +25,7 @@ template <> inline
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JByte>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JByte >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JByte(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -33,7 +33,7 @@ ElementProxy<::jace::proxy::types::JByte>::ElementProxy(jarray array, jvalue ele
 }
 
 template <> inline
-::jace::proxy::types::JByte& ElementProxy<::jace::proxy::types::JByte>::operator=(const ::jace::proxy::types::JByte& type)
+::jace::proxy::types::JByte& ElementProxy< ::jace::proxy::types::JByte >::operator=(const ::jace::proxy::types::JByte& type)
 {
   JNIEnv* env = attach();
   jbyteArray array = static_cast<jbyteArray>(parent);
@@ -43,7 +43,7 @@ template <> inline
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JChar>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JChar >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JChar(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -51,7 +51,7 @@ ElementProxy<::jace::proxy::types::JChar>::ElementProxy(jarray array, jvalue ele
 }
 
 template <> inline
-::jace::proxy::types::JChar& ElementProxy<::jace::proxy::types::JChar>::operator=(const ::jace::proxy::types::JChar& type)
+::jace::proxy::types::JChar& ElementProxy< ::jace::proxy::types::JChar >::operator=(const ::jace::proxy::types::JChar& type)
 {
   JNIEnv* env = attach();
   jcharArray array = static_cast<jcharArray>(parent);
@@ -61,7 +61,7 @@ template <> inline
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JDouble>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JDouble >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JDouble(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -69,7 +69,7 @@ ElementProxy<::jace::proxy::types::JDouble>::ElementProxy(jarray array, jvalue e
 }
 
 template <> inline
-::jace::proxy::types::JDouble& ElementProxy<::jace::proxy::types::JDouble>::operator=(const ::jace::proxy::types::JDouble& type)
+::jace::proxy::types::JDouble& ElementProxy< ::jace::proxy::types::JDouble >::operator=(const ::jace::proxy::types::JDouble& type)
 {
   JNIEnv* env = attach();
   jdoubleArray array = static_cast<jdoubleArray>(parent);
@@ -79,7 +79,7 @@ template <> inline
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JFloat>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JFloat >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JFloat(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -87,7 +87,7 @@ ElementProxy<::jace::proxy::types::JFloat>::ElementProxy(jarray array, jvalue el
 }
 
 template <> inline
-::jace::proxy::types::JFloat& ElementProxy<::jace::proxy::types::JFloat>::operator=(const ::jace::proxy::types::JFloat& type)
+::jace::proxy::types::JFloat& ElementProxy< ::jace::proxy::types::JFloat >::operator=(const ::jace::proxy::types::JFloat& type)
 {
   JNIEnv* env = attach();
   jfloatArray array = static_cast<jfloatArray>(parent);
@@ -97,7 +97,7 @@ template <> inline
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JInt>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JInt >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JInt(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -105,7 +105,7 @@ ElementProxy<::jace::proxy::types::JInt>::ElementProxy(jarray array, jvalue elem
 }
 
 template <> inline
-::jace::proxy::types::JInt& ElementProxy<::jace::proxy::types::JInt>::operator=(const ::jace::proxy::types::JInt& type)
+::jace::proxy::types::JInt& ElementProxy< ::jace::proxy::types::JInt >::operator=(const ::jace::proxy::types::JInt& type)
 {
   JNIEnv* env = attach();
   jintArray array = static_cast<jintArray>(parent);
@@ -115,7 +115,7 @@ template <> inline
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JLong>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JLong >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JLong(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -123,7 +123,7 @@ ElementProxy<::jace::proxy::types::JLong>::ElementProxy(jarray array, jvalue ele
 }
 
 template <> inline
-::jace::proxy::types::JLong& ElementProxy<::jace::proxy::types::JLong>::operator=(const ::jace::proxy::types::JLong& type)
+::jace::proxy::types::JLong& ElementProxy< ::jace::proxy::types::JLong >::operator=(const ::jace::proxy::types::JLong& type)
 {
   JNIEnv* env = attach();
   jlongArray array = static_cast<jlongArray>(parent);
@@ -133,7 +133,7 @@ template <> inline
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JShort>::ElementProxy(jarray array, jvalue element, int index): 
+ElementProxy< ::jace::proxy::types::JShort >::ElementProxy(jarray array, jvalue element, int index): 
   ::jace::proxy::types::JShort(element), mIndex(index)
 {
   JNIEnv* env = attach();
@@ -141,7 +141,7 @@ ElementProxy<::jace::proxy::types::JShort>::ElementProxy(jarray array, jvalue el
 }
 
 template <> inline
-::jace::proxy::types::JShort& ElementProxy<::jace::proxy::types::JShort>::operator=(const ::jace::proxy::types::JShort& type)
+::jace::proxy::types::JShort& ElementProxy< ::jace::proxy::types::JShort >::operator=(const ::jace::proxy::types::JShort& type)
 {
   JNIEnv* env = attach();
   jshortArray array = static_cast<jshortArray>(parent);

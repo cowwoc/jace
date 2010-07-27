@@ -7,7 +7,7 @@ BEGIN_NAMESPACE(jace)
  */
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JBoolean> JField<::jace::proxy::types::JBoolean>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JBoolean > JField< ::jace::proxy::types::JBoolean >::get(::jace::proxy::JObject& object)
 { 
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -24,12 +24,12 @@ JFieldProxy<::jace::proxy::types::JBoolean> JField<::jace::proxy::types::JBoolea
   jvalue value;
   value.z = result;
 
-  return ::jace::JFieldProxy<::jace::proxy::types::JBoolean>(fieldID, value, static_cast<jobject>(object));
+  return ::jace::JFieldProxy< ::jace::proxy::types::JBoolean >(fieldID, value, static_cast<jobject>(object));
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JBoolean> JField<::jace::proxy::types::JBoolean>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JBoolean > JField< ::jace::proxy::types::JBoolean >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -45,12 +45,12 @@ JFieldProxy<::jace::proxy::types::JBoolean> JField<::jace::proxy::types::JBoolea
   jvalue value;
   value.z = result;
 
-  return JFieldProxy<::jace::proxy::types::JBoolean>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JBoolean >(fieldID, value, jClass.getClass());
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JByte> JField<::jace::proxy::types::JByte>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JByte > JField< ::jace::proxy::types::JByte >::get(::jace::proxy::JObject& object)
 {
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -67,12 +67,12 @@ JFieldProxy<::jace::proxy::types::JByte> JField<::jace::proxy::types::JByte>::ge
   jvalue value;
   value.b = result;
 
-  return JFieldProxy<::jace::proxy::types::JByte>(fieldID, value, static_cast<jobject>(object));
+  return JFieldProxy< ::jace::proxy::types::JByte >(fieldID, value, static_cast<jobject>(object));
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JByte> JField<::jace::proxy::types::JByte>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JByte > JField< ::jace::proxy::types::JByte >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -88,12 +88,12 @@ JFieldProxy<::jace::proxy::types::JByte> JField<::jace::proxy::types::JByte>::ge
   jvalue value;
   value.b = result;
 
-  return JFieldProxy<::jace::proxy::types::JByte>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JByte >(fieldID, value, jClass.getClass());
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JChar> JField<::jace::proxy::types::JChar>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JChar > JField< ::jace::proxy::types::JChar >::get(::jace::proxy::JObject& object)
 {
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -110,12 +110,12 @@ JFieldProxy<::jace::proxy::types::JChar> JField<::jace::proxy::types::JChar>::ge
   jvalue value;
   value.c = result;
 
-  return JFieldProxy<::jace::proxy::types::JChar>(fieldID, value, static_cast<jobject>(object));
+  return JFieldProxy< ::jace::proxy::types::JChar >(fieldID, value, static_cast<jobject>(object));
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JChar> JField<::jace::proxy::types::JChar>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JChar > JField< ::jace::proxy::types::JChar >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -131,12 +131,12 @@ JFieldProxy<::jace::proxy::types::JChar> JField<::jace::proxy::types::JChar>::ge
   jvalue value;
   value.c = result;
 
-  return JFieldProxy<::jace::proxy::types::JChar>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JChar >(fieldID, value, jClass.getClass());
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JShort> JField<::jace::proxy::types::JShort>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JShort > JField< ::jace::proxy::types::JShort >::get(::jace::proxy::JObject& object)
 {
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -153,12 +153,12 @@ JFieldProxy<::jace::proxy::types::JShort> JField<::jace::proxy::types::JShort>::
   jvalue value;
   value.s = result;
 
-  return JFieldProxy<::jace::proxy::types::JShort>(fieldID, value, static_cast<jobject>(object));
+  return JFieldProxy< ::jace::proxy::types::JShort >(fieldID, value, static_cast<jobject>(object));
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JShort> JField<::jace::proxy::types::JShort>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JShort > JField< ::jace::proxy::types::JShort >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -174,12 +174,12 @@ JFieldProxy<::jace::proxy::types::JShort> JField<::jace::proxy::types::JShort>::
   jvalue value;
   value.s = result;
 
-  return JFieldProxy<::jace::proxy::types::JShort>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JShort >(fieldID, value, jClass.getClass());
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JInt> JField<::jace::proxy::types::JInt>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JInt > JField< ::jace::proxy::types::JInt >::get(::jace::proxy::JObject& object)
 {
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -196,11 +196,11 @@ JFieldProxy<::jace::proxy::types::JInt> JField<::jace::proxy::types::JInt>::get(
   jvalue value;
   value.i = result;
 
-  return JFieldProxy<::jace::proxy::types::JInt>(fieldID, value, static_cast<jobject>(object));
+  return JFieldProxy< ::jace::proxy::types::JInt >(fieldID, value, static_cast<jobject>(object));
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JInt> JField<::jace::proxy::types::JInt>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JInt > JField< ::jace::proxy::types::JInt >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -216,12 +216,12 @@ JFieldProxy<::jace::proxy::types::JInt> JField<::jace::proxy::types::JInt>::get(
   jvalue value;
   value.i = result;
 
-  return JFieldProxy<::jace::proxy::types::JInt>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JInt >(fieldID, value, jClass.getClass());
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JLong> JField<::jace::proxy::types::JLong>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JLong > JField< ::jace::proxy::types::JLong >::get(::jace::proxy::JObject& object)
 {
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -238,12 +238,12 @@ JFieldProxy<::jace::proxy::types::JLong> JField<::jace::proxy::types::JLong>::ge
   jvalue value;
   value.j = result;
 
-  return JFieldProxy<::jace::proxy::types::JLong>(fieldID, value, static_cast<jobject>(object));
+  return JFieldProxy< ::jace::proxy::types::JLong >(fieldID, value, static_cast<jobject>(object));
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JLong> JField<::jace::proxy::types::JLong>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JLong > JField< ::jace::proxy::types::JLong >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -259,13 +259,13 @@ JFieldProxy<::jace::proxy::types::JLong> JField<::jace::proxy::types::JLong>::ge
   jvalue value;
   value.j = result;
 
-  return JFieldProxy<::jace::proxy::types::JLong>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JLong >(fieldID, value, jClass.getClass());
 }
 
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JFloat> JField<::jace::proxy::types::JFloat>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JFloat > JField< ::jace::proxy::types::JFloat >::get(::jace::proxy::JObject& object)
 {
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -282,12 +282,12 @@ JFieldProxy<::jace::proxy::types::JFloat> JField<::jace::proxy::types::JFloat>::
   jvalue value;
   value.f = result;
 
-  return JFieldProxy<::jace::proxy::types::JFloat>(fieldID, value, static_cast<jobject>(object));
+  return JFieldProxy< ::jace::proxy::types::JFloat >(fieldID, value, static_cast<jobject>(object));
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JFloat> JField<::jace::proxy::types::JFloat>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JFloat > JField< ::jace::proxy::types::JFloat >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -303,12 +303,12 @@ JFieldProxy<::jace::proxy::types::JFloat> JField<::jace::proxy::types::JFloat>::
   jvalue value;
   value.f = result;
 
-  return JFieldProxy<::jace::proxy::types::JFloat>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JFloat >(fieldID, value, jClass.getClass());
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JDouble> JField<::jace::proxy::types::JDouble>::get(::jace::proxy::JObject& object)
+JFieldProxy< ::jace::proxy::types::JDouble > JField< ::jace::proxy::types::JDouble >::get(::jace::proxy::JObject& object)
 {
   // Get the fieldID for the field belonging to the given object.
   const JClass& parentClass = object.getJavaJniClass();
@@ -325,12 +325,12 @@ JFieldProxy<::jace::proxy::types::JDouble> JField<::jace::proxy::types::JDouble>
   jvalue value;
   value.d = result;
 
-  return JFieldProxy<::jace::proxy::types::JDouble>(fieldID, value, static_cast<jobject>(object));
+  return JFieldProxy< ::jace::proxy::types::JDouble >(fieldID, value, static_cast<jobject>(object));
 }
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JDouble> JField<::jace::proxy::types::JDouble>::get(const JClass& jClass)
+JFieldProxy< ::jace::proxy::types::JDouble > JField< ::jace::proxy::types::JDouble >::get(const JClass& jClass)
 {
   // Get the fieldID for the field belonging to the given class.
   jfieldID fieldID = getFieldID(jClass, true);
@@ -346,7 +346,7 @@ JFieldProxy<::jace::proxy::types::JDouble> JField<::jace::proxy::types::JDouble>
   jvalue value;
   value.d = result;
 
-  return JFieldProxy<::jace::proxy::types::JDouble>(fieldID, value, jClass.getClass());
+  return JFieldProxy< ::jace::proxy::types::JDouble >(fieldID, value, jClass.getClass());
 }
 
 END_NAMESPACE(jace)

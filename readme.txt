@@ -164,6 +164,7 @@ Compatibility breakers:
 - JInt.getInt() replaced by JInt::operator jint()
 - JShort.getShort() replaced by JShort::operator jshort()
 - JLong.getLong() replaced by JLong::operator jlong()
+- %JACE_HOME% should now point to /jace/trunk, not /jace/trunk/release
 
 -------------- New changes in 1.1.1
 

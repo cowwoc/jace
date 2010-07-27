@@ -7,7 +7,7 @@
 BEGIN_NAMESPACE(jace)
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JBoolean>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+JFieldProxy< ::jace::proxy::types::JBoolean >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
   ::jace::proxy::types::JBoolean(value), fieldID(_fieldID)
 {
   if (_parent)
@@ -22,7 +22,7 @@ JFieldProxy<::jace::proxy::types::JBoolean>::JFieldProxy(jfieldID _fieldID, jval
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JBoolean>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JBoolean >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JBoolean(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -31,7 +31,7 @@ JFieldProxy<::jace::proxy::types::JBoolean>::JFieldProxy(jfieldID _fieldID, jval
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JBoolean>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JBoolean>& object):
+JFieldProxy< ::jace::proxy::types::JBoolean >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JBoolean >& object):
   ::jace::proxy::types::JBoolean(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -52,7 +52,7 @@ JFieldProxy<::jace::proxy::types::JBoolean>::JFieldProxy(const JFieldProxy<::jac
 }
 
 template <> inline
-jace::proxy::types::JBoolean& JFieldProxy<::jace::proxy::types::JBoolean>::operator=(const ::jace::proxy::types::JBoolean& type)
+jace::proxy::types::JBoolean& JFieldProxy< ::jace::proxy::types::JBoolean >::operator=(const ::jace::proxy::types::JBoolean& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);
@@ -73,7 +73,7 @@ jace::proxy::types::JBoolean& JFieldProxy<::jace::proxy::types::JBoolean>::opera
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JByte>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+JFieldProxy< ::jace::proxy::types::JByte >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
   ::jace::proxy::types::JByte(value), fieldID(_fieldID)
 {
   if (_parent)
@@ -89,7 +89,7 @@ JFieldProxy<::jace::proxy::types::JByte>::JFieldProxy(jfieldID _fieldID, jvalue 
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JByte>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JByte >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JByte(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -98,7 +98,7 @@ JFieldProxy<::jace::proxy::types::JByte>::JFieldProxy(jfieldID _fieldID, jvalue 
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JByte>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JByte>& object):
+JFieldProxy< ::jace::proxy::types::JByte >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JByte >& object):
   ::jace::proxy::types::JByte(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -119,7 +119,7 @@ JFieldProxy<::jace::proxy::types::JByte>::JFieldProxy(const JFieldProxy<::jace::
 }
 
 template <> inline
-jace::proxy::types::JByte& JFieldProxy<::jace::proxy::types::JByte>::operator=(const ::jace::proxy::types::JByte& type)
+jace::proxy::types::JByte& JFieldProxy< ::jace::proxy::types::JByte >::operator=(const ::jace::proxy::types::JByte& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);
@@ -140,7 +140,7 @@ jace::proxy::types::JByte& JFieldProxy<::jace::proxy::types::JByte>::operator=(c
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JChar>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent)
+JFieldProxy< ::jace::proxy::types::JChar >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent)
 :
   ::jace::proxy::types::JChar(value), fieldID(_fieldID)
 {
@@ -156,7 +156,7 @@ JFieldProxy<::jace::proxy::types::JChar>::JFieldProxy(jfieldID _fieldID, jvalue 
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JChar>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JChar >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JChar(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -165,7 +165,7 @@ JFieldProxy<::jace::proxy::types::JChar>::JFieldProxy(jfieldID _fieldID, jvalue 
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JChar>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JChar>& object) :
+JFieldProxy< ::jace::proxy::types::JChar >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JChar >& object) :
   ::jace::proxy::types::JChar(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -186,7 +186,7 @@ JFieldProxy<::jace::proxy::types::JChar>::JFieldProxy(const JFieldProxy<::jace::
 }
 
 template <> inline
-jace::proxy::types::JChar& JFieldProxy<::jace::proxy::types::JChar>::operator=(const ::jace::proxy::types::JChar& type)
+jace::proxy::types::JChar& JFieldProxy< ::jace::proxy::types::JChar >::operator=(const ::jace::proxy::types::JChar& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);
@@ -207,7 +207,7 @@ jace::proxy::types::JChar& JFieldProxy<::jace::proxy::types::JChar>::operator=(c
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JShort>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+JFieldProxy< ::jace::proxy::types::JShort >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
   ::jace::proxy::types::JShort(value), fieldID(_fieldID)
 {
   if (_parent)
@@ -222,7 +222,7 @@ JFieldProxy<::jace::proxy::types::JShort>::JFieldProxy(jfieldID _fieldID, jvalue
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JShort>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JShort >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JShort(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -231,7 +231,7 @@ JFieldProxy<::jace::proxy::types::JShort>::JFieldProxy(jfieldID _fieldID, jvalue
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JShort>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JShort>& object):
+JFieldProxy< ::jace::proxy::types::JShort >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JShort >& object):
   ::jace::proxy::types::JShort(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -252,7 +252,7 @@ JFieldProxy<::jace::proxy::types::JShort>::JFieldProxy(const JFieldProxy<::jace:
 }
 
 template <> inline
-jace::proxy::types::JShort& JFieldProxy<::jace::proxy::types::JShort>::operator=(const ::jace::proxy::types::JShort& type)
+jace::proxy::types::JShort& JFieldProxy< ::jace::proxy::types::JShort >::operator=(const ::jace::proxy::types::JShort& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);
@@ -273,7 +273,7 @@ jace::proxy::types::JShort& JFieldProxy<::jace::proxy::types::JShort>::operator=
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JInt>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+JFieldProxy< ::jace::proxy::types::JInt >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
   ::jace::proxy::types::JInt(value), fieldID(_fieldID)
 {
   if (_parent)
@@ -288,7 +288,7 @@ JFieldProxy<::jace::proxy::types::JInt>::JFieldProxy(jfieldID _fieldID, jvalue v
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JInt>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JInt >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JInt(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -297,7 +297,7 @@ JFieldProxy<::jace::proxy::types::JInt>::JFieldProxy(jfieldID _fieldID, jvalue v
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JInt>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JInt>& object):
+JFieldProxy< ::jace::proxy::types::JInt >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JInt >& object):
   ::jace::proxy::types::JInt(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -318,7 +318,7 @@ JFieldProxy<::jace::proxy::types::JInt>::JFieldProxy(const JFieldProxy<::jace::p
 }
 
 template <> inline
-jace::proxy::types::JInt& JFieldProxy<::jace::proxy::types::JInt>::operator=(const ::jace::proxy::types::JInt& type)
+jace::proxy::types::JInt& JFieldProxy< ::jace::proxy::types::JInt >::operator=(const ::jace::proxy::types::JInt& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);
@@ -339,7 +339,7 @@ jace::proxy::types::JInt& JFieldProxy<::jace::proxy::types::JInt>::operator=(con
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JLong>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+JFieldProxy< ::jace::proxy::types::JLong >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
   ::jace::proxy::types::JLong(value), fieldID(_fieldID)
 {
   if (_parent)
@@ -354,7 +354,7 @@ JFieldProxy<::jace::proxy::types::JLong>::JFieldProxy(jfieldID _fieldID, jvalue 
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JLong>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JLong >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JLong(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -363,7 +363,7 @@ JFieldProxy<::jace::proxy::types::JLong>::JFieldProxy(jfieldID _fieldID, jvalue 
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JLong>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JLong>& object):
+JFieldProxy< ::jace::proxy::types::JLong >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JLong >& object):
   ::jace::proxy::types::JLong(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -384,7 +384,7 @@ JFieldProxy<::jace::proxy::types::JLong>::JFieldProxy(const JFieldProxy<::jace::
 }
 
 template <> inline
-jace::proxy::types::JLong& JFieldProxy<::jace::proxy::types::JLong>::operator=(const ::jace::proxy::types::JLong& type)
+jace::proxy::types::JLong& JFieldProxy< ::jace::proxy::types::JLong >::operator=(const ::jace::proxy::types::JLong& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);
@@ -404,7 +404,7 @@ jace::proxy::types::JLong& JFieldProxy<::jace::proxy::types::JLong>::operator=(c
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JFloat>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+JFieldProxy< ::jace::proxy::types::JFloat >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
   ::jace::proxy::types::JFloat(value), fieldID(_fieldID)
 {
   if (_parent)
@@ -419,7 +419,7 @@ JFieldProxy<::jace::proxy::types::JFloat>::JFieldProxy(jfieldID _fieldID, jvalue
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JFloat>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JFloat >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JFloat(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -428,7 +428,7 @@ JFieldProxy<::jace::proxy::types::JFloat>::JFieldProxy(jfieldID _fieldID, jvalue
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JFloat>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JFloat>& object):
+JFieldProxy< ::jace::proxy::types::JFloat >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JFloat >& object):
   ::jace::proxy::types::JFloat(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -449,7 +449,7 @@ JFieldProxy<::jace::proxy::types::JFloat>::JFieldProxy(const JFieldProxy<::jace:
 }
 
 template <> inline
-jace::proxy::types::JFloat& JFieldProxy<::jace::proxy::types::JFloat>::operator=(const ::jace::proxy::types::JFloat& type)
+jace::proxy::types::JFloat& JFieldProxy< ::jace::proxy::types::JFloat >::operator=(const ::jace::proxy::types::JFloat& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);
@@ -470,7 +470,7 @@ jace::proxy::types::JFloat& JFieldProxy<::jace::proxy::types::JFloat>::operator=
 
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JDouble>::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
+JFieldProxy< ::jace::proxy::types::JDouble >::JFieldProxy(jfieldID _fieldID, jvalue value, jobject _parent):
   ::jace::proxy::types::JDouble(value), fieldID(_fieldID)
 {
   if (_parent)
@@ -485,7 +485,7 @@ JFieldProxy<::jace::proxy::types::JDouble>::JFieldProxy(jfieldID _fieldID, jvalu
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JDouble>::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
+JFieldProxy< ::jace::proxy::types::JDouble >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass):
   ::jace::proxy::types::JDouble(value), fieldID(_fieldID)
 {
   parent = 0;
@@ -494,7 +494,7 @@ JFieldProxy<::jace::proxy::types::JDouble>::JFieldProxy(jfieldID _fieldID, jvalu
 }
 
 template <> inline
-JFieldProxy<::jace::proxy::types::JDouble>::JFieldProxy(const JFieldProxy<::jace::proxy::types::JDouble>& object):
+JFieldProxy< ::jace::proxy::types::JDouble >::JFieldProxy(const JFieldProxy< ::jace::proxy::types::JDouble >& object):
   ::jace::proxy::types::JDouble(static_cast<jvalue>(object)), fieldID(object.fieldID)
 {
   if (object.parent)
@@ -515,7 +515,7 @@ JFieldProxy<::jace::proxy::types::JDouble>::JFieldProxy(const JFieldProxy<::jace
 }
 
 template <> inline
-jace::proxy::types::JDouble& JFieldProxy<::jace::proxy::types::JDouble>::operator=(const ::jace::proxy::types::JDouble& type)
+jace::proxy::types::JDouble& JFieldProxy< ::jace::proxy::types::JDouble >::operator=(const ::jace::proxy::types::JDouble& type)
 {
   JNIEnv* env = attach();
   jvalue value = static_cast<jvalue>(type);

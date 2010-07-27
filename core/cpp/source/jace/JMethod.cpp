@@ -18,10 +18,10 @@ BEGIN_NAMESPACE(jace)
 /**
  * Transforms a JArguments to a vector of jvalue's.
  */
-vector<const jvalue> toVector(const JArguments& arguments)
+vector<jvalue> toVector(const JArguments& arguments)
 {
   typedef list<const JValue*> ValueList;
-  vector<const jvalue> argsVector;
+  vector<jvalue> argsVector;
   ValueList argsList = arguments.asList();
 
   ValueList::iterator end = argsList.end();

@@ -3,19 +3,9 @@
 
 #include "jace/os_dep.h"
 #include "jace/namespace.h"
-#include "jace/Jace.h"
 #include "jace/JArguments.h"
 #include "jace/JClassImpl.h"
 #include "jace/proxy/JValue.h"
-#include "jace/proxy/types/JBoolean.h"
-#include "jace/proxy/types/JByte.h"
-#include "jace/proxy/types/JChar.h"
-#include "jace/proxy/types/JDouble.h"
-#include "jace/proxy/types/JFloat.h"
-#include "jace/proxy/types/JInt.h"
-#include "jace/proxy/types/JLong.h"
-#include "jace/proxy/types/JShort.h"
-#include "jace/proxy/types/JVoid.h"
 
 
 BEGIN_NAMESPACE_2(jace, proxy)

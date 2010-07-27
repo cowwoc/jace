@@ -13,7 +13,7 @@ BEGIN_NAMESPACE(jace)
  */
 
 template <> inline
-JArray<::jace::proxy::types::JBoolean>::JArray(int size)
+JArray< ::jace::proxy::types::JBoolean >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewBooleanArray(size);
@@ -39,7 +39,7 @@ JArray<::jace::proxy::types::JBoolean>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JBoolean> JArray<::jace::proxy::types::JBoolean>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JBoolea n> JArray< ::jace::proxy::types::JBoolean >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -57,11 +57,11 @@ ElementProxy<::jace::proxy::types::JBoolean> JArray<::jace::proxy::types::JBoole
   env->GetBooleanArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.z = val;
-  return ElementProxy<::jace::proxy::types::JBoolean>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JBoolean >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JBoolean> JArray<::jace::proxy::types::JBoolean>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JBoolean > JArray< ::jace::proxy::types::JBoolean >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -79,12 +79,12 @@ const ElementProxy<::jace::proxy::types::JBoolean> JArray<::jace::proxy::types::
   env->GetBooleanArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.z = val;
-  return ElementProxy<::jace::proxy::types::JBoolean>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JBoolean >(getJavaJniArray(), value, index);
 }
 
 
 template <> inline
-JArray<::jace::proxy::types::JByte>::JArray(int size)
+JArray< ::jace::proxy::types::JByte >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewByteArray(size);
@@ -105,7 +105,7 @@ JArray<::jace::proxy::types::JByte>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JByte> JArray<::jace::proxy::types::JByte>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JByte > JArray< ::jace::proxy::types::JByte >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -123,11 +123,11 @@ ElementProxy<::jace::proxy::types::JByte> JArray<::jace::proxy::types::JByte>::o
   env->GetByteArrayRegion(thisArray, index, 1, &byte);
   jvalue value;
   value.b = byte;
-  return ElementProxy<::jace::proxy::types::JByte>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JByte >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JByte> JArray<::jace::proxy::types::JByte>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JByte > JArray< ::jace::proxy::types::JByte >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -145,11 +145,11 @@ const ElementProxy<::jace::proxy::types::JByte> JArray<::jace::proxy::types::JBy
   env->GetByteArrayRegion(thisArray, index, 1, &byte);
   jvalue value;
   value.b = byte;
-  return ElementProxy<::jace::proxy::types::JByte>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JByte >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-JArray<::jace::proxy::types::JChar>::JArray(int size)
+JArray< ::jace::proxy::types::JChar >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewCharArray(size);
@@ -170,7 +170,7 @@ JArray<::jace::proxy::types::JChar>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JChar> JArray<::jace::proxy::types::JChar>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JChar > JArray< ::jace::proxy::types::JChar >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -188,11 +188,11 @@ ElementProxy<::jace::proxy::types::JChar> JArray<::jace::proxy::types::JChar>::o
   env->GetCharArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.c = val;
-  return ElementProxy<::jace::proxy::types::JChar>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JChar >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JChar> JArray<::jace::proxy::types::JChar>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JChar > JArray< ::jace::proxy::types::JChar >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -210,12 +210,12 @@ const ElementProxy<::jace::proxy::types::JChar> JArray<::jace::proxy::types::JCh
   env->GetCharArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.c = val;
-  return ElementProxy<::jace::proxy::types::JChar>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JChar >(getJavaJniArray(), value, index);
 }
 
 
 template <> inline
-JArray<::jace::proxy::types::JDouble>::JArray(int size)
+JArray< ::jace::proxy::types::JDouble >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewDoubleArray(size);
@@ -236,7 +236,7 @@ JArray<::jace::proxy::types::JDouble>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JDouble> JArray<::jace::proxy::types::JDouble>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JDouble > JArray< ::jace::proxy::types::JDouble >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -254,11 +254,11 @@ ElementProxy<::jace::proxy::types::JDouble> JArray<::jace::proxy::types::JDouble
   env->GetDoubleArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.d = val;
-  return ElementProxy<::jace::proxy::types::JDouble>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JDouble >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JDouble> JArray<::jace::proxy::types::JDouble>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JDouble > JArray< ::jace::proxy::types::JDouble >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -276,12 +276,12 @@ const ElementProxy<::jace::proxy::types::JDouble> JArray<::jace::proxy::types::J
   env->GetDoubleArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.d = val;
-  return ElementProxy<::jace::proxy::types::JDouble>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JDouble >(getJavaJniArray(), value, index);
 }
 
 
 template <> inline
-JArray<::jace::proxy::types::JFloat>::JArray(int size)
+JArray< ::jace::proxy::types::JFloat >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewFloatArray(size);
@@ -302,7 +302,7 @@ JArray<::jace::proxy::types::JFloat>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JFloat> JArray<::jace::proxy::types::JFloat>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JFloat > JArray< ::jace::proxy::types::JFloat >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -320,11 +320,11 @@ ElementProxy<::jace::proxy::types::JFloat> JArray<::jace::proxy::types::JFloat>:
   env->GetFloatArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.f = val;
-  return ElementProxy<::jace::proxy::types::JFloat>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JFloat >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JFloat> JArray<::jace::proxy::types::JFloat>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JFloat > JArray< ::jace::proxy::types::JFloat >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -336,18 +336,18 @@ const ElementProxy<::jace::proxy::types::JFloat> JArray<::jace::proxy::types::JF
       throw ::jace::JNIException("[JArray::operator[]] invalid array index.");
   #endif
 
-  jfloatArray thisArray = static_cast<jfloatArray>(getJavaJniArray());
+  jfloatArray thisArray = static_cast<jfloatArray >(getJavaJniArray());
   JNIEnv* env = attach();
   jfloat val;
   env->GetFloatArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.f = val;
-  return ElementProxy<::jace::proxy::types::JFloat>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JFloat >(getJavaJniArray(), value, index);
 }
 
 
 template <> inline
-JArray<::jace::proxy::types::JInt>::JArray(int size)
+JArray< ::jace::proxy::types::JInt >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewIntArray(size);
@@ -368,7 +368,7 @@ JArray<::jace::proxy::types::JInt>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JInt> JArray<::jace::proxy::types::JInt>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JInt > JArray< ::jace::proxy::types::JInt >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -386,11 +386,11 @@ ElementProxy<::jace::proxy::types::JInt> JArray<::jace::proxy::types::JInt>::ope
   env->GetIntArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.i = val;
-  return ElementProxy<::jace::proxy::types::JInt>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JInt >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JInt> JArray<::jace::proxy::types::JInt>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JInt > JArray< ::jace::proxy::types::JInt >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -408,12 +408,12 @@ const ElementProxy<::jace::proxy::types::JInt> JArray<::jace::proxy::types::JInt
   env->GetIntArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.i = val;
-  return ElementProxy<::jace::proxy::types::JInt>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JInt >(getJavaJniArray(), value, index);
 }
 
 
 template <> inline
-JArray<::jace::proxy::types::JLong>::JArray(int size)
+JArray< ::jace::proxy::types::JLong >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewLongArray(size);
@@ -434,7 +434,7 @@ JArray<::jace::proxy::types::JLong>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JLong> JArray<::jace::proxy::types::JLong>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JLong > JArray< ::jace::proxy::types::JLong >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -452,11 +452,11 @@ ElementProxy<::jace::proxy::types::JLong> JArray<::jace::proxy::types::JLong>::o
   env->GetLongArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.j = val;
-  return ElementProxy<::jace::proxy::types::JLong>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JLong >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JLong> JArray<::jace::proxy::types::JLong>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JLong > JArray< ::jace::proxy::types::JLong >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -474,12 +474,12 @@ const ElementProxy<::jace::proxy::types::JLong> JArray<::jace::proxy::types::JLo
   env->GetLongArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.j = val;
-  return ElementProxy<::jace::proxy::types::JLong>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JLong >(getJavaJniArray(), value, index);
 }
 
 
 template <> inline
-JArray<::jace::proxy::types::JShort>::JArray(int size)
+JArray< ::jace::proxy::types::JShort >::JArray(int size)
 {
   JNIEnv* env = attach();
   jarray array = env->NewShortArray(size);
@@ -500,7 +500,7 @@ JArray<::jace::proxy::types::JShort>::JArray(int size)
 }
 
 template <> inline
-ElementProxy<::jace::proxy::types::JShort> JArray<::jace::proxy::types::JShort>::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JShort > JArray< ::jace::proxy::types::JShort >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -518,11 +518,11 @@ ElementProxy<::jace::proxy::types::JShort> JArray<::jace::proxy::types::JShort>:
   env->GetShortArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.s = val;
-  return ElementProxy<::jace::proxy::types::JShort>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JShort >(getJavaJniArray(), value, index);
 }
 
 template <> inline
-const ElementProxy<::jace::proxy::types::JShort> JArray<::jace::proxy::types::JShort>::operator[](const int& index) const
+const ElementProxy< ::jace::proxy::types::JShort > JArray< ::jace::proxy::types::JShort >::operator[](const int& index) const
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
@@ -540,7 +540,7 @@ const ElementProxy<::jace::proxy::types::JShort> JArray<::jace::proxy::types::JS
   env->GetShortArrayRegion(thisArray, index, 1, &val);
   jvalue value;
   value.s = val;
-  return ElementProxy<::jace::proxy::types::JShort>(getJavaJniArray(), value, index);
+  return ElementProxy< ::jace::proxy::types::JShort >(getJavaJniArray(), value, index);
 }
 
 END_NAMESPACE(jace)

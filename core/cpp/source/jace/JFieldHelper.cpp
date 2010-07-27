@@ -1,5 +1,6 @@
 
 #include "jace/JFieldHelper.h"
+#include "jace/Jace.h"
 
 using jace::proxy::JObject;
 using jace::JClass;
