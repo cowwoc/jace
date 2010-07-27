@@ -39,7 +39,7 @@ JArray< ::jace::proxy::types::JBoolean >::JArray(int size)
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JBoolea n> JArray< ::jace::proxy::types::JBoolean >::operator[](const int& index)
+ElementProxy< ::jace::proxy::types::JBoolean > JArray< ::jace::proxy::types::JBoolean >::operator[](const int& index)
 {
   #ifdef JACE_CHECK_NULLS
     if (this->isNull())
