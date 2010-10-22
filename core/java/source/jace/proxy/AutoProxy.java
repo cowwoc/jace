@@ -17,7 +17,6 @@ import jace.metaclass.VoidClass;
 import jace.parser.ClassFile;
 import jace.proxy.ProxyGenerator.AccessibilityType;
 import jace.proxy.ProxyGenerator.FilteringCollection;
-import jace.util.Util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -151,7 +150,7 @@ public class AutoProxy
           inputFile = inputParentFile;
         assert (inputFile.exists()): inputFile;
         if (!(inputFile.lastModified() > outputSourceFile.lastModified() || inputFile.lastModified() > outputHeaderFile.
-          lastModified()))
+              lastModified()))
         {
           // the input file has not been modified since we last generated the corresponding output files
           if (inputParentFile.isDirectory())
@@ -451,11 +450,15 @@ public class AutoProxy
       if (classPath == null)
         throw new IllegalArgumentException("classPath may not be null");
       if (!outputHeaders.isDirectory())
-        throw new IllegalArgumentException("outputHeaders must be an existing directory: " + outputHeaders.
+      {
+        throw new IllegalArgumentException("outputHeaders refers to a non-existant directory: " + outputHeaders.
           getAbsolutePath());
+      }
       if (!outputSources.isDirectory())
-        throw new IllegalArgumentException("outputSources must be an existing directory: " + outputSources.
+      {
+        throw new IllegalArgumentException("outputSources refers to a non-existant directory: " + outputSources.
           getAbsolutePath());
+      }
       this.inputHeaders = new ArrayList<File>(inputHeaders);
       this.inputSources = new ArrayList<File>(inputSources);
       for (File file: this.inputHeaders)

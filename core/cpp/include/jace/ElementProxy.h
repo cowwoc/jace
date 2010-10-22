@@ -25,7 +25,6 @@ BEGIN_NAMESPACE(jace)
  * its element as required.
  *
  * @author Toby Reyelts
- *
  */
 template <class ElementType> class ElementProxy: public virtual ::jace::proxy::JObject, public ElementType
 {
@@ -37,8 +36,8 @@ public:
 	 * by every proxy type. Every ElementProxy instance should allocate
 	 * a new global ref to its parent array.
 	 */
-	ElementProxy(jarray array, jvalue element, int index):
-		ElementType(element), parent(array), mIndex(index)
+	ElementProxy(jarray array, jvalue element, int _index):
+		ElementType(element), parent(array), index(_index)
 	{
 		// #error "ElementProxy was not properly specialized."
 
@@ -51,7 +50,7 @@ public:
 	 * Copy constructor. This constructor should also never be called. It should be specialized away.
 	 */
 	ElementProxy(const ElementProxy& proxy):
-		ElementType(0), parent(proxy.parent), mIndex(proxy.mIndex)
+		ElementType(0), parent(proxy.parent), index(proxy.index)
 	{
 		std::cout << "ElementProxy was not properly specialized for " <<
 						 ElementType::staticGetJavaJniClass().getName() << std::endl;
@@ -64,7 +63,7 @@ public:
 	 */
 	ElementType& operator=(const ElementType& element)
 	{
-		::jace::ElementProxyHelper::assign(element, mIndex, parent);
+		::jace::ElementProxyHelper::assign(element, index, parent);
 		return *this;
 	}
 
@@ -75,7 +74,7 @@ public:
 	 */
 	const ElementType& operator=(const ElementType& element) const
 	{
-		::jace::ElementProxyHelper::assign(element, mIndex, parent);
+		::jace::ElementProxyHelper::assign(element, index, parent);
 		return *this;
 	}
 
@@ -95,7 +94,7 @@ public:
 
 private:
 	jarray parent;
-	int mIndex;
+	int index;
 };
 
 END_NAMESPACE(jace)

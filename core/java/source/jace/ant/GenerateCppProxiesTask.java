@@ -22,8 +22,9 @@ import org.apache.tools.ant.types.Path;
  * Generates C++ proxies for Java classes.
  *
  * Example:
- * &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source" outputHeaders="output/include"
- * outputSources="output/source" exportSymbols="false" classpath="rt.jar"&gt;
+ * &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source"
+ * outputHeaders="output/include" outputSources="output/source" exportSymbols="false"
+ * classpath="rt.jar"&gt;
  *   &lt;classpath&gt;
  *     &lt;pathelement location="classes"/&gt;
  *   &lt;/classpath&gt;
@@ -43,7 +44,9 @@ import org.apache.tools.ant.types.Path;
 public class GenerateCppProxiesTask extends Task
 {
   private final Collection<File> inputHeaders = new ArrayList<File>();
+  private boolean inputHeadersSpecified = false;
   private final Collection<File> inputSources = new ArrayList<File>();
+  private boolean inputSourcesSpecified = false;
   private File outputHeaders;
   private File outputSources;
   private Path classpath = new Path(getProject());
@@ -64,6 +67,7 @@ public class GenerateCppProxiesTask extends Task
    */
   public void setInputHeaders(String inputHeaders)
   {
+    inputHeadersSpecified = true;
     this.inputHeaders.clear();
     for (String path: inputHeaders.split(File.pathSeparator))
       this.inputHeaders.add(new File(path));
@@ -76,6 +80,7 @@ public class GenerateCppProxiesTask extends Task
    */
   public void setInputSources(String inputSources)
   {
+    inputSourcesSpecified = true;
     this.inputSources.clear();
     for (String path: inputSources.split(File.pathSeparator))
       this.inputSources.add(new File(path));
@@ -135,10 +140,12 @@ public class GenerateCppProxiesTask extends Task
   @Override
   public void execute() throws BuildException
   {
-    if (inputHeaders.isEmpty())
-      throw new BuildException("must specify at least one inputHeaders directory", getLocation());
-    if (inputSources.isEmpty())
-      throw new BuildException("must specify at least one inputSources directory", getLocation());
+    if (!inputHeadersSpecified && !inputSourcesSpecified)
+      throw new BuildException("Must specify at least one inputHeaders or inputSources directory", getLocation());
+    if (inputHeadersSpecified && inputHeaders.isEmpty())
+      throw new BuildException("inputHeaders refers to non-existant directories", getLocation());
+    if (inputSourcesSpecified && inputSources.isEmpty())
+      throw new BuildException("inputSources refers to non-existant directories", getLocation());
     if (outputHeaders == null)
       throw new BuildException("outputHeaders must be set", getLocation());
     if (outputSources == null)
@@ -191,6 +198,7 @@ public class GenerateCppProxiesTask extends Task
    */
   public void addConfiguredInputHeaders(DirSet headers)
   {
+    inputHeadersSpecified = true;
     DirectoryScanner scanner = headers.getDirectoryScanner(getProject());
     scanner.scan();
     for (String directory: scanner.getIncludedDirectories())
@@ -204,6 +212,7 @@ public class GenerateCppProxiesTask extends Task
    */
   public void addConfiguredInputSources(DirSet sources)
   {
+    inputSourcesSpecified = true;
     DirectoryScanner scanner = sources.getDirectoryScanner(getProject());
     scanner.scan();
     for (String directory: scanner.getIncludedDirectories())

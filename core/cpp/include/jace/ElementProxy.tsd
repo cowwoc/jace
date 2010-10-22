@@ -4,14 +4,21 @@ BEGIN_NAMESPACE (jace)
  * Contains the definitions for the template specializations of the template class, ElementProxy.
  *
  * This file is internal to the JACE library.
- *
  */
 template <> inline
-ElementProxy< ::jace::proxy::types::JBoolean >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JBoolean(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JBoolean >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JBoolean(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(::jace::newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JBoolean >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JBoolean(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -20,16 +27,24 @@ template <> inline
   JNIEnv* env = attach();
   jbooleanArray array = static_cast<jbooleanArray>(parent);
   jboolean val = static_cast<jvalue>(type).z;
-  env->SetBooleanArrayRegion(array, mIndex, 1, &val);
+  env->SetBooleanArrayRegion(array, index, 1, &val);
   return *this;
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JByte >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JByte(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JByte >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JByte(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JByte >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JByte(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -38,16 +53,24 @@ template <> inline
   JNIEnv* env = attach();
   jbyteArray array = static_cast<jbyteArray>(parent);
   jbyte byte = static_cast<jvalue>(type).b;
-  env->SetByteArrayRegion(array, mIndex, 1, &byte);
+  env->SetByteArrayRegion(array, index, 1, &byte);
   return *this;
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JChar >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JChar(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JChar >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JChar(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JChar >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JChar(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -56,16 +79,24 @@ template <> inline
   JNIEnv* env = attach();
   jcharArray array = static_cast<jcharArray>(parent);
   jchar val = static_cast<jvalue>(type).c;
-  env->SetCharArrayRegion(array, mIndex, 1, &val);
+  env->SetCharArrayRegion(array, index, 1, &val);
   return *this;
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JDouble >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JDouble(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JDouble >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JDouble(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JDouble >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JDouble(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -74,16 +105,24 @@ template <> inline
   JNIEnv* env = attach();
   jdoubleArray array = static_cast<jdoubleArray>(parent);
   jdouble val = static_cast<jvalue>(type).d;
-  env->SetDoubleArrayRegion(array, mIndex, 1, &val);
+  env->SetDoubleArrayRegion(array, index, 1, &val);
   return *this;
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JFloat >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JFloat(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JFloat >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JFloat(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JFloat >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JFloat(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -92,16 +131,24 @@ template <> inline
   JNIEnv* env = attach();
   jfloatArray array = static_cast<jfloatArray>(parent);
   jfloat val = static_cast<jvalue>(type).f;
-  env->SetFloatArrayRegion(array, mIndex, 1, &val);
+  env->SetFloatArrayRegion(array, index, 1, &val);
   return *this;
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JInt >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JInt(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JInt >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JInt(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JInt >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JInt(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -110,16 +157,24 @@ template <> inline
   JNIEnv* env = attach();
   jintArray array = static_cast<jintArray>(parent);
   jint val = static_cast<jvalue>(type).i;
-  env->SetIntArrayRegion(array, mIndex, 1, &val);
+  env->SetIntArrayRegion(array, index, 1, &val);
   return *this;
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JLong >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JLong(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JLong >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JLong(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JLong >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JLong(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -128,16 +183,24 @@ template <> inline
   JNIEnv* env = attach();
   jlongArray array = static_cast<jlongArray>(parent);
   jlong val = static_cast<jvalue>(type).j;
-  env->SetLongArrayRegion(array, mIndex, 1, &val);
+  env->SetLongArrayRegion(array, index, 1, &val);
   return *this;
 }
 
 template <> inline
-ElementProxy< ::jace::proxy::types::JShort >::ElementProxy(jarray array, jvalue element, int index): 
-  ::jace::proxy::types::JShort(element), mIndex(index)
+ElementProxy< ::jace::proxy::types::JShort >::ElementProxy(jarray array, jvalue element, int _index): 
+  ::jace::proxy::types::JShort(element), index(_index)
 {
   JNIEnv* env = attach();
   parent = static_cast<jarray>(newGlobalRef(env, array));
+}
+
+template <> inline
+ElementProxy< ::jace::proxy::types::JShort >::ElementProxy(const ElementProxy& proxy): 
+  ::jace::proxy::types::JShort(proxy), index(proxy.index)
+{
+  JNIEnv* env = attach();
+  parent = static_cast<jarray>(::jace::newGlobalRef(env, proxy.parent));
 }
 
 template <> inline
@@ -146,7 +209,7 @@ template <> inline
   JNIEnv* env = attach();
   jshortArray array = static_cast<jshortArray>(parent);
   jshort val = static_cast<jvalue>(type).s;
-  env->SetShortArrayRegion(array, mIndex, 1, &val);
+  env->SetShortArrayRegion(array, index, 1, &val);
   return *this;
 }
 

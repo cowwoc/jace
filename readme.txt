@@ -42,7 +42,7 @@ Jace's compilation depends upon the Boost C++ library. To build Boost C++ under 
 
 A few notes:
 
-    * Notice that address-model isn't prefixed with the double dashes; that's intentional! If you prefix it,
+    * Notice that address-model isn't prefixed with a double hyphen; that's intentional! If you prefix it,
       it will not work.
     * You can add "-j %NUMBER_OF_PROCESSORS%" to the bjam parameters. This will cause a number of commands
       to execute in parallel if you've got more cores / CPUs.
@@ -53,14 +53,13 @@ A few notes:
 Building Jace
 -------------
 
-1) Create a system-wide environment variable called %JACE_HOME% that denotes Jace's installastion directory
-2) Create a system-wide environment variable called %JAVA32_HOME% that denotes the installation directory of the 32-bit JDK
-3) Create a system-wide environment variable called %JAVA64_HOME% that denotes the installation directory of the 64-bit JDK
-4) Open %JACE_HOME%/core/cpp/windows/msvc/jace.sln
-5) Set the solution platform to "i386" for 32-bit mode or "amd64" for 64-bit mode
-6) Build the solution to generate the Jace binary files
-7) Run "ant" in %JACE_HOME% to generate the Jace header files
-8) You're done
+1) Create a system-wide environment variable called %JACE_HOME% that denotes Jace's installation directory
+2) Create a system-wide environment variable called %JAVA_HOME% that denotes the installation directory of the Java Development Kit
+3) Open %JACE_HOME%/core/cpp/windows/msvc/jace.sln
+4) Set the solution platform to "i386" for 32-bit mode or "amd64" for 64-bit mode
+5) Build the solution to generate the Jace binary files
+6) Run "ant" in %JACE_HOME% to generate the Jace header files
+7) You're done
 
 
 
