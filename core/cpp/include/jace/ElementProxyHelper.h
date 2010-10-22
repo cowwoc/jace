@@ -9,7 +9,7 @@
 
 BEGIN_NAMESPACE_2(jace, ElementProxyHelper)
 
-JACE_API void assign(const jace::proxy::JObject& element, int mIndex, jarray parent);
+JACE_API void assign(const jace::proxy::JObject& element, int index, jarray parent);
 
 END_NAMESPACE_2(jace, ElementProxyHelper)
 

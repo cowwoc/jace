@@ -1066,12 +1066,12 @@ public class ProxyGenerator
 
     // normal constructor
     output.write("  template <> inline ElementProxy< " + name
-                 + " >::ElementProxy(jarray array, jvalue element, int index): " + newLine);
+                 + " >::ElementProxy(jarray array, jvalue element, int _index): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
-      output.write("    Object(element), mIndex(index)");
+      output.write("    Object(element), index(_index)");
     else
-      output.write("    " + name + "(element), mIndex(index)");
+      output.write("    " + name + "(element), index(_index)");
     output.write(newLine);
 
     output.write("  {" + newLine);
@@ -1084,9 +1084,9 @@ public class ProxyGenerator
                  + " >& proxy): " + newLine);
 
     if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath() + "/java/lang/Object"))
-      output.write("    Object(proxy), mIndex(proxy.mIndex)");
+      output.write("    Object(proxy), index(proxy.index)");
     else
-      output.write("    " + name + "(proxy), mIndex(proxy.mIndex)");
+      output.write("    " + name + "(proxy), index(proxy.index)");
     output.write(newLine);
 
     output.write("  {" + newLine);
