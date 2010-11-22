@@ -1,27 +1,33 @@
 
 package jace.parser.attribute;
 
-import jace.parser.*;
-
-import java.io.*;
+import jace.parser.ConstantPool;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Reads ConstantAttributes.
  *
  * @author Toby Reyelts
- *
  */
-public class ConstantValueAttributeReader implements AttributeReader {
+public class ConstantValueAttributeReader implements AttributeReader
+{
+	/**
+	 * Reads a ConstantAttribute from a class file InputStream.
+	 *
+	 * @return the ConstantAttribute
+	 * @throws IOException if an I/O error occurs while reading the attribute
+	 */
+	@Override
+	public Attribute readAttribute(InputStream input, int nameIndex, ConstantPool pool)
+		throws IOException
+	{
+		return new ConstantValueAttribute(input, nameIndex, pool);
+	}
 
-  /**
-   * Reads a ConstantAttribute from a class file InputStream.
-   *
-   */
-  public Attribute readAttribute( InputStream input, int nameIndex, ConstantPool pool ) throws IOException {
-    return new ConstantValueAttribute( input, nameIndex, pool );
-  }
-
-  public String getName() {
-    return "ConstantValue";
-  }
+	@Override
+	public String getName()
+	{
+		return "ConstantValue";
+	}
 }

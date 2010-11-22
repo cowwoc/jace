@@ -6,7 +6,8 @@ package jace.ant;
  *
  * @author Gili Tzbari
  */
-public class Library {
+public class Library
+{
 	private String name;
 
 	/**
@@ -14,7 +15,8 @@ public class Library {
 	 * 
 	 * @param name the library name
 	 */
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		this.name = name;
 	}
 
@@ -23,12 +25,14 @@ public class Library {
 	 * 
 	 * @return the library name
 	 */
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
 
 	@Override
-	public String toString() {
+	public String toString()
+	{
 		return "Library[name=" + getName() + "]";
 	}
 }

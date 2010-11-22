@@ -7,11 +7,11 @@ package jace.metaclass;
  */
 public interface MetaClassFilter
 {
-  /**
-   * Indicates if a type should be accepted.
-   *
-   * @param candidate the type being evaluated
-   * @return true if the type should be acccepted
-   */
-  boolean accept(MetaClass candidate);
+	/**
+	 * Indicates if a type should be accepted.
+	 *
+	 * @param candidate the type being evaluated
+	 * @return true if the type should be accepted
+	 */
+	boolean accept(MetaClass candidate);
 }

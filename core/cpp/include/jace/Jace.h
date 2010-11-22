@@ -18,6 +18,7 @@
   #include <strstream>
 #endif
 
+
 BEGIN_NAMESPACE(jace)
 class Peer;
 END_NAMESPACE(jace)
@@ -223,6 +224,11 @@ template <class T> std::string toString(T value)
 		stream << value;
 		return stream.str();
 }
+
+/**
+ * Returns the current thread id.
+ */
+JACE_API std::string getCurrentThreadId();
 
 #ifdef SUPPORTS_SSTREAM
 /**

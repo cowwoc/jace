@@ -6,34 +6,38 @@ import java.io.IOException;
 
 public class StringConstant implements Constant
 {
-  int index;
-  ConstantPool mPool;
+	private final int index;
+	private final ConstantPool pool;
 
-  public StringConstant(ConstantPool pool, int index)
-  {
-    mPool = pool;
-    this.index = index;
-  }
+	public StringConstant(ConstantPool pool, int index)
+	{
+		this.pool = pool;
+		this.index = index;
+	}
 
-  public int getSize()
-  {
-    return 1;
-  }
+	@Override
+	public int getSize()
+	{
+		return 1;
+	}
 
-  public Object getValue()
-  {
-    UTF8Constant c = (UTF8Constant) mPool.getConstantAt(index);
-    return c.getValue();
-  }
+	@Override
+	public Object getValue()
+	{
+		UTF8Constant c = (UTF8Constant) pool.getConstantAt(index);
+		return c.getValue();
+	}
 
-  public String toString()
-  {
-    return "A StringConstant pointing to a UTF8Constant at index " + index;
-  }
+	@Override
+	public String toString()
+	{
+		return "A StringConstant pointing to a UTF8Constant at index " + index;
+	}
 
-  public void write(DataOutputStream output) throws IOException
-  {
-    output.writeByte(StringConstantReader.TAG);
-    output.writeShort(index);
-  }
+	@Override
+	public void write(DataOutputStream output) throws IOException
+	{
+		output.writeByte(new StringConstantReader().getTag());
+		output.writeShort(index);
+	}
 }

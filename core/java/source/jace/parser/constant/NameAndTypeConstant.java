@@ -1,47 +1,56 @@
-
 package jace.parser.constant;
 
-import jace.parser.*;
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-public class NameAndTypeConstant implements Constant {
+public class NameAndTypeConstant implements Constant
+{
+	private int nameIndex;
+	private int descriptorIndex;
 
-  int mNameIndex;
-  int mDescriptorIndex;
+	public NameAndTypeConstant(int nameIndex, int descriptorIndex)
+	{
+		this.nameIndex = nameIndex;
+		this.descriptorIndex = descriptorIndex;
+	}
 
-  public NameAndTypeConstant( int nameIndex, int descriptorIndex ) {
-    mNameIndex = nameIndex;
-    mDescriptorIndex = descriptorIndex;
-  }
+	public int getNameIndex()
+	{
+		return nameIndex;
+	}
 
-  public int getNameIndex() {
-    return mNameIndex;
-  }
+	public void setNameIndex(int index)
+	{
+		nameIndex = index;
+	}
 
-  public void setNameIndex( int index ) {
-    mNameIndex = index;
-  }
+	public int getDescriptorIndex()
+	{
+		return descriptorIndex;
+	}
 
-  public int getDescriptorIndex() {
-    return mDescriptorIndex;
-  }
+	public void setDescriptorIndex(int index)
+	{
+		descriptorIndex = index;
+	}
 
-  public void setDescriptorIndex( int index ) {
-    mDescriptorIndex = index;
-  }
+	@Override
+	public Object getValue()
+	{
+		return "NameAndTypeConstant.getValue() has not yet been implemented.";
+	}
 
-  public Object getValue() {
-    return "NameAndTypeConstant.getValue() has not yet been implemented.";
-  }
+	@Override
+	public int getSize()
+	{
+		return 1;
+	}
 
-  public int getSize() {
-    return 1;
-  }
-
-  public void write( DataOutputStream output ) throws IOException {
-    output.writeByte( NameAndTypeConstantReader.TAG );
-    output.writeShort( mNameIndex );
-    output.writeShort( mDescriptorIndex );
-  }
-
+	@Override
+	public void write(DataOutputStream output) throws IOException
+	{
+		output.writeByte(new NameAndTypeConstantReader().getTag());
+		output.writeShort(nameIndex);
+		output.writeShort(descriptorIndex);
+	}
 }

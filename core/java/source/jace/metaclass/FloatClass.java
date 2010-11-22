@@ -8,41 +8,43 @@ package jace.metaclass;
  */
 public class FloatClass extends PrimitiveMetaClass
 {
-  /**
-   * Creates a new FloatClass.
-   *
-   * @param isProxy true if the object represents a proxy
-   */
-  public FloatClass(boolean isProxy)
-  {
-    super(isProxy);
-  }
+	/**
+	 * Creates a new FloatClass.
+	 *
+	 * @param isProxy true if the object represents a proxy
+	 */
+	public FloatClass(boolean isProxy)
+	{
+		super(isProxy);
+	}
 
-  @Override
-  protected MetaClass newInstance(boolean isProxy)
-  {
-    return new FloatClass(isProxy);
-  }
+	@Override
+	protected MetaClass newInstance(boolean isProxy)
+	{
+		return new FloatClass(isProxy);
+	}
 
-  public String getSimpleName()
-  {
-    return "JFloat";
-  }
+	@Override
+	public String getSimpleName()
+	{
+		return "JFloat";
+	}
 
-  @Override
-  public boolean equals(Object obj)
-  {
-    return obj instanceof FloatClass;
-  }
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof FloatClass;
+	}
 
-  @Override
-  public int hashCode()
-  {
-    return getSimpleName().hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return getSimpleName().hashCode();
+	}
 
-  public String getJniType()
-  {
-    return "jfloat";
-  }
+	@Override
+	public String getJniType()
+	{
+		return "jfloat";
+	}
 }

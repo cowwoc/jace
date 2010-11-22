@@ -48,10 +48,18 @@ using std::string;
 using std::wstring;
 
 #include "jace/BoostWarningOff.h"
+#include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/tss.hpp>
 #include <boost/shared_ptr.hpp>
 #include "jace/BoostWarningOn.h"
+
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <sys/types.h>
+#endif
+
 
 BEGIN_NAMESPACE(jace)
 
@@ -59,6 +67,7 @@ BEGIN_NAMESPACE(jace)
 // We're under the assumption that there will always only be one of these.
 JavaVM* jvm = 0;
 jint jniVersion = 0;
+unsigned int threadNumber = 0;
 
 /**
  * Synchronizes access to "jvm" and "jniVersion" variables.
@@ -367,10 +376,17 @@ JNIEnv* attachImpl(JavaVM* jvm, const jobject threadGroup, const char* name, con
 
 	JavaVMAttachArgs args = {0};
 	args.version = jniVersion;
-	if (name!=0)
+	if (name != 0)
 	{
 		args.name = new char[strlen(name)+1];
 		strcpy(args.name, name);
+	}
+	else
+	{
+		string temp("NativeThread-");
+		temp += toString(getCurrentThreadId());
+		args.name = new char[temp.length() + 1];
+		strcpy(args.name, temp.c_str());
 	}
 	args.group = threadGroup;
   jint result;
@@ -378,8 +394,7 @@ JNIEnv* attachImpl(JavaVM* jvm, const jobject threadGroup, const char* name, con
 		result = jvm->AttachCurrentThread(reinterpret_cast<void**>(&env), &args);
 	else
 		result = jvm->AttachCurrentThreadAsDaemon(reinterpret_cast<void**>(&env), &args);
-	if (name!=0)
-		delete[] args.name;
+	delete[] args.name;
 
   if (result != 0)
 	{
@@ -728,6 +743,15 @@ void printClass(jobject obj)
 bool isRunning()
 {
   return jvm != 0;
+}
+
+string getCurrentThreadId()
+{
+#ifdef _WIN32
+  return toString(GetCurrentThreadId());
+#else
+  return toString(gettid());
+#endif
 }
 
 END_NAMESPACE(jace)

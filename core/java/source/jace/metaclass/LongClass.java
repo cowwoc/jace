@@ -8,41 +8,43 @@ package jace.metaclass;
  */
 public class LongClass extends PrimitiveMetaClass
 {
-  /**
-   * Creates a new LongClass.
-   *
-   * @param isProxy true if the object represents a proxy
-   */
-  public LongClass(boolean isProxy)
-  {
-    super(isProxy);
-  }
+	/**
+	 * Creates a new LongClass.
+	 *
+	 * @param isProxy true if the object represents a proxy
+	 */
+	public LongClass(boolean isProxy)
+	{
+		super(isProxy);
+	}
 
-  @Override
-  protected MetaClass newInstance(boolean isProxy)
-  {
-    return new LongClass(isProxy);
-  }
+	@Override
+	protected MetaClass newInstance(boolean isProxy)
+	{
+		return new LongClass(isProxy);
+	}
 
-  public String getSimpleName()
-  {
-    return "JLong";
-  }
+	@Override
+	public String getSimpleName()
+	{
+		return "JLong";
+	}
 
-  @Override
-  public boolean equals(Object obj)
-  {
-    return obj instanceof LongClass;
-  }
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof LongClass;
+	}
 
-  @Override
-  public int hashCode()
-  {
-    return getSimpleName().hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return getSimpleName().hashCode();
+	}
 
-  public String getJniType()
-  {
-    return "jlong";
-  }
+	@Override
+	public String getJniType()
+	{
+		return "jlong";
+	}
 }

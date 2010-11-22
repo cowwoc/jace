@@ -1,5 +1,6 @@
 package jace.parser.method;
 
+import com.google.common.collect.Lists;
 import jace.metaclass.TypeName;
 import jace.metaclass.TypeNameFactory;
 import jace.parser.ConstantPool;
@@ -28,359 +29,354 @@ import java.util.List;
  */
 public class ClassMethod
 {
-  /**
-   * From the JVM specification:
-   *
-   * method_info {
-   *   u2 access_flags;
-   *   u2 name_index;
-   *   u2 descriptor_index;
-   *   u2 attributes_count;
-   *   attribute_info attributes[attributes_count];
-   *  }
-   *
-   */
-  private int accessFlags;
-  private int nameIndex;
-  private int descriptorIndex;
-  private ArrayList<Attribute> attributes;
-  private ConstantPool mPool;
-  private List<TypeName> parameters;
-  private TypeName returnType;
+	/**
+	 * From the JVM specification:
+	 *
+	 * method_info {
+	 *   u2 access_flags;
+	 *   u2 name_index;
+	 *   u2 descriptor_index;
+	 *   u2 attributes_count;
+	 *   attribute_info attributes[attributes_count];
+	 *  }
+	 */
+	private int accessFlags;
+	private int nameIndex;
+	private int descriptorIndex;
+	private final List<Attribute> attributes;
+	private final ConstantPool pool;
+	private List<TypeName> parameters;
+	private TypeName returnType;
 
-  /**
-   * Reads in a ClassMethod from a Java class file.
-   *
-   * @param stream The InputStream from which this ClassMethod will be read.
-   * The stream must be pointing to the beginning of a valid method definition
-   * as detailed in the JVM specification.
-   *
-   * @param pool The ConstantPool for the class file to which this ClassMethod belongs.
-   *
-   * @throws IOException if an error occurs while trying to read the ClassMethod.
-   *
-   */
-  public ClassMethod(InputStream stream, ConstantPool pool) throws IOException
-  {
-    mPool = pool;
+	/**
+	 * Reads in a ClassMethod from a Java class file.
+	 *
+	 * @param stream The InputStream from which this ClassMethod will be read.
+	 * The stream must be pointing to the beginning of a valid method definition
+	 * as detailed in the JVM specification.
+	 *
+	 * @param pool The ConstantPool for the class file to which this ClassMethod belongs.
+	 *
+	 * @throws IOException if an error occurs while trying to read the ClassMethod.
+	 *
+	 */
+	public ClassMethod(InputStream stream, ConstantPool pool) throws IOException
+	{
+		this.pool = pool;
 
-    DataInputStream input = new DataInputStream(stream);
+		DataInputStream input = new DataInputStream(stream);
+		accessFlags = input.readUnsignedShort();
+		nameIndex = input.readUnsignedShort();
+		descriptorIndex = input.readUnsignedShort();
+		int attributesCount = input.readUnsignedShort();
 
-    accessFlags = input.readUnsignedShort();
-    nameIndex = input.readUnsignedShort();
-    descriptorIndex = input.readUnsignedShort();
-    int attributesCount = input.readUnsignedShort();
+		attributes = Lists.newArrayListWithCapacity(attributesCount);
+		AttributeFactory factory = new AttributeFactory();
 
-    attributes = new ArrayList<Attribute>(attributesCount);
+		for (int i = 0; i < attributesCount; ++i)
+			attributes.add(factory.readAttribute(stream, pool));
+		parseDescriptor();
+	}
 
-    AttributeFactory factory = new AttributeFactory();
+	public void write(DataOutputStream output) throws IOException
+	{
+		output.writeShort(accessFlags);
+		output.writeShort(nameIndex);
+		output.writeShort(descriptorIndex);
+		output.writeShort(attributes.size());
 
-    for (int i = 0; i < attributesCount; ++i)
-    {
-      attributes.add(factory.readAttribute(stream, pool));
-    }
+		for (Attribute a: attributes)
+			a.write(output);
+	}
 
-    parseDescriptor();
-  }
+	public List<Attribute> getAttributes()
+	{
+		return Collections.unmodifiableList(attributes);
+	}
 
-  public void write(DataOutputStream output) throws IOException
-  {
-    output.writeShort(accessFlags);
-    output.writeShort(nameIndex);
-    output.writeShort(descriptorIndex);
-    output.writeShort(attributes.size());
+	public CodeAttribute getCode()
+	{
+		for (Attribute a: attributes)
+		{
+			if (a instanceof CodeAttribute)
+				return (CodeAttribute) a;
+		}
+		return null;
+	}
 
-    for (Attribute a: attributes)
-    {
-      a.write(output);
-    }
-  }
+	public void addAttribute(Attribute a)
+	{
+		attributes.add(a);
+	}
 
-  public List<Attribute> getAttributes()
-  {
-    return Collections.unmodifiableList(attributes);
-  }
+	/**
+	 * Returns the MethodAccessFlagSet for this ClassMethod.
+	 *
+	 * @return the MethodAccessFlagSet for this ClassMethod
+	 */
+	public MethodAccessFlagSet getAccessFlags()
+	{
+		return new MethodAccessFlagSet(accessFlags);
+	}
 
-  public CodeAttribute getCode()
-  {
-    for (Attribute a: attributes)
-    {
-      if (a instanceof CodeAttribute)
-        return (CodeAttribute) a;
-    }
-    return null;
-  }
+	public void setAccessFlags(MethodAccessFlagSet set)
+	{
+		accessFlags = set.getValue();
+	}
 
-  public void addAttribute(Attribute a)
-  {
-    attributes.add(a);
-  }
+	public int getNameIndex()
+	{
+		return nameIndex;
+	}
 
-  /**
-   * Returns the MethodAccessFlagSet for this ClassMethod.
-   *
-   * @return the MethodAccessFlagSet for this ClassMethod
-   */
-  public MethodAccessFlagSet getAccessFlags()
-  {
-    return new MethodAccessFlagSet(accessFlags);
-  }
+	public void setNameIndex(int index)
+	{
+		nameIndex = index;
+	}
 
-  public void setAccessFlags(MethodAccessFlagSet set)
-  {
-    accessFlags = set.getValue();
-  }
+	public int getDescriptorIndex()
+	{
+		return descriptorIndex;
+	}
 
-  public int getNameIndex()
-  {
-    return nameIndex;
-  }
+	public void setDescriptorIndex(int index)
+	{
+		descriptorIndex = index;
+	}
 
-  public void setNameIndex(int index)
-  {
-    nameIndex = index;
-  }
+	/**
+	 * Returns the name of this ClassMethod.
+	 *
+	 * For example, "execute"
+	 *
+	 * @throws RuntimeException that should probably instead be ClassFormatError.
+	 * @return the name of this ClassMethod
+	 */
+	public String getName()
+	{
+		Constant c = pool.getConstantAt(nameIndex);
 
-  public int getDescriptorIndex()
-  {
-    return descriptorIndex;
-  }
+		if (c instanceof UTF8Constant)
+			return c.getValue().toString();
+		throw new RuntimeException("Not a UTF8Constant: " + c.getClass().getName());
+	}
 
-  public void setDescriptorIndex(int index)
-  {
-    descriptorIndex = index;
-  }
+	/**
+	 * Returns the descriptor for this ClassMethod.
+	 *
+	 * For example, "(Ljava/lang/String;I)[B", which would
+	 * have a signature of: byte[] xxx( java.lang.String aString, int anInt )
+	 *
+	 * @return the method descriptor
+	 * @throws ClassFormatError if the descriptor isn't of the right type.
+	 * This should probably be thrown during the parsing stage.
+	 */
+	public String getDescriptor() throws ClassFormatError
+	{
+		Constant c = pool.getConstantAt(descriptorIndex);
 
-  /**
-   * Returns the name of this ClassMethod.
-   *
-   * For example, "execute"
-   *
-   * @throws RuntimeException that should probably instead be ClassFormatError.
-   * @return the name of this ClassMethod
-   */
-  public String getName()
-  {
-    Constant c = mPool.getConstantAt(nameIndex);
+		if (c instanceof UTF8Constant)
+			return c.getValue().toString();
+		throw new ClassFormatError("Not a UTF8Constant: " + c.getClass().getName());
+	}
 
-    if (c instanceof UTF8Constant)
-      return c.getValue().toString();
-    throw new RuntimeException("Not a UTF8Constant: " + c.getClass().getName());
-  }
+	/**
+	 * Returns the return type for this ClassMethod.
+	 *
+	 * The return type is formatted in internal format.
+	 *
+	 * For example,
+	 *   Ljava/lang/String or
+	 *   [B
+	 * @return the return type for this ClassMethod
+	 */
+	public TypeName getReturnType()
+	{
+		return returnType;
+	}
 
-  /**
-   * Returns the descriptor for this ClassMethod.
-   *
-   * For example, "(Ljava/lang/String;I)[B", which would
-   * have a signature of: byte[] xxx( java.lang.String aString, int anInt )
-   *
-   * @return the method descriptor
-   * @throws ClassFormatError if the descriptor isn't of the right type.
-   * This should probably be thrown during the parsing stage.
-   */
-  public String getDescriptor() throws ClassFormatError
-  {
-    Constant c = mPool.getConstantAt(descriptorIndex);
+	/**
+	 * Returns the parameter types for this ClassMethod.
+	 *
+	 * The parameter types are formatted in internal format.
+	 *
+	 * For example,
+	 *   Ljava/lang/String or
+	 *   [B
+	 *
+	 * @return an unmodifiable list of type names
+	 *
+	 */
+	public List<TypeName> getParameterTypes()
+	{
+		return Collections.unmodifiableList(parameters);
+	}
 
-    if (c instanceof UTF8Constant)
-      return c.getValue().toString();
-    throw new ClassFormatError("Not a UTF8Constant: " + c.getClass().getName());
-  }
+	/**
+	 * Sets the parameters and return type for this ClassMethod
+	 * by parsing the descriptor.
+	 *
+	 */
+	private void parseDescriptor() throws IOException
+	{
+		String descriptor = getDescriptor();
+		StringReader reader = new StringReader(descriptor);
 
-  /**
-   * Returns the return type for this ClassMethod.
-   *
-   * The return type is formatted in internal format.
-   *
-   * For example, 
-   *   Ljava/lang/String or
-   *   [B
-   * @return the return type for this ClassMethod
-   */
-  public TypeName getReturnType()
-  {
-    return returnType;
-  }
+		// read the opening '('
+		if (reader.read() != '(')
+		{
+			throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. "
+																 + "It does not begin its parameter list with a '('");
+		}
 
-  /**
-   * Returns the parameter types for this ClassMethod.
-   *
-   * The parameter types are formatted in internal format.
-   *
-   * For example, 
-   *   Ljava/lang/String or
-   *   [B
-   *
-   * @return an unmodifiable list of type names
-   *
-   */
-  public List<TypeName> getParameterTypes()
-  {
-    return Collections.unmodifiableList(parameters);
-  }
+		// read the parameters
+		parameters = Lists.newArrayList();
+		try
+		{
+			while (true)
+			{
+				String parameter = readType(reader);
+				if (parameter == null)
+					break;
+				parameters.add(TypeNameFactory.fromDescriptor(parameter));
+			}
+		}
+		catch (RuntimeException e)
+		{
+			throw new RuntimeException("The descriptor < " + descriptor + " > is invalid", e);
+		}
 
-  /**
-   * Sets the parameters and return type for this ClassMethod
-   * by parsing the descriptor.
-   *
-   */
-  private void parseDescriptor() throws IOException
-  {
-    String descriptor = getDescriptor();
-    StringReader reader = new StringReader(descriptor);
+		// read the closing ')'
+		if (reader.read() != ')')
+		{
+			throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. "
+																 + "It does not end its parameter list with a ')'");
+		}
 
-    // read the opening '('
-    if (reader.read() != '(')
-    {
-      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
-                                 "It does not begin its parameter list with a '('");
-    }
+		// read the return type
+		try
+		{
+			returnType = TypeNameFactory.fromDescriptor(readType(reader));
+		}
+		catch (RuntimeException e)
+		{
+			throw new RuntimeException("The descriptor < " + descriptor + " > is invalid", e);
+		}
 
-    // read the parameters
-    parameters = new ArrayList<TypeName>();
-    String parameter;
-    try
-    {
-      while ((parameter = readType(reader)) != null)
-        parameters.add(TypeNameFactory.fromDescriptor(parameter));
-    }
-    catch (RuntimeException e)
-    {
-      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid", e);
-    }
+		if (returnType == null)
+		{
+			throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. "
+																 + "It does not specify a valid return type.");
+		}
 
-    // read the closing ')'
-    if (reader.read() != ')')
-    {
-      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
-                                 "It does not end its parameter list with a ')'");
-    }
+		if (reader.read() != -1)
+		{
+			throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. "
+																 + "It does not end after specifying the return type.");
+		}
+	}
 
-    // read the return type
-    try
-    {
-      returnType = TypeNameFactory.fromDescriptor(readType(reader));
-    }
-    catch (RuntimeException e)
-    {
-      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid", e);
-    }
+	private String readType(StringReader reader) throws IOException
+	{
+		final char[] primitiveTypes =
+		{
+			'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z'
+		};
 
-    if (returnType == null)
-    {
-      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
-                                 "It does not specify a valid return type.");
-    }
+		// we make sure that we can return parsing, back to where it came from
+		reader.mark(0);
 
-    if (reader.read() != -1)
-    {
-      throw new RuntimeException("The descriptor < " + descriptor + " > is invalid. " +
-                                 "It does not end after specifying the return type.");
-    }
-  }
+		// the type may be V (void), so we check for that possibility first
+		int c;
+		c = reader.read();
 
-  private String readType(StringReader reader) throws IOException
-  {
-    final char[] primitiveTypes =
-    {
-      'B', 'C', 'D', 'F', 'I', 'J', 'S', 'Z'
-    };
+		if (c == 'V')
+			return "V";
+		reader.reset();
 
-    StringBuilder type = new StringBuilder();
+		// we may potentially be at the end of a parameter list
+		if (c == ')')
+			return null;
+		// the type can begin with any number of array specifiers
+		@SuppressWarnings("StringBufferWithoutInitialCapacity")
+		StringBuilder type = new StringBuilder();
+		while (true)
+		{
+			c = reader.read();
+			if (c != '[')
+				break;
+			type.append((char) c);
+		}
 
-    // we make sure that we can return parsing, back to where it came from
-    reader.mark(0);
+		// now that we've read the array specifiers, we're going to check to see if the type is a primitive
+		for (int i = 0; i < primitiveTypes.length; ++i)
+		{
+			if (c == primitiveTypes[i])
+			{
+				type.append((char) c);
+				return type.toString();
+			}
+		}
 
-    // the type may be V (void), so we check for that possibility first
-    int c;
-    c = reader.read();
+		if (c != 'L')
+		{
+			throw new RuntimeException("The descriptor is badly formatted. "
+																 + "A type was expected, but none could be found.");
+		}
 
-    if (c == 'V')
-      return "V";
-    reader.reset();
+		type.append((char) c);
 
-    // we may potentially be at the end of a parameter list
-    if (c == ')')
-      return null;
+		// now, we read up to the terminating ';'
+		while (true)
+		{
+			c = reader.read();
 
-    // the type can begin with any number of array specifiers
-    while ((c = reader.read()) == '[')
-    {
-      type.append((char) c);
-    }
+			// if we encounter end of stream, something is wrong
+			if (c == -1)
+			{
+				throw new RuntimeException("The descriptor is badly formatted. "
+																	 + "The type ends prematurely.");
+			}
 
-    // now that we've read the array specifiers, we're going to check to see if the type is a primitive
-    for (int i = 0; i < primitiveTypes.length; ++i)
-    {
-      if (c == primitiveTypes[i])
-      {
-        type.append((char) c);
-        return type.toString();
-      }
-    }
+			type.append((char) c);
 
-    if (c != 'L')
-    {
-      throw new RuntimeException("The descriptor is badly formatted. " +
-                                 "A type was expected, but none could be found.");
-    }
+			if (c == ';')
+				return type.toString();
+		}
+	}
 
-    type.append((char) c);
+	/**
+	 * Returns the exceptions which have been declared for this ClassMethod.
+	 *
+	 * @return the exceptions which have been declared for this ClassMethod
+	 */
+	public Collection<TypeName> getExceptions()
+	{
+		for (Attribute a: attributes)
+		{
+			if (a instanceof ExceptionsAttribute)
+			{
+				ExceptionsAttribute ea = (ExceptionsAttribute) a;
+				ClassConstant[] exceptionConstants = ea.getExceptions();
+				Collection<TypeName> result = new ArrayList<TypeName>(exceptionConstants.length);
+				for (int i = 0; i < exceptionConstants.length; ++i)
+					result.add(TypeNameFactory.fromPath(exceptionConstants[i].toString()));
+				return result;
+			}
+		}
+		return Collections.emptyList();
+	}
 
-    // now, we read up to the terminating ';'
-    while (true)
-    {
-      c = reader.read();
-
-      // if we encounter end of stream, something is wrong
-      if (c == -1)
-      {
-        throw new RuntimeException("The descriptor is badly formatted. " +
-                                   "The type ends prematurely.");
-      }
-
-      type.append((char) c);
-
-      if (c == ';')
-        return type.toString();
-    }
-  }
-
-  /**
-   * Returns the exceptions which have been declared for this ClassMethod.
-   *
-   * @return the exceptions which have been declared for this ClassMethod
-   */
-  public Collection<TypeName> getExceptions()
-  {
-    for (Attribute a: attributes)
-    {
-      if (a instanceof ExceptionsAttribute)
-      {
-        ExceptionsAttribute ea = (ExceptionsAttribute) a;
-        ClassConstant[] exceptionConstants = ea.getExceptions();
-        Collection<TypeName> result = new ArrayList<TypeName>(exceptionConstants.length);
-        for (int i = 0; i < exceptionConstants.length; ++i)
-          result.add(TypeNameFactory.fromPath(exceptionConstants[i].toString()));
-        return result;
-      }
-    }
-    return Collections.emptyList();
-  }
-
-  /**
-   * Returns a String that contains debugging information for this ClassMethod.
-   *
-   * @return a String that contains debugging information for this ClassMethod
-   */
-  @Override
-  public String toString()
-  {
-    return "ClassMethod: \n" +
-           "accessFlags: " + accessFlags + "\n" +
-           "nameIndex: " + nameIndex + "\n" +
-           "descriptorIndex: " + descriptorIndex + "\n" +
-           "attributesCount: " + attributes.size();
-
-  }
+	/**
+	 * Returns a String that contains debugging information for this ClassMethod.
+	 *
+	 * @return a String that contains debugging information for this ClassMethod
+	 */
+	@Override
+	public String toString()
+	{
+		return "ClassMethod: \n" + "accessFlags: " + accessFlags + "\n" + "nameIndex: " + nameIndex
+					 + "\n" + "descriptorIndex: " + descriptorIndex + "\n" + "attributesCount: " + attributes.
+			size();
+	}
 }

@@ -8,41 +8,43 @@ package jace.metaclass;
  */
 public class DoubleClass extends PrimitiveMetaClass
 {
-  /**
-   * Creates a new DoubleClass.
-   *
-   * @param isProxy true if the object represents a proxy
-   */
-  public DoubleClass(boolean isProxy)
-  {
-    super(isProxy);
-  }
+	/**
+	 * Creates a new DoubleClass.
+	 *
+	 * @param isProxy true if the object represents a proxy
+	 */
+	public DoubleClass(boolean isProxy)
+	{
+		super(isProxy);
+	}
 
-  @Override
-  protected MetaClass newInstance(boolean isProxy)
-  {
-    return new DoubleClass(isProxy);
-  }
+	@Override
+	protected MetaClass newInstance(boolean isProxy)
+	{
+		return new DoubleClass(isProxy);
+	}
 
-  public String getSimpleName()
-  {
-    return "JDouble";
-  }
+	@Override
+	public String getSimpleName()
+	{
+		return "JDouble";
+	}
 
-  @Override
-  public boolean equals(Object obj)
-  {
-    return obj instanceof DoubleClass;
-  }
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof DoubleClass;
+	}
 
-  @Override
-  public int hashCode()
-  {
-    return getSimpleName().hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return getSimpleName().hashCode();
+	}
 
-  public String getJniType()
-  {
-    return "jdouble";
-  }
+	@Override
+	public String getJniType()
+	{
+		return "jdouble";
+	}
 }

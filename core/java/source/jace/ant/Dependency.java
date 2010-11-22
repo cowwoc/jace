@@ -7,31 +7,31 @@ package jace.ant;
  */
 public class Dependency
 {
-  private String name;
+	private String name;
 
-  /**
-   * Sets the class name.
-   *
-   * @param name the class name
-   */
-  public void setName(String name)
-  {
-    this.name = name;
-  }
+	/**
+	 * Sets the class name.
+	 *
+	 * @param name the class name
+	 */
+	public void setName(String name)
+	{
+		this.name = name;
+	}
 
-  /**
-   * Returns the class name.
-   *
-   * @return the class name
-   */
-  public String getName()
-  {
-    return name;
-  }
+	/**
+	 * Returns the class name.
+	 *
+	 * @return the class name
+	 */
+	public String getName()
+	{
+		return name;
+	}
 
-  @Override
-  public String toString()
-  {
-    return "Dependency[name=" + getName() + "]";
-  }
+	@Override
+	public String toString()
+	{
+		return "Dependency[name=" + getName() + "]";
+	}
 }

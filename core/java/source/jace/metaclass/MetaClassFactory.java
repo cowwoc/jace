@@ -1,8 +1,9 @@
 package jace.metaclass;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Creates new MetaClasses instances.
@@ -12,20 +13,19 @@ import java.util.List;
  */
 public class MetaClassFactory
 {
-  private static HashMap<String, MetaClass> ClassMap = new HashMap<String, MetaClass>();
-
+  private static final Map<String, MetaClass> classMap = Maps.newHashMap();
 
   static
   {
-    ClassMap.put("B", new ByteClass(false));
-    ClassMap.put("C", new CharClass(false));
-    ClassMap.put("D", new DoubleClass(false));
-    ClassMap.put("F", new FloatClass(false));
-    ClassMap.put("I", new IntClass(false));
-    ClassMap.put("J", new LongClass(false));
-    ClassMap.put("S", new ShortClass(false));
-    ClassMap.put("V", new VoidClass(false));
-    ClassMap.put("Z", new BooleanClass(false));
+    classMap.put("B", new ByteClass(false));
+    classMap.put("C", new CharClass(false));
+    classMap.put("D", new DoubleClass(false));
+    classMap.put("F", new FloatClass(false));
+    classMap.put("I", new IntClass(false));
+    classMap.put("J", new LongClass(false));
+    classMap.put("S", new ShortClass(false));
+    classMap.put("V", new VoidClass(false));
+    classMap.put("Z", new BooleanClass(false));
   }
 
   /**
@@ -43,7 +43,7 @@ public class MetaClassFactory
    */
   private static MetaClass getPrimitiveClass(String primitiveClass)
   {
-    return ClassMap.get(primitiveClass);
+    return classMap.get(primitiveClass);
   }
 
   /**
@@ -58,7 +58,8 @@ public class MetaClassFactory
     // Check to see if this is an array class. If so, handle it accordingly.
     if (descriptor.charAt(0) == '[')
     {
-      TypeName componentType = TypeNameFactory.fromDescriptor(descriptor.substring(1, descriptor.length()));
+      TypeName componentType = TypeNameFactory.fromDescriptor(descriptor.substring(1, descriptor.
+        length()));
       MetaClass componentClass = getMetaClass(componentType);
       return new ArrayMetaClass(componentClass);
     }
@@ -68,7 +69,7 @@ public class MetaClassFactory
     if (primitiveClass != null)
       return primitiveClass;
 
-    List<String> packageList = new ArrayList<String>();
+    List<String> packageList = Lists.newArrayListWithCapacity(typeName.getComponents().size());
     for (String element: typeName.getComponents())
       packageList.add(element);
     assert (packageList.size() > 0): typeName;

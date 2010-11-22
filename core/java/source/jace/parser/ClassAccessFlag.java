@@ -1,6 +1,6 @@
 package jace.parser;
 
-import java.util.Arrays;
+import com.google.common.collect.Lists;
 import java.util.Collection;
 
 /**
@@ -9,90 +9,86 @@ import java.util.Collection;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ClassAccessFlag {
+public class ClassAccessFlag
+{
+	// Declared public; may be accessed from outside its package
+	public static final ClassAccessFlag PUBLIC = new ClassAccessFlag("public", 0x0001);
+	// Declared final; no subclasses allowed
+	public static final ClassAccessFlag FINAL = new ClassAccessFlag("final", 0x0010);
+	// Treat superclass methods specially when invoked by the invokespecial instruction
+	public static final ClassAccessFlag SUPER = new ClassAccessFlag("super", 0x0020);
+	// Is an interface, not a class
+	public static final ClassAccessFlag INTERFACE = new ClassAccessFlag("interface", 0x0200);
+	// Declared abstract; must not be instantiated
+	public static final ClassAccessFlag ABSTRACT = new ClassAccessFlag("abstract", 0x0400);
+	// Declared synthetic; Not present in the source code
+	public static final ClassAccessFlag SYNTHETIC = new ClassAccessFlag("synthetic", 0x1000);
+	// Declared as an annotation type
+	public static final ClassAccessFlag ANNOTATION = new ClassAccessFlag("annotation", 0x2000);
+	// Declared as an enum type
+	public static final ClassAccessFlag ENUM = new ClassAccessFlag("enum", 0x4000);
+	private final int value;
+	private final String name;
 
-  /** Declared public; may be accessed from outside its package
-   */
-  public static final ClassAccessFlag PUBLIC = new ClassAccessFlag(0x0001, "public");
-  /** Declared final; no subclasses allowed.
-   */
-  public static final ClassAccessFlag FINAL = new ClassAccessFlag(0x0010, "final");
-  /** Treat superclass methods specially when invoked by the invokespecial instruction.
-   */
-  public static final ClassAccessFlag SUPER = new ClassAccessFlag(0x0020, "super");
-  /** Is an interface, not a class.
-   */
-  public static final ClassAccessFlag INTERFACE = new ClassAccessFlag(0x0200, "interface");
-  /** Declared abstract; must not be instantiated.
-   */
-  public static final ClassAccessFlag ABSTRACT = new ClassAccessFlag(0x0400, "abstract");
-  /** Declared synthetic; Not present in the source code.
-   */
-  public static final ClassAccessFlag SYNTHETIC = new ClassAccessFlag(0x1000, "synthetic");
-  /** Declared as an annotation type. 
-   */
-  public static final ClassAccessFlag ANNOTATION = new ClassAccessFlag(0x2000, "annotation");
-  /** Declared as an enum type. 
-   */
-  public static final ClassAccessFlag ENUM = new ClassAccessFlag(0x4000, "enum");
+	/**
+	 * Creates a new ClassAccessFlag with the given name and value.
+	 *
+	 * @param name the flag name
+	 * @param value the flag value
+	 */
+	protected ClassAccessFlag(String name, int value)
+	{
+		this.name = name;
+		this.value = value;
+	}
 
-  /**
-   * Creates a new ClassAccessFlag with the given name and value.
-   *
-   */
-  protected ClassAccessFlag(int value, String name) {
-    mValue = value;
-    mName = name;
-  }
+	/**
+	 * Returns all possible ClassAccessFlags.
+	 *
+	 * @return all possible ClassAccessFlags
+	 */
+	public static Collection<ClassAccessFlag> getFlags()
+	{
+		return Lists.newArrayList(PUBLIC, FINAL, SUPER, INTERFACE, ABSTRACT, ANNOTATION, SYNTHETIC);
+	}
 
-  /**
-   * Returns a collection of the existing ClassAccessFlags.
-   *
-   */
-  public static Collection<ClassAccessFlag> getFlags() {
+	/**
+	 * Returns the name used to represent the flag in Java source-code.
+	 * For example, "public", "protected", etc ...
+	 *
+	 * @return the name used to represent the flag in the Java source-code.
+	 */
+	public String getName()
+	{
+		return name;
+	}
 
-    ClassAccessFlag[] flags = {
-      PUBLIC,
-      FINAL,
-      SUPER,
-      INTERFACE,
-      ABSTRACT,
-      ANNOTATION,
-      SYNTHETIC
-    };
+	/**
+	 * Returns the value used to represent the flag in a Java class file.
+	 *
+	 * @return the value used to represent the flag in a Java class file
+	 */
+	public int getValue()
+	{
+		return value;
+	}
 
-    return Arrays.asList(flags);
-  }
+	@Override
+	@SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
+	public boolean equals(Object o)
+	{
+		if (!(o instanceof ClassAccessFlag))
+			return false;
+		ClassAccessFlag other = (ClassAccessFlag) o;
+		return name.equals(other.name) && value == other.value;
+	}
 
-  /**
-   * Returns the name used to represent the flag in Java source code.
-   * For example, "public", "protected", etc ...
-   *
-   */
-  public String getName() {
-    return mName;
-  }
-
-  /**
-   * Returns the value used to represent the flag in a Java class file.
-   *
-   */
-  public int getValue() {
-    return mValue;
-  }
-
-  /**
-   * Returns true if this ClassAccessFlag is the same as obj.
-   * ClassAccessFlags are equal if they have the same value.
-   *
-   */
-  public boolean equals(Object obj) {
-    if (obj instanceof ClassAccessFlag) {
-      return (mValue == ((ClassAccessFlag) obj).mValue);
-    }
-
-    return false;
-  }
-  private int mValue;
-  private String mName;
+	@Override
+	public int hashCode()
+	{
+		int hash = 7;
+		hash = 37 * hash + this.value;
+		hash = 37 * hash + this.name.hashCode();
+		return hash;
+	}
 }

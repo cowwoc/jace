@@ -1,38 +1,48 @@
-
 package jace.parser.constant;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-public class InterfaceMethodRefConstant implements TypedConstant {
+public class InterfaceMethodRefConstant implements TypedConstant
+{
+	private final int classIndex;
+	private final int nameAndTypeIndex;
 
-  int mClassIndex;
-  int mNameAndTypeIndex;
+	public InterfaceMethodRefConstant(int classIndex, int nameAndTypeIndex)
+	{
+		this.classIndex = classIndex;
+		this.nameAndTypeIndex = nameAndTypeIndex;
+	}
 
-  public InterfaceMethodRefConstant( int classIndex, int nameAndTypeIndex ) {
-    mClassIndex = classIndex;
-    mNameAndTypeIndex = nameAndTypeIndex;
-  }
+	@Override
+	public int getClassIndex()
+	{
+		return classIndex;
+	}
 
-  public int getClassIndex() {
-    return mClassIndex;
-  }
+	@Override
+	public int getNameAndTypeIndex()
+	{
+		return nameAndTypeIndex;
+	}
 
-  public int getNameAndTypeIndex() {
-    return mNameAndTypeIndex;
-  }
-  
-  public Object getValue() {
-    return "Not yet implemented.";
-  }
+	@Override
+	public Object getValue()
+	{
+		return "Not yet implemented.";
+	}
 
-  public int getSize() {
-    return 1;
-  }
+	@Override
+	public int getSize()
+	{
+		return 1;
+	}
 
-  public void write( DataOutputStream output ) throws IOException {
-    output.writeByte( InterfaceMethodRefConstantReader.TAG );
-    output.writeShort( mClassIndex );
-    output.writeShort( mNameAndTypeIndex );
-  }
-
+	@Override
+	public void write(DataOutputStream output) throws IOException
+	{
+		output.writeByte(new InterfaceMethodRefConstantReader().getTag());
+		output.writeShort(classIndex);
+		output.writeShort(nameAndTypeIndex);
+	}
 }

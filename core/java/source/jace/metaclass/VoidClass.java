@@ -8,41 +8,43 @@ package jace.metaclass;
  */
 public class VoidClass extends PrimitiveMetaClass
 {
-  /**
-   * Creates a new VoidClass.
-   *
-   * @param isProxy true if the object represents a proxy
-   */
-  public VoidClass(boolean isProxy)
-  {
-    super(isProxy);
-  }
+	/**
+	 * Creates a new VoidClass.
+	 *
+	 * @param isProxy true if the object represents a proxy
+	 */
+	public VoidClass(boolean isProxy)
+	{
+		super(isProxy);
+	}
 
-  @Override
-  protected MetaClass newInstance(boolean isProxy)
-  {
-    return new VoidClass(isProxy);
-  }
+	@Override
+	protected MetaClass newInstance(boolean isProxy)
+	{
+		return new VoidClass(isProxy);
+	}
 
-  public String getSimpleName()
-  {
-    return "JVoid";
-  }
+	@Override
+	public String getSimpleName()
+	{
+		return "JVoid";
+	}
 
-  @Override
-  public boolean equals(Object obj)
-  {
-    return obj instanceof VoidClass;
-  }
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof VoidClass;
+	}
 
-  @Override
-  public int hashCode()
-  {
-    return getSimpleName().hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return getSimpleName().hashCode();
+	}
 
-  public String getJniType()
-  {
-    return "void";
-  }
+	@Override
+	public String getJniType()
+	{
+		return "void";
+	}
 }

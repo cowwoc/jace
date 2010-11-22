@@ -1,10 +1,11 @@
 package jace.parser.constant;
 
+import com.google.common.collect.Maps;
 import jace.parser.ConstantPool;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Used to create constants from an InputStream.
@@ -12,25 +13,28 @@ import java.util.HashMap;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class ConstantFactory {
+public class ConstantFactory
+{
+  private static final ConstantFactory constantFactory = new ConstantFactory();
+  private final Map<Integer, ConstantReader> constantReaders = Maps.newHashMap();
 
-  private static ConstantFactory mConstantFactory = new ConstantFactory();
-  private HashMap<Integer, ConstantReader> mConstantReaders = new HashMap<Integer, ConstantReader>();
-
-  public static ConstantFactory getConstantFactory() {
-    return mConstantFactory;
+  public static ConstantFactory getInstance()
+  {
+    return constantFactory;
   }
 
-  public Constant readConstant(InputStream inputStream, ConstantPool pool) throws ClassFormatError {
-
+  public Constant readConstant(InputStream inputStream, ConstantPool pool) throws ClassFormatError
+  {
     DataInputStream input;
     int tag;
 
-    try {
+    try
+    {
       input = new DataInputStream(inputStream);
       tag = input.readUnsignedByte();
     }
-    catch (IOException e) {
+    catch (IOException e)
+    {
       ClassFormatError exception = new ClassFormatError("Unexpected end of class definition");
       exception.initCause(e);
       throw exception;
@@ -38,15 +42,13 @@ public class ConstantFactory {
 
     ConstantReader reader = getReader(tag);
 
-    if (reader == null) {
+    if (reader == null)
       throw new ClassFormatError("Unrecognized constant tag value < " + tag + " >");
-    }
-
     return reader.readConstant(input, pool);
   }
 
-  private ConstantFactory() {
-
+  private ConstantFactory()
+  {
     addReader(new ClassConstantReader());
     addReader(new FieldRefConstantReader());
     addReader(new MethodRefConstantReader());
@@ -60,11 +62,13 @@ public class ConstantFactory {
     addReader(new UTF8ConstantReader());
   }
 
-  private void addReader(ConstantReader reader) {
-    mConstantReaders.put(new Integer(reader.getTag()), reader);
+  private void addReader(ConstantReader reader)
+  {
+    constantReaders.put(Integer.valueOf(reader.getTag()), reader);
   }
 
-  private ConstantReader getReader(int tag) {
-    return mConstantReaders.get(new Integer(tag));
+  private ConstantReader getReader(int tag)
+  {
+    return constantReaders.get(Integer.valueOf(tag));
   }
 }

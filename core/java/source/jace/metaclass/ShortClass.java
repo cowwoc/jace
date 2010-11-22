@@ -8,41 +8,43 @@ package jace.metaclass;
  */
 public class ShortClass extends PrimitiveMetaClass
 {
-  /**
-   * Creates a new ShortClass.
-   *
-   * @param isProxy true if the object represents a proxy
-   */
-  public ShortClass(boolean isProxy)
-  {
-    super(isProxy);
-  }
+	/**
+	 * Creates a new ShortClass.
+	 *
+	 * @param isProxy true if the object represents a proxy
+	 */
+	public ShortClass(boolean isProxy)
+	{
+		super(isProxy);
+	}
 
-  @Override
-  protected MetaClass newInstance(boolean isProxy)
-  {
-    return new ShortClass(isProxy);
-  }
+	@Override
+	protected MetaClass newInstance(boolean isProxy)
+	{
+		return new ShortClass(isProxy);
+	}
 
-  public String getSimpleName()
-  {
-    return "JShort";
-  }
+	@Override
+	public String getSimpleName()
+	{
+		return "JShort";
+	}
 
-  @Override
-  public boolean equals(Object obj)
-  {
-    return obj instanceof ShortClass;
-  }
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof ShortClass;
+	}
 
-  @Override
-  public int hashCode()
-  {
-    return getSimpleName().hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return getSimpleName().hashCode();
+	}
 
-  public String getJniType()
-  {
-    return "jshort";
-  }
+	@Override
+	public String getJniType()
+	{
+		return "jshort";
+	}
 }

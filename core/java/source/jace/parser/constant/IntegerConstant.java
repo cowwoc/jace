@@ -1,27 +1,33 @@
-
 package jace.parser.constant;
 
-import java.io.*;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
-public class IntegerConstant implements Constant {
+public class IntegerConstant implements Constant
+{
+	private final int bytes;
 
-  int mBytes;
+	public IntegerConstant(int bytes)
+	{
+		this.bytes = bytes;
+	}
 
-  public IntegerConstant( int bytes ) {
-    mBytes = bytes;
-  }
+	@Override
+	public int getSize()
+	{
+		return 1;
+	}
 
-  public int getSize() {
-    return 1;
-  }
+	@Override
+	public Object getValue()
+	{
+		return Integer.valueOf(bytes);
+	}
 
-  public Object getValue() {
-    return new Integer( mBytes );
-  }
-
-  public void write( DataOutputStream output ) throws IOException {
-    output.writeByte( IntegerConstantReader.TAG );
-    output.writeInt( mBytes );
-  }
-
+	@Override
+	public void write(DataOutputStream output) throws IOException
+	{
+		output.writeByte(new IntegerConstantReader().getTag());
+		output.writeInt(bytes);
+	}
 }

@@ -3,7 +3,7 @@ package jace.util;
 public class ShutdownHook extends Thread
 {
 	private static ShutdownHook instance;
-	private static boolean registered;
+	private boolean registered;
 
 	/**
 	 * Creates and registers the shutdown hook.
@@ -41,7 +41,6 @@ public class ShutdownHook extends Thread
 	@Override
 	public synchronized void run()
 	{
-		instance = null;
 		registered = false;
 		signalVMShutdown();
 	}

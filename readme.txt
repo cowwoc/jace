@@ -120,9 +120,18 @@ I need your support! If you can help developing Jace, please contact me at cowwo
   invoked after the JVM has already shut down.
 - jaceCreateInstance() would crash if the JVM was not created by Jace; fixed.
 - PeerEnhancer was generating invalid bytecode (INVOKEVIRTUAL instead of INVOKESPECIAL for private methods); fixed.
+- Enum ordinal values are now accessible from C++.
+
+Java: Fruits.APPLE.ordinal()
+C++ : Fruits::Ordinals::APPLE
+
+- Native threads attached to the JVM are now assigned the following name: "NativeThread-<id>" where <id>
+  denotes the native thread id.
+
 
 Compatibility breakers:
 
+- Jace now requires Java 1.5 (previously was 1.4)
 - BatchGenerator, ProxyGenerator take command-line options -public, -protected, -package, -private.
   In the past these used to refer to keeping only the specific accessibility level but now they
   refer to keeping any items having that accessibility or higher. For example, -package now

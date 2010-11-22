@@ -8,41 +8,43 @@ package jace.metaclass;
  */
 public class ByteClass extends PrimitiveMetaClass
 {
-  /**
-   * Creates a new ByteClass.
-   *
-   * @param isProxy true if the object represents a proxy
-   */
-  public ByteClass(boolean isProxy)
-  {
-    super(isProxy);
-  }
+	/**
+	 * Creates a new ByteClass.
+	 *
+	 * @param isProxy true if the object represents a proxy
+	 */
+	public ByteClass(boolean isProxy)
+	{
+		super(isProxy);
+	}
 
-  @Override
-  protected MetaClass newInstance(boolean isProxy)
-  {
-    return new ByteClass(isProxy);
-  }
+	@Override
+	protected MetaClass newInstance(boolean isProxy)
+	{
+		return new ByteClass(isProxy);
+	}
 
-  public String getSimpleName()
-  {
-    return "JByte";
-  }
+	@Override
+	public String getSimpleName()
+	{
+		return "JByte";
+	}
 
-  @Override
-  public boolean equals(Object obj)
-  {
-    return obj instanceof ByteClass;
-  }
+	@Override
+	public boolean equals(Object obj)
+	{
+		return obj instanceof ByteClass;
+	}
 
-  @Override
-  public int hashCode()
-  {
-    return getSimpleName().hashCode();
-  }
+	@Override
+	public int hashCode()
+	{
+		return getSimpleName().hashCode();
+	}
 
-  public String getJniType()
-  {
-    return "jbyte";
-  }
+	@Override
+	public String getJniType()
+	{
+		return "jbyte";
+	}
 }

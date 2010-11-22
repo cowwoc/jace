@@ -4,40 +4,50 @@ import jace.parser.ConstantPool;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-public class ClassConstant implements Constant {
+public class ClassConstant implements Constant
+{
+	private int nameIndex;
+	private final ConstantPool pool;
 
-  int mNameIndex;
-  ConstantPool mPool;
+	public ClassConstant(int nameIndex, ConstantPool pool)
+	{
+		this.nameIndex = nameIndex;
+		this.pool = pool;
+	}
 
-  public ClassConstant(int nameIndex, ConstantPool pool) {
-    mNameIndex = nameIndex;
-    mPool = pool;
-  }
+	@Override
+	public int getSize()
+	{
+		return 1;
+	}
 
-  public int getSize() {
-    return 1;
-  }
+	public int getNameIndex()
+	{
+		return nameIndex;
+	}
 
-  public int getNameIndex() {
-    return mNameIndex;
-  }
+	public void setNameIndex(int index)
+	{
+		this.nameIndex = index;
+	}
 
-  public void setNameIndex(int index) {
-    mNameIndex = index;
-  }
+	@Override
+	public Object getValue()
+	{
+		UTF8Constant c = (UTF8Constant) pool.getConstantAt(nameIndex);
+		return c.getValue();
+	}
 
-  public Object getValue() {
-    UTF8Constant c = (UTF8Constant) mPool.getConstantAt(mNameIndex);
-    return c.getValue();
-  }
+	@Override
+	public void write(DataOutputStream output) throws IOException
+	{
+		output.writeByte(new ClassConstantReader().getTag());
+		output.writeShort(nameIndex);
+	}
 
-  public void write(DataOutputStream output) throws IOException {
-    output.writeByte(ClassConstantReader.TAG);
-    output.writeShort(mNameIndex);
-  }
-
-  @Override
-  public String toString() {
-    return (String) getValue();
-  }
+	@Override
+	public String toString()
+	{
+		return (String) getValue();
+	}
 }
