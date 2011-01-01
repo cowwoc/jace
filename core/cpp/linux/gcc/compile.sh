@@ -28,7 +28,7 @@ JDK_INCLUDE=$JAVA_HOME/include
 #
 JDK_OS_INCLUDE=$JDK_INCLUDE/linux
 
-JACE_ROOT=../../../..
+JACE_ROOT=../../..
 
 echo "Compiling..."
 
@@ -37,9 +37,6 @@ $CC \
  -I$JACE_ROOT/include \
  -I$JDK_INCLUDE \
  -I$JDK_OS_INCLUDE \
- $JACE_ROOT/source/jace/BaseException.cpp
- 
- #$JACE_ROOT/source/jace/*.cpp  \
- #$JACE_ROOT/source/jace/proxy/*.cpp  \
- #$JACE_ROOT/source/jace/proxy/types/*.cpp  
-
+ $JACE_ROOT/source/jace/*.cpp  \
+ $JACE_ROOT/source/jace/proxy/*.cpp  \
+ $JACE_ROOT/source/jace/proxy/types/*.cpp  

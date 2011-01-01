@@ -58,6 +58,7 @@ using std::wstring;
 #include <windows.h>
 #else
 #include <sys/types.h>
+#include <sys/syscall.h>
 #endif
 
 
@@ -750,7 +751,7 @@ string getCurrentThreadId()
 #ifdef _WIN32
   return toString(GetCurrentThreadId());
 #else
-  return toString(gettid());
+  return toString(syscall(SYS_gettid));
 #endif
 }
 

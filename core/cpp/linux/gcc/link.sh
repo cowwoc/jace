@@ -2,7 +2,11 @@
 # A script for linking using gcc 3.0+
 cd debug
 
-rm -rf ../../../../../release/lib/linux-gcc/*.so ../../../../../release/lib/linux-gcc/*.a 2> /dev/null
+# Delete the previous build if there
+rm -rf ../../../../../release/lib/linux-gcc 2> /dev/null
+
+# Create the directory to put the build in
+mkdir ../../../../../release/lib/linux-gcc
 
 CC=g++
 
@@ -21,7 +25,7 @@ LINKER_FLAGS="-g -pthread -fPIC -shared "
 # This script expects $JAVA_HOME to be set.
 # $JVM_LIB_DIR will be set to the directory containing libjvm.so
 #
-JVM_LIB_DIR=$JAVA_HOME/jre/lib/i386/client
+JVM_LIB_DIR=$JAVA_HOME/jre/lib/amd64/server
 
 echo "Linking..."
 
