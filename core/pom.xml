@@ -1,0 +1,110 @@
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>5</version>
+	</parent>
+	<groupId>org.bitbucket.cowwoc</groupId>
+	<artifactId>jace.core</artifactId>
+	<version>1.2-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>jace.core</name>
+	<description>Jace core module</description>
+	<url>http://bitbucket.org/cowwoc/jace</url>
+	<licenses>
+		<license>
+			<name>New BSD License</name>
+			<url>http://en.wikipedia.org/wiki/BSD_licenses#3-clause_license_.28.22New_BSD_License.22.29</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>https://bitbucket.org/cowwoc/jace</url>
+		<connection>scm:hg:https://bitbucket.org/cowwoc/jace</connection>
+		<developerConnection>scm:hg:https://bitbucket.org/cowwoc/jace</developerConnection>
+	</scm>
+	<developers>
+		<developer>
+			<id>cowwoc</id>
+			<name>Gili Tzabari</name>
+		</developer>
+	</developers>
+	<modules>
+		<module>java</module>
+		<module>cpp</module>
+	</modules>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.4.3</version>
+				<configuration>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<profiles>
+		<profile>
+			<id>win32-debug</id>
+			<properties>
+				<cmake.generator>Visual Studio 10</cmake.generator>
+				<platform>win32</platform>
+				<build.type>debug</build.type>
+				<native.classifier>win32-debug</native.classifier>
+			</properties>
+		</profile>
+		<profile>
+			<id>win32-release</id>
+			<properties>
+				<cmake.generator>Visual Studio 10</cmake.generator>
+				<platform>win32</platform>
+				<build.type>release</build.type>
+				<native.classifier>win32-release</native.classifier>
+			</properties>
+		</profile>
+		<profile>
+			<id>win64-debug</id>
+			<properties>
+				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
+				<platform>win64</platform>
+				<build.type>debug</build.type>
+				<native.classifier>win64-debug</native.classifier>
+			</properties>
+		</profile>
+		<profile>
+			<id>win64-release</id>
+			<properties>
+				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
+				<platform>win64</platform>
+				<build.type>release</build.type>
+				<native.classifier>win64-release</native.classifier>
+			</properties>
+		</profile>
+	</profiles>
+</project>

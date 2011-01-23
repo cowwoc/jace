@@ -25,6 +25,13 @@ This package includes the following:
 For questions about Jace, visit http://sourceforge.net/projects/jace/
 
 
+Install Maven
+-------------
+
+1) Download Maven 2.x or 3.x from http://maven.apache.org/download.html
+2) Extract Maven into a directory of your choosing (herein referred to as %MAVEN_HOME%) and add %MAVEN_HOME%\bin to the system path
+
+
 Building Boost C++
 ------------------
 
@@ -53,13 +60,16 @@ A few notes:
 Building Jace
 -------------
 
+Jace consists of C++ and Java libraries. To build the C++ libraries:
+
 1) Create a system-wide environment variable called %JACE_HOME% that denotes Jace's installation directory
 2) Create a system-wide environment variable called %JAVA_HOME% that denotes the installation directory of the Java Development Kit
-3) Open %JACE_HOME%/core/cpp/windows/msvc/jace.sln
-4) Set the solution platform to "i386" for 32-bit mode or "amd64" for 64-bit mode
-5) Build the solution to generate the Jace binary files
-6) Run "ant" in %JACE_HOME% to generate the Jace header files
-7) You're done
+3) Open %JACE_HOME%/core in a terminal
+4) Run "mvn help:all-profiles" to list available build platforms
+5) Run "mvn install -P<platform>" where <platform> is one of the platforms listed in step 3
+6) The JAR file generated in %JACE_HOME%/core/cpp/target contains the C++ libraries and include files.
+   The JAR file generated in %JACE_HOME%/core/java/target contains the Java libraries.
+
 
 
 
@@ -156,7 +166,13 @@ Compatibility breakers:
   unloads it.
 - Renamed VmLoader::version() to getJniVersion()
 - jace::helper::registerShutdownHook() is now private
-- Removed WrapperVmLoader as it was replaced by jace::helper::setJavaVM()
+- Removed WrapperVmLoader as it was replaced by:
+
+JNIEnv* env = jace::attach();
+JavaVM* jvm;
+env->GetJavaVM(&jvm);
+jace::setJavaVM(jvm)
+
 - Refactored C++ proxy constructors so that Map() creates a Java reference while Map::Factory::create() creates
   a Java object.
   

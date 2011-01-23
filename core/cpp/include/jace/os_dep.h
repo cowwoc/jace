@@ -91,9 +91,6 @@
 	 *
 	 * @see http://www.stonesteps.ca/services/consulting/faq.asp?qid=q20060128-01&topic=consulting
 	 */
-	#ifndef _SECURE_SCL
-		#define _SECURE_SCL 0
-	#endif
 	#ifndef _CRT_SECURE_NO_DEPRECATE
 		#define _CRT_SECURE_NO_DEPRECATE
 	#endif
