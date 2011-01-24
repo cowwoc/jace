@@ -94,16 +94,16 @@ public class EnhanceJavaPeerTask extends Task
 			log.info("Enhancing " + inputFile + " -> " + outputFile);
 		try
 		{
-			PeerEnhancer.Builder enhancer = new PeerEnhancer.Builder(inputFile, outputFile).
-				deallocationMethod(
-				deallocationMethod).verbose(verbose);
-			for (int i = 0, size = libraries.size(); i < size; ++i)
-				enhancer.library(libraries.get(i).getName());
+			PeerEnhancer.Builder enhancer = new PeerEnhancer.Builder(inputFile, outputFile).verbose(
+				verbose);
+			if (deallocationMethod != null)
+				enhancer.deallocationMethod(deallocationMethod);
+			for (Library library: libraries)
+				enhancer.library(library.getName());
 			enhancer.enhance();
 
 			if (inputFile.getCanonicalFile().equals(outputFile))
 			{
-
 				// back up the enhanced file for JavaPeerUptodateTask
 				BufferedInputStream in = new BufferedInputStream(new FileInputStream(outputFile));
 				BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile

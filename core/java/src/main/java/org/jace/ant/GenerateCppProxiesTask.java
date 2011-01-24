@@ -24,7 +24,7 @@ import org.apache.tools.ant.types.Path;
  * Example:
  * &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source"
  * outputHeaders="output/include" outputSources="output/source" exportSymbols="false"
- * classpath="rt.jar"&gt;
+ * classpath="rt.jar" accessibility="PUBLIC"&gt;
  *   &lt;classpath&gt;
  *     &lt;pathelement location="classes"/&gt;
  *   &lt;/classpath&gt;
@@ -52,7 +52,12 @@ public class GenerateCppProxiesTask extends Task
 	private Path classpath = new Path(getProject());
 	private AccessibilityType accessibility = AccessibilityType.PUBLIC;
 	/**
-	 * Unused classes to generate proxies for (useful for libraries where the used classes are not known in advance).
+	 * A list of fully-qualified class names that must be exported.
+	 *
+	 * When generating C++ proxies for a Java library, there is no way of
+	 * knowing which classes will be referenced by 3rd-party code. This feature
+	 * enables developers to export C++ proxies for Java classes even if they are
+	 * not referenced at the time the generator is run.
 	 */
 	private Set<Dependency> dependencies = Sets.newHashSet();
 	/**
@@ -109,7 +114,7 @@ public class GenerateCppProxiesTask extends Task
 	/**
 	 * Indicates the method accessibility to expose.
 	 *
-	 * @param accessibility the method accessibility to expose
+	 * @param accessibility PUBLIC, PROTECTED, PACKAGE or PRIVATE
 	 * @throws IllegalArgumentException if an unknown accessibility type is specified
 	 */
 	public void setAccessibility(String accessibility) throws IllegalArgumentException
