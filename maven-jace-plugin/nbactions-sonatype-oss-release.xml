@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+        <action>
+            <actionName>build</actionName>
+            <properties>
+                <gpg.passphrase>doomrule</gpg.passphrase>
+            </properties>
+            <goals>
+                <goal>clean</goal>
+                <goal>deploy</goal>
+                
+                
+                
+            </goals>
+        </action>
+    </actions>

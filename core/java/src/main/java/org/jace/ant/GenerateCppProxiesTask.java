@@ -114,6 +114,9 @@ public class GenerateCppProxiesTask extends Task
 	/**
 	 * Indicates the method accessibility to expose.
 	 *
+	 * For example, a value of PROTECTED indicates that public or protected
+	 * methods should be generated.
+	 * 
 	 * @param accessibility PUBLIC, PROTECTED, PACKAGE or PRIVATE
 	 * @throws IllegalArgumentException if an unknown accessibility type is specified
 	 */
@@ -161,9 +164,8 @@ public class GenerateCppProxiesTask extends Task
 		for (Dependency dependency: dependencies)
 			extraDependencies.add(TypeNameFactory.fromIdentifier(dependency.getName()));
 		AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders,
-			outputSources,
-			new ClassPath(classpath.toString())).accessibility(accessibility).minimizeDependencies(true).
-			exportSymbols(exportSymbols);
+			outputSources, new ClassPath(classpath.toString())).accessibility(accessibility).
+			minimizeDependencies(true).exportSymbols(exportSymbols);
 		for (TypeName dependency: extraDependencies)
 			autoProxy.extraDependency(dependency);
 		try
