@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * to run correctly.
  *
  * It examines the #includes of C++ headers and source files looking for
- * #include "jace/proxy/xxx". When it finds one of these includes, it generates
+ * #include "org/jace/proxy/xxx". When it finds one of these includes, it generates
  * the corresponding Jace C++ proxy class.
  *
  * @author Toby Reyelts

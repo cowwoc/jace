@@ -74,7 +74,7 @@ public interface MetaClass
 	 *
 	 * For example:
 	 *
-	 * #include "jace/java/lang/String.h"
+	 * #include "org/jace/java/lang/String.h"
 	 *
 	 * @return a String which generates an include of the header file for this class
 	 */
@@ -83,7 +83,7 @@ public interface MetaClass
 	/**
 	 * Returns a String which is a using declaration for this class.
 	 *
-	 * For example, "using jace::java::lang::String;".
+	 * For example, "using org::jace::java::lang::String;".
 	 *
 	 * @return a String which is a using declaration for this class
 	 */

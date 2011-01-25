@@ -83,7 +83,7 @@
 			<version>2.2.1</version>
 		</dependency>
 	 <dependency>
-	  <groupId>com.google.code.jace</groupId>
+	  <groupId>com.googlecode.jace</groupId>
 	  <artifactId>core.java</artifactId>
 	  <version>1.2-SNAPSHOT</version>
 	 </dependency>
