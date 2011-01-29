@@ -25,49 +25,28 @@ This package includes the following:
 For questions about Jace, visit http://sourceforge.net/projects/jace/
 
 
+Definitions
+-----------
+
+1) %MAVEN_HOME% refers to the installation directory of Apache Maven
+2) %JACE_HOME% refers to the installation directory of Jace
+
+
 Install Maven
 -------------
 
-1) Download Maven 2.x or 3.x from http://maven.apache.org/download.html
-2) Extract Maven into a directory of your choosing (herein referred to as %MAVEN_HOME%) and add %MAVEN_HOME%\bin to the system path
-
-
-Building Boost C++
-------------------
-
-Jace's compilation depends upon the Boost C++ library. To build Boost C++ under Windows follow the following steps:
-
-1) Download the latest release of Boost C++ from http://sourceforge.net/projects/boost/files/boost/
-2) Download the latest release of Boost Jam from http://sourceforge.net/projects/boost/files/boost-jam/
-3) Create a system-wide environment variable called %BOOST_HOME% to denote Boost's installation directory
-4) Extract Boost C++ into %BOOST_HOME%
-5) Extract bjam.exe into %BOOST_HOME%
-6) Open a Visual Studio Command Prompt
-7) cd %BOOST_HOME%
-8) To build the 32-bit version run "bjam toolset=msvc address-model=32 --stagedir=stage32 --build-type=complete stage"
-9) To build the 64-bit version run "bjam toolset=msvc address-model=64 --stagedir=stage64 --build-type=complete stage"
-
-A few notes:
-
-    * Notice that address-model isn't prefixed with a double hyphen; that's intentional! If you prefix it,
-      it will not work.
-    * You can add "-j %NUMBER_OF_PROCESSORS%" to the bjam parameters. This will cause a number of commands
-      to execute in parallel if you've got more cores / CPUs.
-
-10) You're done. See http://www.boost.org/doc/libs/1_43_0/more/getting_started/index.html if you run into any trouble
+1) Download Maven 2.2.1 from http://maven.apache.org/download.html
+2) Extract Maven into %MAVEN_HOME% and add %MAVEN_HOME%\bin to the system path
+3) Copy or merge %JACE_HOME%/settings.xml into %USERPROFILE%/.m2/settings.xml
 
 
 Building Jace
 -------------
 
-Jace consists of C++ and Java libraries. To build the C++ libraries:
-
-1) Create a system-wide environment variable called %JACE_HOME% that denotes Jace's installation directory
-2) Create a system-wide environment variable called %JAVA_HOME% that denotes the installation directory of the Java Development Kit
-3) Open %JACE_HOME%/core in a terminal
-4) Run "mvn help:all-profiles" to list available build platforms
-5) Run "mvn install -P<platform>" where <platform> is one of the platforms listed in step 3
-6) The JAR file generated in %JACE_HOME%/core/cpp/target contains the C++ libraries and include files.
+1) Open %JACE_HOME%/core in a terminal
+2) Run "mvn help:all-profiles" to list available build platforms
+3) Run "mvn install -P<platform>" where <platform> is one of the platforms listed in step 3
+4) The JAR file generated in %JACE_HOME%/core/cpp/target contains the C++ libraries and include files.
    The JAR file generated in %JACE_HOME%/core/java/target contains the Java libraries.
 
 

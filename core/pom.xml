@@ -7,11 +7,11 @@
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
 	</parent>
-	<groupId>com.googlecode.jace</groupId>
-	<artifactId>core</artifactId>
+	<groupId>com.googlecode</groupId>
+	<artifactId>jace-core</artifactId>
 	<version>1.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>jace.core</name>
+	<name>Jace Core</name>
 	<description>Jace core module</description>
 	<url>http://code.google.com/p/jace/</url>
 	<licenses>
@@ -73,39 +73,15 @@
 	<profiles>
 		<profile>
 			<id>win32-debug</id>
-			<properties>
-				<cmake.generator>Visual Studio 10</cmake.generator>
-				<platform>win32</platform>
-				<build.type>debug</build.type>
-				<native.classifier>win32-debug</native.classifier>
-			</properties>
 		</profile>
 		<profile>
 			<id>win32-release</id>
-			<properties>
-				<cmake.generator>Visual Studio 10</cmake.generator>
-				<platform>win32</platform>
-				<build.type>release</build.type>
-				<native.classifier>win32-release</native.classifier>
-			</properties>
 		</profile>
 		<profile>
 			<id>win64-debug</id>
-			<properties>
-				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
-				<platform>win64</platform>
-				<build.type>debug</build.type>
-				<native.classifier>win64-debug</native.classifier>
-			</properties>
 		</profile>
 		<profile>
 			<id>win64-release</id>
-			<properties>
-				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
-				<platform>win64</platform>
-				<build.type>release</build.type>
-				<native.classifier>win64-release</native.classifier>
-			</properties>
 		</profile>
 	</profiles>
 </project>

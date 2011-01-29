@@ -7,11 +7,11 @@
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
 	</parent>
-	<groupId>com.googlecode.jace</groupId>
-	<artifactId>core.java</artifactId>
+	<groupId>com.googlecode</groupId>
+	<artifactId>jace-core-java</artifactId>
 	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>jace.core.java</name>
+	<name>Jace Core Java</name>
 	<description>Jace core module, Java source-code</description>
 	<url>http://code.google.com/p/jace/</url>
 	<licenses>

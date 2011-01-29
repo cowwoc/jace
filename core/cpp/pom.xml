@@ -7,11 +7,11 @@
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
 	</parent>
-	<groupId>com.googlecode.jace</groupId>
-	<artifactId>core.cpp</artifactId>
+	<groupId>com.googlecode</groupId>
+	<artifactId>jace-core-cpp</artifactId>
 	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>jace.core.cpp</name>
+	<name>Jace Core C++</name>
 	<description>Jace core module, C++ source-code</description>
 	<url>http://code.google.com/p/jace/</url>
 	<licenses>
@@ -43,27 +43,74 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.bitbucket.cowwoc</groupId>
-				<artifactId>maven-cmake-plugin</artifactId>
-				<version>0.1</version>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.1</version>
 				<executions>
 					<execution>
-						<id>cmake</id>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>org.boost</groupId>
+									<artifactId>boost-api</artifactId>
+									<version>${boost.version}</version>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.boost</groupId>
+									<artifactId>boost-date-time</artifactId>
+									<classifier>${boost.classifier}</classifier>
+									<version>${boost.version}</version>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.stage}</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.boost</groupId>
+									<artifactId>boost-thread</artifactId>
+									<classifier>${boost.classifier}</classifier>
+									<version>${boost.version}</version>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.stage}</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.bitbucket.cowwoc</groupId>
+				<artifactId>maven-cmake-plugin</artifactId>
+				<version>0.2-SNAPSHOT</version>
+				<executions>
+					<execution>
+						<id>cmake-generate</id>
 						<phase>generate-resources</phase>
 						<goals>
 							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<sourcePath>${basedir}/../cpp</sourcePath>
+							<targetPath>${project.build.directory}/cmake/${platform}</targetPath>
+							<generator>${cmake.generator}</generator>
+							<projectPath>${project.build.directory}/cmake/${platform}/jace.sln</projectPath>
+							<environmentVariables>
+								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
+							</environmentVariables>
+						</configuration>
+					</execution>
+					<execution>
+						<id>cmake-compile</id>
+						<phase>generate-resources</phase>
+						<goals>
 							<goal>compile</goal>
 						</goals>
+						<configuration>
+							<projectPath>${project.build.directory}/cmake/${platform}/jace.sln</projectPath>
+							<generator>${cmake.generator}</generator>
+							<buildType>${build.type}</buildType>
+						</configuration>
 					</execution>
 				</executions>
-				<configuration>
-					<sourcePath>${basedir}/../cpp</sourcePath>
-					<targetPath>${project.build.directory}/cmake/${platform}</targetPath>
-                    
-					<generator>${cmake.generator}</generator>
-					<projectPath>${project.build.directory}/cmake/${platform}/jace.sln</projectPath>
-					<buildType>${build.type}</buildType>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -79,13 +126,13 @@
 						<configuration>
 							<resources>
 								<resource>
-									<directory>${project.build.directory}/cmake/${platform}/${build.type}</directory>									
+									<directory>${project.build.directory}/cmake/${platform}/${build.type}</directory>
 									<includes>
 										<include>*.lib</include>
 										<include>*.dll</include>
 										<include>*.pdb</include>
 									</includes>
-									<targetPath>core/cpp/bin</targetPath>
+									<targetPath>bin</targetPath>
 								</resource>
 								<resource>
 									<directory>${project.build.directory}/../include</directory>
@@ -94,7 +141,7 @@
 										<include>**/*.tsp</include>
 										<include>**/*.tsd</include>
 									</includes>
-									<targetPath>core/cpp/include</targetPath>
+									<targetPath>include</targetPath>
 								</resource>
 							</resources>
 						</configuration>
@@ -124,7 +171,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.1</version>
 				<configuration>
-					<classifier>${native.classifier}</classifier>
+					<classifier>${platform}-${build.type}</classifier>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -134,40 +181,45 @@
 			<id>win32-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
-				<platform>win32</platform>
+				<platform>windows-i386</platform>
 				<build.type>debug</build.type>
-				<native.classifier>win32-debug</native.classifier>
+				<boost.classifier>windows-vs10-i386</boost.classifier>
+				<boost.stage>stage32</boost.stage>
 			</properties>
 		</profile>
 		<profile>
 			<id>win32-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
-				<platform>win32</platform>
+				<platform>windows-i386</platform>
 				<build.type>release</build.type>
-				<native.classifier>win32-release</native.classifier>
+				<boost.classifier>windows-vs10-i386</boost.classifier>
+				<boost.stage>stage32</boost.stage>
 			</properties>
 		</profile>
 		<profile>
 			<id>win64-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
-				<platform>win64</platform>
+				<platform>windows-amd64</platform>
 				<build.type>debug</build.type>
-				<native.classifier>win64-debug</native.classifier>
+				<boost.classifier>windows-vs10-amd64</boost.classifier>
+				<boost.stage>stage64</boost.stage>
 			</properties>
 		</profile>
 		<profile>
 			<id>win64-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
-				<platform>win64</platform>
+				<platform>windows-amd64</platform>
 				<build.type>release</build.type>
-				<native.classifier>win64-release</native.classifier>
+				<boost.classifier>windows-vs10-amd64</boost.classifier>
+				<boost.stage>stage64</boost.stage>
 			</properties>
 		</profile>
 	</profiles>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<boost.version>1.45.0-SNAPSHOT</boost.version>
 	</properties>
 </project>

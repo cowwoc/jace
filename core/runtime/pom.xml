@@ -7,11 +7,11 @@
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
 	</parent>
-	<groupId>com.googlecode.jace</groupId>
-	<artifactId>runtime</artifactId>
+	<groupId>com.googlecode</groupId>
+	<artifactId>jace-runtime</artifactId>
 	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<name>jace.runtime</name>
+	<name>Jace Runtime</name>
 	<description>Jace runtime module</description>
 	<url>http://code.google.com/p/jace/</url>
 	<licenses>

@@ -19,8 +19,8 @@ import org.jace.peer.PeerEnhancer;
 /**
  * Transforms the bytecode of Java class files to load/unload C++ peers.
  *
- * @goal enhance-java
- * @phase enhance-java
+ * @goal enhanceJava
+ * @phase process-classes
  * @author Gili Tzabari
  */
 public class EnhanceJavaMojo

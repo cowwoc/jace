@@ -13,8 +13,8 @@ import org.jace.peer.PeerGenerator;
 /**
  * Generates a C++ peer.
  *
- * @goal generate-cpp-peer
- * @phase generate-cpp-peer
+ * @goal generateCppPeer
+ * @phase generate-sources
  * @author Gili Tzabari
  */
 public class GenerateCppPeerMojo

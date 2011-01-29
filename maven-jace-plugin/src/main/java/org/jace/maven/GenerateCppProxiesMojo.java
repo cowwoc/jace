@@ -20,8 +20,8 @@ import org.jace.proxy.ProxyGenerator.AccessibilityType;
 /**
  * Generates a C++ proxies.
  *
- * @goal generate-cpp-proxies
- * @phase generate-cpp-proxies
+ * @goal generateCppProxies
+ * @phase generate-sources
  * @author Gili Tzabari
  */
 public class GenerateCppProxiesMojo
@@ -34,7 +34,7 @@ public class GenerateCppProxiesMojo
 	 * @required
 	 */
 	@SuppressWarnings("UWF_UNWRITTEN_FIELD")
-	private List<File> inputHeaders;
+	private List<String> inputHeaders;
 	/**
 	 * The directory of the input source files.
 	 *
@@ -42,7 +42,7 @@ public class GenerateCppProxiesMojo
 	 * @required
 	 */
 	@SuppressWarnings("UWF_UNWRITTEN_FIELD")
-	private List<File> inputSources;
+	private List<String> inputSources;
 	/**
 	 * The directory of the output header files.
 	 *
@@ -102,8 +102,15 @@ public class GenerateCppProxiesMojo
 		Set<TypeName> extraDependencies = Sets.newHashSetWithExpectedSize(forcedClasses.size());
 		for (String forcedClass: forcedClasses)
 			extraDependencies.add(TypeNameFactory.fromIdentifier(forcedClass));
-		AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders,
-			outputSources, new ClassPath(classPath.toString())).accessibility(accessibility).
+
+		List<File> inputHeaderFiles = Lists.newArrayList();
+		for (String path: inputHeaders)
+			inputHeaderFiles.add(new File(path));
+		List<File> inputSourceFiles = Lists.newArrayList();
+		for (String path: inputSources)
+			inputSourceFiles.add(new File(path));
+		AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaderFiles, inputSourceFiles,
+			outputHeaders, outputSources, new ClassPath(classPath.toString())).accessibility(accessibility).
 			minimizeDependencies(true).exportSymbols(exportSymbols);
 		for (TypeName dependency: extraDependencies)
 			autoProxy.extraDependency(dependency);
