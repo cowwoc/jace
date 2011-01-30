@@ -7,7 +7,7 @@
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
 	</parent>
-	<groupId>com.googlecode</groupId>
+	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace-core-cpp</artifactId>
 	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -53,20 +53,20 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>org.boost</groupId>
+									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-api</artifactId>
 									<version>${boost.version}</version>
 									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.boost</groupId>
+									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-date-time</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
 									<outputDirectory>${project.build.directory}/dependency/boost/${boost.stage}</outputDirectory>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.boost</groupId>
+									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-thread</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
@@ -78,8 +78,8 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.bitbucket.cowwoc</groupId>
-				<artifactId>maven-cmake-plugin</artifactId>
+				<groupId>com.googlecode.cmake-maven-project</groupId>
+				<artifactId>cmake-maven-plugin</artifactId>
 				<version>0.2-SNAPSHOT</version>
 				<executions>
 					<execution>

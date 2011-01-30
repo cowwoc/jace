@@ -13,7 +13,7 @@ import org.jace.peer.PeerGenerator;
 /**
  * Generates a C++ peer.
  *
- * @goal generateCppPeer
+ * @goal generate-cpp-peer
  * @phase generate-sources
  * @author Gili Tzabari
  */

@@ -20,7 +20,7 @@ import org.jace.proxy.ProxyGenerator.AccessibilityType;
 /**
  * Generates a C++ proxies.
  *
- * @goal generateCppProxies
+ * @goal generate-cpp-proxies
  * @phase generate-sources
  * @author Gili Tzabari
  */
