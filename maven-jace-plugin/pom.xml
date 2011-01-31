@@ -7,7 +7,7 @@
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
 	</parent>
-	<groupId>com.googlecode</groupId>
+	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace-maven-plugin</artifactId>
 	<version>1.2-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
@@ -83,7 +83,7 @@
 			<version>2.2.1</version>
 		</dependency>
 	 <dependency>
-	  <groupId>com.googlecode</groupId>
+	  <groupId>com.googlecode.jace</groupId>
 	  <artifactId>jace-core-java</artifactId>
 	  <version>${project.version}</version>
 	 </dependency>

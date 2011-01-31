@@ -1,6 +1,5 @@
 package org.jace.maven;
 
-import com.google.common.collect.Lists;
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -11,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.List;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.jace.peer.PeerEnhancer;
@@ -19,7 +17,7 @@ import org.jace.peer.PeerEnhancer;
 /**
  * Transforms the bytecode of Java class files to load/unload C++ peers.
  *
- * @goal enhanceJava
+ * @goal enhance-java
  * @phase process-classes
  * @author Gili Tzabari
  */
@@ -61,7 +59,7 @@ public class EnhanceJavaMojo
 	 * @parameter
 	 */
 	@SuppressWarnings("UWF_UNWRITTEN_FIELD")
-	private List<String> libraries = Lists.newArrayList();
+	private String[] libraries = new String[0];
 
 	@Override
 	@SuppressWarnings("NP_UNWRITTEN_FIELD")

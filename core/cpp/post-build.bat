@@ -6,7 +6,7 @@ rem * %3 = output directory        *
 rem * %4 = visual studio version   *
 rem ********************************
 
-if /i "%1" == "debug" (
+if /i %1 == "debug" (
   echo Copying debug dependencies to output directory...
   copy "%2\boost_thread-vc%4-mt-gd-1*.dll" "%3\%1" /y
 ) else (

@@ -183,7 +183,7 @@ public class PeerEnhancer
 					continue;
 
 				// DESIGN:
-				// - This code initializes the native handle used by "org::jace::getPeer(this)"
+				// - This code initializes the native handle used by "jace::getPeer(this)"
 				// - Ideally we'd like to initialize the native handle after the Java object is fully constructed.
 				//   Unfortunately, we have no way of preventing native methods from being invoked by the constructor
 				//   itself.

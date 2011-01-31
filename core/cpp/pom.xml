@@ -7,7 +7,7 @@
 		<artifactId>oss-parent</artifactId>
 		<version>5</version>
 	</parent>
-	<groupId>com.googlecode</groupId>
+	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace-core-cpp</artifactId>
 	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -53,24 +53,24 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>org.boost</groupId>
+									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-api</artifactId>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.boost</groupId>
+									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-date-time</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost/${boost.stage}</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
 								</artifactItem>
 								<artifactItem>
-									<groupId>org.boost</groupId>
+									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-thread</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost/${boost.stage}</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -78,8 +78,8 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.bitbucket.cowwoc</groupId>
-				<artifactId>maven-cmake-plugin</artifactId>
+				<groupId>com.googlecode.cmake-maven-project</groupId>
+				<artifactId>cmake-maven-plugin</artifactId>
 				<version>0.2-SNAPSHOT</version>
 				<executions>
 					<execution>
@@ -94,7 +94,7 @@
 							<generator>${cmake.generator}</generator>
 							<projectPath>${project.build.directory}/cmake/${platform}/jace.sln</projectPath>
 							<environmentVariables>
-								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
+								<BOOST_HOME>${project.build.directory}/dependency/boost/${boost.classifier}</BOOST_HOME>
 							</environmentVariables>
 						</configuration>
 					</execution>
@@ -184,7 +184,6 @@
 				<platform>windows-i386</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-vs10-i386</boost.classifier>
-				<boost.stage>stage32</boost.stage>
 			</properties>
 		</profile>
 		<profile>
@@ -194,7 +193,6 @@
 				<platform>windows-i386</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-vs10-i386</boost.classifier>
-				<boost.stage>stage32</boost.stage>
 			</properties>
 		</profile>
 		<profile>
@@ -204,7 +202,6 @@
 				<platform>windows-amd64</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-vs10-amd64</boost.classifier>
-				<boost.stage>stage64</boost.stage>
 			</properties>
 		</profile>
 		<profile>
@@ -214,7 +211,6 @@
 				<platform>windows-amd64</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-vs10-amd64</boost.classifier>
-				<boost.stage>stage64</boost.stage>
 			</properties>
 		</profile>
 	</profiles>

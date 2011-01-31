@@ -176,17 +176,17 @@ public class ProxyGenerator
 	{
 		Util.generateComment(output, "Standard Jace headers needed to implement this class.");
 
-		output.write("#include \"org/jace/JArguments.h\"" + newLine);
-		output.write("#include \"org/jace/JMethod.h\"" + newLine);
-		output.write("#include \"org/jace/JField.h\"" + newLine);
-		output.write("#include \"org/jace/JClassImpl.h\"" + newLine);
+		output.write("#include \"jace/JArguments.h\"" + newLine);
+		output.write("#include \"jace/JMethod.h\"" + newLine);
+		output.write("#include \"jace/JField.h\"" + newLine);
+		output.write("#include \"jace/JClassImpl.h\"" + newLine);
 		String className = classFile.getClassName().asIdentifier();
 		if (className.equals("java.lang.String"))
-			output.write("#include \"org/jace/proxy/java/lang/Integer.h\"" + newLine);
+			output.write("#include \"jace/proxy/java/lang/Integer.h\"" + newLine);
 
-		output.write("#include \"org/jace/BoostWarningOff.h\"" + newLine);
+		output.write("#include \"jace/BoostWarningOff.h\"" + newLine);
 		output.write("#include <boost/thread/mutex.hpp>" + newLine);
-		output.write("#include \"org/jace/BoostWarningOn.h\"" + newLine);
+		output.write("#include \"jace/BoostWarningOn.h\"" + newLine);
 	}
 
 	/**
@@ -518,12 +518,12 @@ public class ProxyGenerator
 			output.write("{" + newLine);
 			output.write("  JNIEnv* env = attach();" + newLine);
 			output.write("  size_t nativeLength = str.size();" + newLine);
-			output.write("  if (nativeLength > static_cast<size_t>(::org::jace::proxy::java::lang::Integer::MAX_VALUE()))"
+			output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE()))"
 									 + newLine);
 			output.write("  {" + newLine);
 			output.write("    throw JNIException(std::string(\"String::String(const std::wstring& str) - "
 									 + "str.size() (\") +" + newLine);
-			output.write("      ::org::jace::toString(nativeLength) + \") > Integer.MAX_VALUE.\");" + newLine);
+			output.write("      jace::toString(nativeLength) + \") > Integer.MAX_VALUE.\");" + newLine);
 			output.write("  }" + newLine);
 			output.write("  jsize length = jsize(str.size());" + newLine);
 			output.write("  jstring strRef = env->NewString(reinterpret_cast<const jchar*>(str.c_str()), length);"
@@ -601,12 +601,12 @@ public class ProxyGenerator
 			output.write("{" + newLine);
 			output.write("  JNIEnv* env = attach();" + newLine);
 			output.write("  size_t nativeLength = str.size();" + newLine);
-			output.write("  if (nativeLength > static_cast<size_t>(::org::jace::proxy::java::lang::Integer::MAX_VALUE()))"
+			output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE()))"
 									 + newLine);
 			output.write("  {" + newLine);
 			output.write("    throw JNIException(std::string(\"String::String(const std::string& str) - "
 									 + "str.size() (\") +" + newLine);
-			output.write("      ::org::jace::toString(nativeLength) + \") > Integer.MAX_VALUE.\");" + newLine);
+			output.write("      jace::toString(nativeLength) + \") > Integer.MAX_VALUE.\");" + newLine);
 			output.write("  }" + newLine);
 			output.write("  jsize bufLen = jsize(nativeLength);" + newLine);
 			output.write("  jbyteArray jbuf = env->NewByteArray(bufLen);" + newLine + newLine);
@@ -755,8 +755,8 @@ public class ProxyGenerator
 			if (reservedFields.contains(name))
 				name += "_Jace";
 
-			String fieldType = "::org::jace::JField< " + "::" + mc.getFullyQualifiedName("::") + " >";
-			String proxyType = "::org::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
+			String fieldType = "::jace::JField< " + "::" + mc.getFullyQualifiedName("::") + " >";
+			String proxyType = "::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
 			FieldAccessFlagSet accessFlagSet = field.getAccessFlags();
 
 			Util.generateComment(output, accessFlagSet.getName() + " " + name);
@@ -839,7 +839,7 @@ public class ProxyGenerator
 
 		output.write("static boost::mutex javaClassMutex;" + newLine);
 		output.write("const JClass& " + className
-								 + "::staticGetJavaJniClass() throw (::org::jace::JNIException)" + newLine);
+								 + "::staticGetJavaJniClass() throw (::jace::JNIException)" + newLine);
 		output.write("{" + newLine);
 		output.write("  static boost::shared_ptr<JClassImpl> result;" + newLine);
 		output.write("  boost::mutex::scoped_lock lock(javaClassMutex);" + newLine);
@@ -852,7 +852,7 @@ public class ProxyGenerator
 		output.write(newLine);
 
 		output.write("const JClass& " + className
-								 + "::getJavaJniClass() const throw (::org::jace::JNIException)" + newLine);
+								 + "::getJavaJniClass() const throw (::jace::JNIException)" + newLine);
 		output.write("{" + newLine);
 		output.write("  return " + className + "::staticGetJavaJniClass();" + newLine);
 		output.write("}" + newLine);
@@ -968,7 +968,7 @@ public class ProxyGenerator
 			definition.append("#define ");
 			definition.append(initializerName);
 			if (forPeer)
-				definition.append(" : ::org::jace::Peer(jPeer)");
+				definition.append(" : ::jace::Peer(jPeer)");
 			definition.append(newLine);
 		}
 		else
@@ -977,7 +977,7 @@ public class ProxyGenerator
 			constructors.add("::" + MetaClassFactory.getMetaClass(superName).proxy().getFullyQualifiedName(
         "::") + "()");
       if (forPeer)
-        constructors.add("::org::jace::Peer(jPeer)");
+        constructors.add("::jace::Peer(jPeer)");
       DelimitedCollection<String> delimited = new DelimitedCollection<String>(constructors);
 
 			definition.append("#define ").append(initializerName);
@@ -1076,7 +1076,7 @@ public class ProxyGenerator
 		output.write("  template <> ElementProxy< " + fullName
 								 + " >::ElementProxy(jarray array, jvalue element, int index);" + newLine);
 		output.write("  template <> ElementProxy< " + fullName
-								 + " >::ElementProxy(const ::org::jace::ElementProxy< " + fullName
+								 + " >::ElementProxy(const jace::ElementProxy< " + fullName
 								 + " >& proxy);" + newLine);
 		output.write("#else" + newLine);
 		printElementProxyTsd(output, metaClass);
@@ -1091,7 +1091,7 @@ public class ProxyGenerator
 								 + " >::JFieldProxy(jfieldID _fieldID, jvalue value, jclass _parentClass);"
 								 + newLine);
 		output.write("  template <> JFieldProxy< " + fullName
-								 + " >::JFieldProxy(const ::org::jace::JFieldProxy< " + fullName
+								 + " >::JFieldProxy(const ::jace::JFieldProxy< " + fullName
 								 + " >& object);" + newLine);
 		output.write("#else" + newLine);
 		printFieldProxyTsd(output, metaClass);
@@ -1129,7 +1129,7 @@ public class ProxyGenerator
 
 		// copy constructor
 		output.write("  template <> inline ElementProxy< " + name
-								 + " >::ElementProxy(const ::org::jace::ElementProxy< " + name
+								 + " >::ElementProxy(const jace::ElementProxy< " + name
 								 + " >& proxy): " + newLine);
 
 		if (mc.getFullyQualifiedName("/").equals(JaceConstants.getProxyPackage().asPath()
@@ -1524,11 +1524,11 @@ public class ProxyGenerator
 
 		if (exportSymbols)
 			output.write("JACE_PROXY_API ");
-		output.write("virtual const JClass& getJavaJniClass() const throw (::org::jace::JNIException);"
+		output.write("virtual const JClass& getJavaJniClass() const throw (::jace::JNIException);"
 								 + newLine);
 		if (exportSymbols)
 			output.write("JACE_PROXY_API ");
-		output.write("static const JClass& staticGetJavaJniClass() throw (::org::jace::JNIException);"
+		output.write("static const JClass& staticGetJavaJniClass() throw (::jace::JNIException);"
 								 + newLine);
 		if (exportSymbols)
 			output.write("JACE_PROXY_API ");
@@ -1683,7 +1683,7 @@ public class ProxyGenerator
 			if (reservedFields.contains(name))
 				name += "_Jace";
 
-			String type = "::org::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
+			String type = "::jace::JFieldProxy< " + "::" + mc.getFullyQualifiedName("::") + " >";
 			FieldAccessFlagSet accessFlagSet = field.getAccessFlags();
 
 			Util.generateComment(output, accessFlagSet.getName() + " " + name);
@@ -1740,7 +1740,7 @@ public class ProxyGenerator
 			if (isException(classFile.getClassName()))
 			{
 				output.write("static JEnlister< " + className + " > enlister;" + newLine);
-				output.write("template <typename T> friend class ::org::jace::JEnlister;" + newLine);
+				output.write("template <typename T> friend class ::jace::JEnlister;" + newLine);
 			}
 		}
 		catch (ClassNotFoundException e)
@@ -1757,14 +1757,14 @@ public class ProxyGenerator
 		// Function namespace and return-type must be separated using parenthesis:
 		//
 		// REFERENCE: http://stackoverflow.com/questions/2358524/why-does-this-separate-definition-cause-an-error/2358557#2358557
-		output.write("template <typename T> friend T (::org::jace::java_cast)(const ::org::jace::proxy::JObject&);"
+		output.write("template <typename T> friend T (::jace::java_cast)(const ::jace::proxy::JObject&);"
 								 + newLine);
 		for (int i = 0; i < 11; ++i)
 		{
 			output.write("template <typename T");
 			for (int j = 0; j < i; ++j)
 				output.write(", typename A" + j);
-			output.write("> friend T (::org::jace::java_new)(");
+			output.write("> friend T (::jace::java_new)(");
 			for (int j = 0; j < i; ++j)
 			{
 				output.write("A" + j + " a" + j);
@@ -1773,14 +1773,14 @@ public class ProxyGenerator
 			}
 			output.write(");" + newLine);
 		}
-		output.write("template <typename T> friend T (::org::jace::java_new)(const char*);" + newLine);
-		output.write("template <typename T> friend T (::org::jace::java_new)(const ::std::string&);"
+		output.write("template <typename T> friend T (::jace::java_new)(const char*);" + newLine);
+		output.write("template <typename T> friend T (::jace::java_new)(const ::std::string&);"
 								 + newLine);
-		output.write("template <typename T> friend T (::org::jace::java_new)(const ::std::wstring&);"
+		output.write("template <typename T> friend T (::jace::java_new)(const ::std::wstring&);"
 								 + newLine);
-		output.write("template <typename T> friend class ::org::jace::ElementProxy;" + newLine);
-		output.write("template <typename T> friend class ::org::jace::JFieldProxy;" + newLine);
-		output.write("template <typename T> friend class ::org::jace::JMethod;" + newLine);
+		output.write("template <typename T> friend class ::jace::ElementProxy;" + newLine);
+		output.write("template <typename T> friend class ::jace::JFieldProxy;" + newLine);
+		output.write("template <typename T> friend class ::jace::JMethod;" + newLine);
 	}
 
 	/**
@@ -1840,8 +1840,8 @@ public class ProxyGenerator
 	{
 		// We don't need to include any of the primitive types (JInt, JByte, etc...)
 		// because they are all included by both JArray.h and JFieldProxy.h
-		output.write("#include \"org/jace/os_dep.h\"" + newLine);
-		output.write("#include \"org/jace/namespace.h\"" + newLine);
+		output.write("#include \"jace/os_dep.h\"" + newLine);
+		output.write("#include \"jace/namespace.h\"" + newLine);
 
 		if (!forPeer)
 		{
@@ -1850,18 +1850,18 @@ public class ProxyGenerator
 			try
 			{
 				if (isException(classFile.getClassName()))
-					output.write("#include \"org/jace/JEnlister.h\"" + newLine);
+					output.write("#include \"jace/JEnlister.h\"" + newLine);
 			}
 			catch (ClassNotFoundException e)
 			{
 				throw new IOException(e);
 			}
 
-			output.write("#include \"org/jace/JArray.h\"" + newLine);
-			output.write("#include \"org/jace/JFieldProxy.h\"" + newLine);
-			output.write("#include \"org/jace/JMethod.h\"" + newLine);
-			output.write("#include \"org/jace/JField.h\"" + newLine);
-			output.write("#include \"org/jace/JClassImpl.h\"" + newLine);
+			output.write("#include \"jace/JArray.h\"" + newLine);
+			output.write("#include \"jace/JFieldProxy.h\"" + newLine);
+			output.write("#include \"jace/JMethod.h\"" + newLine);
+			output.write("#include \"jace/JField.h\"" + newLine);
+			output.write("#include \"jace/JClassImpl.h\"" + newLine);
 			output.write(newLine);
 
 			String className = classFile.getClassName().asIdentifier();
@@ -1962,6 +1962,8 @@ public class ProxyGenerator
 	 */
 	public Set<MetaClass> getDependentClasses(boolean fullyDependent)
 	{
+		if (log.isTraceEnabled())
+			log.trace("getDependentClasses(" + fullyDependent + ") for class: " + classFile);
 		// this method finds all dependencies by scanning through the field and methods belonging to the class
 		Set<MetaClass> excludedClasses = Sets.newHashSet();
 		if (classFile.getSuperClassName() != null)
@@ -1981,6 +1983,8 @@ public class ProxyGenerator
 			{
 				if (shouldBeSkipped(field))
 					continue;
+				if (log.isDebugEnabled())
+					log.debug("field: " + field);
 				MetaClass metaClass = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
 				if (!excludedClasses.contains(metaClass))
 					result.add(metaClass);
@@ -1994,14 +1998,20 @@ public class ProxyGenerator
 			{
 				if (shouldBeSkipped(method))
 					continue;
+				if (log.isDebugEnabled())
+					log.debug("method: " + method);
 
 				MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
+				if (log.isDebugEnabled())
+					log.debug("returnType: " + returnType);
 				addDependentClass(result, returnType, excludedClasses);
 
 				for (TypeName parameter: method.getParameterTypes())
 				{
 					MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
 					addDependentClass(result, parameterType, excludedClasses);
+					if (log.isDebugEnabled())
+						log.debug("parameter: " + parameterType);
 				}
 
 				// We must #include exception classes in order to initialize their JEnlister references.

@@ -32,7 +32,7 @@ public class ArrayMetaClass implements MetaClass
 	@Override
 	public String getFullyQualifiedName(String separator)
 	{
-		return "org::jace::JArray< " + "::" + elementType.getFullyQualifiedName(separator) + " >";
+		return "jace::JArray< " + "::" + elementType.getFullyQualifiedName(separator) + " >";
 	}
 
 	@Override

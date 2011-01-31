@@ -128,10 +128,7 @@ public class ClassSet
 		}
 		result.add(proxy);
 		if (log.isDebugEnabled())
-		{
-			log.debug("Adding " + plainClass);
-			printClassSet(result);
-		}
+			log.debug("Adding " + plainClass + " to " + result);
 
 		// handle the super class and interfaces next
 		try
@@ -202,17 +199,6 @@ public class ClassSet
 	}
 
 	/**
-	 * Logs a set of meta-classes.
-	 *
-	 * @param metaClasses the meta-classes to log
-	 */
-	private void printClassSet(Set<MetaClass> metaClasses)
-	{
-		for (MetaClass metaClass: metaClasses)
-			log.debug(metaClass.getFullyQualifiedName("."));
-	}
-
-	/**
 	 * Returns the logger associated with the object.
 	 *
 	 * @return the logger associated with the object
@@ -220,6 +206,13 @@ public class ClassSet
 	private Logger getLogger()
 	{
 		return log;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getClass().getName() + "[classPath=" + classPath + ", classes=" + classes
+					 + ", minimizeDependencies=" + minimizeDependencies + "]";
 	}
 
 	/**
