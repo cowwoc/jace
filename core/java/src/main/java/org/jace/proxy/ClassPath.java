@@ -97,11 +97,14 @@ public class ClassPath
 	 */
 	public File getFirstMatch(TypeName name) throws IOException
 	{
+		if (log.isTraceEnabled())
+			log.trace("getFirstMatch(" + name + ")");
 		for (File path: elements)
 		{
 			if (!path.exists())
 				continue;
-			log.trace("Checking " + path);
+			if (log.isTraceEnabled())
+				log.trace("Checking " + path);
 
 			// if the file is a directory, search for the .class file in the appropriate subfolder
 			if (path.isDirectory())
@@ -110,13 +113,15 @@ public class ClassPath
 				String directory = metaClass.getPackage().toName("/", false);
 				File subDirectory = new File(path.getAbsolutePath(), directory);
 
-				log.trace("Looking for directory " + subDirectory);
+				if (log.isTraceEnabled())
+					log.trace("Looking for directory " + subDirectory);
 				if (subDirectory.exists())
 				{
 					String fileName = ((ClassMetaClass) metaClass).getTrueName() + ".class";
 					File classFile = new File(subDirectory, fileName);
 
-					log.trace("Looking for file " + classFile);
+					if (log.isTraceEnabled())
+						log.trace("Looking for file " + classFile);
 					if (classFile.exists())
 						return classFile.getParentFile();
 				}
@@ -127,13 +132,15 @@ public class ClassPath
 			String fileName = path.getName();
 			if (!path.getName().endsWith(".zip") && !path.getName().endsWith(".jar"))
 				continue;
-			log.trace("Checking compressed file " + fileName);
+			if (log.isTraceEnabled())
+				log.trace("Checking compressed file " + fileName);
 			ZipFile zipFile = new ZipFile(path);
 			MetaClass metaClass = MetaClassFactory.getMetaClass(name);
 			if (metaClass instanceof ArrayMetaClass)
 				metaClass = ((ArrayMetaClass) metaClass).getInnermostElementType();
 			String entryName = ((ClassMetaClass) metaClass).getFullyQualifiedTrueName("/") + ".class";
-			log.trace("Looking for entry " + entryName);
+			if (log.isTraceEnabled())
+				log.trace("Looking for entry " + entryName);
 			ZipEntry entry = zipFile.getEntry(entryName);
 			if (entry != null)
 				return path;
@@ -153,28 +160,33 @@ public class ClassPath
 	 */
 	public InputStream openClass(TypeName name) throws ClassNotFoundException, IOException
 	{
+		if (log.isTraceEnabled())
+			log.trace("openClass(" + name + ")");
 		// TODO: reuse result from getFirstMatch() to pick up from where we left off
 		for (File path: elements)
 		{
 			if (!path.exists())
 				continue;
-			log.trace("checking " + path);
+			if (log.isTraceEnabled())
+				log.trace("checking " + path);
 
 			// if the file is a directory, search for the .class file in the appropriate subfolder
 			if (path.isDirectory())
 			{
 				MetaClass metaClass = MetaClassFactory.getMetaClass(name);
-				String directory = metaClass.getPackage().toName("/", false);
-				File subDirectory = new File(path.getAbsolutePath(), directory);
+				String packagePath = metaClass.getPackage().toName("/", false);
+				File subDirectory = new File(path.getAbsolutePath(), packagePath);
 
-				log.trace("Looking for directory " + subDirectory);
+				if (log.isTraceEnabled())
+					log.trace("Looking for directory " + subDirectory);
 
 				if (subDirectory.exists())
 				{
 					String fileName = ((ClassMetaClass) metaClass).getTrueName() + ".class";
 					File classFile = new File(subDirectory, fileName);
 
-					log.trace("Looking for file " + classFile);
+					if (log.isTraceEnabled())
+						log.trace("Looking for file " + classFile);
 					if (classFile.exists())
 					{
 						try
@@ -199,13 +211,15 @@ public class ClassPath
 				// not a zip file
 				continue;
 			}
-			log.trace("Checking compressed file " + fileName);
+			if (log.isTraceEnabled())
+				log.trace("Checking compressed file " + fileName);
 			ZipFile zipFile = new ZipFile(path);
 			MetaClass metaClass = MetaClassFactory.getMetaClass(name);
 			if (metaClass instanceof ArrayMetaClass)
 				metaClass = ((ArrayMetaClass) metaClass).getInnermostElementType();
 			String entryName = ((ClassMetaClass) metaClass).getFullyQualifiedTrueName("/") + ".class";
-			log.trace("Looking for entry " + entryName);
+			if (log.isTraceEnabled())
+				log.trace("Looking for entry " + entryName);
 			ZipEntry entry = zipFile.getEntry(entryName);
 
 			if (entry != null)
@@ -225,6 +239,12 @@ public class ClassPath
 		throw new ClassNotFoundException("The class, " + name
 																		 + " could not be found on the class path, "
 																		 + elements);
+	}
+
+	@Override
+	public String toString()
+	{
+		return getClass().getName() + "[" + elements + "]";
 	}
 
 	/**

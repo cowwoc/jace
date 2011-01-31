@@ -67,7 +67,7 @@ public abstract class PrimitiveMetaClass implements MetaClass
 	@Override
 	public String using()
 	{
-		return "using ::org::jace::proxy::types::" + getSimpleName() + ";";
+		return "using jace::proxy::types::" + getSimpleName() + ";";
 	}
 
 	@Override

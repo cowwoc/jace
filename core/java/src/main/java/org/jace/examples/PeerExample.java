@@ -79,12 +79,12 @@ public class PeerExample
 	//
 	// The header for the C++ Peer (which contains the member function
 	// prototypes for the native methods) is written during Peer generation.
-	// In this case, it is written to org/jace/peer/jace/examples/PeerExample.h.
+	// In this case, it is written to jace/peer/jace/examples/PeerExample.h.
 	//
 	// The developer can write his definitions of the native methods in
 	// any source file he chooses. In this case, an example
 	// implementation has already been written, and is located in
-	// org/jace/peer/jace/examples/PeerExampleImpl.cpp.
+	// jace/peer/jace/examples/PeerExampleImpl.cpp.
 	//
 	public native String[] getResources(String[] resources) throws IOException;
 

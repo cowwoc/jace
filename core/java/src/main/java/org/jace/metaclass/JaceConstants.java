@@ -21,7 +21,7 @@ public class JaceConstants
 	 */
 	public static TypeName getPeerPackage()
 	{
-		return TypeNameFactory.fromPath("org/jace/peer");
+		return TypeNameFactory.fromPath("jace/peer");
 	}
 
 	/**
@@ -31,6 +31,6 @@ public class JaceConstants
 	 */
 	public static TypeName getProxyPackage()
 	{
-		return TypeNameFactory.fromPath("org/jace/proxy");
+		return TypeNameFactory.fromPath("jace/proxy");
 	}
 }

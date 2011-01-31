@@ -56,21 +56,21 @@
 									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-api</artifactId>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-date-time</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost/${boost.stage}</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-thread</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost/${boost.stage}</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -94,7 +94,7 @@
 							<generator>${cmake.generator}</generator>
 							<projectPath>${project.build.directory}/cmake/${platform}/jace.sln</projectPath>
 							<environmentVariables>
-								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
+								<BOOST_HOME>${project.build.directory}/dependency/boost/${boost.classifier}</BOOST_HOME>
 							</environmentVariables>
 						</configuration>
 					</execution>
@@ -184,7 +184,6 @@
 				<platform>windows-i386</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-vs10-i386</boost.classifier>
-				<boost.stage>stage32</boost.stage>
 			</properties>
 		</profile>
 		<profile>
@@ -194,7 +193,6 @@
 				<platform>windows-i386</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-vs10-i386</boost.classifier>
-				<boost.stage>stage32</boost.stage>
 			</properties>
 		</profile>
 		<profile>
@@ -204,7 +202,6 @@
 				<platform>windows-amd64</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-vs10-amd64</boost.classifier>
-				<boost.stage>stage64</boost.stage>
 			</properties>
 		</profile>
 		<profile>
@@ -214,7 +211,6 @@
 				<platform>windows-amd64</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-vs10-amd64</boost.classifier>
-				<boost.stage>stage64</boost.stage>
 			</properties>
 		</profile>
 	</profiles>

@@ -157,7 +157,7 @@ public class PeerGenerator
 		output.write(newLine);
 
 		Util.generateComment(output, "The Peer class from which this class derives.");
-		output.write("#include \"org/jace/Peer.h\"" + newLine);
+		output.write("#include \"jace/Peer.h\"" + newLine);
 		output.write(newLine);
 
 		proxyGen.includeDependentHeaders(output);
@@ -189,7 +189,7 @@ public class PeerGenerator
 																 + newLine
 																 + "custom initialization or destruction.");
 
-		output.write("class " + name + " : public ::org::jace::Peer, public ");
+		output.write("class " + name + " : public ::jace::Peer, public ");
 
 		// If we are derived directly from java.lang.Object, we need to derive from it virtually
 		assert (classFile.getSuperClassName() != null): "java.lang.Object may not be a peer";
@@ -290,9 +290,9 @@ public class PeerGenerator
 		output.write("virtual ~" + name + "() throw ();" + newLine);
 		output.write(newLine);
 
-		output.write("virtual const JClass& getJavaJniClass() const throw (::org::jace::JNIException);"
+		output.write("virtual const JClass& getJavaJniClass() const throw (::jace::JNIException);"
 								 + newLine);
-		output.write("static const JClass& staticGetJavaJniClass() throw (::org::jace::JNIException);"
+		output.write("static const JClass& staticGetJavaJniClass() throw (::jace::JNIException);"
 								 + newLine);
 		output.write(newLine);
 
@@ -389,8 +389,8 @@ public class PeerGenerator
 								 + newLine);
 		output.write("#include \"" + JaceConstants.getProxyPackage().asPath() + "/java/lang/String.h\""
 								 + newLine);
-		output.write("#include \"org/jace/Jace.h\"" + newLine);
-		output.write("#include \"org/jace/VirtualMachineRunningError.h\"" + newLine);
+		output.write("#include \"jace/Jace.h\"" + newLine);
+		output.write("#include \"jace/VirtualMachineRunningError.h\"" + newLine);
 		output.write(newLine);
 
 		for (MetaClass dependency: getDependencies(classFile))
@@ -424,26 +424,26 @@ public class PeerGenerator
 				output.write("{" + newLine);
 				output.write("  try" + newLine);
 				output.write("  {" + newLine);
-				output.write("    ::org::jace::Peer* peer = new " + fullPeerName + "(jPeer);" + newLine);
+				output.write("    ::jace::Peer* peer = new " + fullPeerName + "(jPeer);" + newLine);
 				output.write("    peer->initialize(); " + newLine);
 				output.write("    return reinterpret_cast<jlong>(peer);" + newLine);
 				output.write("  }" + newLine);
-				output.write("  catch (::org::jace::proxy::java::lang::Throwable& t)" + newLine);
+				output.write("  catch (jace::proxy::java::lang::Throwable& t)" + newLine);
 				output.write("  {" + newLine);
 				output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(t))));"
 										 + newLine);
-				output.write("    ::org::jace::detach();" + newLine);
+				output.write("    ::jace::detach();" + newLine);
 				output.write("    return 0;" + newLine);
 				output.write("  }" + newLine);
 				output.write("  catch (std::exception& e)" + newLine);
 				output.write("  {" + newLine);
 				output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
 										 + newLine);
-				output.write("    ::org::jace::proxy::java::lang::RuntimeException ex(::org::jace::java_new<::org::jace::proxy::java::lang::RuntimeException>(msg));"
+				output.write("    jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
 										 + newLine);
 				output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(ex))));"
 										 + newLine);
-				output.write("    ::org::jace::detach();" + newLine);
+				output.write("    ::jace::detach();" + newLine);
 				output.write("    return 0;" + newLine);
 				output.write("  }" + newLine);
 				output.write("}" + newLine);
@@ -462,9 +462,9 @@ public class PeerGenerator
 				output.write("    jfieldID fieldId = env->GetFieldID(classId, \"jaceNativeHandle\", \"J\");"
 										 + newLine);
 				output.write("    if (fieldId == 0)" + newLine);
-				output.write("      ::org::jace::catchAndThrow();" + newLine);
+				output.write("      ::jace::catchAndThrow();" + newLine);
 				output.write("    jlong nativeHandle = env->GetLongField(jPeer, fieldId);" + newLine);
-				output.write("    ::org::jace::Peer* peer = reinterpret_cast<::org::jace::Peer*>(nativeHandle);"
+				output.write("    ::jace::Peer* peer = reinterpret_cast<::jace::Peer*>(nativeHandle);"
 										 + newLine);
 				output.write("    peer->destroy();" + newLine);
 				output.write("    delete peer; " + newLine);
@@ -485,7 +485,7 @@ public class PeerGenerator
 				output.write("{" + newLine);
 				output.write("  try" + newLine);
 				output.write("  {" + newLine);
-				output.write("    if (!::org::jace::getJavaVm())" + newLine);
+				output.write("    if (!::jace::getJavaVm())" + newLine);
 				output.write("    {" + newLine);
 				output.write("      JavaVM* jvm;" + newLine);
 				output.write("      jint result = env->GetJavaVM(&jvm);" + newLine);
@@ -496,14 +496,14 @@ public class PeerGenerator
 										 + " ::jaceSetVm\\n\") + " + newLine);
 				output.write("          \"Unable to retrieve the JVM from the JNIEnv* object. The specific JNI error code is \" +"
 										 + newLine);
-				output.write("          ::org::jace::toString(result);" + newLine);
-				output.write("        throw ::org::jace::JNIException(msg);" + newLine);
+				output.write("          ::jace::toString(result);" + newLine);
+				output.write("        throw ::jace::JNIException(msg);" + newLine);
 				output.write("      }" + newLine);
-				output.write("      ::org::jace::setJavaVm(jvm);" + newLine);
+				output.write("      ::jace::setJavaVm(jvm);" + newLine);
 				output.write("    }" + newLine);
 				output.write(newLine);
 				output.write("  }" + newLine);
-				output.write("  catch (::org::jace::VirtualMachineRunningError&)" + newLine);
+				output.write("  catch (jace::VirtualMachineRunningError&)" + newLine);
 				output.write("  {" + newLine);
 				output.write("    return; // the VM is already set, we're done" + newLine);
 				output.write("  }" + newLine);
@@ -557,7 +557,7 @@ public class PeerGenerator
 			if (!isStatic)
 			{
 				output.write("    " + fullPeerName + "* peer = dynamic_cast< " + fullPeerName
-										 + "*>(::org::jace::getPeer(jP0));" + newLine);
+										 + "*>(::jace::getPeer(jP0));" + newLine);
 				output.write("    assert(peer!=0);" + newLine);
 				target = "peer->";
 			}
@@ -611,22 +611,22 @@ public class PeerGenerator
 
 			String returnValue = returnType instanceof VoidClass ? "" : " NULL";
 
-			output.write("  catch (::org::jace::proxy::java::lang::Throwable& t)" + newLine);
+			output.write("  catch (jace::proxy::java::lang::Throwable& t)" + newLine);
 			output.write("  {" + newLine);
 			output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(t))));"
 									 + newLine);
-			output.write("    ::org::jace::detach();" + newLine);
+			output.write("    ::jace::detach();" + newLine);
 			output.write("    return" + returnValue + ";" + newLine);
 			output.write("  }" + newLine);
 			output.write("  catch (std::exception& e)" + newLine);
 			output.write("  {" + newLine);
 			output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
 									 + newLine);
-			output.write("    ::org::jace::proxy::java::lang::RuntimeException ex(::org::jace::java_new<::org::jace::proxy::java::lang::RuntimeException>(msg));"
+			output.write("    jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
 									 + newLine);
 			output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(ex))));"
 									 + newLine);
-			output.write("    ::org::jace::detach();" + newLine);
+			output.write("    ::jace::detach();" + newLine);
 			output.write("    return" + returnValue + ";" + newLine);
 			output.write("  }" + newLine);
 			output.write("}" + newLine);

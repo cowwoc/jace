@@ -8,6 +8,8 @@ import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.apache.maven.plugin.MojoFailureException;
@@ -34,7 +36,7 @@ public class GenerateCppProxiesMojo
 	 * @required
 	 */
 	@SuppressWarnings("UWF_UNWRITTEN_FIELD")
-	private List<String> inputHeaders;
+	private String[] inputHeaders;
 	/**
 	 * The directory of the input source files.
 	 *
@@ -42,7 +44,7 @@ public class GenerateCppProxiesMojo
 	 * @required
 	 */
 	@SuppressWarnings("UWF_UNWRITTEN_FIELD")
-	private List<String> inputSources;
+	private String[] inputSources;
 	/**
 	 * The directory of the output header files.
 	 *
@@ -65,7 +67,7 @@ public class GenerateCppProxiesMojo
 	 * @parameter
 	 * @required
 	 */
-	private List<File> classPath;
+	private File[] classPath;
 	/**
 	 * Indicates the method accessibility to expose.
 	 *
@@ -75,7 +77,7 @@ public class GenerateCppProxiesMojo
 	 *
 	 * @parameter default-value="PUBLIC"
 	 */
-	private AccessibilityType accessibility;
+	private String accessibility;
 	/**
 	 * Indicates if the proxy symbols should be exported (for generating DLLs/SOs).
 	 *
@@ -92,14 +94,16 @@ public class GenerateCppProxiesMojo
 	 *
 	 * @parameter
 	 */
-	private List<String> forcedClasses = Lists.newArrayList();
+	private String[] forcedClasses = new String[0];
 
 	@Override
 	@SuppressWarnings("NP_UNWRITTEN_FIELD")
 	public void execute()
 		throws MojoExecutionException, MojoFailureException
 	{
-		Set<TypeName> extraDependencies = Sets.newHashSetWithExpectedSize(forcedClasses.size());
+		AccessibilityType accessibilityType = AccessibilityType.valueOf(accessibility);
+
+		Set<TypeName> extraDependencies = Sets.newHashSetWithExpectedSize(forcedClasses.length);
 		for (String forcedClass: forcedClasses)
 			extraDependencies.add(TypeNameFactory.fromIdentifier(forcedClass));
 
@@ -109,8 +113,13 @@ public class GenerateCppProxiesMojo
 		List<File> inputSourceFiles = Lists.newArrayList();
 		for (String path: inputSources)
 			inputSourceFiles.add(new File(path));
+		final List<File> classPathList;
+		if (classPath == null)
+			classPathList = Collections.emptyList();
+		else
+			classPathList = Arrays.asList(classPath);
 		AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaderFiles, inputSourceFiles,
-			outputHeaders, outputSources, new ClassPath(classPath.toString())).accessibility(accessibility).
+			outputHeaders, outputSources, new ClassPath(classPathList)).accessibility(accessibilityType).
 			minimizeDependencies(true).exportSymbols(exportSymbols);
 		for (TypeName dependency: extraDependencies)
 			autoProxy.extraDependency(dependency);
