@@ -4,7 +4,6 @@
 #include "jace/OsDep.h"
 #include "jace/Namespace.h"
 #include "jace/JArguments.h"
-#include "jace/JClassImpl.h"
 #include "jace/proxy/JValue.h"
 
 

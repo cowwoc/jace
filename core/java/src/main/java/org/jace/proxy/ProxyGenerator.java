@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.objectweb.asm.ClassReader;
@@ -40,6 +41,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -975,10 +977,10 @@ public class ProxyGenerator
 		{
 			Collection<String> constructors = Lists.newArrayListWithCapacity(2);
 			constructors.add("::" + MetaClassFactory.getMetaClass(superName).proxy().getFullyQualifiedName(
-        "::") + "()");
-      if (forPeer)
-        constructors.add("::jace::Peer(jPeer)");
-      DelimitedCollection<String> delimited = new DelimitedCollection<String>(constructors);
+				"::") + "()");
+			if (forPeer)
+				constructors.add("::jace::Peer(jPeer)");
+			DelimitedCollection<String> delimited = new DelimitedCollection<String>(constructors);
 
 			definition.append("#define ").append(initializerName);
 			if (!constructors.isEmpty())
@@ -1302,54 +1304,73 @@ public class ProxyGenerator
 						continue;
 					Integer value = null;
 					boolean firstValue = true;
+					LinkedList<Object> methodStack = Lists.newLinkedList();
 					for (AbstractInsnNode node: method.instructions.toArray())
 					{
 						switch (node.getOpcode())
 						{
+							case Opcodes.NEW:
+							{
+								methodStack.add(node);
+								break;
+							}
+							case Opcodes.DUP:
+							{
+								methodStack.add(methodStack.getLast());
+								break;
+							}
 							case Opcodes.ICONST_0:
 							{
-								value = 0;
+								methodStack.add(0);
 								break;
 							}
 							case Opcodes.ICONST_1:
 							{
-								value = 1;
+								methodStack.add(1);
 								break;
 							}
 							case Opcodes.ICONST_2:
 							{
-								value = 2;
+								methodStack.add(2);
 								break;
 							}
 							case Opcodes.ICONST_3:
 							{
-								value = 3;
+								methodStack.add(3);
 								break;
 							}
 							case Opcodes.ICONST_4:
 							{
-								value = 4;
+								methodStack.add(4);
 								break;
 							}
 							case Opcodes.ICONST_5:
 							{
-								value = 5;
+								methodStack.add(5);
 								break;
 							}
 							case Opcodes.BIPUSH:
 							case Opcodes.SIPUSH:
 							{
 								IntInsnNode intInstruction = (IntInsnNode) node;
-								value = intInstruction.operand;
+								methodStack.add(intInstruction.operand);
 								break;
 							}
 							case Opcodes.LDC:
 							{
 								LdcInsnNode ldcInstruction = (LdcInsnNode) node;
-								if (ldcInstruction.cst instanceof Integer)
-									value = (Integer) ldcInstruction.cst;
-								else
-									value = null;
+								methodStack.add(ldcInstruction.cst);
+								break;
+							}
+							case Opcodes.INVOKESPECIAL:
+							{
+								// TODO: what happens if user overrides the class initializer?
+								MethodInsnNode invoke = (MethodInsnNode) node;
+								if (invoke.desc.equals(Type.getObjectType(classNode.name).getDescriptor()))
+									value = (Integer) methodStack.get(1);
+
+								for (int i = 0, size = 1 + Type.getArgumentTypes(invoke.desc).length; i < size; ++i)
+									methodStack.removeFirst();
 								break;
 							}
 							case Opcodes.PUTSTATIC:
@@ -1365,6 +1386,10 @@ public class ProxyGenerator
 								else
 									output.write("," + newLine);
 								output.write("      " + fieldNode.name + " = " + value);
+								
+								methodStack.removeFirst(); // object
+								methodStack.removeFirst(); // new value
+								
 								value = null;
 							}
 						}
@@ -1840,8 +1865,8 @@ public class ProxyGenerator
 	{
 		// We don't need to include any of the primitive types (JInt, JByte, etc...)
 		// because they are all included by both JArray.h and JFieldProxy.h
-		output.write("#include \"jace/os_dep.h\"" + newLine);
-		output.write("#include \"jace/namespace.h\"" + newLine);
+		output.write("#include \"jace/OsDep.h\"" + newLine);
+		output.write("#include \"jace/Namespace.h\"" + newLine);
 
 		if (!forPeer)
 		{

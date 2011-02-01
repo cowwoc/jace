@@ -53,11 +53,11 @@ string JSignature::toString() const
         i != end;
         ++i)
 	{
-    signature.append(i->get().getNameAsType());
+    signature.append(i->get().getSignature());
   }
 
   signature.append(")");
-  signature.append(mResultType.getNameAsType());
+  signature.append(mResultType.getSignature());
 
   return signature;
 }

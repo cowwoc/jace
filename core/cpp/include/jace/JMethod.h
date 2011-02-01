@@ -168,7 +168,7 @@ protected:
 		}
 
 		//  cout << "JMethod::getMethodID() - Found the method:" << endl;
-		//  cout << "  <" << mName << "> with signature <" << methodSignature << "> for " << jClass.getName() << endl;
+		//  cout << "  <" << mName << "> with signature <" << methodSignature << "> for " << jClass.getInternalName() << endl;
 
 		return mMethodID;
 	}

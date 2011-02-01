@@ -11,55 +11,19 @@ using std::string;
 BEGIN_NAMESPACE(jace)
 
 
-/**
- * Creates a new JClassImpl with the given name, and 
- * type name.
- *
- * @param name - The name of this class, suitable for use
- * in a call to JNIEnv::FindClass.
- *
- * For example, "java/lang/Object"
- *
- * @param nameAsType The name of this class as a type, 
- * suitable for use in a call to JNIEnv::GetMethodID.
- *
- * For example, "Ljava/lang/Object;"
- */
-JClassImpl::JClassImpl(const string& name, const string& nameAsType):
-  mName(name), 
-  mNameAsType(nameAsType),
-	mClass(0)
+JClassImpl::JClassImpl(const string& _internalName, const string& _signature):
+  internalName(_internalName), 
+  signature(_signature),
+	theClass(0)
 {
 	mutex = new boost::mutex();
 }
 
 
-/**
- * Creates a new JClassImpl with the given name.
- *
- * @param name - The name of the class, suitable for use
- * in a call to JNIEnv::FindClass.
- *
- * For example, "java/lang/Object".
- *
- * ------------------------------------------------------
- *
- * The type name for the class is created by preprending
- * "L" and appending ";" to name.
- *
- * For example,
- *
- *  JClassImpl("java/lang/String");
- *
- * is equivalent to
- *
- *  JClassImpl("java/lang/String", "Ljava/lang/String;");
- *
- */
-JClassImpl::JClassImpl(const string& name): 
-  mName(name),
-  mNameAsType("L" + name + ";"),
-	mClass(0)
+JClassImpl::JClassImpl(const string& _internalName): 
+  internalName(_internalName),
+  signature("L" + internalName + ";"),
+	theClass(0)
 {
 	mutex = new boost::mutex();
 }
@@ -70,49 +34,35 @@ JClassImpl::JClassImpl(const string& name):
 JClassImpl::~JClassImpl() throw ()
 {
 	delete mutex;
-	if (mClass)
+	if (theClass)
 	{
 		if (!isRunning())
 			return;
 
 		JNIEnv* env = attach();
-		deleteGlobalRef(env, mClass);
+		deleteGlobalRef(env, theClass);
   }
 }
 
 
-/**
- * Returns the name of this class. suitable for use in a call to
- * JNIEnv::FindClass.
- *
- * For example, "java/lang/Object".
- */
-const string& JClassImpl::getName() const
+const string& JClassImpl::getInternalName() const
 {
-  return mName;
+  return internalName;
 }
 
-
-/**
- * Returns the name of this class as a type, suitable for use
- * in a call to JNIEnv::GetMethodID.
- *
- * For example, "Ljava/lang/Object;".
- */
-const string& JClassImpl::getNameAsType() const
+const string& JClassImpl::getSignature() const
 {
-  return mNameAsType;
+  return signature;
 }
-
 
 /**
  * Returns the JNI representation of this class.
  */
 jclass JClassImpl::getClass() const throw (JNIException)
 {
-	if (mClass == 0)
+	boost::mutex::scoped_lock lock(*mutex);
+	if (theClass == 0)
 	{
-		boost::mutex::scoped_lock lock(*mutex);
 		JNIEnv* env = attach();
 
 		jobject classLoader = getClassLoader();
@@ -120,7 +70,7 @@ jclass JClassImpl::getClass() const throw (JNIException)
 
 		if (classLoader != 0)
 		{
-			std::string binaryName(getName());
+			std::string binaryName(getInternalName());
 			size_t i = 0;
 			
 			// Replace '/' by '.' in the name
@@ -156,11 +106,11 @@ jclass JClassImpl::getClass() const throw (JNIException)
 			env->DeleteLocalRef(javaString);
 		}
 		else
-			localClass = env->FindClass(getName().c_str());
+			localClass = env->FindClass(getInternalName().c_str());
 
 		if (!localClass)
 		{
-			string msg = "JClass::getClass - Unable to find the class <" + getName() + ">";
+			string msg = "JClass::getClass - Unable to find the class <" + getInternalName() + ">";
 			try
 			{
 				catchAndThrow();
@@ -173,10 +123,10 @@ jclass JClassImpl::getClass() const throw (JNIException)
 			throw JNIException(msg);
 		}
 
-		mClass = static_cast<jclass>(newGlobalRef(env, localClass));
+		theClass = static_cast<jclass>(newGlobalRef(env, localClass));
 		deleteLocalRef(env, localClass);
 	}
-  return mClass;
+	return theClass;
 }
 
 END_NAMESPACE(jace)

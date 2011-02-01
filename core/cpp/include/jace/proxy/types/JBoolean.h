@@ -5,7 +5,6 @@
 #include "jace/Namespace.h"
 #include "jace/Jace.h"
 #include "jace/JClass.h"
-#include "jace/JClassImpl.h"
 #include "jace/proxy/JValue.h"
 #include "jace/JNIException.h"
 

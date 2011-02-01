@@ -27,20 +27,16 @@ public:
 	JACE_API virtual ~JClass() {}
 
 	/**
-	 * Returns the name of this class. suitable for use in a call to
-	 * JNIEnv::FindClass.
-	 *
-	 * For example, "java/lang/Object".
+	 * Returns the internal name of the class. such as "java/lang/Object".
+	 *   The internal name of a class is its fully qualified name, as returned by Class.getName(),
+	 *   where '.' is replaced by '/'.
 	 */
-	JACE_API virtual const std::string& getName() const = 0;
+	JACE_API virtual const std::string& getInternalName() const = 0;
 
 	/**
-	 * Returns the name of this class as a type, suitable for use
-	 * in a call to JNIEnv::GetMethodID.
-	 *
-	 * For example, "Ljava/lang/Object;".
+	 * Returns the class type signature, such as "Ljava/lang/Object;"
 	 */
-	JACE_API virtual const std::string& getNameAsType() const = 0;
+	JACE_API virtual const std::string& getSignature() const = 0;
 
 	/**
 	 * Returns the JNI representation of this class.

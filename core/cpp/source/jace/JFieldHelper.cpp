@@ -64,7 +64,7 @@ jfieldID JFieldHelper::getFieldID(const JClass& parentClass, bool isStatic)
   // but for now, we'll always find it.
   JNIEnv* env = attach();
 
-  string signature = mTypeClass.getNameAsType();
+  string signature = mTypeClass.getSignature();
 
   if (isStatic)
     mFieldID = env->GetStaticFieldID(parentClass.getClass(), mName.c_str(), signature.c_str());

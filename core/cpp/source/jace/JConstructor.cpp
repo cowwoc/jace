@@ -136,7 +136,8 @@ jmethodID JConstructor::getMethodID(const JClass& jClass, const JArguments& argu
   if (mMethodID == 0)
 	{
 		string msg = string("JConstructor::getMethodID(): ") +
-                 "Unable to find constructor for " + jClass.getName() + " with signature " + methodSignature;
+                 "Unable to find constructor for " + jClass.getInternalName() + 
+				 " with signature " + methodSignature;
 		try
 		{
 			catchAndThrow();

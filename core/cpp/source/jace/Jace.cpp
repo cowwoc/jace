@@ -546,7 +546,7 @@ void detach() throw ()
  */
 void enlist(JFactory* factory)
 {
-  string name = factory->getClass().getName();
+  string name = factory->getClass().getInternalName();
   replace(name.begin(), name.end(), '/', '.');
   getFactoryMap()->insert(FactoryMap::value_type(name, factory));
   //  cout << "jace::enlist - Enlisted " << name << endl;

@@ -183,6 +183,7 @@
 				<cmake.generator>Visual Studio 10</cmake.generator>
 				<platform>windows-i386</platform>
 				<build.type>debug</build.type>
+				<addressModel>32</addressModel>
 				<boost.classifier>windows-vs10-i386</boost.classifier>
 			</properties>
 		</profile>
@@ -192,6 +193,7 @@
 				<cmake.generator>Visual Studio 10</cmake.generator>
 				<platform>windows-i386</platform>
 				<build.type>release</build.type>
+				<addressModel>32</addressModel>
 				<boost.classifier>windows-vs10-i386</boost.classifier>
 			</properties>
 		</profile>
@@ -201,6 +203,7 @@
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
 				<platform>windows-amd64</platform>
 				<build.type>debug</build.type>
+				<addressModel>64</addressModel>
 				<boost.classifier>windows-vs10-amd64</boost.classifier>
 			</properties>
 		</profile>
@@ -210,6 +213,7 @@
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
 				<platform>windows-amd64</platform>
 				<build.type>release</build.type>
+				<addressModel>64</addressModel>
 				<boost.classifier>windows-vs10-amd64</boost.classifier>
 			</properties>
 		</profile>

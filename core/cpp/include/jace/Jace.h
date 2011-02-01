@@ -474,7 +474,7 @@ template <typename T> T java_cast(const ::jace::proxy::JObject& obj)
 	if (isValid)
 		return T(static_cast<jobject>(obj));
 
-	std::string msg = "Can not cast to " + resultClass.getName();
+	std::string msg = "Can not cast to " + resultClass.getInternalName();
 	throw JNIException(msg);
 }
 

@@ -17,6 +17,10 @@
 #include "jace/proxy/types/JLong.h"
 #include "jace/proxy/types/JShort.h"
 
+#include "jace/BoostWarningOff.h"
+#include <boost/thread/mutex.hpp>
+#include "jace/BoostWarningOn.h"
+
 #include <string>
 #include <vector>
 
@@ -219,7 +223,23 @@ public:
 	 *
 	 * @throw JNIException if an error occurs while trying to retrieve the class.
 	 */
-	static const ::jace::JClass& staticGetJavaJniClass() throw (JNIException);
+	static const ::jace::JClass& staticGetJavaJniClass() throw (JNIException)
+	{
+		static boost::shared_ptr<JClassImpl> result;
+		boost::mutex::scoped_lock lock(javaClassMutex);
+		if (result == 0)
+		{
+			const std::string signature = "[" + ElementType::staticGetJavaJniClass().getSignature();
+
+			// The internal name of an array is equal to its signature
+			//
+			// REFERENCE: http://download.oracle.com/javase/6/docs/technotes/guides/jni/spec/functions.html#wp16027
+			const std::string internalName = signature;
+
+			result = boost::shared_ptr<JClassImpl>(new JClassImpl(internalName, signature));
+		}
+		return *result;
+	}
 
 
 	/**

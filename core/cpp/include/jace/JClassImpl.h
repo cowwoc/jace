@@ -27,29 +27,24 @@ public:
 	 * Creates a new JClassImpl with the given name, and
 	 * type name.
 	 *
-	 * @param name - The name of this class, suitable for use
-	 * in a call to JNIEnv::FindClass.
+	 * @param internalName the internal name of the class. such as "java/lang/Object".
+	 *   The internal name of a class is its fully qualified name, as returned by Class.getName(),
+	 *   where '.' is replaced by '/'.
 	 *
-	 * For example, "java/lang/Object"
-	 *
-	 * @param nameAsType The name of this class as a type,
-	 * suitable for use in a call to JNIEnv::GetMethodID.
-	 *
-	 * For example, "Ljava/lang/Object;"
+	 * @param signature the class type signature, such as "Ljava/lang/Object;".
+	 *   For more information, see: http://download.oracle.com/javase/6/docs/technotes/guides/jni/spec/types.html#wp16432
 	 */
-	JACE_API JClassImpl(const std::string& name, const std::string& nameAsType);
+	JACE_API JClassImpl(const std::string& internalName, const std::string& signature);
 
 	/**
 	 * Creates a new JClassImpl with the given name.
 	 *
-	 * @param name - The name of the class, suitable for use
-	 * in a call to JNIEnv::FindClass.
+	 * @param internalName the internal name of the class. such as "java/lang/Object".
+	 *   The internal name of a class is its fully qualified name, as returned by Class.getName(),
+	 *   where '.' is replaced by '/'.
 	 *
-	 * For example, "java/lang/Object".
 	 *
-	 * ------------------------------------------------------
-	 *
-	 * The type name for the class is created by preprending
+	 * The signature for the class is created by prepending
 	 * "L" and appending ";" to name.
 	 *
 	 * For example,
@@ -60,7 +55,7 @@ public:
 	 *
 	 *  JClassImpl("java/lang/String", "Ljava/lang/String;");
 	 */
-	JACE_API JClassImpl(const std::string& name);
+	JACE_API JClassImpl(const std::string& internalName);
 
 	/**
 	 * Destroys this JClassImpl.
@@ -68,20 +63,16 @@ public:
 	JACE_API virtual ~JClassImpl() throw ();
 
 	/**
-	 * Returns the name of this class. suitable for use in a call to
-	 * JNIEnv::FindClass.
-	 *
-	 * For example, "java/lang/Object".
+	 * Returns the internal name of the class. such as "java/lang/Object".
+	 *   The internal name of a class is its fully qualified name, as returned by Class.getName(),
+	 *   where '.' is replaced by '/'.
 	 */
-	JACE_API virtual const std::string& getName() const;
+	JACE_API virtual const std::string& getInternalName() const;
 
 	/**
-	 * Returns the name of this class as a type, suitable for use
-	 * in a call to JNIEnv::GetMethodID.
-	 *
-	 * For example, "Ljava/lang/Object;".
+	 * Returns the class type signature, such as "Ljava/lang/Object;"
 	 */
-	JACE_API virtual const std::string& getNameAsType() const;
+	JACE_API virtual const std::string& getSignature() const;
 
 	/**
 	 * Returns the JNI representation of this class.
@@ -97,9 +88,9 @@ private:
 	 * Prevent assignment.
 	 */
 	JClassImpl& operator=(JClassImpl&);
-	std::string mName;
-	std::string mNameAsType;
-	mutable jclass mClass;
+	std::string internalName;
+	std::string signature;
+	mutable jclass theClass;
 	boost::mutex* mutex;
 };
 
