@@ -1,6 +1,7 @@
 package org.jace.proxy;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.jace.metaclass.ArrayMetaClass;
 import org.jace.metaclass.MetaClassFilter;
@@ -32,6 +33,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -924,6 +926,20 @@ public class ProxyGenerator
 	}
 
 	/**
+	 * Returns the superclass of a class.
+	 *
+	 * @param className the class name
+	 * @return null if className is object, otherwise the superclass
+	 * @throws ClassNotFoundException if the class was not found
+	 * @throws IOException if an error occurs while trying to locate a class file
+	 */
+	private TypeName getSuperclass(TypeName className) throws ClassNotFoundException, IOException
+	{
+		ClassFile c = new ClassFile(classPath.openClass(className));
+		return c.getSuperClassName();
+	}
+
+	/**
 	 * Same as getInitializerValue(false).
 	 *
 	 * @return the initializer list
@@ -1302,9 +1318,8 @@ public class ProxyGenerator
 					MethodNode method = (MethodNode) o;
 					if (!method.name.equals("<clinit>"))
 						continue;
-					Integer value = null;
-					boolean firstValue = true;
 					LinkedList<Object> methodStack = Lists.newLinkedList();
+					Map<Object, Integer> objectToOrdinal = Maps.newHashMap();
 					for (AbstractInsnNode node: method.instructions.toArray())
 					{
 						switch (node.getOpcode())
@@ -1364,13 +1379,34 @@ public class ProxyGenerator
 							}
 							case Opcodes.INVOKESPECIAL:
 							{
-								// TODO: what happens if user overrides the class initializer?
+								if (log.isDebugEnabled())
+									log.debug("INVOKESPECIAL: stack=" + methodStack);
 								MethodInsnNode invoke = (MethodInsnNode) node;
-								if (invoke.desc.equals(Type.getObjectType(classNode.name).getDescriptor()))
-									value = (Integer) methodStack.get(1);
-
-								for (int i = 0, size = 1 + Type.getArgumentTypes(invoke.desc).length; i < size; ++i)
-									methodStack.removeFirst();
+								int numArguments = Type.getArgumentTypes(invoke.desc).length;
+								if (log.isTraceEnabled())
+								{
+									log.trace("invoke.superClass=" + getSuperclass(
+										TypeNameFactory.fromPath(invoke.owner)).asPath() + ", classNode.name=" 
+										+ classNode.name);
+								}
+								if (getSuperclass(TypeNameFactory.fromPath(invoke.owner)).asPath().equals(
+									classNode.name))
+								{
+									// Enum constructors have the following signature:
+									// <init>(String name, int ordinal, arguments...)
+									//
+									// +1 for "this" implicit argument
+									if (log.isTraceEnabled())
+										log.trace("numArguments=" + numArguments);
+									int indexOfFirstArgument = methodStack.size() - (numArguments + 1);
+									Object object = methodStack.get(indexOfFirstArgument);
+									Integer ordinal = (Integer) methodStack.get(indexOfFirstArgument + 2);
+									objectToOrdinal.put(object, ordinal);
+									if (log.isDebugEnabled())
+										log.debug("INVOKESPECIAL: " + object + "=" + ordinal);
+								}
+								for (int i = 0, size = 1 + numArguments; i < size; ++i)
+									methodStack.removeLast();
 								break;
 							}
 							case Opcodes.PUTSTATIC:
@@ -1378,19 +1414,15 @@ public class ProxyGenerator
 								FieldInsnNode fieldNode = (FieldInsnNode) node;
 								if (!fieldNode.desc.equals(Type.getObjectType(classNode.name).getDescriptor()))
 									continue;
-								if (firstValue)
-								{
+								Object object = methodStack.removeLast();
+								int ordinal = objectToOrdinal.get(object);
+								if (log.isDebugEnabled())
+									log.debug("PUTSTATIC: " + object + "=" + ordinal);
+								if (ordinal == 0)
 									output.write(newLine);
-									firstValue = false;
-								}
 								else
 									output.write("," + newLine);
-								output.write("      " + fieldNode.name + " = " + value);
-								
-								methodStack.removeFirst(); // object
-								methodStack.removeFirst(); // new value
-								
-								value = null;
+								output.write("      " + fieldNode.name + " = " + ordinal);
 							}
 						}
 					}
@@ -1988,7 +2020,7 @@ public class ProxyGenerator
 	public Set<MetaClass> getDependentClasses(boolean fullyDependent)
 	{
 		if (log.isTraceEnabled())
-			log.trace("getDependentClasses(" + fullyDependent + ") for class: " + classFile);
+			log.trace("getDependentClasses(" + fullyDependent + ") for class: " + classFile.getClassName());
 		// this method finds all dependencies by scanning through the field and methods belonging to the class
 		Set<MetaClass> excludedClasses = Sets.newHashSet();
 		if (classFile.getSuperClassName() != null)
@@ -2009,7 +2041,7 @@ public class ProxyGenerator
 				if (shouldBeSkipped(field))
 					continue;
 				if (log.isDebugEnabled())
-					log.debug("field: " + field);
+					log.debug("field: " + field.getName());
 				MetaClass metaClass = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
 				if (!excludedClasses.contains(metaClass))
 					result.add(metaClass);
@@ -2024,11 +2056,11 @@ public class ProxyGenerator
 				if (shouldBeSkipped(method))
 					continue;
 				if (log.isDebugEnabled())
-					log.debug("method: " + method);
+					log.debug("method: " + method.getName());
 
 				MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
 				if (log.isDebugEnabled())
-					log.debug("returnType: " + returnType);
+					log.debug("returnType: " + returnType.getFullyQualifiedName("."));
 				addDependentClass(result, returnType, excludedClasses);
 
 				for (TypeName parameter: method.getParameterTypes())
@@ -2036,7 +2068,7 @@ public class ProxyGenerator
 					MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
 					addDependentClass(result, parameterType, excludedClasses);
 					if (log.isDebugEnabled())
-						log.debug("parameter: " + parameterType);
+						log.debug("parameter: " + parameterType.getFullyQualifiedName("."));
 				}
 
 				// We must #include exception classes in order to initialize their JEnlister references.
