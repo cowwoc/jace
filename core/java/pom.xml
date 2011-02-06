@@ -3,13 +3,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>5</version>
+		<groupId>com.googlecode.jace</groupId>
+		<artifactId>jace</artifactId>
+		<version>1.2-SNAPSHOT</version>
 	</parent>
-	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace-core-java</artifactId>
-	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Jace Core Java</name>
 	<description>Jace core module, Java source-code</description>

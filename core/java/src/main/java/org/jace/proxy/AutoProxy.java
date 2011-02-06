@@ -83,7 +83,8 @@ public class AutoProxy
 	/**
 	 * Generates the Jace proxies for the specified C++ sources.
 	 *
-	 * @throws IOException if an error occurs while writing
+	 * @throws IOException if outputHeaders or outputSources cannot be created or if an error
+	 *   occurs while writing to a file
 	 * @throws ClassNotFoundException if a class file cannot be found while generating proxies
 	 */
 	private void run() throws IOException, ClassNotFoundException
@@ -120,7 +121,7 @@ public class AutoProxy
 			traverse(directory, sourceFilter);
 		if (log.isDebugEnabled())
 			log.debug("proxies: " + proxies);
-		
+
 		// set up the dependency list for ProxyGenerator
 		FilteringCollection dependencies = new FilteringCollection();
 
@@ -178,17 +179,20 @@ public class AutoProxy
 				log.trace("Generating proxies for " + inputName + "...");
 			InputStream input = classPath.openClass(inputName);
 			ClassFile classFile = new ClassFile(input);
+			if (!outputHeaders.exists() && !outputHeaders.mkdirs())
+			{
+				throw new IOException("Cannot create outputHeaders directory: " + outputHeaders.
+					getAbsolutePath());
+			}
+			if (!outputSources.exists() && !outputSources.mkdirs())
+			{
+				throw new IOException("Cannot create outputSources directory: " + outputSources.
+					getAbsolutePath());
+			}
 			new ProxyGenerator.Builder(classPath, classFile, dependencies).accessibility(accessibility).
 				exportSymbols(exportSymbols).build().writeProxy(outputHeaders, outputSources);
 			input.close();
 		}
-
-		/* I just realized that package import headers don't make any sense related to AutoProxy
-		 * I'll just leave this in here for now in case something changes, but I find that unlikely.
-		 */
-		// Now update package import headers
-		// PackageGen packageGen = PackageGen.newMetaClassInstance( destHeaderDir, classes );
-		// packageGen.execute();
 	}
 
 	/**
@@ -469,12 +473,12 @@ public class AutoProxy
 		 *        The path to search for class files when resolving class dependencies
 		 * @throws IllegalArgumentException
 		 *         If <code>inputHeaders</code>, <code>inputSources</code>, <code>outputHeaders</code>,
-		 *         <code>outputSources</code>, <code>extraDependencies</code> or <code>classPath</code> are null. Or if one of
-		 *         the <code>inputHeaders</code>/<code>inputSources</code> elements is not adirectory or does not exist.
+		 *         <code>outputSources</code>, <code>extraDependencies</code> or <code>classPath</code> 
+		 *         are null. Or if one of the <code>inputHeaders</code>/<code>inputSources</code>
+		 *         elements is not a directory or does not exist.
 		 */
 		public Builder(Collection<File> inputHeaders, Collection<File> inputSources, File outputHeaders,
-									 File outputSources,
-									 ClassPath classPath)
+									 File outputSources, ClassPath classPath)
 			throws IllegalArgumentException
 		{
 			if (inputHeaders == null)
@@ -489,23 +493,15 @@ public class AutoProxy
 				throw new IllegalArgumentException("extraDependencies may not be null");
 			if (classPath == null)
 				throw new IllegalArgumentException("classPath may not be null");
-			if (!outputHeaders.isDirectory())
-			{
-				throw new IllegalArgumentException("outputHeaders refers to a non-existant directory: " + outputHeaders.
-					getAbsolutePath());
-			}
-			if (!outputSources.isDirectory())
-			{
-				throw new IllegalArgumentException("outputSources refers to a non-existant directory: " + outputSources.
-					getAbsolutePath());
-			}
 			this.inputHeaders = new ArrayList<File>(inputHeaders);
 			this.inputSources = new ArrayList<File>(inputSources);
 			for (File file: this.inputHeaders)
 			{
 				if (!file.isDirectory())
+				{
 					throw new IllegalArgumentException("inputHeaders must be an existing directory: " + file.
 						getAbsolutePath());
+				}
 			}
 			for (File file: this.inputSources)
 			{

@@ -295,14 +295,14 @@ void catchAndThrow(JNIEnv* env)
 
 void registerShutdownHook(JNIEnv *env) throw (JNIException)
 {
-  jclass hookClass = env->FindClass("jace/util/ShutdownHook");
+  jclass hookClass = env->FindClass("org/jace/util/ShutdownHook");
   if (!hookClass)
 	{
-    string msg = "Assert failed: Unable to find the class, jace.util.ShutdownHook.";
+    string msg = "Assert failed: Unable to find the class, org.jace.util.ShutdownHook.";
     throw JNIException(msg);
   }
 
-  jmethodID hookGetInstance = env->GetStaticMethodID(hookClass, "getInstance", "()Ljace/util/ShutdownHook;");
+  jmethodID hookGetInstance = env->GetStaticMethodID(hookClass, "getInstance", "()Lorg/jace/util/ShutdownHook;");
   if (!hookGetInstance)
 	{
 		env->DeleteLocalRef(hookClass);
@@ -448,9 +448,9 @@ void createVm(const VmLoader& loader,
 }
 
 /**
- * Invoked by jace.util.ShutdownHook on VM shutdown.
+ * Invoked by org.jace.util.ShutdownHook on VM shutdown.
  */
-extern "C" JNIEXPORT void JNICALL Java_jace_util_ShutdownHook_signalVMShutdown(JNIEnv*, jclass)
+extern "C" JNIEXPORT void JNICALL Java_org_jace_util_ShutdownHook_signalVMShutdown(JNIEnv*, jclass)
 {
 	// Invoking DestroyJavaVM() may result in a deadlock because the shutdown hook is not guaranteed to be
 	// invoked from the main thread.

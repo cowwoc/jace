@@ -3,13 +3,11 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>5</version>
+		<groupId>com.googlecode.jace</groupId>
+		<artifactId>jace</artifactId>
+		<version>1.2-SNAPSHOT</version>
 	</parent>
-	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace-core-cpp</artifactId>
-	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>Jace Core C++</name>
 	<description>Jace core module, C++ source-code</description>
@@ -132,7 +130,7 @@
 										<include>*.dll</include>
 										<include>*.pdb</include>
 									</includes>
-									<targetPath>bin</targetPath>
+									<targetPath>lib</targetPath>
 								</resource>
 								<resource>
 									<directory>${project.build.directory}/../include</directory>
