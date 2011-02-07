@@ -91,7 +91,7 @@ public class ProxyGenerator
 		/**
 		 * Generate public, protected, package-private and private fields and methods.
 		 */
-		PRIVATE,
+		PRIVATE
 	}
 	private final static String newLine = System.getProperty("line.separator");
 	private final ClassFile classFile;
@@ -342,12 +342,10 @@ public class ProxyGenerator
 			if (forPeer)
 			{
 				if (isConstructor || methodName.equals("jaceUserStaticInit") || methodName.equals(
-					"jaceUserClose")
-						|| methodName.equals("jaceUserFinalize") || methodName.equals("jaceSetNativeHandle") || methodName.
-					equals(
-					"jaceGetNativeHandle") || methodName.equals("jaceCreateInstance") || methodName.equals(
-					"jaceDestroyInstance")
-						|| methodName.equals("jaceDispose") || accessFlagSet.contains(MethodAccessFlag.NATIVE))
+					"jaceUserClose") || methodName.equals("jaceUserFinalize") || methodName.equals(
+					"jaceSetNativeHandle") || methodName.equals("jaceGetNativeHandle") || methodName.equals(
+					"jaceCreateInstance") || methodName.equals("jaceDestroyInstance") || methodName.equals(
+					"jaceDispose") || accessFlagSet.contains(MethodAccessFlag.NATIVE))
 				{
 					continue;
 				}
@@ -1386,8 +1384,8 @@ public class ProxyGenerator
 								if (log.isTraceEnabled())
 								{
 									log.trace("invoke.superClass=" + getSuperclass(
-										TypeNameFactory.fromPath(invoke.owner)).asPath() + ", classNode.name=" 
-										+ classNode.name);
+										TypeNameFactory.fromPath(invoke.owner)).asPath() + ", classNode.name="
+														+ classNode.name);
 								}
 								if (getSuperclass(TypeNameFactory.fromPath(invoke.owner)).asPath().equals(
 									classNode.name))

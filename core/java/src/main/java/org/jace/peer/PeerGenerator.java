@@ -391,6 +391,7 @@ public class PeerGenerator
 								 + newLine);
 		output.write("#include \"jace/Jace.h\"" + newLine);
 		output.write("#include \"jace/VirtualMachineRunningError.h\"" + newLine);
+		output.write("#include \"jace/VirtualMachineShutdownError.h\"" + newLine);
 		output.write(newLine);
 
 		for (MetaClass dependency: getDependencies(classFile))
@@ -439,11 +440,18 @@ public class PeerGenerator
 				output.write("  {" + newLine);
 				output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
 										 + newLine);
-				output.write("    jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
+				output.write("    try" + newLine);
+				output.write("    {" + newLine);
+				output.write("      jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
 										 + newLine);
-				output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(ex))));"
+				output.write("      env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(ex))));"
 										 + newLine);
-				output.write("    ::jace::detach();" + newLine);
+				output.write("      ::jace::detach();" + newLine);
+				output.write("    }" + newLine);
+				output.write("    catch (jace::VirtualMachineShutdownError&)" + newLine);
+				output.write("    {" + newLine);
+				output.write("      std::cerr << msg << std::endl;" + newLine);
+				output.write("    }" + newLine);
 				output.write("    return 0;" + newLine);
 				output.write("  }" + newLine);
 				output.write("}" + newLine);
@@ -471,8 +479,8 @@ public class PeerGenerator
 				output.write("  }" + newLine);
 				output.write("  catch (std::exception& e)" + newLine);
 				output.write("  {" + newLine);
-				output.write("    std::cerr << std::string(\"An unexpected JNI error has occurred: \") + e.what();"
-										 + newLine);
+				output.write("    std::cerr << std::string(\"An unexpected JNI error has occurred: \") + "
+										 + "e.what() << std::endl;" + newLine);
 				output.write("  }" + newLine);
 				output.write("}" + newLine);
 				output.write(newLine);
@@ -511,7 +519,7 @@ public class PeerGenerator
 				output.write("  {" + newLine);
 				output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
 										 + newLine);
-				output.write("    std::cerr << msg;" + newLine);
+				output.write("    std::cerr << msg << std::endl;" + newLine);
 				output.write("    return;" + newLine);
 				output.write("  }" + newLine);
 				output.write("}" + newLine);
@@ -622,11 +630,18 @@ public class PeerGenerator
 			output.write("  {" + newLine);
 			output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
 									 + newLine);
-			output.write("    jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
+			output.write("    try" + newLine);
+			output.write("    {" + newLine);
+			output.write("      jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
 									 + newLine);
-			output.write("    env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(ex))));"
+			output.write("      env->Throw(static_cast<jthrowable>(env->NewLocalRef(static_cast<jobject>(ex))));"
 									 + newLine);
-			output.write("    ::jace::detach();" + newLine);
+			output.write("      ::jace::detach();" + newLine);
+			output.write("    }" + newLine);
+			output.write("    catch (jace::VirtualMachineShutdownError&)" + newLine);
+			output.write("    {" + newLine);
+			output.write("      std::cerr << msg << std::endl;" + newLine);
+			output.write("    }" + newLine);
 			output.write("    return" + returnValue + ";" + newLine);
 			output.write("  }" + newLine);
 			output.write("}" + newLine);
