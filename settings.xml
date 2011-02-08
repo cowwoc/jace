@@ -10,11 +10,24 @@
             </activation>
             <repositories>
                 <repository>
-                    <id>sonatype</id>
-                    <name>Sonatype Maven repository</name>
-                    <url>https://oss.sonatype.org/content/groups/public/</url>
+                    <id>sonatype.snapshot</id>
+                    <name>Sonatype snapshot repository</name>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
                 </repository>
             </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>sonatype</id>
+                    <name>Sonatype snapshot repository</name>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>                    
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                </pluginRepository>
+            </pluginRepositories>
         </profile>                  
     </profiles>
 </settings>

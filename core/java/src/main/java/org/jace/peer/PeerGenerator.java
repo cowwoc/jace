@@ -438,8 +438,10 @@ public class PeerGenerator
 				output.write("  }" + newLine);
 				output.write("  catch (std::exception& e)" + newLine);
 				output.write("  {" + newLine);
-				output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
-										 + newLine);
+				output.write("    std::string msg = std::string(\"[\") + __FILE__ + \":\" + "
+										 + "jace::toString(__LINE__) +" + newLine);
+				output.write("                      \"] An unexpected JNI error has occurred: \" + "
+										 + "e.what();" + newLine);
 				output.write("    try" + newLine);
 				output.write("    {" + newLine);
 				output.write("      jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
@@ -479,8 +481,10 @@ public class PeerGenerator
 				output.write("  }" + newLine);
 				output.write("  catch (std::exception& e)" + newLine);
 				output.write("  {" + newLine);
-				output.write("    std::cerr << std::string(\"An unexpected JNI error has occurred: \") + "
-										 + "e.what() << std::endl;" + newLine);
+				output.write("    std::cerr << std::string(\"[\") + __FILE__ + \":\" + "
+										 + "jace::toString(__LINE__) + " + newLine);
+				output.write("                 \"] An unexpected JNI error has occurred: \" << e.what() "
+										 + "<< std::endl;" + newLine);
 				output.write("  }" + newLine);
 				output.write("}" + newLine);
 				output.write(newLine);
@@ -517,9 +521,10 @@ public class PeerGenerator
 				output.write("  }" + newLine);
 				output.write("  catch (std::exception& e)" + newLine);
 				output.write("  {" + newLine);
-				output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
-										 + newLine);
-				output.write("    std::cerr << msg << std::endl;" + newLine);
+				output.write("    std::cerr << std::string(\"[\") + __FILE__ + \":\" + "
+										 + "jace::toString(__LINE__) +" + newLine);
+				output.write("                 \"] An unexpected JNI error has occurred: \" << e.what() "
+										 + "<< std::endl;" + newLine);
 				output.write("    return;" + newLine);
 				output.write("  }" + newLine);
 				output.write("}" + newLine);
@@ -628,8 +633,10 @@ public class PeerGenerator
 			output.write("  }" + newLine);
 			output.write("  catch (std::exception& e)" + newLine);
 			output.write("  {" + newLine);
-			output.write("    std::string msg = std::string(\"An unexpected JNI error has occurred: \") + e.what();"
-									 + newLine);
+			output.write("    std::string msg = std::string(\"[\") + __FILE__ + \":\" + "
+									 + "jace::toString(__LINE__) + " + newLine);
+			output.write("                      \"] An unexpected JNI error has occurred: \" + "
+									 + "e.what();" + newLine);
 			output.write("    try" + newLine);
 			output.write("    {" + newLine);
 			output.write("      jace::proxy::java::lang::RuntimeException ex(jace::java_new<jace::proxy::java::lang::RuntimeException>(msg));"
