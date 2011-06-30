@@ -1,15 +1,13 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>5</version>
+		<groupId>com.googlecode.jace</groupId>
+		<artifactId>jace</artifactId>
+		<version>1.2-SNAPSHOT</version>
 	</parent>
-	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace-core</artifactId>
-	<version>1.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Jace Core</name>
 	<description>Jace core module</description>
@@ -59,29 +57,21 @@
 			</plugin>
 		</plugins>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<profiles>
 		<profile>
-			<id>win32-debug</id>
+			<id>windows-i386-vs10-debug</id>
 		</profile>
 		<profile>
-			<id>win32-release</id>
+			<id>windows-i386-vs10-release</id>
 		</profile>
 		<profile>
-			<id>win64-debug</id>
+			<id>windows-amd64-vs10-debug</id>
 		</profile>
 		<profile>
-			<id>win64-release</id>
+			<id>windows-amd64-vs10-release</id>
 		</profile>
 	</profiles>
 </project>

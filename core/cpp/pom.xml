@@ -1,10 +1,10 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.googlecode.jace</groupId>
-		<artifactId>jace</artifactId>
+		<artifactId>jace-core</artifactId>
 		<version>1.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-core-cpp</artifactId>
@@ -30,14 +30,6 @@
 			<name>Gili Tzabari</name>
 		</developer>
 	</developers>
-	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
 	<build>
 		<plugins>
 			<plugin>
@@ -176,48 +168,48 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>win32-debug</id>
+			<id>windows-i386-vs10-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
 				<platform>windows-i386</platform>
 				<build.type>debug</build.type>
 				<addressModel>32</addressModel>
-				<boost.classifier>windows-vs10-i386</boost.classifier>
+				<boost.classifier>windows-i386-vs10</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
-			<id>win32-release</id>
+			<id>windows-i386-vs10-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
 				<platform>windows-i386</platform>
 				<build.type>release</build.type>
 				<addressModel>32</addressModel>
-				<boost.classifier>windows-vs10-i386</boost.classifier>
+				<boost.classifier>windows-i386-vs10</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
-			<id>win64-debug</id>
+			<id>windows-amd64-vs10-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
 				<platform>windows-amd64</platform>
 				<build.type>debug</build.type>
 				<addressModel>64</addressModel>
-				<boost.classifier>windows-vs10-amd64</boost.classifier>
+				<boost.classifier>windows-amd64-vs10</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
-			<id>win64-release</id>
+			<id>windows-amd64-vs10-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
 				<platform>windows-amd64</platform>
 				<build.type>release</build.type>
 				<addressModel>64</addressModel>
-				<boost.classifier>windows-vs10-amd64</boost.classifier>
+				<boost.classifier>windows-amd64-vs10</boost.classifier>
 			</properties>
 		</profile>
 	</profiles>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<boost.version>1.45.0-SNAPSHOT</boost.version>
+		<boost.version>1.46.1-b1</boost.version>
 	</properties>
 </project>

@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
-		<version>5</version>
+		<version>7</version>
 	</parent>
 	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace</artifactId>
@@ -38,16 +38,16 @@
 	</modules>
 	<profiles>
 		<profile>
-			<id>win32-debug</id>
+			<id>windows-i386-vs10-debug</id>
 		</profile>
 		<profile>
-			<id>win32-release</id>
+			<id>windows-i386-vs10-release</id>
 		</profile>
 		<profile>
-			<id>win64-debug</id>
+			<id>windows-amd64-vs10-debug</id>
 		</profile>
 		<profile>
-			<id>win64-release</id>
+			<id>windows-amd64-vs10-release</id>
 		</profile>
 	</profiles>
 </project>
