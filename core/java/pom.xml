@@ -8,7 +8,6 @@
 		<version>1.2-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-core-java</artifactId>
-	<packaging>jar</packaging>
 	<name>Jace Core Java</name>
 	<description>Jace core module, Java source-code</description>
 	<url>http://code.google.com/p/jace/</url>
