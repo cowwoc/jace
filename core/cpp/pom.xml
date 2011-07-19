@@ -68,7 +68,7 @@
 			<plugin>
 				<groupId>com.googlecode.cmake-maven-project</groupId>
 				<artifactId>cmake-maven-plugin</artifactId>
-				<version>0.2</version>
+				<version>0.3</version>
 				<executions>
 					<execution>
 						<id>cmake-generate</id>

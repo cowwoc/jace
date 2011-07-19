@@ -363,7 +363,7 @@ public class PeerEnhancer
 			}
 
 			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
-			ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+			ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
 			classNode.accept(classWriter);
 			out.write(classWriter.toByteArray());
 			out.close();
