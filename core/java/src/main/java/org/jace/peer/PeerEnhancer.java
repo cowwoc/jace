@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * code into a Java class.
  *
  * For more information about peer enhancement, see the Jace Developer's Guide.
- *
+ * 
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
@@ -200,7 +200,8 @@ public class PeerEnhancer
 						case AbstractInsnNode.METHOD_INSN:
 						{
 							MethodInsnNode methodInvocation = (MethodInsnNode) instruction;
-							if (methodInvocation.owner.equals(classNode.superName) && methodInvocation.name.equals(
+							if (methodInvocation.owner.equals(classNode.superName)
+									&& methodInvocation.name.equals(
 								"<init>"))
 								method.instructions.insert(instruction, getJaceSetNativeHandle(classNode.name));
 							matchFound = true;
