@@ -1317,7 +1317,10 @@ public class ProxyGenerator
 					if (!method.name.equals("<clinit>"))
 						continue;
 					LinkedList<Object> methodStack = Lists.newLinkedList();
-					Map<Object, Integer> objectToOrdinal = Maps.newHashMap();
+					/**
+					 * Maps a INVOKESPECIAL node to the ordinal value it set.
+					 */
+					Map<AbstractInsnNode, Integer> instructionToOrdinal = Maps.newHashMap();
 					for (AbstractInsnNode node: method.instructions.toArray())
 					{
 						switch (node.getOpcode())
@@ -1387,35 +1390,41 @@ public class ProxyGenerator
 										TypeNameFactory.fromPath(invoke.owner)).asPath() + ", classNode.name="
 														+ classNode.name);
 								}
-								if (getSuperclass(TypeNameFactory.fromPath(invoke.owner)).asPath().equals(
-									classNode.name))
+
+								// Enum constructors have the following signature:
+								// <init>(String name, int ordinal, arguments...)
+								if (log.isTraceEnabled())
+									log.trace("numArguments=" + numArguments);
+								if (numArguments >= 2)
 								{
-									// Enum constructors have the following signature:
-									// <init>(String name, int ordinal, arguments...)
-									//
 									// +1 for "this" implicit argument
-									if (log.isTraceEnabled())
-										log.trace("numArguments=" + numArguments);
 									int indexOfFirstArgument = methodStack.size() - (numArguments + 1);
-									Object object = methodStack.get(indexOfFirstArgument);
 									Integer ordinal = (Integer) methodStack.get(indexOfFirstArgument + 2);
-									objectToOrdinal.put(object, ordinal);
+									assert (ordinal != null): "ordinal is null at " + classNode.name;
+									instructionToOrdinal.put(node, ordinal);
 									if (log.isDebugEnabled())
-										log.debug("INVOKESPECIAL: " + object + "=" + ordinal);
+										log.debug("INVOKESPECIAL: " + node + "=" + ordinal);
 								}
 								for (int i = 0, size = 1 + numArguments; i < size; ++i)
 									methodStack.removeLast();
+								methodStack.add(node);
 								break;
 							}
 							case Opcodes.PUTSTATIC:
 							{
 								FieldInsnNode fieldNode = (FieldInsnNode) node;
+								Object value = methodStack.removeLast();
 								if (!fieldNode.desc.equals(Type.getObjectType(classNode.name).getDescriptor()))
 									continue;
-								Object object = methodStack.removeLast();
-								int ordinal = objectToOrdinal.get(object);
+								if (!(value instanceof MethodInsnNode))
+									continue;
+								MethodInsnNode lastInstruction = (MethodInsnNode) value;
+								if (lastInstruction.getOpcode() != Opcodes.INVOKESPECIAL)
+									continue;
+								int ordinal = instructionToOrdinal.get(lastInstruction);
 								if (log.isDebugEnabled())
-									log.debug("PUTSTATIC: " + object + "=" + ordinal);
+									log.debug("PUTSTATIC: " + value + "=" + ordinal);
+
 								if (ordinal == 0)
 									output.write(newLine);
 								else
