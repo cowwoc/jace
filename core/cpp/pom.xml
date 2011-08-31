@@ -101,40 +101,43 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.5</version>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.5</version>
 				<executions>
 					<execution>
-						<id>add-resource</id>
+						<id>copy-resources</id>
 						<phase>generate-resources</phase>
 						<goals>
-							<goal>add-resource</goal>
+							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
+							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${project.build.directory}/cmake/${platform}/${build.type}</directory>
+									<targetPath>lib</targetPath>
 									<includes>
 										<include>*.lib</include>
 										<include>*.dll</include>
 										<include>*.pdb</include>
 									</includes>
-									<targetPath>lib</targetPath>
 								</resource>
 								<resource>
 									<directory>${project.build.directory}/../include</directory>
+									<targetPath>include</targetPath>
 									<includes>
 										<include>**/*.h</include>
 										<include>**/*.tsp</include>
 										<include>**/*.tsd</include>
 									</includes>
-									<targetPath>include</targetPath>
 								</resource>
-							</resources>
-						</configuration>
+							</resources>              
+						</configuration>            
 					</execution>
 				</executions>
+				<configuration>
+					<encoding>${project.build.sourceEncoding}</encoding>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -148,16 +151,8 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.4.3</version>
-				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
+				<version>2.3.2</version>
 				<configuration>
 					<classifier>${platform}-${build.type}</classifier>
 				</configuration>
