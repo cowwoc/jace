@@ -101,30 +101,11 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.build.directory}/../source</source>
-								<source>${project.build.directory}/../include</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
 				<version>2.5</version>
 				<executions>
 					<execution>
-						<id>copy-resources</id>
+						<id>copy-binaries</id>
 						<phase>generate-resources</phase>
 						<goals>
 							<goal>copy-resources</goal>
@@ -153,10 +134,48 @@
 							</resources>              
 						</configuration>            
 					</execution>
+					<execution>
+						<id>copy-sources</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/sources</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/source</directory>
+									<targetPath>source</targetPath>
+								</resource>
+								<resource>
+									<directory>${basedir}/include</directory>
+									<targetPath>include</targetPath>
+								</resource>
+							</resources>              
+						</configuration>            
+					</execution>
 				</executions>
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>${project.build.directory}/sources</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
