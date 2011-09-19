@@ -1,19 +1,14 @@
 package org.jace.proxy;
 
 import com.google.common.collect.Sets;
-import org.jace.metaclass.ArrayMetaClass;
-import org.jace.metaclass.ClassMetaClass;
-import org.jace.metaclass.MetaClass;
-import org.jace.metaclass.MetaClassFactory;
-import org.jace.metaclass.TypeName;
-import org.jace.metaclass.TypeNameFactory;
-import org.jace.parser.ClassFile;
-import org.jace.proxy.ProxyGenerator.AcceptAll;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+import org.jace.metaclass.*;
+import org.jace.parser.ClassFile;
+import org.jace.proxy.ProxyGenerator.AcceptAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -164,10 +159,7 @@ public class ClassSet
 			ProxyGenerator generator = new ProxyGenerator.Builder(classPath, classFile, new AcceptAll()).
 				build();
 
-			for (MetaClass metaClass: generator.getDependentClasses(true))
-				addDependentClasses(result, metaClass.unProxy());
-
-			for (MetaClass metaClass: generator.getDependentClasses(false))
+			for (MetaClass metaClass: generator.getForwardDeclarations())
 				addDependentClasses(result, metaClass.unProxy());
 		}
 		catch (IOException e)

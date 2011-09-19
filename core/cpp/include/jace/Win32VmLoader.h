@@ -12,14 +12,13 @@
 #include "jace/VmLoader.h"
 
 #include <jni.h>
+#include <string>
 
-#ifndef VC_EXTRALEAN
-#define VC_EXTRALEAN		// Exclude rarely-used stuff from Windows headers
+#ifndef _WINDEF_
+struct HINSTANCE__;
+typedef HINSTANCE__* HINSTANCE;
 #endif
 
-#include <windows.h>
-
-#include <string>
 
 BEGIN_NAMESPACE(jace)
 

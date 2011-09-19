@@ -3,15 +3,9 @@ package org.jace.proxy;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.jace.metaclass.ArrayMetaClass;
-import org.jace.metaclass.MetaClassFilter;
-import org.jace.metaclass.ClassMetaClass;
-import org.jace.metaclass.ClassPackage;
-import org.jace.metaclass.MetaClass;
-import org.jace.metaclass.MetaClassFactory;
-import org.jace.metaclass.JaceConstants;
-import org.jace.metaclass.TypeName;
-import org.jace.metaclass.TypeNameFactory;
+import java.io.*;
+import java.util.*;
+import org.jace.metaclass.*;
 import org.jace.parser.ClassFile;
 import org.jace.parser.field.ClassField;
 import org.jace.parser.field.FieldAccessFlag;
@@ -22,29 +16,10 @@ import org.jace.parser.method.MethodAccessFlagSet;
 import org.jace.util.CKeyword;
 import org.jace.util.DelimitedCollection;
 import org.jace.util.Util;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldInsnNode;
-import org.objectweb.asm.tree.IntInsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +178,7 @@ public class ProxyGenerator
 	{
 		Util.generateComment(output, "Headers for the classes that this class uses.");
 
-		for (MetaClass dependentMetaClass: getDependentClasses(false))
+		for (MetaClass dependentMetaClass: getForwardDeclarations())
 		{
 			// Skip includes for classes that aren't part of our dependency list
 			if (!dependencyFilter.accept(dependentMetaClass))
@@ -1965,27 +1940,6 @@ public class ProxyGenerator
 				output.write(interfaceClass.include() + newLine);
 			}
 		}
-
-		Collection<MetaClass> dependentClasses = getDependentClasses(true);
-		if (!dependentClasses.isEmpty())
-		{
-			Util.generateComment(output, "Classes which this class is fully dependent upon.");
-			for (MetaClass dependentMetaClass: dependentClasses)
-			{
-				// Skip includes for classes that aren't part of our dependency list
-				if (!dependencyFilter.accept(dependentMetaClass))
-					continue;
-
-				// This is the special case when the dependent class is an array
-				MetaClass underlyingType;
-				if (dependentMetaClass instanceof ArrayMetaClass)
-					underlyingType = ((ArrayMetaClass) dependentMetaClass).getInnermostElementType();
-				else
-					underlyingType = dependentMetaClass;
-
-				output.write(underlyingType.include() + newLine);
-			}
-		}
 	}
 
 	/**
@@ -1997,7 +1951,7 @@ public class ProxyGenerator
 	 */
 	public void makeForwardDeclarations(Writer output) throws IOException
 	{
-		Collection<MetaClass> dependentClasses = getDependentClasses(false);
+		Collection<MetaClass> dependentClasses = getForwardDeclarations();
 		if (!dependentClasses.isEmpty())
 		{
 			Util.generateComment(output, "Forward declarations for the classes that this class uses.");
@@ -2014,20 +1968,17 @@ public class ProxyGenerator
 	}
 
 	/**
-	 * Returns the classes which the class we are generating is dependent upon.
-	 *
-	 * @param fullyDependent true if the method is to return classes which need to
-	 * be fully defined before reference (such as fields).
-	 * Otherwise, false if the method is to return classes which may be forward
-	 * declared (array elements, exceptions and all other parameter types).
-	 *
-	 * @return a list of the dependee MetaClasses for this class. It does not
-	 * include the super class, and the interfaces implemented by this class.
+	 * Returns the classes that must be forward-declared for the class we are generating.
+	 * 
+	 * The return value includes fields, array elements, exceptions and all other parameter types
+	 * but not the superclass and the interfaces implemented by this class.
+	 * 
+	 * @return an empty set if no classes need to be forward-declared
 	 */
-	public Set<MetaClass> getDependentClasses(boolean fullyDependent)
+	public Set<MetaClass> getForwardDeclarations()
 	{
 		if (log.isTraceEnabled())
-			log.trace("getDependentClasses(" + fullyDependent + ") for class: " + classFile.getClassName());
+			log.trace("getForwardDeclarations() for class: " + classFile.getClassName());
 		// this method finds all dependencies by scanning through the field and methods belonging to the class
 		Set<MetaClass> excludedClasses = Sets.newHashSet();
 		if (classFile.getSuperClassName() != null)
@@ -2041,56 +1992,50 @@ public class ProxyGenerator
 
 		Set<MetaClass> result = Sets.newHashSet();
 		// first, get the fields for the class. We only include fields if we are listing fullyDependent classes.
-		if (fullyDependent)
+		for (ClassField field: classFile.getFields())
 		{
-			for (ClassField field: classFile.getFields())
-			{
-				if (shouldBeSkipped(field))
-					continue;
-				if (log.isDebugEnabled())
-					log.debug("field: " + field.getName());
-				MetaClass metaClass = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
-				if (!excludedClasses.contains(metaClass))
-					result.add(metaClass);
-			}
+			if (shouldBeSkipped(field))
+				continue;
+			if (log.isDebugEnabled())
+				log.debug("field: " + field.getName());
+			MetaClass metaClass = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
+			if (!excludedClasses.contains(metaClass))
+				result.add(metaClass);
 		}
 
-		if (!fullyDependent)
+		// now we check for method parameters and exceptions
+		for (ClassMethod method: classFile.getMethods())
 		{
-			// now we check for method parameters and exceptions
-			for (ClassMethod method: classFile.getMethods())
+			if (shouldBeSkipped(method))
+				continue;
+			if (log.isDebugEnabled())
+				log.debug("method: " + method.getName());
+
+			MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
+			if (log.isDebugEnabled())
+				log.debug("returnType: " + returnType.getFullyQualifiedName("."));
+			addDependentClass(result, returnType, excludedClasses);
+
+			for (TypeName parameter: method.getParameterTypes())
 			{
-				if (shouldBeSkipped(method))
-					continue;
+				MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
+				addDependentClass(result, parameterType, excludedClasses);
 				if (log.isDebugEnabled())
-					log.debug("method: " + method.getName());
+					log.debug("parameter: " + parameterType.getFullyQualifiedName("."));
+			}
 
-				MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
-				if (log.isDebugEnabled())
-					log.debug("returnType: " + returnType.getFullyQualifiedName("."));
-				addDependentClass(result, returnType, excludedClasses);
-
-				for (TypeName parameter: method.getParameterTypes())
-				{
-					MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
-					addDependentClass(result, parameterType, excludedClasses);
-					if (log.isDebugEnabled())
-						log.debug("parameter: " + parameterType.getFullyQualifiedName("."));
-				}
-
-				// We must #include exception classes in order to initialize their JEnlister references.
-				// The point of this registration is so that Jace can instantiate a matching C++ exception
-				// for a Java exception when it is thrown. If you don't #include the header file, then
-				// Jace won't be able to find a matching C++ proxy.
-				//
-				// In general, you DO NOT want exception specifications in C++: If an exception gets thrown
-				// that doesn't match the exception specification, it causes an instantaneous abort of the
-				// program.
-				for (TypeName exception: method.getExceptions())
-				{
-					MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();
-					addDependentClass(result, exceptionType, excludedClasses);
-				}
+			// We must #include exception classes in order to initialize their JEnlister references.
+			// The point of this registration is so that Jace can instantiate a matching C++ exception
+			// for a Java exception when it is thrown. If you don't #include the header file, then
+			// Jace won't be able to find a matching C++ proxy.
+			//
+			// In general, you DO NOT want exception specifications in C++: If an exception gets thrown
+			// that doesn't match the exception specification, it causes an instantaneous abort of the
+			// program.
+			for (TypeName exception: method.getExceptions())
+			{
+				MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();
+				addDependentClass(result, exceptionType, excludedClasses);
 			}
 		}
 		return result;
