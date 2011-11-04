@@ -84,30 +84,6 @@ FactoryMap* getFactoryMap()
   return &factoryMap;
 }
 
-void classLoaderDestructor(jobject* value)
-{
-	// Invoked by setClassLoader() or when the thread exits
-	if (value == 0)
-		return;
-
-	// Read the thread state
-	JNIEnv* env;
-	bool isDetached = jvm->GetEnv((void**) &env, jniVersion) == JNI_EDETACHED;
-
-	if (isDetached)
-		env = attach();
-	else
-		assert(false);
-	env->DeleteGlobalRef(*value);
-	delete[] value;
-
-	// Restore the thread state
-	if (isDetached)
-		detach();
-}
-
-boost::thread_specific_ptr<jobject> threadClassLoader(classLoaderDestructor);
-
 std::string asString(JNIEnv* env, jstring str)
 {
   const char* utfString = env->GetStringUTFChars(str, 0);
@@ -407,6 +383,36 @@ JNIEnv* attachImpl(JavaVM* jvm, const jobject threadGroup, const char* name, con
   return env;
 }
 
+void classLoaderDestructor(jobject* value)
+{
+	// Invoked by setClassLoader() or when the thread exits
+	if (value == 0)
+		return;
+
+	// Read the thread state
+	boost::mutex::scoped_lock lock(jvmMutex);
+	if (jvm == 0)
+	{
+		// JVM is already shut down
+		return;
+	}
+	JNIEnv* env;
+	bool isDetached = jvm->GetEnv((void**) &env, jniVersion) == JNI_EDETACHED;
+	
+	if (isDetached)
+		env = attachImpl(jvm, 0, 0, false);
+	else
+		assert(false);
+	env->DeleteGlobalRef(*value);
+	delete[] value;
+
+	// Restore the thread state
+	if (isDetached)
+		detach();
+}
+
+boost::thread_specific_ptr<jobject> threadClassLoader(classLoaderDestructor);
+
 /**
  * Allows createVm() and setJavaVm() to share code without recursive mutexes.
  *
@@ -414,7 +420,7 @@ JNIEnv* attachImpl(JavaVM* jvm, const jobject threadGroup, const char* name, con
  */
 void setJavaVmImpl(JavaVM* _jvm) throw (JNIException)
 {
-	assert(_jvm!=0);
+	assert(_jvm != 0);
 	JNIEnv* env = attachImpl(_jvm, 0, 0, false);
 	registerShutdownHook(env);
 	jvm = _jvm;
@@ -452,11 +458,12 @@ void createVm(const VmLoader& loader,
  */
 extern "C" JNIEXPORT void JNICALL Java_org_jace_util_ShutdownHook_signalVMShutdown(JNIEnv*, jclass)
 {
-	// Invoking DestroyJavaVM() may result in a deadlock because the shutdown hook is not guaranteed to be
-	// invoked from the main thread.
+	// Invoking DestroyJavaVM() from multiple threads will result in a deadlock (they will wait on each other to shut down).
+	// Typically the main thread is blocked on DestroyJavaVM() and the shutdown hook is invoked
+	// on another thread. As such, we reset jvm and jniVersion directly, without invoking DestroyJavaVM().
 	boost::mutex::scoped_lock lock(jvmMutex);
 
-	// Currently (JDK 1.6) JVM unloading is not supported. We do our best to ensure that the JVM
+	// Currently (JDK 1.7) JVM unloading is not supported. We do our best to ensure that the JVM
 	// is not used past this point.
 	jvm = 0;
 	jniVersion = 0;
@@ -469,6 +476,11 @@ void destroyVm() throw (JNIException)
 	JavaVM* jvmBeforeShutdown;
 	{
 		boost::mutex::scoped_lock lock(jvmMutex);
+		if (jvm == 0)
+		{
+			// JVM already shut down
+			return;
+		}
 		jniVersionBeforeShutdown = jniVersion;
 		jvmBeforeShutdown = jvm;
 	}
@@ -478,7 +490,7 @@ void destroyVm() throw (JNIException)
 	//
 	// NOTE: DestroyJavaVM() will block until the shutdown hook finishes executing
 	jint result = jvmBeforeShutdown->DestroyJavaVM();
-	if (jniVersionBeforeShutdown >= JNI_VERSION_1_6 && result!=JNI_OK)
+	if (jniVersionBeforeShutdown >= JNI_VERSION_1_6 && result != JNI_OK)
 		throw JNIException("DestroyJavaVM() returned " + toString(result));
 }
 
@@ -526,6 +538,12 @@ JNIEnv* attach(const jobject threadGroup, const char* name, const bool daemon) t
  */
 void detach() throw ()
 {
+	boost::mutex::scoped_lock lock(jvmMutex);
+	if (jvm == 0)
+	{
+		// The JVM is already shut down
+		return;
+	}
   jvm->DetachCurrentThread();
 }
 
@@ -743,6 +761,7 @@ void printClass(jobject obj)
 
 bool isRunning()
 {
+	boost::mutex::scoped_lock lock(jvmMutex);
   return jvm != 0;
 }
 
