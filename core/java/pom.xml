@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.googlecode.jace</groupId>
 		<artifactId>jace-core</artifactId>
-		<version>1.2.9-SNAPSHOT</version>
+		<version>1.2.9</version>
 	</parent>
 	<artifactId>jace-core-java</artifactId>
 	<name>Jace Core Java</name>
