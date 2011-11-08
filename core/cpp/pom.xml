@@ -29,6 +29,29 @@
 		</developer>
 	</developers>
 	<build>
+		<directory>${basedir}/target/${jace.classifier}</directory>
+		<resources>
+			<resource>
+				<directory>src/main/resources/include</directory>
+				<targetPath>${project.build.directory}/sources/include</targetPath>
+				<includes>
+					<include>**/*.h</include>
+					<include>**/*.tsp</include>
+					<include>**/*.tsd</include>
+				</includes>
+			</resource>
+			<resource>					
+				<directory>src/main/resources/source</directory>
+				<targetPath>${project.build.directory}/sources/source</targetPath>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>*</include>
+				</includes>
+				<targetPath>${project.build.directory}/sources</targetPath>
+			</resource>
+		</resources>              
 		<plugins>
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -44,21 +67,21 @@
 									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-api</artifactId>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-date-time</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
 								<artifactItem>
 									<groupId>com.googlecode.boost-maven-project</groupId>
 									<artifactId>boost-thread</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost/${boost.classifier}</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -72,28 +95,28 @@
 				<executions>
 					<execution>
 						<id>cmake-generate</id>
-						<phase>generate-resources</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<sourcePath>${basedir}/../cpp</sourcePath>
-							<targetPath>${project.build.directory}/cmake/${platform}</targetPath>
+							<sourcePath>${project.build.directory}/sources</sourcePath>
+							<targetPath>${project.build.directory}/cmake</targetPath>
 							<generator>${cmake.generator}</generator>
-							<projectPath>${project.build.directory}/cmake/${platform}/jace.sln</projectPath>
+							<projectPath>${project.build.directory}/cmake/jace.sln</projectPath>
 							<environmentVariables>
-								<BOOST_HOME>${project.build.directory}/dependency/boost/${boost.classifier}</BOOST_HOME>
+								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
 							</environmentVariables>
 						</configuration>
 					</execution>
 					<execution>
 						<id>cmake-compile</id>
-						<phase>generate-resources</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>compile</goal>
 						</goals>
 						<configuration>
-							<projectPath>${project.build.directory}/cmake/${platform}/jace.sln</projectPath>
+							<projectPath>${project.build.directory}/cmake/jace.sln</projectPath>
 							<generator>${cmake.generator}</generator>
 							<buildType>${build.type}</buildType>
 						</configuration>
@@ -106,7 +129,7 @@
 				<executions>
 					<execution>
 						<id>copy-binaries</id>
-						<phase>generate-resources</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>copy-resources</goal>
 						</goals>
@@ -114,7 +137,7 @@
 							<outputDirectory>${project.build.outputDirectory}</outputDirectory>
 							<resources>
 								<resource>
-									<directory>${project.build.directory}/cmake/${platform}/${build.type}</directory>
+									<directory>${project.build.directory}/cmake/${build.type}</directory>
 									<targetPath>lib</targetPath>
 									<includes>
 										<include>*.lib</include>
@@ -123,33 +146,13 @@
 									</includes>
 								</resource>
 								<resource>
-									<directory>${project.build.directory}/../include</directory>
+									<directory>${project.build.directory}/sources/include</directory>
 									<targetPath>include</targetPath>
 									<includes>
 										<include>**/*.h</include>
 										<include>**/*.tsp</include>
 										<include>**/*.tsd</include>
 									</includes>
-								</resource>
-							</resources>              
-						</configuration>            
-					</execution>
-					<execution>
-						<id>copy-sources</id>
-						<phase>generate-resources</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/sources</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${basedir}/source</directory>
-									<targetPath>source</targetPath>
-								</resource>
-								<resource>
-									<directory>${basedir}/include</directory>
-									<targetPath>include</targetPath>
 								</resource>
 							</resources>              
 						</configuration>            
@@ -165,7 +168,7 @@
 				<version>1.7</version>
 				<executions>
 					<execution>
-						<phase>generate-sources</phase>
+						<phase>process-resources</phase>
 						<goals>
 							<goal>add-source</goal>
 						</goals>
@@ -205,6 +208,7 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
+				<jace.classifier>windows-i386-vs10-debug</jace.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -214,6 +218,7 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
+				<jace.classifier>windows-i386-vs10-release</jace.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -223,6 +228,7 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
+				<jace.classifier>windows-amd64-vs10-debug</jace.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -232,6 +238,7 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
+				<jace.classifier>windows-amd64-vs10-release</jace.classifier>
 			</properties>
 		</profile>
 	</profiles>
