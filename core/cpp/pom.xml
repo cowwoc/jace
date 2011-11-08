@@ -208,7 +208,6 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
-				<jace.classifier>windows-i386-vs10-debug</jace.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -218,7 +217,6 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
-				<jace.classifier>windows-i386-vs10-release</jace.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -228,7 +226,6 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
-				<jace.classifier>windows-amd64-vs10-debug</jace.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -238,12 +235,12 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
-				<jace.classifier>windows-amd64-vs10-release</jace.classifier>
 			</properties>
 		</profile>
 	</profiles>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<boost.version>1.47.0-b1</boost.version>
+		<jace.classifier>${platform}-${build.type}</jace.classifier>
 	</properties>
 </project>
