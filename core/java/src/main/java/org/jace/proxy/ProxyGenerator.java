@@ -1996,9 +1996,9 @@ public class ProxyGenerator
 		{
 			if (shouldBeSkipped(field))
 				continue;
-			if (log.isDebugEnabled())
-				log.debug("field: " + field.getName());
 			MetaClass metaClass = MetaClassFactory.getMetaClass(field.getDescriptor()).proxy();
+			if (log.isDebugEnabled())
+				log.debug("field: " + field.getName() + ", type: " + metaClass);
 			if (!excludedClasses.contains(metaClass))
 				result.add(metaClass);
 		}

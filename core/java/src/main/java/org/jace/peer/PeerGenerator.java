@@ -1,15 +1,11 @@
 package org.jace.peer;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.jace.metaclass.ArrayMetaClass;
-import org.jace.metaclass.ClassMetaClass;
-import org.jace.metaclass.ClassPackage;
-import org.jace.metaclass.MetaClass;
-import org.jace.metaclass.MetaClassFactory;
-import org.jace.metaclass.JaceConstants;
-import org.jace.metaclass.TypeName;
-import org.jace.metaclass.VoidClass;
+import java.io.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import org.jace.metaclass.*;
 import org.jace.parser.ClassFile;
 import org.jace.parser.method.ClassMethod;
 import org.jace.parser.method.MethodAccessFlag;
@@ -19,15 +15,6 @@ import org.jace.proxy.ProxyGenerator.AccessibilityType;
 import org.jace.proxy.ProxyGenerator.InvokeStyle;
 import org.jace.util.DelimitedCollection;
 import org.jace.util.Util;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -150,8 +137,8 @@ public class PeerGenerator
 		output.write(newLine);
 
 		// Generate the #includes
-		ProxyGenerator proxyGen = new ProxyGenerator.Builder(new ClassPath(System.getProperty(
-			"java.class.path")), classFile,
+		ProxyGenerator proxyGen = new ProxyGenerator.Builder(new ClassPath(
+			System.getProperty("java.class.path")), classFile,
 			new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
 		proxyGen.includeStandardHeaders(output, true);
 		output.write(newLine);
@@ -224,8 +211,8 @@ public class PeerGenerator
 				continue;
 
 			String methodName = method.getName();
-			if (methodName.equals("jaceCreateInstance") || methodName.equals("jaceDestroyInstance") || methodName.
-				equals("jaceSetVm"))
+			if (methodName.equals("jaceCreateInstance") || methodName.equals("jaceDestroyInstance")
+					|| methodName.equals("jaceSetVm"))
 			{
 				continue;
 			}
@@ -315,8 +302,8 @@ public class PeerGenerator
 	}
 
 	/**
-	 * Generates the C++ Peer source that is required to implement the non-native
-	 * member functions of the Peer.
+	 * Generates the C++ Peer source that is required to implement the non-native member functions of
+	 * the Peer.
 	 *
 	 * @param output the output writer
 	 * @throws IOException if an error occurs while writing
@@ -333,12 +320,15 @@ public class PeerGenerator
 		output.write(newLine);
 
 		ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(System.getProperty(
-			"java.class.path")),
-			classFile, new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
+			"java.class.path")), classFile,
+			new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
 		generator.includeStandardSourceHeaders(output);
+		output.write(newLine);
 
-		for (MetaClass dependency: getDependencies(classFile))
+		Util.generateComment(output, "Class dependencies.");
+		for (MetaClass dependency: generator.getForwardDeclarations())
 			output.write(dependency.include() + newLine);
+		output.write(newLine);
 
 		output.write(metaClass.toPeer().include() + newLine);
 		output.write(newLine);
@@ -376,10 +366,10 @@ public class PeerGenerator
 			+ "For more information, please refer to the Jace Developer's Guide.");
 		output.write(newLine);
 
-		ProxyGenerator proxy = new ProxyGenerator.Builder(new ClassPath(System.getProperty(
+		ProxyGenerator proxyGen = new ProxyGenerator.Builder(new ClassPath(System.getProperty(
 			"java.class.path")), classFile,
 			new ProxyGenerator.AcceptAll()).accessibility(AccessibilityType.PRIVATE).build();
-		proxy.includeStandardHeaders(output, true);
+		proxyGen.includeStandardHeaders(output, true);
 
 		output.write("#include \"" + JaceConstants.getProxyPackage().asPath()
 								 + "/java/lang/Throwable.h\"" + newLine);
@@ -394,8 +384,10 @@ public class PeerGenerator
 		output.write("#include \"jace/VirtualMachineShutdownError.h\"" + newLine);
 		output.write(newLine);
 
-		for (MetaClass dependency: getDependencies(classFile))
+		Util.generateComment(output, "Class dependencies.");
+		for (MetaClass dependency: proxyGen.getForwardDeclarations())
 			output.write(dependency.include() + newLine);
+		output.write(newLine);
 
 		output.write(metaClass.toPeer().include() + newLine);
 		output.write(newLine);
@@ -412,8 +404,9 @@ public class PeerGenerator
 
 			String methodName = method.getName();
 
-			Util.generateComment(output, "The JNI mapping for" + newLine + newLine + "Class: " + mangleName(metaClass.
-				getFullyQualifiedTrueName("/")) + newLine + "Method: " + method.getName() + newLine
+			Util.generateComment(output, "The JNI mapping for" + newLine + newLine + "Class: "
+																	 + mangleName(metaClass.getFullyQualifiedTrueName("/")) + newLine
+																	 + "Method: " + method.getName() + newLine
 																	 + "Signature: " + method.getDescriptor());
 
 			// treat jaceCreateInstance, jaceDestroyInstance, and jaceSetVm specially
@@ -659,10 +652,10 @@ public class PeerGenerator
 	/**
 	 * Generates the appropriate C function name for the native method.
 	 *
-	 * Note: There are two forms of native method names: short, which is the simple
-	 * method, and long, which is used in the presence of overloading. This method
-	 * always returns the long form of the method name which includes the argument signature,
-	 * as it should always work - with or without the presence of overloading.
+	 * Note: There are two forms of native method names: short, which is the simple method, and long,
+	 * which is used in the presence of overloading. This method always returns the long form of the
+	 * method name which includes the argument signature, as it should always work - with or without
+	 * the presence of overloading.
 	 *
 	 * @param metaClass the class
 	 * @param method the method
@@ -737,70 +730,6 @@ public class PeerGenerator
 			}
 		}
 		return newName.toString();
-	}
-
-	/**
-	 * Returns all classes a class depends on.
-	 *
-	 * @param classFile the class
-	 * @return the classes the class depends on
-	 */
-	private static Set<MetaClass> getDependencies(ClassFile classFile)
-	{
-		MetaClass metaClass = MetaClassFactory.getMetaClass(classFile.getClassName()).proxy();
-
-		Set<MetaClass> result = Sets.newHashSet();
-		result.add(metaClass);
-
-		for (ClassMethod method: classFile.getMethods())
-		{
-			if (!method.getName().equals("<init>"))
-			{
-				// Skip constructor return types
-				MetaClass returnType = MetaClassFactory.getMetaClass(method.getReturnType()).proxy();
-				addDependentClass(result, returnType);
-			}
-
-			for (TypeName parameter: method.getParameterTypes())
-			{
-				MetaClass parameterType = MetaClassFactory.getMetaClass(parameter).proxy();
-				addDependentClass(result, parameterType);
-			}
-
-			// We must #include exception classes in order to initialize their JEnlister references.
-			// The point of this registration is so that Jace can instantiate a matching C++ exception
-			// for a Java exception when it is thrown. If you don't #include the header file, then
-			// Jace won't be able to find a matching C++ proxy.
-			//
-			// In general, you DO NOT want exception specifications in C++: If an exception gets thrown
-			// that doesn't match the exception specification, it causes an instantaneous abort of the
-			// program.
-			for (TypeName exception: method.getExceptions())
-			{
-				MetaClass exceptionType = MetaClassFactory.getMetaClass(exception).proxy();
-				addDependentClass(result, exceptionType);
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Adds a dependency into a set.
-	 *
-	 * @param dependencies the set
-	 * @param dependency the dependency
-	 */
-	private static void addDependentClass(Set<MetaClass> dependencies, MetaClass dependency)
-	{
-		if (dependency instanceof ArrayMetaClass)
-		{
-			ArrayMetaClass arrayType = (ArrayMetaClass) dependency;
-			MetaClass baseType = arrayType.getInnermostElementType();
-			dependencies.add(baseType);
-			return;
-		}
-		dependencies.add(dependency);
 	}
 
 	/**
