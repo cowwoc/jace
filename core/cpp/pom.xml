@@ -98,6 +98,7 @@
 						<phase>process-resources</phase>
 						<goals>
 							<goal>generate</goal>
+							<goal>compile</goal>
 						</goals>
 						<configuration>
 							<sourcePath>${project.build.directory}/sources</sourcePath>
@@ -107,17 +108,6 @@
 							<environmentVariables>
 								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
 							</environmentVariables>
-						</configuration>
-					</execution>
-					<execution>
-						<id>cmake-compile</id>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>compile</goal>
-						</goals>
-						<configuration>
-							<projectPath>${project.build.directory}/cmake/jace.sln</projectPath>
-							<generator>${cmake.generator}</generator>
 							<buildType>${build.type}</buildType>
 						</configuration>
 					</execution>
@@ -195,7 +185,7 @@
 				<artifactId>maven-jar-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<classifier>${platform}-${build.type}</classifier>
+					<classifier>${jace.classifier}</classifier>
 				</configuration>
 			</plugin>
 		</plugins>
