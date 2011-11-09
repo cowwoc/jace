@@ -30,28 +30,7 @@
 	</developers>
 	<build>
 		<directory>${basedir}/target/${jace.classifier}</directory>
-		<resources>
-			<resource>
-				<directory>src/main/resources/include</directory>
-				<targetPath>${project.build.directory}/sources/include</targetPath>
-				<includes>
-					<include>**/*.h</include>
-					<include>**/*.tsp</include>
-					<include>**/*.tsd</include>
-				</includes>
-			</resource>
-			<resource>					
-				<directory>src/main/resources/source</directory>
-				<targetPath>${project.build.directory}/sources/source</targetPath>
-			</resource>
-			<resource>
-				<directory>src/main/resources</directory>
-				<includes>
-					<include>*</include>
-				</includes>
-				<targetPath>${project.build.directory}/sources</targetPath>
-			</resource>
-		</resources>              
+		<sourceDirectory>src/main/cpp</sourceDirectory>
 		<plugins>
 			<plugin>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -118,6 +97,21 @@
 				<version>2.5</version>
 				<executions>
 					<execution>
+						<id>copy-sources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/sources</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.sourceDirectory}</directory>
+								</resource>
+							</resources>
+						</configuration>            
+					</execution>
+					<execution>
 						<id>copy-binaries</id>
 						<phase>process-resources</phase>
 						<goals>
@@ -151,24 +145,6 @@
 				<configuration>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<phase>process-resources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${project.build.directory}/sources</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
