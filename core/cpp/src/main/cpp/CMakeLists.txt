@@ -38,5 +38,5 @@ add_library (jace SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
   file (TO_NATIVE_PATH ${PROJECT_BINARY_DIR} NATIVE_PROJECT_BINARY_DIR)
-  add_custom_command (TARGET jace POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build \"${CMAKE_CFG_INTDIR}\" \"${BOOST_LIBRARY}\" \"${NATIVE_PROJECT_BINARY_DIR}\" \"$(PlatformToolsetVersion)\")
+  add_custom_command (TARGET jace POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build \"${CMAKE_CFG_INTDIR}\" \"${BOOST_LIBRARY}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
 endif ()

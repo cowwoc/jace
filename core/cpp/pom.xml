@@ -53,7 +53,7 @@
 									<artifactId>boost-date-time</artifactId>
 									<classifier>${boost.classifier}</classifier>
 									<version>${boost.version}</version>
-									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>									
 								</artifactItem>
 								<artifactItem>
 									<groupId>com.googlecode.boost-maven-project</groupId>
@@ -63,6 +63,7 @@
 									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
 							</artifactItems>
+							<excludes>${boost.excludes}</excludes>
 						</configuration>
 					</execution>
 				</executions>
@@ -166,6 +167,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<boost.version>1.47.0-b1</boost.version>
+		<jace.classifier>${platform}-${build.type}</jace.classifier>
+	</properties>
 	<profiles>
 		<profile>
 			<id>windows-i386-vs10-debug</id>
@@ -174,6 +180,7 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
+				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*-*</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
@@ -183,6 +190,7 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
+				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*-*</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
@@ -192,6 +200,7 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
+				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*-*</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
@@ -201,12 +210,8 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
+				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*-*</boost.excludes>
 			</properties>
 		</profile>
 	</profiles>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<boost.version>1.47.0-b1</boost.version>
-		<jace.classifier>${platform}-${build.type}</jace.classifier>
-	</properties>
 </project>
