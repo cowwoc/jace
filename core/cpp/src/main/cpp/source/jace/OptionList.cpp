@@ -1,17 +1,20 @@
 #include "jace/OptionList.h"
-using ::jace::OptionList;
-using ::jace::Option;
-using ::jace::SystemProperty;
-using ::jace::Verbose;
-using ::jace::JavaAgent;
-using ::jace::CustomOption;
-using ::jace::Hook;
-using ::jace::VfprintfHook;
-using ::jace::AbortHook;
-using ::jace::ExitHook;
+using jace::OptionList;
+using jace::Option;
+using jace::SystemProperty;
+using jace::Verbose;
+using jace::JavaAgent;
+using jace::CustomOption;
+using jace::Hook;
+using jace::VfprintfHook;
+using jace::AbortHook;
+using jace::ExitHook;
+
+#include "jace/jace.h"
 
 #include <string>
 using std::string;
+using std::wstring;
 
 #include <cstring>
 
@@ -84,8 +87,13 @@ void OptionList::destroyJniOptions(JavaVMOption* jniOptions) const
   delete[] jniOptions;
 }
 
-SystemProperty::SystemProperty(const std::string& name_, const std::string& _value): 
-  mName (name_), mValue (_value)
+SystemProperty::SystemProperty(const string& _name, const string& _value): 
+  mName(_name), mValue(_value)
+{
+}
+
+SystemProperty::SystemProperty(const wstring& _name, const wstring& _value): 
+	mName(jace::toPlatformEncoding(_name)), mValue(jace::toPlatformEncoding(_value))
 {
 }
 
@@ -94,17 +102,17 @@ SystemProperty::SystemProperty(const SystemProperty& other) :
 {
 }
 
-const std::string SystemProperty::name()
+const string SystemProperty::name()
 {
   return mName;
 }
   
-const std::string SystemProperty::value()
+const string SystemProperty::value()
 {
   return mValue;
 }
 
-const std::string SystemProperty::stringValue() const
+const string SystemProperty::stringValue() const
 {
   return "-D" + mName + "=" + mValue;
 }
@@ -119,7 +127,7 @@ Option* SystemProperty::clone() const
   return new SystemProperty(mName, mValue); 
 }
 
-std::string Verbose::toString(Verbose::ComponentType componentType) const
+string Verbose::toString(Verbose::ComponentType componentType) const
 {
 	switch (componentType)
 	{
@@ -139,11 +147,11 @@ Verbose::Verbose(ComponentType _componentType) : componentType(_componentType)
 }
 
 Verbose::Verbose(const Verbose& other): 
-	componentType (other.componentType)
+	componentType(other.componentType)
 {
 }
 
-const std::string Verbose::stringValue() const
+const string Verbose::stringValue() const
 {
   return string("-verbose:") + toString(componentType);
 }
@@ -158,22 +166,32 @@ Option* Verbose::clone() const
   return new Verbose(componentType);
 }
 
-JavaAgent::JavaAgent(const std::string& _path):
-	mPath (_path), mOptions ("")
+JavaAgent::JavaAgent(const string& _path):
+	mPath(_path), mOptions("")
 {
 }
 
-JavaAgent::JavaAgent(const std::string& _path, const std::string& _options) :
-	mPath (_path), mOptions (trim(_options))
+JavaAgent::JavaAgent(const wstring& _path):
+	mPath(jace::toPlatformEncoding(_path)), mOptions("")
+{
+}
+
+JavaAgent::JavaAgent(const string& _path, const string& _options) :
+	mPath(_path), mOptions(trim(_options))
+{
+}
+
+JavaAgent::JavaAgent(const wstring& _path, const wstring& _options) :
+	mPath(jace::toPlatformEncoding(_path)), mOptions(jace::toPlatformEncoding(trim(_options)))
 {
 }
 
 JavaAgent::JavaAgent(const JavaAgent& other):
-	mPath (other.mPath), mOptions (other.mOptions)
+	mPath(other.mPath), mOptions(other.mOptions)
 {
 }
 
-std::string JavaAgent::trim(const std::string& text)
+string JavaAgent::trim(const string& text)
 {
 	// Trim Both leading and trailing spaces  
   size_t first = text.find_first_not_of(" \t"); // Find the first non-space character
@@ -186,17 +204,30 @@ std::string JavaAgent::trim(const std::string& text)
 		return string();
 }
 
-const std::string JavaAgent::path()
+wstring JavaAgent::trim(const wstring& text)
+{
+	// Trim Both leading and trailing spaces  
+  size_t first = text.find_first_not_of(L" \t"); // Find the first non-space character
+  size_t last = text.find_last_not_of(L" \t"); // Find the last non-space character
+  
+  // if all spaces or empty return an empty string
+  if ((wstring::npos != first) && (wstring::npos != last))
+		return text.substr(first, last - first + 1);
+	else
+		return wstring();
+}
+
+const string JavaAgent::path()
 {
 	return mPath;
 }
 
-const std::string JavaAgent::options()
+const string JavaAgent::options()
 {
 	return mOptions;
 }
 
-const std::string JavaAgent::stringValue() const
+const string JavaAgent::stringValue() const
 {
 	string result = "-javaagent:" + mPath;
 	if (mOptions != "")
@@ -214,16 +245,16 @@ Option* JavaAgent::clone() const
   return new JavaAgent(mPath, mOptions);
 }
 
-CustomOption::CustomOption(const std::string& _value) : value(_value)
+CustomOption::CustomOption(const string& _value) : value(_value)
 {
 }
 
 CustomOption::CustomOption(const CustomOption& other):
-	value (other.value)
+	value(other.value)
 {
 }
 
-const std::string CustomOption::stringValue() const
+const string CustomOption::stringValue() const
 {
   return value;
 }
@@ -243,7 +274,7 @@ VfprintfHook::VfprintfHook(vfprintf_t _hook): hook(_hook)
 {
 }
 
-const std::string VfprintfHook::stringValue() const
+const string VfprintfHook::stringValue() const
 {
   return "vfprintf";
 }
@@ -264,7 +295,7 @@ ExitHook::ExitHook(exit_t _hook): hook(_hook)
 {
 }
 
-const std::string ExitHook::stringValue() const
+const string ExitHook::stringValue() const
 {
   return "exit";
 }
@@ -285,7 +316,7 @@ AbortHook::AbortHook(abort_t _hook): hook(_hook)
 {
 }
 
-const std::string AbortHook::stringValue() const
+const string AbortHook::stringValue() const
 {
   return "abort";
 }
