@@ -243,6 +243,16 @@ template <class T> std::wstring toWString(T value)
 #endif
 
 /**
+ * Converts std::wstring to a modified UTF-8 std::string.
+ */
+JACE_API std::string toUTF8(const std::wstring& src);
+
+/**
+ * Converts std::wstring to a std::string encoded using the default platform encoding.
+ */
+std::string toPlatformEncoding(const std::wstring& src);
+
+/**
  * Returns the result of calling Object.toString() on obj.
  * Useful for low level debugging.
  */

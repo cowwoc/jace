@@ -84,6 +84,110 @@ FactoryMap* getFactoryMap()
   return &factoryMap;
 }
 
+/**
+ * Converts std::wstring to a modified UTF-8 std::string.
+ *
+ * Adaptation of u_strToJavaModifiedUTF8() found in ustrtrns.c in icu4c 4.8.1.1 package found at
+ * http://site.icu-project.org/
+ */
+std::string toUTF8(const std::wstring& src)
+{
+	size_t ch=0;
+	size_t count;
+	std::string result;
+
+	// Faster loop without ongoing checking for pSrcLimit and pDestLimit.
+	std::wstring::const_iterator i = src.begin();
+	while (i != src.end())
+	{
+		count = result.length();
+		if (*i <= 0x7f)
+		{
+			// fast ASCII loop
+			while (i != src.end() && *i <= 0x7f && *i != 0)
+			{
+				result += (char) *i;
+				++i;
+				--count;
+			}
+		}
+
+		// Each iteration of the inner loop progresses by at most 3 UTF-8
+		// bytes and one UChar.
+		count /= 3;
+		if (i + count > src.end())
+		{
+			// min(remaining dest/3, remaining src)
+			count = src.end() - i;
+		}
+		if(count < 3)
+		{
+			// Too much overhead if we get near the end of the string,
+			// continue with the next loop.
+			break;
+		}
+		do
+		{
+			ch = *i++;
+			if (ch <= 0x7f && ch != 0)
+				result += (char) ch;
+			else if(ch <= 0x7ff)
+			{
+				result += (char)((ch>>6)|0xc0);
+				result += (char)((ch&0x3f)|0x80);
+			}
+			else
+			{
+				result += (char)((ch>>12)|0xe0);
+				result += (char)(((ch>>6)&0x3f)|0x80);
+				result += (char)((ch&0x3f)|0x80);
+			}
+		} while(--count > 0);
+	}
+
+	while (i != src.end())
+	{
+		ch = *i++;
+		if (ch <= 0x7f && ch != 0)
+		{
+			result += (char) ch;
+		}
+		else if(ch <= 0x7ff)
+		{
+			result += (char)((ch>>6)|0xc0);
+			result += (char)((ch&0x3f)|0x80);
+		}
+		else
+		{
+			result += (char)((ch>>12)|0xe0);
+			result += (char)(((ch>>6)&0x3f)|0x80);
+			result += (char)((ch&0x3f)|0x80);
+		}
+	}
+	return result;
+}
+
+/**
+ * Converts std::wstring to a std::string encoded using the default platform encoding.
+ *
+ * REFERENCE: http://stackoverflow.com/questions/4804298/c-how-to-convert-wstring-into-string
+ */
+std::string toPlatformEncoding(const std::wstring& src)
+{
+	const std::locale locale("");
+  typedef std::codecvt<wchar_t, char, std::mbstate_t> converter_type;
+  const converter_type& converter = std::use_facet<converter_type>(locale);
+  std::vector<char> target(src.length() * converter.max_length());
+  std::mbstate_t state;
+  const wchar_t* from_next;
+  char* target_next;
+  const converter_type::result result = converter.out(state, src.data(), src.data() + src.length(), 
+		from_next, &target[0], &target[0] + target.size(), target_next);
+  if (result == converter_type::ok || result == converter_type::noconv)
+		return std::string(&target[0], target_next);
+	throw toWString("Failed to convert wstring: ") + src;
+}
+
 std::string asString(JNIEnv* env, jstring str)
 {
   const char* utfString = env->GetStringUTFChars(str, 0);
