@@ -48,5 +48,17 @@
 		<profile>
 			<id>windows-amd64-vs10-release</id>
 		</profile>
+		<profile>
+			<id>linux-i386-gmake-debug</id>
+		</profile>
+		<profile>
+			<id>linux-i386-gmake-release</id>
+		</profile>
+		<profile>
+			<id>linux-amd64-gmake-debug</id>
+		</profile>
+		<profile>
+			<id>linux-amd64-gmake-release</id>
+		</profile>
 	</profiles>
 </project>
