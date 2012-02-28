@@ -49,16 +49,16 @@
 			<id>windows-amd64-vs10-release</id>
 		</profile>
 		<profile>
-			<id>linux-i386-gmake-debug</id>
+			<id>linux-i386-gcc-debug</id>
 		</profile>
 		<profile>
-			<id>linux-i386-gmake-release</id>
+			<id>linux-i386-gcc-release</id>
 		</profile>
 		<profile>
-			<id>linux-amd64-gmake-debug</id>
+			<id>linux-amd64-gcc-debug</id>
 		</profile>
 		<profile>
-			<id>linux-amd64-gmake-release</id>
+			<id>linux-amd64-gcc-release</id>
 		</profile>
 	</profiles>
 </project>

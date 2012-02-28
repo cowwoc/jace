@@ -63,6 +63,7 @@
 									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
 							</artifactItems>
+							<includes>${boost.includes}</includes>
 							<excludes>${boost.excludes}</excludes>
 						</configuration>
 					</execution>
@@ -84,7 +85,7 @@
 							<sourcePath>${project.build.directory}/sources</sourcePath>
 							<targetPath>${project.build.directory}/cmake</targetPath>
 							<generator>${cmake.generator}</generator>
-							<projectPath>${project.build.directory}/cmake/jace.sln</projectPath>
+							<projectPath>${project.build.directory}/cmake/${cmake.project}</projectPath>
 							<environmentVariables>
 								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
 							</environmentVariables>
@@ -139,6 +140,13 @@
 										<include>**/*.tsd</include>
 									</includes>
 								</resource>
+								<resource>
+									<directory>${project.build.directory}/cmake</directory>
+									<targetPath>lib</targetPath>
+									<includes>
+										<include>*.so</include>
+									</includes>
+								</resource>
 							</resources>              
 						</configuration>            
 					</execution>
@@ -147,6 +155,26 @@
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<!-- Workaround for Maven bug: http://stackoverflow.com/a/6521686/14731 -->
+						<id>chmod-post-build</id>
+						<phase>process-resources</phase>
+						<configuration>
+							<target>
+								<chmod file="${project.build.directory}/sources/post-build.sh" perm="755"/>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -169,7 +197,7 @@
 	</build>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<boost.version>1.47.0-b1</boost.version>
+		<boost.version>1.49.0-b1-SNAPSHOT</boost.version>
 		<jace.classifier>${platform}-${build.type}</jace.classifier>
 	</properties>
 	<profiles>
@@ -177,80 +205,90 @@
 			<id>windows-i386-vs10-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
+				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-i386-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*-*</boost.excludes>
+				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
 			<id>windows-i386-vs10-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
+				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-i386-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*-*</boost.excludes>
+				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
 			<id>windows-amd64-vs10-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
+				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-amd64-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*-*</boost.excludes>
+				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
 			<id>windows-amd64-vs10-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
+				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-amd64-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*-*</boost.excludes>
+				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
-			<id>linux-i386-gmake-debug</id>
+			<id>linux-i386-gcc-debug</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<platform>linux-i386-gmake</platform>
+				<cmake.project>Makefile</cmake.project>
+				<platform>linux-i386-gcc</platform>
 				<build.type>debug</build.type>
-				<boost.classifier>linux-i386-gmake</boost.classifier>
-				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*-*</boost.excludes>
+				<boost.classifier>linux-i386-gcc</boost.classifier>
+				<boost.includes>boost/**,lib/*boost*-mt-*d*.so</boost.includes>
+				<boost.excludes>lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
-			<id>linux-i386-gmake-release</id>
+			<id>linux-i386-gcc-release</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<platform>linux-i386-gmake</platform>
+				<cmake.project>Makefile</cmake.project>
+				<platform>linux-i386-gcc</platform>
 				<build.type>release</build.type>
-				<boost.classifier>linux-i386-gmake</boost.classifier>
-				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*-*</boost.excludes>
+				<boost.classifier>linux-i386-gcc</boost.classifier>
+				<boost.excludes>lib/*boost*-*d*.so,lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
-			<id>linux-amd64-gmake-debug</id>
+			<id>linux-amd64-gcc-debug</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<platform>linux-amd64-gmake</platform>
+				<cmake.project>Makefile</cmake.project>
+				<platform>linux-amd64-gcc</platform>
 				<build.type>debug</build.type>
-				<boost.classifier>linux-amd64-gmake</boost.classifier>
-				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*-*</boost.excludes>
+				<boost.classifier>linux-amd64-gcc</boost.classifier>
+				<boost.includes>boost/**,lib/*boost*-mt-*d*.so</boost.includes>
+				<boost.excludes>lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
 			</properties>
 		</profile>
 		<profile>
-			<id>linux-amd64-gmake-release</id>
+			<id>linux-amd64-gcc-release</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<platform>linux-amd64-gmake</platform>
+				<cmake.project>Makefile</cmake.project>
+				<platform>linux-amd64-gcc</platform>
 				<build.type>release</build.type>
-				<boost.classifier>linux-amd64-gmake</boost.classifier>
-				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*-*</boost.excludes>
+				<boost.classifier>linux-amd64-gcc</boost.classifier>
+				<boost.excludes>lib/*boost*-*d*.so,lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
 			</properties>
 		</profile>
 	</profiles>

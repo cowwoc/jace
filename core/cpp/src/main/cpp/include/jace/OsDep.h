@@ -148,10 +148,7 @@
 	 * All symbols that aren't local or static are exported by default.
 	 */
 	#define JACE_API
-  /**
-	 * This is a win32-specific hack.
-	 */
-	#define JACE_TEMPLATE_EXTERN
+	#define JACE_PROXY_API
 
   /**
    * Requires template specialization definitions to appear in the header.
@@ -171,10 +168,8 @@
 	 * All symbols that aren't local or static are exported by default.
 	 */
 	#define JACE_API
-  /**
-	 * This is a win32-specific hack.
-	 */
-	#define JACE_TEMPLATE_EXTERN
+	#define JACE_PROXY_API
+
 	#define SUPPORTS_SSTREAM
 
 #endif

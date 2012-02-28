@@ -59,18 +59,4 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	<profiles>
-		<profile>
-			<id>windows-i386-vs10-debug</id>
-		</profile>
-		<profile>
-			<id>windows-i386-vs10-release</id>
-		</profile>
-		<profile>
-			<id>windows-amd64-vs10-debug</id>
-		</profile>
-		<profile>
-			<id>windows-amd64-vs10-release</id>
-		</profile>
-	</profiles>
 </project>

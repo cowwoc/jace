@@ -1,15 +1,9 @@
 package org.jace.maven;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
+import java.io.*;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.jace.peer.PeerEnhancer;

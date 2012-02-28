@@ -27,8 +27,15 @@ add_definitions (-D_UNICODE -DUNICODE -DJACE_EXPORTS)
 
 file (TO_NATIVE_PATH "$ENV{BOOST_HOME}/lib" BOOST_LIBRARY)
 set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MP")
+IF(CMAKE_COMPILER_IS_GNUCXX)
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
-include_directories (include $ENV{JAVA_HOME}/include $ENV{JAVA_HOME}/include/win32 $ENV{BOOST_HOME})
+if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  include_directories (include $ENV{JAVA_HOME}/include $ENV{JAVA_HOME}/include/win32 $ENV{BOOST_HOME})
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  include_directories (include $ENV{JAVA_HOME}/include $ENV{JAVA_HOME}/include/linux $ENV{BOOST_HOME})
+endif ()
 link_directories (${BOOST_LIBRARY})
 
 get_headers ("${CMAKE_CURRENT_SOURCE_DIR}/include" HEADER_FILES)
@@ -36,7 +43,9 @@ get_sources ("${CMAKE_CURRENT_SOURCE_DIR}/source" SOURCE_FILES)
 
 add_library (jace SHARED ${SOURCE_FILES} ${HEADER_FILES})
 
+file (TO_NATIVE_PATH ${PROJECT_BINARY_DIR} NATIVE_PROJECT_BINARY_DIR)
 if (${CMAKE_GENERATOR} MATCHES "Visual Studio")
-  file (TO_NATIVE_PATH ${PROJECT_BINARY_DIR} NATIVE_PROJECT_BINARY_DIR)
-  add_custom_command (TARGET jace POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build \"${CMAKE_CFG_INTDIR}\" \"${BOOST_LIBRARY}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
+  add_custom_command (TARGET jace POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build.bat \"${CMAKE_CFG_INTDIR}\" \"${BOOST_LIBRARY}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
+elseif (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
+  add_custom_command (TARGET jace POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build.sh \"${BOOST_LIBRARY}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
 endif ()

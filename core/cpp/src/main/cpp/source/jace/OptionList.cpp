@@ -10,7 +10,7 @@ using jace::VfprintfHook;
 using jace::AbortHook;
 using jace::ExitHook;
 
-#include "jace/jace.h"
+#include "jace/Jace.h"
 
 #include <string>
 using std::string;

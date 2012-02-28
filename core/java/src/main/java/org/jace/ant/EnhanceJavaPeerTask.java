@@ -1,17 +1,12 @@
 package org.jace.ant;
 
 import com.google.common.collect.Lists;
-import org.jace.peer.PeerEnhancer;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
+import org.jace.peer.PeerEnhancer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
