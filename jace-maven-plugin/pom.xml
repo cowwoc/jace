@@ -10,25 +10,6 @@
 	<packaging>maven-plugin</packaging>
 	<name>Jace Maven Plugin</name>
 	<description>Jace Maven Plugin</description>
-	<url>http://code.google.com/p/jace/</url>
-	<licenses>
-		<license>
-			<name>New BSD License</name>
-			<url>http://en.wikipedia.org/wiki/BSD_licenses#3-clause_license_.28.22New_BSD_License.22.29</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<scm>
-		<url>https://jace.googlecode.com/hg/</url>
-		<connection>scm:hg:https://jace.googlecode.com/hg/</connection>
-		<developerConnection>scm:hg:https://jace.googlecode.com/hg/</developerConnection>
-	</scm>
-	<developers>
-		<developer>
-			<id>cowwoc</id>
-			<name>Gili Tzabari</name>
-		</developer>
-	</developers>
 	<build>
 		<plugins>
 			<plugin>
@@ -55,7 +36,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
-			<version>3.0.3</version>
+			<version>3.0.4</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
