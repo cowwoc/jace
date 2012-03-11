@@ -44,8 +44,6 @@
 									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
 							</artifactItems>
-							<includes>${boost.includes}</includes>
-							<excludes>${boost.excludes}</excludes>
 						</configuration>
 					</execution>
 				</executions>
@@ -189,8 +187,7 @@
 				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-i386-vs10</platform>
 				<build.type>debug</build.type>
-				<boost.classifier>windows-i386-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*</boost.excludes>
+				<boost.classifier>windows-i386-msvc-debug</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -200,8 +197,7 @@
 				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-i386-vs10</platform>
 				<build.type>release</build.type>
-				<boost.classifier>windows-i386-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*</boost.excludes>
+				<boost.classifier>windows-i386-msvc-release</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -211,8 +207,7 @@
 				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-amd64-vs10</platform>
 				<build.type>debug</build.type>
-				<boost.classifier>windows-amd64-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-mt-1*,**/*boost*-*s*</boost.excludes>
+				<boost.classifier>windows-amd64-msvc-debug</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -222,8 +217,7 @@
 				<cmake.project>jace.sln</cmake.project>
 				<platform>windows-amd64-vs10</platform>
 				<build.type>release</build.type>
-				<boost.classifier>windows-amd64-vs10</boost.classifier>
-				<boost.excludes>**/*boost*-*gd*-*,**/*boost*-*s*</boost.excludes>
+				<boost.classifier>windows-amd64-msvc-release</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -233,9 +227,7 @@
 				<cmake.project>Makefile</cmake.project>
 				<platform>linux-i386-gcc</platform>
 				<build.type>debug</build.type>
-				<boost.classifier>linux-i386-gcc</boost.classifier>
-				<boost.includes>boost/**,lib/*boost*-mt-*d*.so</boost.includes>
-				<boost.excludes>lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
+				<boost.classifier>linux-i386-gcc-debug</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -245,8 +237,7 @@
 				<cmake.project>Makefile</cmake.project>
 				<platform>linux-i386-gcc</platform>
 				<build.type>release</build.type>
-				<boost.classifier>linux-i386-gcc</boost.classifier>
-				<boost.excludes>lib/*boost*-*d*.so,lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
+				<boost.classifier>linux-i386-gcc-release</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -256,9 +247,7 @@
 				<cmake.project>Makefile</cmake.project>
 				<platform>linux-amd64-gcc</platform>
 				<build.type>debug</build.type>
-				<boost.classifier>linux-amd64-gcc</boost.classifier>
-				<boost.includes>boost/**,lib/*boost*-mt-*d*.so</boost.includes>
-				<boost.excludes>lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
+				<boost.classifier>linux-amd64-gcc-debug</boost.classifier>
 			</properties>
 		</profile>
 		<profile>
@@ -268,8 +257,7 @@
 				<cmake.project>Makefile</cmake.project>
 				<platform>linux-amd64-gcc</platform>
 				<build.type>release</build.type>
-				<boost.classifier>linux-amd64-gcc</boost.classifier>
-				<boost.excludes>lib/*boost*-*d*.so,lib/*boost*-*s*.so,lib/*boost*.a</boost.excludes>
+				<boost.classifier>linux-amd64-gcc-release</boost.classifier>
 			</properties>
 		</profile>
 	</profiles>
