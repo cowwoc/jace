@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.googlecode.jace</groupId>
 		<artifactId>jace-core</artifactId>
-		<version>1.2.15-SNAPSHOT</version>
+		<version>1.2.15</version>
 	</parent>
 	<artifactId>jace-core-cpp</artifactId>
 	<name>Jace Core C++</name>
@@ -145,7 +145,7 @@
 						<phase>process-resources</phase>
 						<configuration>
 							<target>
-								<chmod file="${project.build.directory}/sources/post-build.sh" perm="755"/>
+								<chmod file="${project.build.directory}/sources/post-build.sh" perm="755" />
 							</target>
 						</configuration>
 						<goals>
