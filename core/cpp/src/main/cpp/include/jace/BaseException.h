@@ -37,11 +37,6 @@ public:
 	JACE_API BaseException(const std::string& value) throw ();
 
 	/**
-	 * Creates a new Exception with the given mesage.
-	 */
-	JACE_API BaseException(const std::wstring& value) throw ();
-
-	/**
 	 * Creates a new Exception from the given Exception.
 	 */
 	JACE_API BaseException(const BaseException& rhs) throw ();

@@ -121,14 +121,6 @@ public:
    */
   JACE_API SystemProperty(const std::string& name, const std::string& value);
 
-  /**
-   * Creates a new SystemProperty with the specified name and value.
-   *
-   * @param name the property name
-   * @param value the property name
-   */
-  JACE_API SystemProperty(const std::wstring& name, const std::wstring& value);
-
 	/**
 	 * Copy constructor.
 	 */
@@ -172,12 +164,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: Version(const std::string& value ): SystemProperty("java.version", value) {}
-		/**
-		 * Creates a new "java.version" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: Version(const std::wstring& value ): SystemProperty(L"java.version", value) {}
   };
 
   class Vendor: public SystemProperty
@@ -189,12 +175,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: Vendor(const std::string& value): SystemProperty("java.vendor", value) {}
-		/**
-		 * Creates a new "java.vendor" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: Vendor(const std::wstring& value): SystemProperty(L"java.vendor", value) {}
   };
 
   class VendorUrl: public SystemProperty
@@ -206,12 +186,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: VendorUrl(const std::string& value): SystemProperty("java.vendor.url", value) {}
-		/**
-		 * Creates a new "java.vendor.url" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: VendorUrl(const std::wstring& value): SystemProperty(L"java.vendor.url", value) {}
   };
 
   class Home: public SystemProperty
@@ -223,12 +197,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: Home(const std::string& value): SystemProperty("java.home", value) {}
-		/**
-		 * Creates a new "java.home" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: Home(const std::wstring& value): SystemProperty(L"java.home", value) {}
   };
 
   class VmSpecificationVersion: public SystemProperty
@@ -240,12 +208,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: VmSpecificationVersion(const std::string& value): SystemProperty("java.vm.specification.version", value) {}
-		/**
-		 * Creates a new "java.vm.specification.version" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: VmSpecificationVersion(const std::wstring& value): SystemProperty(L"java.vm.specification.version", value) {}
   };
 
   class VmSpecificationVendor: public SystemProperty
@@ -257,12 +219,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: VmSpecificationVendor(const std::string& value): SystemProperty("java.vm.specification.vendor", value) {}
-		/**
-		 * Creates a new "java.vm.specification.vendor" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: VmSpecificationVendor(const std::wstring& value): SystemProperty(L"java.vm.specification.vendor", value) {}
   };
 
   class VmSpecificationName: public SystemProperty
@@ -274,12 +230,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: VmSpecificationName(const std::string& value): SystemProperty("java.vm.specification.name", value) {}
-		/**
-		 * Creates a new "java.vm.specification.name" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: VmSpecificationName(const std::wstring& value): SystemProperty(L"java.vm.specification.name", value) {}
   };
 
   class VmVersion: public SystemProperty
@@ -291,12 +241,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: VmVersion(const std::string& value): SystemProperty("java.vm.version", value) {}
-		/**
-		 * Creates a new "java.vm.version" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: VmVersion(const std::wstring& value): SystemProperty(L"java.vm.version", value) {}
   };
 
   class VmVendor: public SystemProperty
@@ -308,12 +252,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: VmVendor(const std::string& value): SystemProperty("java.vm.vendor", value) {}
-		/**
-		 * Creates a new "java.vm.vendor" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: VmVendor(const std::wstring& value): SystemProperty(L"java.vm.vendor", value) {}
   };
 
   class VmName: public SystemProperty
@@ -325,12 +263,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: VmName(const std::string& value): SystemProperty("java.vm.name", value) {}
-		/**
-		 * Creates a new "java.vm.name" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: VmName(const std::wstring& value): SystemProperty(L"java.vm.name", value) {}
   };
 
   class SpecificationVersion: public SystemProperty
@@ -342,12 +274,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: SpecificationVersion(const std::string& value): SystemProperty("java.specification.version", value) {}
-		/**
-		 * Creates a new "java.specification.version" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: SpecificationVersion(const std::wstring& value): SystemProperty(L"java.specification.version", value) {}
   };
 
   class SpecificationVendor: public SystemProperty
@@ -359,12 +285,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: SpecificationVendor(const std::string& value): SystemProperty("java.specification.vendor", value) {}
-		/**
-		 * Creates a new "java.specification.vendor" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: SpecificationVendor(const std::wstring& value): SystemProperty(L"java.specification.vendor", value) {}
   };
 
   class SpecificationName: public SystemProperty
@@ -376,12 +296,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: SpecificationName(const std::string& value): SystemProperty("java.specification.name", value) {}
-		/**
-		 * Creates a new "java.specification.name" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: SpecificationName(const std::wstring& value): SystemProperty(L"java.specification.name", value) {}
   };
 
   class ClassVersion: public SystemProperty
@@ -393,12 +307,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: ClassVersion(const std::string& value): SystemProperty("java.class.version", value) {}
-		/**
-		 * Creates a new "java.class.version" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: ClassVersion(const std::wstring& value): SystemProperty(L"java.class.version", value) {}
   };
 
   class ClassPath: public SystemProperty
@@ -410,12 +318,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: ClassPath(const std::string& value): SystemProperty("java.class.path", value) {}
-		/**
-		 * Creates a new "java.class.path" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: ClassPath(const std::wstring& value): SystemProperty(L"java.class.path", value) {}
   };
 
   class LibraryPath: public SystemProperty
@@ -427,12 +329,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: LibraryPath(const std::string& value): SystemProperty("java.library.path", value) {}
-		/**
-		 * Creates a new "java.library.path" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: LibraryPath(const std::wstring& value): SystemProperty(L"java.library.path", value) {}
   };
 
   class IoTmpDir: public SystemProperty
@@ -444,12 +340,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: IoTmpDir(const std::string& value): SystemProperty("java.io.tmpdir", value) {}
-		/**
-		 * Creates a new "java.io.tmpdir" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: IoTmpDir(const std::wstring& value): SystemProperty(L"java.io.tmpdir", value) {}
   };
 
   class Compiler: public SystemProperty
@@ -461,12 +351,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: Compiler(const std::string& value): SystemProperty("java.compiler", value) {}
-		/**
-		 * Creates a new "java.compiler" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: Compiler(const std::wstring& value): SystemProperty(L"java.compiler", value) {}
   };
 
   class ExtDirs: public SystemProperty
@@ -478,12 +362,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: ExtDirs(const std::string& value): SystemProperty("java.ext.dirs", value) {}
-		/**
-		 * Creates a new "java.ext.dirs" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: ExtDirs(const std::wstring& value): SystemProperty(L"java.ext.dirs", value) {}
   };
 
   class OsName: public SystemProperty
@@ -495,12 +373,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: OsName(const std::string& value): SystemProperty("java.os.name", value) {}
-		/**
-		 * Creates a new "java.os.name" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: OsName(const std::wstring& value): SystemProperty(L"java.os.name", value) {}
   };
 
   class OsArch: public SystemProperty
@@ -512,12 +384,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: OsArch(const std::string& value): SystemProperty("java.os.arch", value) {}
-		/**
-		 * Creates a new "java.os.arch" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: OsArch(const std::wstring& value): SystemProperty(L"java.os.arch", value) {}
   };
 
   class OsVersion: public SystemProperty
@@ -529,12 +395,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: OsVersion(const std::string& value): SystemProperty("java.os.version", value) {}
-		/**
-		 * Creates a new "java.os.version" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: OsVersion(const std::wstring& value): SystemProperty(L"java.os.version", value) {}
   };
 
   class FileSeparator: public SystemProperty
@@ -546,12 +406,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: FileSeparator(const std::string& value): SystemProperty("file.separator", value) {}
-		/**
-		 * Creates a new "file.separator" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: FileSeparator(const std::wstring& value): SystemProperty(L"file.separator", value) {}
   };
 
   class PathSeparator: public SystemProperty
@@ -563,12 +417,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: PathSeparator(const std::string& value): SystemProperty("path.separator", value) {}
-		/**
-		 * Creates a new "path.separator" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: PathSeparator(const std::wstring& value): SystemProperty(L"path.separator", value) {}
   };
 
   class LineSeparator: public SystemProperty
@@ -580,12 +428,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: LineSeparator(const std::string& value ): SystemProperty("line.separator", value) {}
-		/**
-		 * Creates a new "line.separator" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: LineSeparator(const std::wstring& value ): SystemProperty(L"line.separator", value) {}
   };
 
   class UserName: public SystemProperty
@@ -597,12 +439,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: UserName(const std::string& value): SystemProperty("user.name", value) {}
-		/**
-		 * Creates a new "user.name" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: UserName(const std::wstring& value): SystemProperty(L"user.name", value) {}
   };
 
   class UserHome: public SystemProperty
@@ -614,12 +450,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: UserHome(const std::string& value): SystemProperty("user.home", value) {}
-		/**
-		 * Creates a new "user.home" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: UserHome(const std::wstring& value): SystemProperty(L"user.home", value) {}
   };
 
   class UserDir: public SystemProperty
@@ -631,12 +461,6 @@ private:
 		 * @see jace::toPlatformEncoding(std::wstring)
 		 */
     public: UserDir(const std::string& value) : SystemProperty("user.dir", value) {}
-		/**
-		 * Creates a new "user.dir" property with the specified value.
-		 *
-		 * @param value the property name
-		 */
-    public: UserDir(const std::wstring& value) : SystemProperty(L"user.dir", value) {}
   };
 
 
@@ -716,26 +540,11 @@ public:
 	/**
 	 * Creates a new JavaAgent.
 	 *
-	 * @param path the path to the JavaAgent
-	 */
-  JACE_API JavaAgent(const std::wstring& path);
-
-	/**
-	 * Creates a new JavaAgent.
-	 *
 	 * @param path the path to the JavaAgent (encoded using the default platform encoding)
 	 * @param options the agent options (encoded using the default platform encoding)
 	 * @see jace::toPlatformEncoding(std::wstring)
 	 */
 	JACE_API JavaAgent(const std::string& path, const std::string& options);
-
-	/**
-	 * Creates a new JavaAgent.
-	 *
-	 * @param path the path to the JavaAgent
-	 * @param options the agent options
-	 */
-	JACE_API JavaAgent(const std::wstring& path, const std::wstring& options);
 
 	/**
 	 * Copy constructor.
@@ -769,13 +578,6 @@ private:
 	 * @return the output string
 	 */
 	std::string trim(const std::string& text);
-	/**
-	 * Removes the leading and trailing whitespace from a wstring.
-	 *
-	 * @param text the input string
-	 * @return the output string
-	 */
-	std::wstring trim(const std::wstring& text);
 
 	const std::string mPath;
   const std::string mOptions;
@@ -800,13 +602,6 @@ public:
 	 * @see jace::toPlatformEncoding(std::wstring)
    */
   JACE_API CustomOption(const std::string& value);
-
-  /**
-   * Creates a new custom option.
-	 *
-	 * @param value the option value
-   */
-  JACE_API CustomOption(const std::wstring& value);
 
 	/**
 	 * Copy constructor.

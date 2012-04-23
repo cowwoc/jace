@@ -491,25 +491,6 @@ public class ProxyGenerator
 			output.write("}" + newLine);
 			output.write(newLine);
 
-			output.write("String::String(const std::wstring& str)" + newLine);
-			output.write("{" + newLine);
-			output.write("  JNIEnv* env = attach();" + newLine);
-			output.write("  size_t nativeLength = str.size();" + newLine);
-			output.write("  if (nativeLength > static_cast<size_t>(::jace::proxy::java::lang::Integer::MAX_VALUE()))"
-									 + newLine);
-			output.write("  {" + newLine);
-			output.write("    throw JNIException(std::string(\"String::String(const std::wstring& str) - "
-									 + "str.size() (\") +" + newLine);
-			output.write("      jace::toString(nativeLength) + \") > Integer.MAX_VALUE.\");" + newLine);
-			output.write("  }" + newLine);
-			output.write("  jsize length = jsize(str.size());" + newLine);
-			output.write("  jstring strRef = env->NewString(reinterpret_cast<const jchar*>(str.c_str()), length);"
-									 + newLine);
-			output.write("  setJavaJniObject(strRef);" + newLine);
-			output.write("  deleteLocalRef(env, strRef);" + newLine);
-			output.write("}" + newLine);
-			output.write(newLine);
-
 			output.write("String& String::operator=(const String& str)" + newLine);
 			output.write("{" + newLine);
 			output.write("  setJavaJniObject(str);" + newLine);
@@ -550,25 +531,6 @@ public class ProxyGenerator
 			output.write("  env->ReleaseByteArrayElements(array, byteArray, JNI_ABORT);" + newLine);
 			output.write("  deleteLocalRef(env, array);" + newLine);
 			output.write("  return str;" + newLine);
-			output.write("}" + newLine);
-			output.write(newLine);
-
-			output.write("String::operator std::wstring() const" + newLine);
-			output.write("{" + newLine);
-			output.write("  JNIEnv* env = attach();" + newLine);
-			output.write("  jstring thisString = static_cast<jstring>(static_cast<jobject>(*this));"
-									 + newLine);
-			output.write("  const jchar* buffer = env->GetStringChars(thisString, 0);" + newLine);
-			output.write("  if (!buffer)" + newLine);
-			output.write("  {" + newLine);
-			output.write("    env->ExceptionDescribe();" + newLine);
-			output.write("    env->ExceptionClear();" + newLine);
-			output.write("    throw JNIException(\"String::operator std::wstring() - Unable to get the "
-									 + "contents of the java String.\");" + newLine);
-			output.write("  }" + newLine);
-			output.write("  std::wstring result = reinterpret_cast<const wchar_t*>(buffer);" + newLine);
-			output.write("  env->ReleaseStringChars(thisString, buffer);" + newLine);
-			output.write("  return result;" + newLine);
 			output.write("}" + newLine);
 			output.write(newLine);
 

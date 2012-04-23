@@ -26,11 +26,6 @@ public:
 	JACE_API JNIException(const std::string& value) throw ();
 
 	/**
-	 * Creates a new JNIException with the given mesage.
-	 */
-	JACE_API JNIException(const std::wstring& value) throw ();
-
-	/**
 	 * Creates a new JNIException from an existing JNIException.
 	 *
 	 */

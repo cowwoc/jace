@@ -90,14 +90,14 @@ FactoryMap* getFactoryMap()
  * Adaptation of u_strToJavaModifiedUTF8() found in ustrtrns.c in icu4c 4.8.1.1 package found at
  * http://site.icu-project.org/
  */
-std::string toUTF8(const std::wstring& src)
+std::string toUTF8(const wstring& src)
 {
 	size_t ch=0;
 	size_t count;
 	std::string result;
 
 	// Faster loop without ongoing checking for pSrcLimit and pDestLimit.
-	std::wstring::const_iterator i = src.begin();
+	wstring::const_iterator i = src.begin();
 	while (i != src.end())
 	{
 		count = result.length();

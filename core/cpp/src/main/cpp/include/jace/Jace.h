@@ -230,18 +230,6 @@ template <class T> std::string toString(T value)
  */
 JACE_API std::string getCurrentThreadId();
 
-#ifdef SUPPORTS_SSTREAM
-/**
- * Returns the wstring representation of any type.
- */
-template <class T> std::wstring toWString(T value)
-{
-	std::wstringstream stream;
-	stream << value;
-	return stream.str();
-}
-#endif
-
 /**
  * Converts std::wstring to a modified UTF-8 std::string.
  */
@@ -436,21 +424,6 @@ T java_new(const char* text)
  */
 template <typename T>
 T java_new(const ::std::string& text)
-{
-	return T::Factory::create(text);
-}
-
-/**
- * Instantiate a new String.
- *
- * For example,
- *
- *  String map = java_new<String>(::std::wstring(L"Hello"));
- *
- * The compiler can't figure out how to go from a char* to JValue on its own.
- */
-template <typename T>
-T java_new(const ::std::wstring& text)
 {
 	return T::Factory::create(text);
 }

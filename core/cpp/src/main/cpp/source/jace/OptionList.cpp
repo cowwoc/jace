@@ -14,7 +14,6 @@ using jace::ExitHook;
 
 #include <string>
 using std::string;
-using std::wstring;
 
 #include <cstring>
 
@@ -92,11 +91,6 @@ SystemProperty::SystemProperty(const string& _name, const string& _value):
 {
 }
 
-SystemProperty::SystemProperty(const wstring& _name, const wstring& _value): 
-	mName(jace::toPlatformEncoding(_name)), mValue(jace::toPlatformEncoding(_value))
-{
-}
-
 SystemProperty::SystemProperty(const SystemProperty& other) :
 	mName (other.mName), mValue (other.mValue)
 {
@@ -171,18 +165,8 @@ JavaAgent::JavaAgent(const string& _path):
 {
 }
 
-JavaAgent::JavaAgent(const wstring& _path):
-	mPath(jace::toPlatformEncoding(_path)), mOptions("")
-{
-}
-
 JavaAgent::JavaAgent(const string& _path, const string& _options) :
 	mPath(_path), mOptions(trim(_options))
-{
-}
-
-JavaAgent::JavaAgent(const wstring& _path, const wstring& _options) :
-	mPath(jace::toPlatformEncoding(_path)), mOptions(jace::toPlatformEncoding(trim(_options)))
 {
 }
 
@@ -200,21 +184,7 @@ string JavaAgent::trim(const string& text)
   // if all spaces or empty return an empty string
   if ((string::npos != first) && (string::npos != last))
 		return text.substr(first, last - first + 1);
-	else
-		return string();
-}
-
-wstring JavaAgent::trim(const wstring& text)
-{
-	// Trim Both leading and trailing spaces  
-  size_t first = text.find_first_not_of(L" \t"); // Find the first non-space character
-  size_t last = text.find_last_not_of(L" \t"); // Find the last non-space character
-  
-  // if all spaces or empty return an empty string
-  if ((wstring::npos != first) && (wstring::npos != last))
-		return text.substr(first, last - first + 1);
-	else
-		return wstring();
+  return string();
 }
 
 const string JavaAgent::path()

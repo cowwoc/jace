@@ -8,11 +8,6 @@ BaseException::BaseException(const std::string& value) throw ():
 	mValue(value)
 {}
 
-BaseException::BaseException(const std::wstring& value) throw ()
-{
-	mValue = toUTF8(value);
-}
-
 BaseException::BaseException(const BaseException& rhs) throw ()
 {
   mValue = rhs.mValue;

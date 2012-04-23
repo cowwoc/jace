@@ -3,16 +3,11 @@
 
 #include <string>
 using std::string;
-using std::wstring;
 
 
 BEGIN_NAMESPACE(jace)
 
 JNIException::JNIException(const string& value) throw (): 
-  BaseException(value)
-{}
-
-JNIException::JNIException(const wstring& value) throw (): 
   BaseException(value)
 {}
 

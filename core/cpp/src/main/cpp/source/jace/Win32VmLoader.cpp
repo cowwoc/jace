@@ -14,19 +14,19 @@ using ::jace::JNIException;
 #include <windows.h>
 
 #include <string>
-using std::wstring;
+using std::string;
 
 namespace
 {
   /**
    * Windows helper for querying the registry values related to the various JVM installations
    */
-  bool getRegistryValue(const std::wstring& regPath, std::wstring& value)
+  bool getRegistryValue(const std::string& regPath, std::string& value)
 	{
     // Split into key and value name
     size_t lastSlash = regPath.rfind('\\');
-    std::wstring keyName = regPath.substr(0, lastSlash);
-    std::wstring valueName = regPath.substr(lastSlash+1, regPath.length() - lastSlash);
+    std::string keyName = regPath.substr(0, lastSlash);
+    std::string valueName = regPath.substr(lastSlash+1, regPath.length() - lastSlash);
 
     // Open the registry and get the data
     HKEY regKey;
@@ -49,7 +49,6 @@ namespace
 			  }
 		  }
     }
-
 	  return false;
   }
 }
@@ -67,16 +66,7 @@ Win32VmLoader::Win32VmLoader(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader::
 }
 
 Win32VmLoader::Win32VmLoader(std::string _path, jint _jniVersion) throw (JNIException):
-	VmLoader(_jniVersion), handle(0)
-{
-  getCreatedJavaVMsPtr = 0;
-  createJavaVMPtr = 0;
-	path = toWString(_path.c_str());
-	loadVm(path);
-}
-
-Win32VmLoader::Win32VmLoader(std::wstring _path, jint _jniVersion) throw (JNIException):
-  VmLoader(_jniVersion), path(_path), handle(0)
+	VmLoader(_jniVersion), path(_path), handle(0)
 {
   getCreatedJavaVMsPtr = 0;
   createJavaVMPtr = 0;
@@ -86,11 +76,6 @@ Win32VmLoader::Win32VmLoader(std::wstring _path, jint _jniVersion) throw (JNIExc
 void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader::JVMType jvmType,
 															std::string version)
 {
-	specifyVm(jvmVendor, jvmType, toWString(version.c_str()));
-}
-
-void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader::JVMType jvmType, std::wstring version)
-{
 	switch (jvmVendor)
 	{
 		case JVMV_SUN:
@@ -98,7 +83,7 @@ void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader:
 			// Get current version
 			if (version.empty())
 			{
-				if (!getRegistryValue(L"Software\\JavaSoft\\Java Runtime Environment\\CurrentVersion", version))
+				if (!getRegistryValue("Software\\JavaSoft\\Java Runtime Environment\\CurrentVersion", version))
 					throw JNIException("No default Sun JRE found");
 			}
 
@@ -116,60 +101,60 @@ void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader:
 			{
 				case JVMT_DEFAULT:
 				{
-					if (!getRegistryValue(L"Software\\JavaSoft\\Java Runtime Environment\\" +
-																 version + L"\\RuntimeLib", path))
+					if (!getRegistryValue(string("Software\\JavaSoft\\Java Runtime Environment\\") +
+																version + "\\RuntimeLib", path))
 					{
-						throw JNIException(L"Sun JRE " + version + L" not found");
+						throw JNIException(string("Sun JRE ") + version + " not found");
 					}
 					break;
 				}
 				case JVMT_CLASSIC:
 				{
-					if (version.find(L"1.3") != 0)
-						throw JNIException(L"Classic VM not available in Sun JRE " + version);
-					if (!getRegistryValue(L"Software\\JavaSoft\\Java Runtime Environment\\" +
-																version + L"\\JavaHome", path))
+					if (version.find("1.3") != 0)
+						throw JNIException(string("Classic VM not available in Sun JRE ") + version);
+					if (!getRegistryValue(string("Software\\JavaSoft\\Java Runtime Environment\\") +
+																version + "\\JavaHome", path))
 					{
-						throw JNIException(L"Classic Sun JRE " + version + L" not found");
+						throw JNIException(string("Classic Sun JRE ") + version + " not found");
 					}
-					path += L"\\bin\\classic\\jvm.dll";
+					path += "\\bin\\classic\\jvm.dll";
 					break;
 				}
 				case JVMT_DEBUG:
-					throw JNIException(L"Debug VM not available in Sun JRE");
+					throw JNIException("Debug VM not available in Sun JRE");
 				case JVMT_HOTSPOT:
 				{
-					if (version.find(L"1.3") != 0)
-						throw JNIException(L"Hotspot VM not available in Sun JRE " + version + L"\nUse Client VM instead");
-					if (!getRegistryValue(L"Software\\JavaSoft\\Java Runtime Environment\\" +
-																version + L"\\JavaHome", path))
+					if (version.find("1.3") != 0)
+						throw JNIException(string("Hotspot VM not available in Sun JRE ") + version + "\nUse Client VM instead");
+					if (!getRegistryValue(string("Software\\JavaSoft\\Java Runtime Environment\\") +
+																version + "\\JavaHome", path))
 					{
-						throw JNIException(L"Hotspot Sun JRE " + version + L" not found");
+						throw JNIException(string("Hotspot Sun JRE ") + version + " not found");
 					}
-					path += L"\\bin\\hotspot\\jvm.dll";
+					path += "\\bin\\hotspot\\jvm.dll";
 					break;
 				}
 				case JVMT_SERVER:
 				{
-					if (!getRegistryValue(L"Software\\JavaSoft\\Java Development Kit\\" +
-																version + L"\\JavaHome", path))
+					if (!getRegistryValue(string("Software\\JavaSoft\\Java Development Kit\\") +
+																version + "\\JavaHome", path))
 					{
-						throw JNIException(L"Sun JDK " + version + L" not found");
+						throw JNIException(string("Sun JDK ") + version + " not found");
 					}
-					path += L"\\jre\\bin\\server\\jvm.dll";
+					path += "\\jre\\bin\\server\\jvm.dll";
 					break;
 				}
 				case JVMT_CLIENT:
 				{
-					if (!version.find(L"1.4") == 0)
-						throw JNIException(L"Client Sun JRE " + version + L" not found");
-					if (!getRegistryValue(L"Software\\JavaSoft\\Java Runtime Environment\\" +
-																version + L"\\JavaHome", path))
+					if (!version.find("1.4") == 0)
+						throw JNIException(string("Client Sun JRE ") + version + " not found");
+					if (!getRegistryValue(string("Software\\JavaSoft\\Java Runtime Environment\\") +
+																version + "\\JavaHome", path))
 					{
-						throw JNIException(L"Client VM not available in Sun JRE " + version +
-															 L"\nUse Classic or Hotspot VM instead");
+						throw JNIException(string("Client VM not available in Sun JRE ") + version +
+															 "\nUse Classic or Hotspot VM instead");
 					}
-					path += L"\\bin\\client\\jvm.dll";
+					path += "\\bin\\client\\jvm.dll";
 					break;
 				}
 			}
@@ -182,24 +167,24 @@ void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader:
 			{
  				case JVMT_DEFAULT:
 				case JVMT_CLASSIC:
-					if (!getRegistryValue(L"Software\\IBM\\Java2 Runtime Environment\\1.3\\RuntimeLib", path))
-						throw JNIException(L"IBM JRE 1.3 not found");
+					if (!getRegistryValue("Software\\IBM\\Java2 Runtime Environment\\1.3\\RuntimeLib", path))
+						throw JNIException("IBM JRE 1.3 not found");
 					break;
 
 				case JVMT_DEBUG:
-					if (!getRegistryValue(L"Software\\IBM\\Java Development Kit\\1.3\\JavaHome", path))
+					if (!getRegistryValue("Software\\IBM\\Java Development Kit\\1.3\\JavaHome", path))
 					{
-						throw JNIException(L"IBM JDK 1.3 not found");
+						throw JNIException("IBM JDK 1.3 not found");
 					}
-					path += L"\\jre\\bin\\classic\\jvm_g.dll";
+					path += "\\jre\\bin\\classic\\jvm_g.dll";
 					break;
 
 				case JVMT_HOTSPOT:
-					throw JNIException(L"Hotspot VM not available in IBM JRE");
+					throw JNIException("Hotspot VM not available in IBM JRE");
 				case JVMT_SERVER:
-					throw JNIException(L"Server VM not available in IBM JRE");
+					throw JNIException("Server VM not available in IBM JRE");
 				case JVMT_CLIENT:
-					throw JNIException(L"Client VM not available in IBM JRE");
+					throw JNIException("Client VM not available in IBM JRE");
 			}
 		}
 		break;
@@ -208,23 +193,18 @@ void Win32VmLoader::specifyVm(Win32VmLoader::JVMVendor jvmVendor, Win32VmLoader:
 
 void Win32VmLoader::loadVm(const std::string &jvmPath) throw (JNIException)
 {
-	loadVm(toWString(jvmPath.c_str()));
-}
-
-void Win32VmLoader::loadVm(const std::wstring &jvmPath) throw (JNIException)
-{
   // Load the Java VM DLL
   if ((handle = LoadLibrary(jvmPath.c_str())) == 0)
-    throw JNIException(L"Can't load JVM from" + jvmPath);
+    throw JNIException(string("Can't load JVM from") + jvmPath);
 
   // Now get the function addresses
   getCreatedJavaVMsPtr = (GetCreatedJavaVMs_t) GetProcAddress(handle, "JNI_GetCreatedJavaVMs");
 	if (!getCreatedJavaVMsPtr)
-		throw JNIException(L"Can't find JNI_GetCreatedJavaVMs in " + jvmPath);
+		throw JNIException(string("Can't find JNI_GetCreatedJavaVMs in ") + jvmPath);
 
   createJavaVMPtr = (CreateJavaVM_t) GetProcAddress(handle, "JNI_CreateJavaVM");
 	if (!createJavaVMPtr)
-		throw JNIException(L"Can't find JNI_CreateJavaVM in " + jvmPath);
+		throw JNIException(string("Can't find JNI_CreateJavaVM in ") + jvmPath);
 }
 
 jint Win32VmLoader::createJavaVM(JavaVM **pvm, void **env, void *args) const
