@@ -26,7 +26,6 @@ using jace::VirtualMachineRunningError;
 
 #include <cstdarg>
 #include <stdlib.h>
-#include <string.h>
 
 #include <iostream>
 using std::cerr;
@@ -87,12 +86,12 @@ FactoryMap* getFactoryMap()
 /**
  * Converts std::wstring to a modified UTF-8 std::string.
  *
- * Adaptation of u_strToJavaModifiedUTF8() found in ustrtrns.c in icu4c 4.8.1.1 package found at
+ * Adaptation of u_strToJavaModifiedUTF8() found in ustrtrns.cpp in icu4c 4.9.1.1 package found at
  * http://site.icu-project.org/
  */
 std::string toUTF8(const wstring& src)
 {
-	size_t ch=0;
+	wchar_t ch = 0;
 	size_t count;
 	std::string result;
 
@@ -168,6 +167,165 @@ std::string toUTF8(const wstring& src)
 }
 
 /**
+ * Converts a modified UTF-8 std::string to a std::wstring.
+ *
+ * Adaptation of u_strFromJavaModifiedUTF8WithSub() found in ustrtrns.cpp in icu4c 4.9.1.1 package
+ * found at http://site.icu-project.org/
+ */
+wstring fromUTF8(const string& src)
+{
+	char ch;
+  size_t count;
+  char t1, t2; // trail bytes
+  std::wstring result;
+
+	// Faster loop without ongoing checking for pSrcLimit and pDestLimit.
+	string::const_iterator i = src.begin();
+	while (i != src.end())
+	{
+		count = result.length();
+		if (*i <= 0x7f)
+		{
+			// fast ASCII loop
+			while (i != src.end() && *i <= 0x7f)
+			{
+				result += (char) *i;
+				++i;
+				--count;
+			}
+		}
+		// Each iteration of the inner loop progresses by at most 3 UTF-8
+		// bytes and one char.
+		count /= 3;
+		if (i + count > src.end())
+		{
+			// min(remaining dest/3, remaining src)
+			count = src.end() - i;
+		}
+		if (count < 3)
+		{
+			// Too much overhead if we get near the end of the string,
+			// continue with the next loop.
+			break;
+		}
+    do
+		{
+      ch = *i;
+      if(ch <= 0x7f)
+			{
+        result += (char) ch;
+        ++i;
+      }
+			else
+			{
+        if (ch >= 0xe0)
+				{
+					// handle U+0000..U+FFFF inline
+					t1 = (char) (*(i + 1) - 0x80);
+					t2 = (char) (*(i + 2) - 0x80);
+					if (ch <= 0xef && t1 <= 0x3f && t2 <= 0x3f)
+					{
+						// no need for (ch & 0xf) because the upper bits are truncated after <<12 in the cast
+						// to (char)
+						result += (char) ((ch << 12) | (t1 << 6) | t2);
+            i += 3;
+						continue;
+          }
+        }
+				else
+				{
+					// handle U+0000..U+07FF inline
+					t1 = (char) (*(i + 1) - 0x80);
+					if (ch >= 0xc0 && t1 <= 0x3f)
+					{
+						result += (char) (((ch & 0x1f) << 6) | t1);
+            i += 2;
+						continue;
+          }
+        }
+        throw string("Invalid char found: ") + ch;
+			}
+    }
+		while (--count > 0);
+  }
+
+	while (i != src.end())
+	{
+		ch = *i;
+    if (ch <= 0x7f)
+		{
+			result += (char) ch;
+      ++i;
+    }
+		else
+		{
+      if (ch >= 0xe0)
+			{
+				// handle U+0000..U+FFFF inline
+				t1 = (char) (*(i + 1) - 0x80);
+				t2 = (char) (*(i + 2) - 0x80);
+        if (ch <= 0xef && ((src.end() - i) >= 3) &&
+            t1 <= 0x3f && t2 <= 0x3f)
+				{
+					// no need for (ch & 0xf) because the upper bits are truncated after <<12 in the cast to
+					// char
+					result += (char) ((ch << 12) | (t1 << 6) | t2);
+          i += 3;
+					continue;
+        }
+      }
+			else
+			{
+				// handle U+0000..U+07FF inline
+				t1 = (char) (*(i + 1) - 0x80);
+				if (ch >= 0xc0 && ((src.end() - i) >= 2) &&
+            t1 <= 0x3f)
+				{
+					result += (char) (((ch & 0x1f) << 6) | t1);
+          i += 2;
+          continue;
+        }
+      }
+      throw string("Invalid char found: ") + ch;
+		}
+  }
+
+  // do not fill the dest buffer just count the char needed
+  while (i != src.end())
+	{
+		ch = *i;
+    if (ch <= 0x7f)
+	    ++i;
+  	else
+		{
+			if (ch >= 0xe0)
+			{
+				// handle U+0000..U+FFFF inline
+				if (ch <= 0xef && ((src.end() - i) >= 3) &&
+            (char) (*(i + 1) - 0x80) <= 0x3f &&
+            (char) (*(i + 2) - 0x80) <= 0x3f)
+				{
+					i += 3;
+          continue;
+        }
+      }
+			else
+			{
+				// handle U+0000..U+07FF inline
+				if (ch >= 0xc0 && ((src.end() - i) >= 2) &&
+            (char) (*(i + 1) - 0x80) <= 0x3f)
+				{
+					i += 2;
+          continue;
+        }
+      }
+      throw string("Invalid char found: ") + ch;
+    }
+  }
+	return result;
+}
+
+/**
  * Converts std::wstring to a std::string encoded using the default platform encoding.
  *
  * REFERENCE: http://stackoverflow.com/questions/4804298/c-how-to-convert-wstring-into-string
@@ -185,7 +343,7 @@ std::string toPlatformEncoding(const std::wstring& src)
 		from_next, &target[0], &target[0] + target.size(), target_next);
   if (result == converter_type::ok || result == converter_type::noconv)
 		return std::string(&target[0], target_next);
-	throw toWString("Failed to convert wstring: ") + src;
+	throw wstring(L"Failed to convert wstring: ") + src;
 }
 
 std::string asString(JNIEnv* env, jstring str)

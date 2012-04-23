@@ -44,7 +44,7 @@ namespace
 			{
 			  if (retType == REG_SZ)
 				{
-				  value = (wchar_t*) retBuf;
+				  value = (char*) retBuf;
 				  return true;
 			  }
 		  }

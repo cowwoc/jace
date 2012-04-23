@@ -236,6 +236,11 @@ JACE_API std::string getCurrentThreadId();
 JACE_API std::string toUTF8(const std::wstring& src);
 
 /**
+ * Converts a modified UTF-8 std::string to a std::wstring.
+ */
+JACE_API std::wstring fromUTF8(const std::string& src);
+
+/**
  * Converts std::wstring to a std::string encoded using the default platform encoding.
  */
 std::string toPlatformEncoding(const std::wstring& src);
