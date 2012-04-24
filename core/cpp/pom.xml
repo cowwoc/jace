@@ -176,7 +176,7 @@
 	</build>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<boost.version>1.49.0-b1-SNAPSHOT</boost.version>
+		<boost.version>1.49.0-b1</boost.version>
 		<jace.classifier>${platform}-${build.type}</jace.classifier>
 	</properties>
 	<profiles>
