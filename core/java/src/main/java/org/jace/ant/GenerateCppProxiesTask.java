@@ -22,22 +22,25 @@ import org.apache.tools.ant.types.Path;
  * Generates C++ proxies for Java classes.
  *
  * Example:
- * &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source"
- * outputHeaders="output/include" outputSources="output/source" exportSymbols="false"
- * classpath="rt.jar" accessibility="PUBLIC"&gt;
- *   &lt;classpath&gt;
- *     &lt;pathelement location="classes"/&gt;
- *   &lt;/classpath&gt;
- *   &lt;dependency name="java.lang.String"/&gt;
- *   &lt;inputHeaders dir="input"&gt;
- *     &lt;include name="include1"&gt;
- *     &lt;include name="include2"&gt;
- *   &lt;/inputHeaders&gt;
- *   &lt;inputSources dir="input"&gt;
- *     &lt;include name="source1"&gt;
- *     &lt;include name="source2"&gt;
- *   &lt;/inputSources&gt;
- * &lt;/GenerateCppProxies&gt;
+ *
+ * {@code
+ *   <GenerateCppProxies inputHeaders="input/include" inputSources="input/source"
+ *     outputHeaders="output/include" outputSources="output/source" exportSymbols="false"
+ *     minimizeDependencies="true" classpath="rt.jar" accessibility="PUBLIC">
+ *     <classpath>
+ *       <pathelement location="classes"/>
+ *     </classpath>
+ *     <dependency name="java.lang.String"/>
+ *     <inputHeaders dir="input">
+ *       <include name="include1">
+ *       <include name="include2">
+ *     </inputHeaders>
+ *     <inputSources dir="input">
+ *       <include name="source1">
+ *       <include name="source2">
+ *     </inputSources>
+ *   </GenerateCppProxies>
+ * }
  *
  * @author Gili Tzbari
  */
@@ -54,16 +57,26 @@ public class GenerateCppProxiesTask extends Task
 	/**
 	 * A list of fully-qualified class names that must be exported.
 	 *
-	 * When generating C++ proxies for a Java library, there is no way of
-	 * knowing which classes will be referenced by 3rd-party code. This feature
-	 * enables developers to export C++ proxies for Java classes even if they are
-	 * not referenced at the time the generator is run.
+	 * When generating C++ proxies for a Java library, there is no way of knowing which classes will
+	 * be referenced by 3rd-party code. This feature enables developers to export C++ proxies for Java
+	 * classes even if they are not referenced at the time the generator is run.
 	 */
 	private Set<Dependency> dependencies = Sets.newHashSet();
 	/**
 	 * True if proxies should export their symbols (for DLLs/SOs).
 	 */
 	private boolean exportSymbols;
+	/**
+	 * Indicates whether classes should be exported even if they are not referenced by the input
+	 * files.
+	 *
+	 * @param value {@code true} if the minimum set of classes should be generated (superclass,
+	 * interfaces and any classes used by the input files). {@code false} if all class dependencies
+	 * (arguments, return values, and fields) should be exported. The latter is used to generate
+	 * proxies for a Java library, where the set of input files are not known ahead of time. The
+	 * default is true.
+	 */
+	private boolean minimizeDependencies = true;
 
 	/**
 	 * Sets the directory containing the input header files.
@@ -114,9 +127,9 @@ public class GenerateCppProxiesTask extends Task
 	/**
 	 * Indicates the method accessibility to expose.
 	 *
-	 * For example, a value of PROTECTED indicates that public or protected
-	 * methods should be generated.
-	 * 
+	 * For example, a value of PROTECTED indicates that public or protected methods should be
+	 * generated.
+	 *
 	 * @param accessibility PUBLIC, PROTECTED, PACKAGE or PRIVATE
 	 * @throws IllegalArgumentException if an unknown accessibility type is specified
 	 */
@@ -133,6 +146,21 @@ public class GenerateCppProxiesTask extends Task
 	public void setExportSymbols(boolean exportSymbols)
 	{
 		this.exportSymbols = exportSymbols;
+	}
+
+	/**
+	 * Indicates whether classes should be exported even if they are not referenced by the input
+	 * files.
+	 *
+	 * @param value {@code true} if the minimum set of classes should be generated (superclass,
+	 * interfaces and any classes used by the input files). {@code false} if all class dependencies
+	 * (arguments, return values, and fields) should be exported. The latter is used to generate
+	 * proxies for a Java library, where the set of input files are not known ahead of time. The
+	 * default is true.
+	 */
+	public void setMinimizeDependencies(boolean minimizeDependencies)
+	{
+		this.minimizeDependencies = minimizeDependencies;
 	}
 
 	/**
@@ -165,7 +193,7 @@ public class GenerateCppProxiesTask extends Task
 			extraDependencies.add(TypeNameFactory.fromIdentifier(dependency.getName()));
 		AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaders, inputSources, outputHeaders,
 			outputSources, new ClassPath(classpath.toString())).accessibility(accessibility).
-			minimizeDependencies(true).exportSymbols(exportSymbols);
+			minimizeDependencies(minimizeDependencies).exportSymbols(exportSymbols);
 		for (TypeName dependency: extraDependencies)
 			autoProxy.extraDependency(dependency);
 		try
@@ -236,9 +264,8 @@ public class GenerateCppProxiesTask extends Task
 	public String toString()
 	{
 		return getClass().getSimpleName() + "[inputHeaders=" + inputHeaders + ", inputSources="
-					 + inputSources
-					 + ", outputHeader=" + outputHeaders + ", outputSources=" + outputSources
-					 + ", exportSymbols=" + exportSymbols
+					 + inputSources + ", outputHeader=" + outputHeaders + ", outputSources=" + outputSources
+					 + ", exportSymbols=" + exportSymbols + ", minimizeDependencies=" + minimizeDependencies
 					 + "]";
 	}
 }
