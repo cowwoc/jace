@@ -2,16 +2,14 @@ package org.jace.maven;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.jace.metaclass.TypeName;
 import org.jace.metaclass.TypeNameFactory;
@@ -85,6 +83,18 @@ public class GenerateCppProxiesMojo
 	 */
 	private boolean exportSymbols;
 	/**
+	 * Indicates whether classes should be exported even if they are not referenced by the input
+	 * files.
+	 *
+	 * {@code true} if the minimum set of classes should be generated (superclass,
+	 * interfaces and any classes used by the input files). {@code false} if all class dependencies
+	 * (arguments, return values, and fields) should be exported. The latter is used to generate
+	 * proxies for a Java library, where the set of input files are not known ahead of time.
+	 *
+	 * @parameter default-value="true"
+	 */
+	private boolean minimizeDependencies;
+	/**
 	 * A list of fully-qualified class names that must be exported.
 	 *
 	 * When generating C++ proxies for a Java library, there is no way of
@@ -120,7 +130,7 @@ public class GenerateCppProxiesMojo
 			classPathList = Arrays.asList(classPath);
 		AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaderFiles, inputSourceFiles,
 			outputHeaders, outputSources, new ClassPath(classPathList)).accessibility(accessibilityType).
-			minimizeDependencies(true).exportSymbols(exportSymbols);
+			minimizeDependencies(minimizeDependencies).exportSymbols(exportSymbols);
 		for (TypeName dependency: extraDependencies)
 			autoProxy.extraDependency(dependency);
 		try

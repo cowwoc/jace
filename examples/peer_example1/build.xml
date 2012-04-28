@@ -20,7 +20,7 @@
 
     <target name="-jace.task">
         <property environment="env"/>
-        <taskdef resource="jace/ant/task.properties">
+        <taskdef resource="org/jace/ant/task.properties">
             <classpath>
                 <!-- use logback.xml from jace -->
                 <pathelement location="${env.JACE_HOME}/release/lib"/>
@@ -105,7 +105,7 @@
 
         <property name="libpath" value=".${path-separator}../../release/lib/${os}/${platform}/${build.type}"/>
 
-        <java fork="true" classname="jace.examples.PeerExample" dir="cpp/${os}/${compiler}/${platform}/${build.type}">
+        <java fork="true" classname="org.jace.examples.PeerExample" dir="cpp/${os}/${compiler}/${platform}/${build.type}">
             <classpath>
             	<pathelement path="cpp/${os}/${compiler}/${platform}/${build.type}/jace-runtime.jar"/>
                 <fileset dir="java/release">

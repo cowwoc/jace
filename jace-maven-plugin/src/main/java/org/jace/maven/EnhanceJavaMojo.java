@@ -1,6 +1,5 @@
 package org.jace.maven;
 
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 import java.io.*;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;

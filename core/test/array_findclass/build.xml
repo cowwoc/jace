@@ -13,7 +13,7 @@
 
     <delete dir="proxies" quiet="true"/>
 
-    <java classname="jace.autoproxy.AutoProxy">
+    <java classname="org.jace.autoproxy.AutoProxy">
       <arg path="source"/>
       <arg path="source"/>
       <arg path="proxies/include"/>

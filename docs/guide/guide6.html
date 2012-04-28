@@ -171,7 +171,7 @@ Usage: PeerGenerator &lt;class file&gt;
     <font size="+1">
       <pre>
 &lt;property environment="env"/&gt;
-&lt;taskdef resource="jace/ant/task.properties"&gt;
+&lt;taskdef resource="org/jace/ant/task.properties"&gt;
   &lt;classpath&gt;
     &lt;fileset dir="${env.JACE_HOME}/release/lib" includes="**/*.jar"/&gt;
   &lt;/classpath&gt;
@@ -216,6 +216,121 @@ userDefinedMembers="false"/&gt;
     <b>GenerateCppPeer</b> generates a C++ peer for a Java class.<br>
     <b>GenerateCppProxies</b> generates C++ proxies for Java classes. <b>accessibility</b> refers to the method accessibility to expose.<br>
     </p>
+
+    <br><br>
+
+    <table bgcolor="#EEEEEE" width="100%"> <tr> <td> Maven Integration </td> </tr> </table>
+    <p>
+    <font size="+1">
+      <pre>
+&lt;project&gt;
+  ...
+  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;com.googlecode.jace&lt;/groupId&gt;
+        &lt;artifactId&gt;jace-maven-plugin&lt;/artifactId&gt;
+        &lt;version&gt;1.2.18&lt;/version&gt;
+        &lt;executions&gt;
+          &lt;execution&gt;
+            &lt;id&gt;enhance-classes&lt;/id&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;enhance-java&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+              &lt;inputFile&gt;
+                &lt;!-- The path of the input class file --&gt;
+              &lt;/inputFile&gt;
+
+              &lt;outputFile&gt;
+                &lt;!-- The path of the output class file --&gt;
+              &lt;/outputFile&gt;
+
+              &lt;deallocationMethod&gt;
+                &lt;!-- The Java method used to deallocate the Java peer --&gt;
+              &lt;/deallocationMethod&gt;
+
+              &lt;!-- Indicates if Java peers should output library names before loading them --&gt;
+              &lt;verbose&gt;false&lt;/verbose&gt;
+
+              &lt;!-- The native libraries to load before initializing the Java peer --&gt;
+              &lt;libraries&gt;
+                &lt;library&gt;first&lt;/library&gt;
+                &lt;library&gt;second&lt;/library&gt;
+              &lt;/libraries&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+
+          &lt;execution&gt;
+            &lt;id&gt;generate-peer&lt;/id&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;generate-cpp-peer&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+              &lt;!-- The Java class to generate a peer for --&gt;
+              &lt;classFile&gt;${project.build.outputDirectory}/foo/Bar.class&lt;/classFile&gt;
+
+              &lt;!-- The directory of the output header files --&gt;
+             &lt;outputHeaders&gt;${project.build.directory}/include&lt;/outputHeaders&gt;
+
+              &lt;!-- The directory of the output source files --&gt;
+             &lt;outputSources&gt;${project.build.directory}/include&lt;/outputSources&gt;
+
+              &lt;!-- Indicates if {peer_class_name}_user.h should be generated in order for allow users to declare additional peer methods --&gt;
+              &lt;userDefinedMembers&gt;false&lt;/userDefinedMembers&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+
+          &lt;execution&gt;
+            &lt;id&gt;generate-proxies&lt;/id&gt;
+            &lt;goals&gt;
+              &lt;goal&gt;generate-cpp-proxies&lt;/goal&gt;
+            &lt;/goals&gt;
+            &lt;configuration&gt;
+              &lt;inputHeaders&gt;
+                &lt;!-- The directory of the input header files --&gt;
+              &lt;/inputHeaders&gt;
+
+              &lt;inputSources&gt;
+                &lt;!-- The directory of the input source files --&gt;
+              &lt;/inputSources&gt;
+
+              &lt;outputHeaders&gt;
+                &lt;!-- The directory of the output header files --&gt;
+              &lt;/outputHeaders&gt;
+
+              &lt;outputSources&gt;
+                &lt;!-- The directory of the output source files --&gt;
+              &lt;/outputSources&gt;
+
+              &lt;!-- The directory of the output header files --&gt;
+              &lt;classpath&gt;
+                &lt;path&gt;first&lt;/path&gt;
+                &lt;path&gt;second&lt;/path&gt;
+              &lt;/classpath&gt;
+
+              &lt;accessibility&gt;
+                &lt;!-- The method accessibility to expose. Acceptable values include: PUBLIC, PROTECTED, PACKAGE or PRIVATE. --&gt;
+              &lt;/accessibility&gt;
+
+              &lt;!-- Indicates if the proxy symbols should be exported (for generating DLLs/SOs) --&gt;
+              &lt;exportSymbols&gt;false&lt;/exportSymbols&gt;
+
+              &lt;!-- Indicates whether classes should be exported even if they are not referenced by the input files --&gt;
+              &lt;minimizeDependencies&gt;true&lt;/minimizeDependencies&gt;
+            &lt;/configuration&gt;
+          &lt;/execution&gt;
+        &lt;/executions&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+    ...
+  &lt;/build&gt;
+  ...
+&lt;/project&gt;
+      </pre>
+    </font>
+    </p>
+
 
     <br><br>
 

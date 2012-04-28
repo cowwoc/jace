@@ -2,11 +2,6 @@ package org.jace.ant;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.jace.proxy.AutoProxy;
-import org.jace.metaclass.TypeName;
-import org.jace.metaclass.TypeNameFactory;
-import org.jace.proxy.ClassPath;
-import org.jace.proxy.ProxyGenerator.AccessibilityType;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -17,6 +12,11 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.DirSet;
 import org.apache.tools.ant.types.Path;
+import org.jace.metaclass.TypeName;
+import org.jace.metaclass.TypeNameFactory;
+import org.jace.proxy.AutoProxy;
+import org.jace.proxy.ClassPath;
+import org.jace.proxy.ProxyGenerator.AccessibilityType;
 
 /**
  * Generates C++ proxies for Java classes.
