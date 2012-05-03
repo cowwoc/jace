@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.googlecode.jace</groupId>
 		<artifactId>jace</artifactId>
-		<version>1.2.18</version>
+		<version>1.2.19-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-maven-plugin</artifactId>
 	<packaging>maven-plugin</packaging>
