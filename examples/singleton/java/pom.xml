@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-singleton-java</artifactId>
-	<name>Jace Singleton Java</name>
+	<name>Jace Examples: Singleton Java</name>
 	<description>Jace singleton module, Java source-code</description>
 	<build>
 		<plugins>

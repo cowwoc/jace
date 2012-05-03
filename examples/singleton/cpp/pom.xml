@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-singleton-cpp</artifactId>
-	<name>Jace Singleton C++</name>
+	<name>Jace Examples: Singleton C++</name>
 	<description>Jace singleton module, C++ source-code</description>
 	<build>
 		<directory>${basedir}/target/${jace.classifier}</directory>

@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-peer-example1-cpp</artifactId>
-	<name>Jace Peer Example1 C++</name>
+	<name>Jace Examples: Peer Example1 C++</name>
 	<description>Jace peer example1 module, C++ source-code</description>
 	<build>
 		<directory>${basedir}/target/${jace.classifier}</directory>

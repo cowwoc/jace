@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-peer-example1-java</artifactId>
-	<name>Jace Peer Example1 Java</name>
+	<name>Jace Examples: Peer Example1 Java</name>
 	<description>Jace peer example1 module, Java source-code</description>
 	<build>
 		<plugins>

@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-map-example</artifactId>
-	<name>Jace Map Example</name>
+	<name>Jace Examples: Map</name>
 	<description>Jace map example module</description>
 	<build>
 		<directory>${basedir}/target/${jace.classifier}</directory>

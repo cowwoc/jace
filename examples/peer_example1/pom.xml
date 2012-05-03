@@ -8,7 +8,7 @@
     </parent>
     <artifactId>jace-examples-peer-example1</artifactId>
     <packaging>pom</packaging>
-    <name>Jace Peer Example1</name>
+    <name>Jace Examples: Peer Example1</name>
     <description>Jace peer example1 Module</description>
     <url>http://code.google.com/p/jace/</url>
     <licenses>

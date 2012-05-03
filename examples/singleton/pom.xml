@@ -8,7 +8,7 @@
     </parent>
     <artifactId>jace-examples-singleton</artifactId>
     <packaging>pom</packaging>
-    <name>Jace Singleton</name>
+    <name>Jace Examples: Singleton</name>
     <description>Jace singleton Module</description>
     <url>http://code.google.com/p/jace/</url>
     <licenses>

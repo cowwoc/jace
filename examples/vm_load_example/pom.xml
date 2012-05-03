@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-vm-load-example</artifactId>
-	<name>Jace VM Load Example</name>
+	<name>Jace Examples: VM Load</name>
 	<description>Jace VM load example module</description>
 	<build>
 		<directory>${basedir}/target/${jace.classifier}</directory>

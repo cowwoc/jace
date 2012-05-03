@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-perf-test</artifactId>
-	<name>Jace Performance Test</name>
+	<name>Jace Examples: Performance Test</name>
 	<description>Jace performance test module</description>
 	<build>
 		<directory>${basedir}/target/${jace.classifier}</directory>

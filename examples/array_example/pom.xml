@@ -7,7 +7,7 @@
 		<version>1.2.18-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-array-example</artifactId>
-	<name>Jace Array Example</name>
+	<name>Jace Examples: Array</name>
 	<description>Jace array example module</description>
 	<build>
 		<directory>${basedir}/target/${jace.classifier}</directory>
