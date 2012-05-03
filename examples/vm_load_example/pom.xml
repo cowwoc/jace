@@ -74,6 +74,7 @@
 							<targetPath>${project.build.directory}/cmake</targetPath>
 							<generator>${cmake.generator}</generator>
 							<environmentVariables>
+								<JAVA_HOME>${env.JAVA_HOME}</JAVA_HOME>
 								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
 								<JACE_HOME>${project.build.directory}/dependency/jace</JACE_HOME>
 							</environmentVariables>
