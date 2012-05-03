@@ -70,7 +70,7 @@
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<sourcePath>${project.build.directory}/sources</sourcePath>
+							<sourcePath>${project.build.sourceDirectory}</sourcePath>
 							<targetPath>${project.build.directory}/cmake</targetPath>
 							<generator>${cmake.generator}</generator>
 							<environmentVariables>
