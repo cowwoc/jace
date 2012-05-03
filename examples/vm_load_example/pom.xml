@@ -75,6 +75,7 @@
 							<generator>${cmake.generator}</generator>
 							<environmentVariables>
 								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
+								<JACE_HOME>${project.build.directory}/dependency/jace</JACE_HOME>
 							</environmentVariables>
 						</configuration>
 					</execution>
