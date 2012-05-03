@@ -1,11 +1,9 @@
 <project name="Jace.Java" default="release" basedir=".">
     <target name="-jace.task">
-        <property environment="env"/>
+        <property name="JACE_HOME" value="../../core/java/target"/>
         <taskdef resource="org/jace/ant/task.properties">
             <classpath>
-                <!-- use logback.xml from jace -->
-                <pathelement location="${env.JACE_HOME}/release/lib"/>
-                <fileset dir="${env.JACE_HOME}/release/lib" includes="**/*.jar"/>
+                <fileset dir="${JACE_HOME}" includes="**/*.jar"/>
             </classpath>
         </taskdef>
     </target>
@@ -14,26 +12,22 @@
     - Runs AutoProxy on the source code to generate the required proxies.
     -->
     <target name="proxy_generate" depends="-jace.task">
-        <mkdir dir="proxies/source"/>
-        <mkdir dir="proxies/include"/>
+        <mkdir dir="target/ant/proxies/source"/>
+        <mkdir dir="target/ant/proxies/include"/>
 
-        <GenerateCppProxies outputHeaders="proxies/include"
-                            outputSources="proxies/source"
+        <GenerateCppProxies outputHeaders="target/ant/proxies/include"
+                            outputSources="target/ant/proxies/source"
                             exportSymbols="true">
             <classpath>
                 <pathelement location="${java.home}/lib/rt.jar"/>
             </classpath>
-            <inputHeaders dir="source"/>
-            <inputSources dir="source"/>
+            <inputSources dir="src/main/cpp/source"/>
         </GenerateCppProxies>
     </target>
 
     <target name="release" depends="proxy_generate"/>
 
     <target name="clean">
-        <delete dir="proxies"/>
-        <delete dir="temp_build"/>
-        <delete dir="classes"/>
-        <delete dir="release"/>
+        <delete dir="target/ant"/>
     </target>
 </project>

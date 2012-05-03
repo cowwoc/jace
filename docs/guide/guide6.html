@@ -191,7 +191,7 @@ property="cpp.peer.skip"/&gt;
 userDefinedMembers="false"/&gt;
 
 &lt;GenerateCppProxies inputHeaders="input/include" inputSources="input/source" outputHeaders="output/include"
- outputSources="output/source" exportSymbols="false" minimizeDependencies="true" classpath="rt.jar" accessibility="private"&gt;
+ outputSources="output/source" exportSymbols="false" minimizeDependencies="true" classpath="rt.jar" accessibility="PUBLIC"&gt;
   &lt;classpath&gt;
     &lt;pathelement location="classes"/&gt;
   &lt;/classpath&gt;
@@ -287,12 +287,14 @@ userDefinedMembers="false"/&gt;
               &lt;goal&gt;generate-cpp-proxies&lt;/goal&gt;
             &lt;/goals&gt;
             &lt;configuration&gt;
+              &lt;!-- Directories containing the input header files --&gt;
               &lt;inputHeaders&gt;
-                &lt;!-- The directory of the input header files --&gt;
+                &lt;path&gt;${project.build.sourceDirectory}/include&lt;/path&gt;
               &lt;/inputHeaders&gt;
 
+              &lt;!-- Directories containing the input source files --&gt;
               &lt;inputSources&gt;
-                &lt;!-- The directory of the input source files --&gt;
+                &lt;path&gt;${project.build.sourceDirectory}/source&lt;/path&gt;
               &lt;/inputSources&gt;
 
               &lt;outputHeaders&gt;
@@ -303,14 +305,15 @@ userDefinedMembers="false"/&gt;
                 &lt;!-- The directory of the output source files --&gt;
               &lt;/outputSources&gt;
 
-              &lt;!-- The directory of the output header files --&gt;
+              &lt;!-- The path to search for Java classes --&gt;
               &lt;classpath&gt;
                 &lt;path&gt;first&lt;/path&gt;
                 &lt;path&gt;second&lt;/path&gt;
               &lt;/classpath&gt;
 
+              &lt;!-- The method accessibility to expose. Acceptable values include: PUBLIC, PROTECTED, PACKAGE or PRIVATE. --&gt;
               &lt;accessibility&gt;
-                &lt;!-- The method accessibility to expose. Acceptable values include: PUBLIC, PROTECTED, PACKAGE or PRIVATE. --&gt;
+                PUBLIC
               &lt;/accessibility&gt;
 
               &lt;!-- Indicates if the proxy symbols should be exported (for generating DLLs/SOs) --&gt;

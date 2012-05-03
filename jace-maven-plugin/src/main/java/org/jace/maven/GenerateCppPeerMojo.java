@@ -54,10 +54,10 @@ public class GenerateCppPeerMojo
 	public void execute()
 		throws MojoExecutionException, MojoFailureException
 	{
-		PeerGenerator peerGenerator = new PeerGenerator(new ClassFile(classFile),
-			classFile.lastModified(), outputHeaders, outputSources, userDefinedMembers);
 		try
 		{
+			PeerGenerator peerGenerator = new PeerGenerator(new ClassFile(classFile),
+				classFile.lastModified(), outputHeaders, outputSources, userDefinedMembers);
 			peerGenerator.generate();
 		}
 		catch (IOException e)

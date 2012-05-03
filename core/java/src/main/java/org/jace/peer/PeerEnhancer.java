@@ -1,37 +1,20 @@
 package org.jace.peer;
 
 import com.google.common.collect.Lists;
-import org.jace.metaclass.TypeNameFactory;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
-import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.MethodInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.jace.metaclass.TypeNameFactory;
+import org.objectweb.asm.*;
+import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Uses byte code enhancement to inject C++ peer lifetime management
- * code into a Java class.
+ * Uses byte code enhancement to inject C++ peer lifetime management code into a Java class.
  *
  * For more information about peer enhancement, see the Jace Developer's Guide.
- * 
+ *
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
@@ -74,7 +57,7 @@ public class PeerEnhancer
 		 *
 		 * @param from the path of the peer before it has been enhanced
 		 * @param to the path of the peer after it has been enhanced
-		 * @throws IllegalArgumentException if <code>from</code> or <code>to</code> are null
+		 * @throws IllegalArgumentException if {@code from} or {@code to} are null
 		 */
 		public Builder(File from, File to) throws IllegalArgumentException
 		{
@@ -129,6 +112,7 @@ public class PeerEnhancer
 		 * Enhances the peer.
 		 *
 		 * @throws IOException if an I/O error occurs
+		 * @throws IllegalArgumentException if no libraries were specified
 		 */
 		public void enhance() throws IOException
 		{
@@ -139,7 +123,8 @@ public class PeerEnhancer
 	/**
 	 * Creates a new PeerEnhancer.
 	 *
-	 * @param builder an instance of <code>PeerEnhancer.Builder</code>
+	 * @param builder an instance of {@code PeerEnhancer.Builder}
+	 * @throws IllegalArgumentException if no libraries were specified
 	 */
 	@SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
 	private PeerEnhancer(Builder builder)
@@ -148,13 +133,15 @@ public class PeerEnhancer
 		this.inputFile = builder.from;
 		this.outputFile = builder.to;
 		this.libraries = builder.libraries;
+		if (libraries.isEmpty())
+			throw new IllegalArgumentException("At least one library must be specified");
 		this.deallocationMethod = builder.deallocationMethod;
 		this.verbose = builder.verbose;
 	}
 
 	/**
-	 * Invoke <code>jaceSetNativeHandle(jaceCreateInstance())</code> before returning from any
-	 * non-chaining constructors.
+	 * Invoke {@code jaceSetNativeHandle(jaceCreateInstance())} before returning from any non-chaining
+	 * constructors.
 	 *
 	 * @param classNode the class to parse
 	 */
@@ -229,7 +216,7 @@ public class PeerEnhancer
 	/**
 	 * Returns a list of instructions for the following code:
 	 *
-	 * <code>jaceSetNativeHandle(jaceCreateInstance())</code>.
+	 * {@code jaceSetNativeHandle(jaceCreateInstance())}
 	 *
 	 * @param className the name of the class being enhanced
 	 * @return a list of instructions
@@ -257,7 +244,7 @@ public class PeerEnhancer
 	}
 
 	/**
-	 * Renames the deallocation method to jaceUserClose().
+	 * Renames the deallocation method to {@code jaceUserClose()}.
 	 *
 	 * @param classNode the class to parse
 	 * @return null if the method was not found
@@ -330,8 +317,7 @@ public class PeerEnhancer
 	 */
 	private void run() throws IOException
 	{
-		BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile));
-		try
+		try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(inputFile)))
 		{
 			ClassNode classNode = new ClassNode();
 			ClassReader classReader = new ClassReader(in);
@@ -363,40 +349,41 @@ public class PeerEnhancer
 				return;
 			}
 
-			BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile));
-			ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
-			classNode.accept(classWriter);
-			out.write(classWriter.toByteArray());
-			out.close();
-		}
-		finally
-		{
-			in.close();
+			try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile)))
+			{
+				ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_FRAMES);
+				classNode.accept(classWriter);
+				out.write(classWriter.toByteArray());
+			}
 		}
 	}
 
 	/**
 	 * Create the following code:
 	 *
-	 * private native static void jaceSetVm();
+	 * <code>
+	 *   private native static void jaceSetVm();
 	 *
-	 * static
-	 * {
-	 *   try
+	 *   static
 	 *   {
-	 *     for (String library: libraries) {
-	 *       System.loadLibrary( library );
+	 *     try
+	 *     {
+	 *       for (String library: libraries)
+	 *       {
+	 *         System.loadLibrary( library );
+	 *       }
+	 *       jaceSetVm();
 	 *     }
-	 *     jaceSetVm();
-	 *   }
-	 *   catch ( Throwable t ) {
-	 *     t.printStackTrace();
-	 *     throw new RuntimeException( t.toString() );
-	 *   }
+	 *     catch ( Throwable t )
+	 *     {
+	 *       t.printStackTrace();
+	 *       throw new RuntimeException( t.toString() );
+	 *     }
 	 *
-	 *   jaceUserStaticInit(); // The user's initializer. This line is only
-	 *                         // present if the class already had an initializer.
-	 * }
+	 *     jaceUserStaticInit(); // The user's initializer. This line is only
+	 *                           // present if the class already had an initializer.
+	 *   }
+	 * </code>
 	 *
 	 * @param classNode the class to enhance
 	 */
@@ -589,15 +576,19 @@ public class PeerEnhancer
 	/**
 	 * Adds the native handle and its associated methods to the class:
 	 *
+	 * <code>
 	 *   private long jaceNativeHandle;
 	 *
-	 *   private void jaceSetNativeHandle( long nativeHandle ) {
+	 *   private void jaceSetNativeHandle( long nativeHandle )
+	 *   {
 	 *     jaceNativeHandle = nativeHandle;
 	 *   }
 	 *
-	 *   private long jaceGetNativeHandle() {
+	 *   private long jaceGetNativeHandle()
+	 *   {
 	 *     return jaceNativeHandle;
 	 *   }
+	 * </code>
 	 *
 	 * @param classNode the class to enhance
 	 */
@@ -650,11 +641,9 @@ public class PeerEnhancer
 	}
 
 	/**
-	 * Adds the native methods that are used to manage the lifetime
-	 * of the native peer.
+	 * Adds the native methods that are used to manage the lifetime of the native peer.
 	 *
-	 *  private native long jaceCreateInstance();
-	 *  private native void jaceDestroyInstance();
+	 * @{code private native long jaceCreateInstance(); private native void jaceDestroyInstance(); }
 	 *
 	 * @param classNode the class to enhance
 	 */
@@ -675,15 +664,17 @@ public class PeerEnhancer
 	/**
 	 * Adds a method which is used to deallocate the native peer.
 	 *
-	 * private void jaceDispose()
-	 * {
-	 *   long handle = jaceGetNativeHandle();
-	 *   if (handle != 0)
+	 * <code>
+	 *   private void jaceDispose()
 	 *   {
-	 *     jaceDestroyInstance();
-	 *     jaceSetNativeHandle(0);
+	 *     long handle = jaceGetNativeHandle();
+	 *     if (handle != 0)
+	 *     {
+	 *       jaceDestroyInstance();
+	 *       jaceSetNativeHandle(0);
+	 *     }
 	 *   }
-	 * }
+	 * </code>
 	 *
 	 * @param classNode the class to enhance
 	 */
@@ -751,11 +742,13 @@ public class PeerEnhancer
 	/**
 	 * Renames the user's finalizer to jaceUserFinalize() and creates a new finalizer:
 	 *
-	 * protected void finalize() throws Throwable
-	 * {
-	 *   jaceUserFinalize();
-	 *   jaceDispose();
-	 * }
+	 * <code>
+	 *   protected void finalize() throws Throwable
+	 *   {
+	 *     jaceUserFinalize();
+	 *     jaceDispose();
+	 *   }
+	 * </code>
 	 *
 	 * @param classNode the class to enhance
 	 */
@@ -822,16 +815,6 @@ public class PeerEnhancer
 	}
 
 	/**
-	 * Returns the logger associated with the object.
-	 *
-	 * @return the logger associated with the object
-	 */
-	private Logger getLogger()
-	{
-		return log;
-	}
-
-	/**
 	 * Enhances a Java peer.
 	 *
 	 * @param args the command-line argument
@@ -854,25 +837,33 @@ public class PeerEnhancer
 		for (int i = 3; i < args.length; ++i)
 		{
 			String option = args[i];
-
-			if (option.equals("-deallocator"))
+			boolean matchFound = false;
+			switch (option)
 			{
-				String[] tokens = args[i].split("=");
-				if (tokens.length == 2)
+				case "-deallocator":
 				{
-					deallocationMethod = tokens[1];
-					continue;
+					String[] tokens = args[i].split("=");
+					if (tokens.length == 2)
+					{
+						deallocationMethod = tokens[1];
+						matchFound = true;
+					}
+					break;
+				}
+				case "-verbose":
+				{
+					verbose = true;
+					matchFound = true;
+					break;
 				}
 			}
-			else if (option.equals("-verbose"))
+			if (!matchFound)
 			{
-				verbose = true;
-				continue;
+				System.out.println("Not an understood option: [" + option + "]");
+				System.out.println();
+				System.out.println(getUsage());
+				return;
 			}
-			System.out.println("Not an understood option: [" + option + "]");
-			System.out.println();
-			System.out.println(getUsage());
-			return;
 		}
 
 		String tokens[] = libraries.split(",");

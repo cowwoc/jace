@@ -51,24 +51,32 @@
 			<plugin>
 				<groupId>com.googlecode.cmake-maven-project</groupId>
 				<artifactId>cmake-maven-plugin</artifactId>
-				<version>2.8.7-b4</version>
+				<version>2.8.8-b1</version>
 				<executions>
 					<execution>
 						<id>cmake-generate</id>
 						<phase>process-resources</phase>
 						<goals>
 							<goal>generate</goal>
-							<goal>compile</goal>
 						</goals>
 						<configuration>
 							<sourcePath>${project.build.directory}/sources</sourcePath>
 							<targetPath>${project.build.directory}/cmake</targetPath>
 							<generator>${cmake.generator}</generator>
-							<projectPath>${project.build.directory}/cmake/${cmake.project}</projectPath>
 							<environmentVariables>
 								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
 							</environmentVariables>
-							<buildType>${build.type}</buildType>
+						</configuration>
+					</execution>
+					<execution>
+						<id>cmake-compile</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<projectDirectory>${project.build.directory}/cmake</projectDirectory>
+							<config>${cmake.config}</config>
 						</configuration>
 					</execution>
 				</executions>
@@ -159,8 +167,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>1.7</source>
+					<target>1.7</target>
 					<encoding>${project.build.sourceEncoding}</encoding>
 				</configuration>
 			</plugin>
@@ -184,7 +192,7 @@
 			<id>windows-i386-vs10-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
-				<cmake.project>jace.sln</cmake.project>
+				<cmake.config>Debug|Win32</cmake.config>
 				<platform>windows-i386-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-msvc-debug</boost.classifier>
@@ -194,7 +202,7 @@
 			<id>windows-i386-vs10-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10</cmake.generator>
-				<cmake.project>jace.sln</cmake.project>
+				<cmake.config>Release|Win32</cmake.config>
 				<platform>windows-i386-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-msvc-release</boost.classifier>
@@ -204,7 +212,7 @@
 			<id>windows-amd64-vs10-debug</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
-				<cmake.project>jace.sln</cmake.project>
+				<cmake.config>Debug|x64</cmake.config>
 				<platform>windows-amd64-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-msvc-debug</boost.classifier>
@@ -214,7 +222,7 @@
 			<id>windows-amd64-vs10-release</id>
 			<properties>
 				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
-				<cmake.project>jace.sln</cmake.project>
+				<cmake.config>Release|x64</cmake.config>
 				<platform>windows-amd64-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-msvc-release</boost.classifier>
@@ -224,7 +232,6 @@
 			<id>linux-i386-gcc-debug</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<cmake.project>Makefile</cmake.project>
 				<platform>linux-i386-gcc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>linux-i386-gcc-debug</boost.classifier>
@@ -234,7 +241,6 @@
 			<id>linux-i386-gcc-release</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<cmake.project>Makefile</cmake.project>
 				<platform>linux-i386-gcc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>linux-i386-gcc-release</boost.classifier>
@@ -244,7 +250,6 @@
 			<id>linux-amd64-gcc-debug</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<cmake.project>Makefile</cmake.project>
 				<platform>linux-amd64-gcc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>linux-amd64-gcc-debug</boost.classifier>
@@ -254,7 +259,6 @@
 			<id>linux-amd64-gcc-release</id>
 			<properties>
 				<cmake.generator>Unix Makefiles</cmake.generator>
-				<cmake.project>Makefile</cmake.project>
 				<platform>linux-amd64-gcc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>linux-amd64-gcc-release</boost.classifier>

@@ -50,6 +50,7 @@ public class EnhanceJavaMojo
 	 * The native libraries to load before initializing the Java peer.
 	 *
 	 * @parameter
+	 * @required
 	 */
 	@SuppressWarnings("UWF_UNWRITTEN_FIELD")
 	private String[] libraries = new String[0];

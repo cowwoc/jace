@@ -195,7 +195,7 @@ void Win32VmLoader::loadVm(const std::string &jvmPath) throw (JNIException)
 {
   // Load the Java VM DLL
   if ((handle = LoadLibrary(jvmPath.c_str())) == 0)
-    throw JNIException(string("Can't load JVM from") + jvmPath);
+    throw JNIException(string("Can't load JVM from ") + jvmPath);
 
   // Now get the function addresses
   getCreatedJavaVMsPtr = (GetCreatedJavaVMs_t) GetProcAddress(handle, "JNI_GetCreatedJavaVMs");

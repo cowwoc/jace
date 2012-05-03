@@ -31,7 +31,6 @@ public class GenerateCppProxiesMojo
 	 * The directory of the input header files.
 	 *
 	 * @parameter
-	 * @required
 	 */
 	@SuppressWarnings("UWF_UNWRITTEN_FIELD")
 	private String[] inputHeaders;
@@ -63,9 +62,8 @@ public class GenerateCppProxiesMojo
 	 * The search path for Java classes referenced by C++ files.
 	 *
 	 * @parameter
-	 * @required
 	 */
-	private File[] classPath;
+	private File[] classpath;
 	/**
 	 * Indicates the method accessibility to expose.
 	 *
@@ -118,18 +116,21 @@ public class GenerateCppProxiesMojo
 			extraDependencies.add(TypeNameFactory.fromIdentifier(forcedClass));
 
 		List<File> inputHeaderFiles = Lists.newArrayList();
-		for (String path: inputHeaders)
-			inputHeaderFiles.add(new File(path));
+		if (inputHeaders != null)
+		{
+			for (String path: inputHeaders)
+				inputHeaderFiles.add(new File(path));
+		}
 		List<File> inputSourceFiles = Lists.newArrayList();
 		for (String path: inputSources)
 			inputSourceFiles.add(new File(path));
-		final List<File> classPathList;
-		if (classPath == null)
-			classPathList = Collections.emptyList();
+		final List<File> classpathList;
+		if (classpath == null)
+			classpathList = Collections.emptyList();
 		else
-			classPathList = Arrays.asList(classPath);
+			classpathList = Arrays.asList(classpath);
 		AutoProxy.Builder autoProxy = new AutoProxy.Builder(inputHeaderFiles, inputSourceFiles,
-			outputHeaders, outputSources, new ClassPath(classPathList)).accessibility(accessibilityType).
+			outputHeaders, outputSources, new ClassPath(classpathList)).accessibility(accessibilityType).
 			minimizeDependencies(minimizeDependencies).exportSymbols(exportSymbols);
 		for (TypeName dependency: extraDependencies)
 			autoProxy.extraDependency(dependency);

@@ -78,14 +78,9 @@ public class PeerGenerator
 			throw new IOException("Failed to create " + actualDirectory);
 		if (lastModified > cppHeader.lastModified())
 		{
-			BufferedWriter out = new BufferedWriter(new FileWriter(cppHeader));
-			try
+			try (BufferedWriter out = new BufferedWriter(new FileWriter(cppHeader)))
 			{
 				generateCppPeerHeader(out);
-			}
-			finally
-			{
-				out.close();
 			}
 		}
 
@@ -95,14 +90,9 @@ public class PeerGenerator
 			throw new IOException("Failed to create " + actualDirectory);
 		if (lastModified > cppMappings.lastModified())
 		{
-			BufferedWriter out = new BufferedWriter(new FileWriter(cppMappings));
-			try
+			try (BufferedWriter out = new BufferedWriter(new FileWriter(cppMappings)))
 			{
 				generateCppPeerMappings(out);
-			}
-			finally
-			{
-				out.close();
 			}
 		}
 
@@ -112,14 +102,9 @@ public class PeerGenerator
 			throw new IOException("Failed to create " + actualDirectory);
 		if (lastModified > cppSource.lastModified())
 		{
-			BufferedWriter out = new BufferedWriter(new FileWriter(cppSource));
-			try
+			try (BufferedWriter out = new BufferedWriter(new FileWriter(cppSource)))
 			{
 				generateCppPeerSource(out);
-			}
-			finally
-			{
-				out.close();
 			}
 		}
 	}
@@ -551,7 +536,7 @@ public class PeerGenerator
 
 			output.write("extern \"C\" JNIEXPORT " + returnType.getJniType() + " JNICALL " + functionName);
 			output.write("(JNIEnv* env, ");
-			output.write(new DelimitedCollection<String>(params).toString(", "));
+			output.write(new DelimitedCollection<>(params).toString(", "));
 			output.write(") { " + newLine);
 			output.write(newLine);
 
@@ -804,12 +789,12 @@ public class PeerGenerator
 		File sourceDir = new File(args[2]);
 		boolean userDefinedMembers = Boolean.valueOf(args[3]).booleanValue();
 
-		PeerGenerator generator = new PeerGenerator(new ClassFile(classFile), classFile.lastModified(),
-			includeDir, sourceDir, userDefinedMembers);
-		Logger log = generator.getLogger();
-		log.info("Beginning Peer generation.");
+		Logger log = LoggerFactory.getLogger(PeerGenerator.class);
 		try
 		{
+			PeerGenerator generator = new PeerGenerator(new ClassFile(classFile), classFile.lastModified(),
+				includeDir, sourceDir, userDefinedMembers);
+			log.info("Beginning Peer generation.");
 			generator.generate();
 		}
 		catch (IOException e)

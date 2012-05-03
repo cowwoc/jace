@@ -1,19 +1,18 @@
 package org.jace.ant;
 
-import org.jace.parser.ClassFile;
-import org.jace.peer.PeerGenerator;
 import java.io.File;
 import java.io.IOException;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Task;
+import org.jace.parser.ClassFile;
+import org.jace.peer.PeerGenerator;
 
 /**
  * Generates C++ peers for Java classes.
  *
- * Example:
- * &lt;GenerateCppPeer file="peer.class" outputHeaders="output/include" outputSources="output/source"
- * userDefinedMembers="false"/&gt;
+ * Example: {@code <GenerateCppPeer file="peer.class" outputHeaders="output/include" outputSources="output/source"
+ * userDefinedMembers="false"/>}
  *
  * @author Gili Tzbari
  */
@@ -74,10 +73,10 @@ public class GenerateCppPeerTask extends Task
 		if (outputSources == null)
 			throw new BuildException("outputSources must be set", getLocation());
 		log(toString(), Project.MSG_DEBUG);
-		PeerGenerator peerGenerator = new PeerGenerator(new ClassFile(file), file.lastModified(),
-			outputHeaders, outputSources, userDefinedMembers);
 		try
 		{
+			PeerGenerator peerGenerator = new PeerGenerator(new ClassFile(file), file.lastModified(),
+				outputHeaders, outputSources, userDefinedMembers);
 			peerGenerator.generate();
 		}
 		catch (IOException e)

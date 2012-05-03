@@ -19,6 +19,10 @@ BEGIN_NAMESPACE(jace)
  * wasn't defined within the header file, two different binaries of the Jace library
  * would be required.
  *
+ * NOTE: jvm.dll must be in the system PATH at runtime. You cannot simply copy the library
+ *       into the application directory because it locates dependencies relative to its location.
+ *       See http://java.sun.com/products/jdk/faq/jni-j2sdk-faq.html#move for more information.
+ *
  * @author Toby Reyelts
  */
 class StaticVmLoader: public ::jace::VmLoader

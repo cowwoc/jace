@@ -1,6 +1,8 @@
 package org.jace.parser;
 
 import com.google.common.collect.Lists;
+import java.io.*;
+import java.util.*;
 import org.jace.metaclass.TypeName;
 import org.jace.metaclass.TypeNameFactory;
 import org.jace.parser.attribute.Attribute;
@@ -16,21 +18,6 @@ import org.jace.parser.field.FieldAccessFlagSet;
 import org.jace.parser.method.ClassMethod;
 import org.jace.parser.method.MethodAccessFlag;
 import org.jace.parser.method.MethodAccessFlagSet;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,8 +31,7 @@ public class ClassFile
 {
 	private final Logger log = LoggerFactory.getLogger(ClassFile.class);
 	/**
-	 * The identifying signature for a class file.
-	 * See the JVM specification.
+	 * The identifying signature for a class file. See the JVM specification.
 	 */
 	private static final int MAGIC_SIGNATURE = 0xCAFEBABE;
 	private final ConstantPool constantPool = new ConstantPool();
@@ -78,35 +64,13 @@ public class ClassFile
 	 *
 	 * @param path the class file path
 	 * @throws ClassFormatError if an error occurs while parsing the class file
+	 * @throws IOException if the file could not be opened
 	 */
-	public ClassFile(File path) throws ClassFormatError
+	public ClassFile(File path) throws IOException, ClassFormatError
 	{
-		InputStream input = null;
-
-		try
+		try (InputStream input = new BufferedInputStream(new FileInputStream(path)))
 		{
-			input = new BufferedInputStream(new FileInputStream(path));
 			parseClass(input);
-		}
-		catch (IOException e)
-		{
-			ClassFormatError exception = new ClassFormatError("Unable to read the class");
-			exception.initCause(e);
-			throw exception;
-		}
-		finally
-		{
-			if (input != null)
-			{
-				try
-				{
-					input.close();
-				}
-				catch (IOException e)
-				{
-					// ignore
-				}
-			}
 		}
 	}
 
@@ -309,9 +273,10 @@ public class ClassFile
 	 */
 	public void writeClass(String path) throws IOException
 	{
-		OutputStream output = new BufferedOutputStream(new FileOutputStream(path));
-		writeClass(output);
-		output.close();
+		try (OutputStream output = new BufferedOutputStream(new FileOutputStream(path)))
+		{
+			writeClass(output);
+		}
 	}
 
 	/**
@@ -619,8 +584,8 @@ public class ClassFile
 	{
 		final int interfaceCount = input.readUnsignedShort();
 
-		interfaces = new ArrayList<TypeName>(interfaceCount);
-		interfaceIndices = new ArrayList<Integer>(interfaceCount);
+		interfaces = new ArrayList<>(interfaceCount);
+		interfaceIndices = new ArrayList<>(interfaceCount);
 
 		for (int i = 0; i < interfaceCount; ++i)
 		{
@@ -668,7 +633,7 @@ public class ClassFile
 	{
 		final int attributeCount = input.readUnsignedShort();
 
-		attributes = new ArrayList<Attribute>(attributeCount);
+		attributes = new ArrayList<>(attributeCount);
 		AttributeFactory factory = new AttributeFactory();
 
 		for (int i = 0; i < attributeCount; ++i)
@@ -778,7 +743,7 @@ public class ClassFile
 	 * @param args the command-line arguments
 	 */
 	@SuppressWarnings("UseOfSystemOutOrSystemErr")
-	public static void main(String args[])
+	public static void main(String args[]) throws IOException
 	{
 		ClassFile cf = new ClassFile(new File(args[0]));
 		System.out.println(cf.toString());

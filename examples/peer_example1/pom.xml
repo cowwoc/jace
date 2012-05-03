@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.googlecode.jace</groupId>
+        <artifactId>jace-examples</artifactId>
+        <version>1.2.18-SNAPSHOT</version>
+    </parent>
+    <artifactId>jace-examples-peer-example1</artifactId>
+    <packaging>pom</packaging>
+    <name>Jace Peer Example1</name>
+    <description>Jace peer example1 Module</description>
+    <url>http://code.google.com/p/jace/</url>
+    <licenses>
+        <license>
+            <name>New BSD License</name>
+            <url>http://en.wikipedia.org/wiki/BSD_licenses#3-clause_license_.28.22New_BSD_License.22.29</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <url>https://jace.googlecode.com/hg/</url>
+        <connection>scm:hg:https://jaec.googlecode.com/hg/</connection>
+        <developerConnection>scm:hg:https://jace.googlecode.com/hg/</developerConnection>
+    </scm>
+    <developers>
+        <developer>
+            <id>cowwoc</id>
+            <name>Gili Tzabari</name>
+        </developer>
+    </developers>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <modules>
+        <module>java</module>
+        <module>cpp</module>
+    </modules>
+    <profiles>
+        <profile>
+            <id>windows-i386-vs10-debug</id>
+        </profile>
+        <profile>
+            <id>windows-i386-vs10-release</id>
+        </profile>
+        <profile>
+            <id>windows-amd64-vs10-debug</id>
+        </profile>
+        <profile>
+            <id>windows-amd64-vs10-release</id>
+        </profile>
+        <profile>
+            <id>linux-i386-gcc-debug</id>
+        </profile>
+        <profile>
+            <id>linux-i386-gcc-release</id>
+        </profile>
+        <profile>
+            <id>linux-amd64-gcc-debug</id>
+        </profile>
+        <profile>
+            <id>linux-amd64-gcc-release</id>
+        </profile>
+    </profiles>
+</project>

@@ -1,20 +1,20 @@
 package org.jace.ant;
 
+import java.io.File;
+import java.io.IOException;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.Task;
 import org.jace.metaclass.JaceConstants;
 import org.jace.metaclass.MetaClass;
 import org.jace.metaclass.MetaClassFactory;
 import org.jace.parser.ClassFile;
-import java.io.File;
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.Task;
 
 /**
- * &lt;CppPeerUptodate&gt; check for whether C++ peer files are up to date.
+ * {@code <CppPeerUptodate>} check for whether C++ peer files are up to date.
  *
- * Example:
- * &lt;CppPeerUptodate inputFile="input.class" outputHeaders="output/include" outputSources="output/source"
- * property="cpp.peer.skip"/&gt;
+ * Example: {@code <CppPeerUptodate inputFile="input.class" outputHeaders="output/include"
+ * outputSources="output/source" property="cpp.peer.skip"/>}
  *
  * @author Gili Tzbari
  */
@@ -77,7 +77,15 @@ public class CppPeerUptodateTask extends Task
 		if (property == null)
 			throw new BuildException("property must be set", getLocation());
 
-		ClassFile inputFileParser = new ClassFile(inputFile);
+		ClassFile inputFileParser;
+		try
+		{
+			inputFileParser = new ClassFile(inputFile);
+		}
+		catch (IOException e)
+		{
+			throw new BuildException(e);
+		}
 		MetaClass metaClass = MetaClassFactory.getMetaClass(inputFileParser.getClassName());
 		String path = metaClass.getFullyQualifiedName("/");
 		File headerFile = new File(outputHeaders, JaceConstants.getPeerPackage().asPath() + path + ".h");

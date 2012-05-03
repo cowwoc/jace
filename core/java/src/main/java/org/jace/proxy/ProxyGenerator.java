@@ -84,7 +84,8 @@ public class ProxyGenerator
 	/**
 	 * Creates a new ProxyGenerator.
 	 *
-	 * @param builder an instance of <code>ProxyGenerator.Builder</code>
+	 * @param builder an instance of
+	 * <code>ProxyGenerator.Builder</code>
 	 */
 	@SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
 	private ProxyGenerator(Builder builder)
@@ -343,8 +344,7 @@ public class ProxyGenerator
 			output.write("(");
 
 			List<TypeName> parameterTypes = method.getParameterTypes();
-			DelimitedCollection<TypeName> parameterList =
-																		new DelimitedCollection<TypeName>(parameterTypes);
+			DelimitedCollection<TypeName> parameterList = new DelimitedCollection<>(parameterTypes);
 			DelimitedCollection.Stringifier<TypeName> sf = new DelimitedCollection.Stringifier<TypeName>()
 			{
 				private int current = 0;
@@ -890,13 +890,11 @@ public class ProxyGenerator
 	 *
 	 * For example, ": Object(), OutputStream()"
 	 *
-	 * This could probably be placed in MetaClass. It might not hurt to
-	 * put the initializers in some sort of array instead of a formatted
-	 * String.
+	 * This could probably be placed in MetaClass. It might not hurt to put the initializers in some
+	 * sort of array instead of a formatted String.
 	 *
-	 * This method used to include interfaces in the initializer list,
-	 * but now that interfaces have a default constructor that does what
-	 * we want, they are no longer included.
+	 * This method used to include interfaces in the initializer list, but now that interfaces have a
+	 * default constructor that does what we want, they are no longer included.
 	 *
 	 * @param forPeer true if the methods are being generated for a peer, false for a proxy
 	 * @return the initializer list
@@ -931,7 +929,7 @@ public class ProxyGenerator
 				"::") + "()");
 			if (forPeer)
 				constructors.add("::jace::Peer(jPeer)");
-			DelimitedCollection<String> delimited = new DelimitedCollection<String>(constructors);
+			DelimitedCollection<String> delimited = new DelimitedCollection<>(constructors);
 
 			definition.append("#define ").append(initializerName);
 			if (!constructors.isEmpty())
@@ -1444,7 +1442,7 @@ public class ProxyGenerator
 		output.write("(");
 
 		List<TypeName> parameterTypes = method.getParameterTypes();
-		DelimitedCollection<TypeName> parameterList = new DelimitedCollection<TypeName>(parameterTypes);
+		DelimitedCollection<TypeName> parameterList = new DelimitedCollection<>(parameterTypes);
 		DelimitedCollection.Stringifier<TypeName> sf = new DelimitedCollection.Stringifier<TypeName>()
 		{
 			private int current = 0;
@@ -1777,8 +1775,6 @@ public class ProxyGenerator
 		output.write("template <typename T> friend T (::jace::java_new)(const char*);" + newLine);
 		output.write("template <typename T> friend T (::jace::java_new)(const ::std::string&);"
 								 + newLine);
-		output.write("template <typename T> friend T (::jace::java_new)(const ::std::wstring&);"
-								 + newLine);
 		output.write("template <typename T> friend class ::jace::ElementProxy;" + newLine);
 		output.write("template <typename T> friend class ::jace::JFieldProxy;" + newLine);
 		output.write("template <typename T> friend class ::jace::JMethod;" + newLine);
@@ -1905,8 +1901,7 @@ public class ProxyGenerator
 	}
 
 	/**
-	 * Make forward declarations for all of the types
-	 * for which the class is dependent.
+	 * Make forward declarations for all of the types for which the class is dependent.
 	 *
 	 * @param output the output writer
 	 * @throws IOException if an error occurs while writing
@@ -1931,10 +1926,10 @@ public class ProxyGenerator
 
 	/**
 	 * Returns the classes that must be forward-declared for the class we are generating.
-	 * 
-	 * The return value includes fields, array elements, exceptions and all other parameter types
-	 * but not the superclass and the interfaces implemented by this class.
-	 * 
+	 *
+	 * The return value includes fields, array elements, exceptions and all other parameter types but
+	 * not the superclass and the interfaces implemented by this class.
+	 *
 	 * @return an empty set if no classes need to be forward-declared
 	 */
 	public Set<MetaClass> getForwardDeclarations()
@@ -2137,10 +2132,10 @@ public class ProxyGenerator
 		 *
 		 * @param classPath the path to search for class files when resolving class dependencies
 		 * @param classFile the class to generate a proxy for
-		 * @param dependencyFilter indicates whether methods should be exported. Methods whose parameters or return types
-		 * are rejected by the filter are omitted.
-		 * @throws IllegalArgumentException if <code>classFile</code>, <code>dependencyFilter</code> or
-		 * <code>classPath</code> are null
+		 * @param dependencyFilter indicates whether methods should be exported. Methods whose
+		 * parameters or return types are rejected by the filter are omitted.
+		 * @throws IllegalArgumentException if {@code classFile}, {@code dependencyFilter} or
+		 * {@code classPath} are null
 		 */
 		public Builder(ClassPath classPath, ClassFile classFile, MetaClassFilter dependencyFilter)
 			throws IllegalArgumentException
@@ -2171,9 +2166,10 @@ public class ProxyGenerator
 		/**
 		 * Indicates the member accessibility to expose.
 		 *
-		 * @param accessibility the member accessibility to expose, The default is AccessibilityType.PUBLIC.
+		 * @param accessibility the member accessibility to expose, The default is
+		 * {@code AccessibilityType.PUBLIC}.
 		 * @return the Builder
-		 * @throws IllegalArgumentException if <code>accessibility</code> is null
+		 * @throws IllegalArgumentException if {@code accessibility} is null
 		 */
 		public Builder accessibility(AccessibilityType accessibility) throws IllegalArgumentException
 		{
@@ -2254,40 +2250,62 @@ public class ProxyGenerator
 		for (int i = 2; i < args.length; ++i)
 		{
 			String option = args[i];
-
-			if (option.equals("-public"))
-				accessibility = AccessibilityType.PUBLIC;
-			if (option.equals("-protected"))
-				accessibility = AccessibilityType.PROTECTED;
-			else if (option.equals("-package"))
-				accessibility = AccessibilityType.PACKAGE;
-			else if (option.equals("-private"))
-				accessibility = AccessibilityType.PRIVATE;
-			else
+			switch (option)
 			{
-				System.out.println("Not an understood option: " + option);
-				System.out.println();
-				System.out.println(getUsage());
-				return;
+				case "-public":
+				{
+					accessibility = AccessibilityType.PUBLIC;
+					break;
+				}
+				case "-protected":
+				{
+					accessibility = AccessibilityType.PROTECTED;
+					break;
+				}
+				case "-package":
+				{
+					accessibility = AccessibilityType.PACKAGE;
+					break;
+				}
+				case "-private":
+				{
+					accessibility = AccessibilityType.PRIVATE;
+					break;
+				}
+				default:
+				{
+					System.out.println("Not an understood option: " + option);
+					System.out.println();
+					System.out.println(getUsage());
+					return;
+				}
 			}
 		}
 
-		ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(System.getProperty(
-			"java.class.path")),
-			new ClassFile(new File(args[0])), new AcceptAll()).accessibility(accessibility).build();
 		try
 		{
-			@SuppressWarnings("UseOfSystemOutOrSystemErr")
+			ProxyGenerator generator = new ProxyGenerator.Builder(new ClassPath(System.getProperty(
+				"java.class.path")), new ClassFile(new File(args[0])), new AcceptAll()).
+				accessibility(accessibility).build();
 			OutputStreamWriter writer = new OutputStreamWriter(System.out);
-			if (args[1].equals("header"))
-				generator.generateHeader(writer);
-			else if (args[1].equals("source"))
-				generator.generateSource(writer);
+			switch (args[1])
+			{
+				case "header":
+				{
+					generator.generateHeader(writer);
+					break;
+				}
+				case "source":
+				{
+					generator.generateSource(writer);
+					break;
+				}
+			}
 			writer.flush();
 		}
 		catch (IOException e)
 		{
-			generator.getLogger().error("", e);
+			LoggerFactory.getLogger(ProxyGenerator.class).error("", e);
 		}
 	}
 }
