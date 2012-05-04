@@ -57,7 +57,7 @@
 			<id>not-publishing-release</id>
 			<activation>
 				<property>
-					<name>!tag</name>
+					<name>!performRelease</name>
 				</property>
 			</activation>
 			<modules>
