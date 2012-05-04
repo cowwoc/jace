@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.googlecode.jace</groupId>
 		<artifactId>jace-examples</artifactId>
-		<version>1.2.21-SNAPSHOT</version>
+		<version>1.2.21</version>
 	</parent>
 	<artifactId>jace-examples-perf-test</artifactId>
 	<name>Jace Examples: Performance Test</name>
