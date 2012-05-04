@@ -45,6 +45,13 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.2.2</version>
+				<configuration>
+					<arguments>-Dskip.examples</arguments>
+				</configuration>
+			</plugin>		
 		</plugins>
 	</build>
 	<modules>
@@ -53,11 +60,11 @@
 	</modules>
 	<profiles>
 		<profile>
-			<!-- Skip "examples" module when publishing releases -->
-			<id>not-publishing-release</id>
+			<!-- Skip "examples" module when publishing a release -->
+			<id>build-examples-profile</id>
 			<activation>
 				<property>
-					<name>!performRelease</name>
+					<name>!skip.examples</name>
 				</property>
 			</activation>
 			<modules>
