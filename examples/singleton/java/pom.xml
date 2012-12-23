@@ -13,24 +13,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.5</version>
-				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
 				<version>2.4</version>
 				<executions>
@@ -62,7 +44,7 @@
 							<libraries>
 								<library>singleton</library>
 							</libraries>
-						</configuration>            
+						</configuration>
 					</execution>
 					<execution>
 						<id>generate-peer</id>
@@ -75,10 +57,10 @@
 							<outputHeaders>${project.build.directory}/peers/include</outputHeaders>
 							<outputSources>${project.build.directory}/peers/source</outputSources>
 							<userDefinedMembers>true</userDefinedMembers>
-						</configuration>            
+						</configuration>
 					</execution>
 				</executions>
-			</plugin>		
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -95,20 +77,14 @@
 						<include>**/*.class</include>
 					</includes>
 				</configuration>
-			</plugin>		
+			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.ant</groupId>
 			<artifactId>ant</artifactId>
-			<version>1.8.3</version>
+			<version>1.8.4</version>
 		</dependency>
 		<dependency>
 			<groupId>asm</groupId>
@@ -118,12 +94,12 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.9</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>11.0.2</version>
+			<version>13.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -131,7 +107,4 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
 </project>

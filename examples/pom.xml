@@ -33,21 +33,12 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.4</version>
+                <version>2.7</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
-            </plugin>            
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -61,7 +52,7 @@
                         <configuration>
                             <!-- don't build examples during release:prepare -->
                             <preparationGoals>clean</preparationGoals>
-                        </configuration>                        
+                        </configuration>
                     </execution>
                     <execution>
                         <id>perform-release</id>
@@ -71,10 +62,10 @@
                         <configuration>
                             <!-- don't build examples during release:perform -->
                             <goals>clean</goals>
-                        </configuration>                        
+                        </configuration>
                     </execution>
                 </executions>
-            </plugin>		
+            </plugin>
         </plugins>
     </build>
     <modules>
