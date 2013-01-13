@@ -77,6 +77,7 @@ add_executable (example1 ${SOURCE_FILES} ${HEADER_FILES})
 
 target_link_libraries (example1 jvm)
 target_link_libraries (example1 jace)
+target_link_libraries (example1 boost_thread)
 
 file (TO_NATIVE_PATH ${PROJECT_BINARY_DIR} NATIVE_PROJECT_BINARY_DIR)
 file (TO_NATIVE_PATH "$ENV{JACE_HOME}" JACE_HOME)
