@@ -38,14 +38,6 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<autoVersionSubmodules>true</autoVersionSubmodules>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.0</version>
 				<configuration>
@@ -54,12 +46,30 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<!-- WORKAROUND: https://issues.sonatype.org/browse/CENTRALSRV-35 -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.4.1</version>
+					<configuration>
+						<mavenExecutorId>forked-path</mavenExecutorId>
+						<useReleaseProfile>false</useReleaseProfile>
+						<autoVersionSubmodules>true</autoVersionSubmodules>
+						<arguments>${arguments} -Psonatype-oss-release</arguments>
+						<tagNameFormat>release-@{project.version}</tagNameFormat>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
 	</build>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<cmake.version>2.8.11-b1</cmake.version>
 		<boost.version>1.53.0-b6</boost.version>
 		<jace.classifier>${platform}-${build.type}</jace.classifier>
+		<arguments/>
 	</properties>
 	<modules>
 		<module>core</module>
@@ -68,28 +78,164 @@
 	</modules>
 	<profiles>
 		<profile>
-			<id>windows-i386-vs10-debug</id>
+			<id>windows-i386-msvc-debug</id>
+			<properties>
+				<cmake.generator>Visual Studio 10</cmake.generator>
+				<cmake.config>Debug|Win32</cmake.config>
+				<platform>windows-i386-msvc</platform>
+				<build.type>debug</build.type>
+				<boost.classifier>windows-i386-msvc-debug</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
 		<profile>
-			<id>windows-i386-vs10-release</id>
+			<id>windows-i386-msvc-release</id>
+			<properties>
+				<cmake.generator>Visual Studio 10</cmake.generator>
+				<cmake.config>Release|Win32</cmake.config>
+				<platform>windows-i386-msvc</platform>
+				<build.type>release</build.type>
+				<boost.classifier>windows-i386-msvc-release</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
 		<profile>
-			<id>windows-amd64-vs10-debug</id>
+			<id>windows-amd64-msvc-debug</id>
+			<properties>
+				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
+				<cmake.config>Debug|x64</cmake.config>
+				<platform>windows-amd64-msvc</platform>
+				<build.type>debug</build.type>
+				<boost.classifier>windows-amd64-msvc-debug</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
 		<profile>
-			<id>windows-amd64-vs10-release</id>
+			<id>windows-amd64-msvc-release</id>
+			<properties>
+				<cmake.generator>Visual Studio 10 Win64</cmake.generator>
+				<cmake.config>Release|x64</cmake.config>
+				<platform>windows-amd64-msvc</platform>
+				<build.type>release</build.type>
+				<boost.classifier>windows-amd64-msvc-release</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
 		<profile>
 			<id>linux-i386-gcc-debug</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>linux-i386-gcc</platform>
+				<build.type>debug</build.type>
+				<boost.classifier>linux-i386-gcc-debug</boost.classifier>
+				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
 		<profile>
 			<id>linux-i386-gcc-release</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>linux-i386-gcc</platform>
+				<build.type>release</build.type>
+				<boost.classifier>linux-i386-gcc-release</boost.classifier>
+				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
 		<profile>
 			<id>linux-amd64-gcc-debug</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>linux-amd64-gcc</platform>
+				<build.type>debug</build.type>
+				<boost.classifier>linux-amd64-gcc-debug</boost.classifier>
+				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
 		<profile>
 			<id>linux-amd64-gcc-release</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>linux-amd64-gcc</platform>
+				<build.type>release</build.type>
+				<boost.classifier>linux-amd64-gcc-release</boost.classifier>
+				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
+			</properties>
 		</profile>
+		<profile>
+			<id>mac-i386-gcc-debug</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>mac-i386-gcc</platform>
+				<build.type>debug</build.type>
+				<boost.classifier>mac-i386-gcc-debug</boost.classifier>
+				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
+			</properties>
+		</profile>
+		<profile>
+			<id>mac-i386-gcc-release</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>mac-i386-gcc</platform>
+				<build.type>release</build.type>
+				<boost.classifier>mac-i386-gcc-release</boost.classifier>
+				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
+			</properties>
+		</profile>
+		<profile>
+			<id>mac-amd64-gcc-debug</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>mac-amd64-gcc</platform>
+				<build.type>debug</build.type>
+				<boost.classifier>mac-amd64-gcc-debug</boost.classifier>
+				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
+			</properties>
+		</profile>
+		<profile>
+			<id>mac-amd64-gcc-release</id>
+			<properties>
+				<cmake.generator>Unix Makefiles</cmake.generator>
+				<platform>mac-amd64-gcc</platform>
+				<build.type>release</build.type>
+				<boost.classifier>mac-amd64-gcc-release</boost.classifier>
+				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
+			</properties>
+		</profile>
+		<profile>
+			<id>sonatype-oss-release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.4</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<passphrase>${gpg.passphrase}</passphrase>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>	
 	</profiles>
 </project>

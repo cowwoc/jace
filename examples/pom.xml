@@ -77,30 +77,4 @@
         <module>peer_example1</module>
         <module>singleton</module>
     </modules>
-    <profiles>
-        <profile>
-            <id>windows-i386-vs10-debug</id>
-        </profile>
-        <profile>
-            <id>windows-i386-vs10-release</id>
-        </profile>
-        <profile>
-            <id>windows-amd64-vs10-debug</id>
-        </profile>
-        <profile>
-            <id>windows-amd64-vs10-release</id>
-        </profile>
-        <profile>
-            <id>linux-i386-gcc-debug</id>
-        </profile>
-        <profile>
-            <id>linux-i386-gcc-release</id>
-        </profile>
-        <profile>
-            <id>linux-amd64-gcc-debug</id>
-        </profile>
-        <profile>
-            <id>linux-amd64-gcc-release</id>
-        </profile>
-    </profiles>
 </project>
