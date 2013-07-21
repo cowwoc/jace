@@ -79,8 +79,8 @@ typedef map<string,JFactory*> FactoryMap;
 
 FactoryMap* getFactoryMap()
 {
-  static FactoryMap factoryMap;
-  return &factoryMap;
+	static FactoryMap factoryMap;
+	return &factoryMap;
 }
 
 /**
@@ -175,9 +175,9 @@ std::string toUTF8(const wstring& src)
 wstring fromUTF8(const string& src)
 {
 	char ch;
-  size_t count;
-  char t1, t2; // trail bytes
-  std::wstring result;
+	size_t count;
+	char t1, t2; // trail bytes
+	std::wstring result;
 
 	// Faster loop without ongoing checking for pSrcLimit and pDestLimit.
 	string::const_iterator i = src.begin();
@@ -208,17 +208,17 @@ wstring fromUTF8(const string& src)
 			// continue with the next loop.
 			break;
 		}
-    do
+		do
 		{
-      ch = *i;
-      if(ch <= 0x7f)
+			ch = *i;
+			if(ch <= 0x7f)
 			{
-        result += (char) ch;
-        ++i;
-      }
+				result += (char) ch;
+				++i;
+			}
 			else
 			{
-        if (ch >= 0xe0)
+				if (ch >= 0xe0)
 				{
 					// handle U+0000..U+FFFF inline
 					t1 = (char) (*(i + 1) - 0x80);
@@ -228,10 +228,10 @@ wstring fromUTF8(const string& src)
 						// no need for (ch & 0xf) because the upper bits are truncated after <<12 in the cast
 						// to (char)
 						result += (char) ((ch << 12) | (t1 << 6) | t2);
-            i += 3;
+						i += 3;
 						continue;
-          }
-        }
+					}
+				}
 				else
 				{
 					// handle U+0000..U+07FF inline
@@ -239,89 +239,89 @@ wstring fromUTF8(const string& src)
 					if (ch >= 0xc0 && t1 <= 0x3f)
 					{
 						result += (char) (((ch & 0x1f) << 6) | t1);
-            i += 2;
+						i += 2;
 						continue;
-          }
-        }
-        throw string("Invalid char found: ") + ch;
+					}
+				}
+				throw string("Invalid char found: ") + ch;
 			}
-    }
+		}
 		while (--count > 0);
-  }
+	}
 
 	while (i != src.end())
 	{
 		ch = *i;
-    if (ch <= 0x7f)
+		if (ch <= 0x7f)
 		{
 			result += (char) ch;
-      ++i;
-    }
+			++i;
+		}
 		else
 		{
-      if (ch >= 0xe0)
+			if (ch >= 0xe0)
 			{
 				// handle U+0000..U+FFFF inline
 				t1 = (char) (*(i + 1) - 0x80);
 				t2 = (char) (*(i + 2) - 0x80);
-        if (ch <= 0xef && ((src.end() - i) >= 3) &&
-            t1 <= 0x3f && t2 <= 0x3f)
+				if (ch <= 0xef && ((src.end() - i) >= 3) &&
+					t1 <= 0x3f && t2 <= 0x3f)
 				{
 					// no need for (ch & 0xf) because the upper bits are truncated after <<12 in the cast to
 					// char
 					result += (char) ((ch << 12) | (t1 << 6) | t2);
-          i += 3;
+					i += 3;
 					continue;
-        }
-      }
+				}
+			}
 			else
 			{
 				// handle U+0000..U+07FF inline
 				t1 = (char) (*(i + 1) - 0x80);
 				if (ch >= 0xc0 && ((src.end() - i) >= 2) &&
-            t1 <= 0x3f)
+					t1 <= 0x3f)
 				{
 					result += (char) (((ch & 0x1f) << 6) | t1);
-          i += 2;
-          continue;
-        }
-      }
-      throw string("Invalid char found: ") + ch;
+					i += 2;
+					continue;
+				}
+			}
+			throw string("Invalid char found: ") + ch;
 		}
-  }
+	}
 
-  // do not fill the dest buffer just count the char needed
-  while (i != src.end())
+	// do not fill the dest buffer just count the char needed
+	while (i != src.end())
 	{
 		ch = *i;
-    if (ch <= 0x7f)
-	    ++i;
-  	else
+		if (ch <= 0x7f)
+			++i;
+		else
 		{
 			if (ch >= 0xe0)
 			{
 				// handle U+0000..U+FFFF inline
 				if (ch <= 0xef && ((src.end() - i) >= 3) &&
-            (char) (*(i + 1) - 0x80) <= 0x3f &&
-            (char) (*(i + 2) - 0x80) <= 0x3f)
+					(char) (*(i + 1) - 0x80) <= 0x3f &&
+					(char) (*(i + 2) - 0x80) <= 0x3f)
 				{
 					i += 3;
-          continue;
-        }
-      }
+					continue;
+				}
+			}
 			else
 			{
 				// handle U+0000..U+07FF inline
 				if (ch >= 0xc0 && ((src.end() - i) >= 2) &&
-            (char) (*(i + 1) - 0x80) <= 0x3f)
+					(char) (*(i + 1) - 0x80) <= 0x3f)
 				{
 					i += 2;
-          continue;
-        }
-      }
-      throw string("Invalid char found: ") + ch;
-    }
-  }
+					continue;
+				}
+			}
+			throw string("Invalid char found: ") + ch;
+		}
+	}
 	return result;
 }
 
@@ -333,30 +333,30 @@ wstring fromUTF8(const string& src)
 std::string toPlatformEncoding(const std::wstring& src)
 {
 	const std::locale locale("");
-  typedef std::codecvt<wchar_t, char, std::mbstate_t> converter_type;
-  const converter_type& converter = std::use_facet<converter_type>(locale);
-  std::vector<char> target(src.length() * converter.max_length());
-  std::mbstate_t state;
-  const wchar_t* from_next;
-  char* target_next;
-  const converter_type::result result = converter.out(state, src.data(), src.data() + src.length(), 
+	typedef std::codecvt<wchar_t, char, std::mbstate_t> converter_type;
+	const converter_type& converter = std::use_facet<converter_type>(locale);
+	std::vector<char> target(src.length() * converter.max_length());
+	std::mbstate_t state;
+	const wchar_t* from_next;
+	char* target_next;
+	const converter_type::result result = converter.out(state, src.data(), src.data() + src.length(), 
 		from_next, &target[0], &target[0] + target.size(), target_next);
-  if (result == converter_type::ok || result == converter_type::noconv)
+	if (result == converter_type::ok || result == converter_type::noconv)
 		return std::string(&target[0], target_next);
 	throw wstring(L"Failed to convert wstring: ") + src;
 }
 
 std::string asString(JNIEnv* env, jstring str)
 {
-  const char* utfString = env->GetStringUTFChars(str, 0);
-  if (!utfString)
+	const char* utfString = env->GetStringUTFChars(str, 0);
+	if (!utfString)
 	{
-    std::string msg = "Unable to retrieve the character string for an exception message.";
-    throw JNIException(msg);
-  }
-  std::string stdString = utfString;
-  env->ReleaseStringUTFChars(str, utfString);
-  return stdString;
+		std::string msg = "Unable to retrieve the character string for an exception message.";
+		throw JNIException(msg);
+	}
+	std::string stdString = utfString;
+	env->ReleaseStringUTFChars(str, utfString);
+	return stdString;
 }
 
 /**
@@ -364,195 +364,170 @@ std::string asString(JNIEnv* env, jstring str)
  */
 void catchAndThrow(JNIEnv* env)
 {
-  if (!env->ExceptionCheck())
-    return;
+	if (!env->ExceptionCheck())
+		return;
 
-  jthrowable jexception = env->ExceptionOccurred();
+	jthrowable jexception = env->ExceptionOccurred();
 
-  // cout << "jace::catchAndThrow() - Discovered an exception: " << endl;
-  // print(jexception);
+	// cout << "jace::catchAndThrow() - Discovered an exception: " << endl;
+	// print(jexception);
 
-  env->ExceptionClear();
+	env->ExceptionClear();
 
-  // Find the fully qualified name for the exception type, so
-  // we can find a matching C++ proxy exception.
-  //
-  // In java, this looks like:
-  //   String typeName = exception.getClass().getName();
+	// Find the fully qualified name for the exception type, so
+	// we can find a matching C++ proxy exception.
+	//
+	// In java, this looks like:
+	//   String typeName = exception.getClass().getName();
 
-  //  cout << "jace::catchAndThrow() - Retrieving the exception class type..." << endl;
-  jclass throwableClass = env->FindClass("java/lang/Throwable");
-
-  if (!throwableClass)
+	//  cout << "jace::catchAndThrow() - Retrieving the exception class type..." << endl;
+	jclass throwableClass = env->FindClass("java/lang/Throwable");
+	if (!throwableClass)
 	{
-    string msg = "Assert failed: Unable to find the class, java.lang.Throwable.";
-    throw JNIException(msg);
-  }
+		string msg = "Assert failed: Unable to find the class, java.lang.Throwable.";
+		throw JNIException(msg);
+	}
 
-  jclass classClass = env->FindClass("java/lang/Class");
-
-  if (!classClass)
+	jclass classClass = env->FindClass("java/lang/Class");
+	if (!classClass)
 	{
-    string msg = "Assert failed: Unable to find the class, java.lang.Class.";
-    throw JNIException(msg);
-  }
+		string msg = "Assert failed: Unable to find the class, java.lang.Class.";
+		throw JNIException(msg);
+	}
 
-  jmethodID throwableGetClass = env->GetMethodID(throwableClass, "getClass", "()Ljava/lang/Class;");
-
-  if (!throwableGetClass)
+	jmethodID throwableGetClass = env->GetMethodID(throwableClass, "getClass", "()Ljava/lang/Class;");
+	if (!throwableGetClass)
 	{
-    string msg = "Assert failed: Unable to find the method, Throwable.getClass().";
-    throw JNIException(msg);
-  }
+		string msg = "Assert failed: Unable to find the method, Throwable.getClass().";
+		throw JNIException(msg);
+	}
 
-  deleteLocalRef(env, throwableClass);
-
-  jmethodID classGetName = env->GetMethodID(classClass, "getName", "()Ljava/lang/String;");
-
-  if (!classGetName)
+	deleteLocalRef(env, throwableClass);
+	jmethodID classGetName = env->GetMethodID(classClass, "getName", "()Ljava/lang/String;");
+	if (!classGetName)
 	{
-    string msg = "Assert failed: Unable to find the method, Class.getName().";
-    throw JNIException(msg);
-  }
+		string msg = "Assert failed: Unable to find the method, Class.getName().";
+		throw JNIException(msg);
+	}
 
-  jmethodID classGetSuperclass = env->GetMethodID(classClass, "getSuperclass", "()Ljava/lang/Class;");
-
-  if (!classGetSuperclass)
+	jmethodID classGetSuperclass = env->GetMethodID(classClass, "getSuperclass", "()Ljava/lang/Class;");
+	if (!classGetSuperclass)
 	{
-    string msg = "Assert failed: Unable to find the method, Class.getSuperclass().";
-    throw JNIException(msg);
-  }
+		string msg = "Assert failed: Unable to find the method, Class.getSuperclass().";
+		throw JNIException(msg);
+	}
 
-  deleteLocalRef(env, classClass);
-
-  jobject exceptionClass = env->CallObjectMethod(jexception, throwableGetClass);
-
-  if (env->ExceptionOccurred())
+	deleteLocalRef(env, classClass);
+	jobject exceptionClass = env->CallObjectMethod(jexception, throwableGetClass);
+	if (env->ExceptionOccurred())
 	{
-    env->ExceptionDescribe();
-    string msg = string("jace::catchAndThrow()\n") +
-                 "An error occurred while trying to call getClass() on the thrown exception.";
-    throw JNIException(msg);
-  }
+		env->ExceptionDescribe();
+		string msg = string("jace::catchAndThrow()\n") +
+			"An error occurred while trying to call getClass() on the thrown exception.";
+		throw JNIException(msg);
+	}
 
-  jstring exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
-
-  if (env->ExceptionOccurred())
+	jstring exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
+	if (env->ExceptionOccurred())
 	{
-    env->ExceptionDescribe();
-    string msg = string("jace::catchAndThrow()\n") +
-                 "An error occurred while trying to call getName() on the class of the thrown exception.";
-    throw JNIException(msg);
-  }
+		env->ExceptionDescribe();
+		string msg = string("jace::catchAndThrow()\n") +
+			"An error occurred while trying to call getName() on the class of the thrown exception.";
+		throw JNIException(msg);
+	}
 
-  string exceptionTypeString = asString(env, exceptionType);
+	string exceptionTypeString = asString(env, exceptionType);
 
-  // Now, find the matching factory for this exception type.
-  while (true)
+	// Now, find the matching factory for this exception type.
+	while (true)
 	{
-    FactoryMap::iterator it = getFactoryMap()->find(exceptionTypeString);
+		FactoryMap::iterator it = getFactoryMap()->find(exceptionTypeString);
 
-    // If we couldn't find a match, try to find the parent exception type.
-    if (it == getFactoryMap()->end())
+		// If we couldn't find a match, try to find the parent exception type.
+		if (it == getFactoryMap()->end())
 		{
-      // cout << "Finding super class for " << endl;
-      // print(exceptionClass);
+			// cout << "Finding super class for " << endl;
+			// print(exceptionClass);
 
-      jobject superClass = env->CallObjectMethod(exceptionClass, classGetSuperclass);
+			jobject superClass = env->CallObjectMethod(exceptionClass, classGetSuperclass);
 
-      if (env->ExceptionOccurred())
+			if (env->ExceptionOccurred())
 			{
-        env->ExceptionDescribe();
-        string msg = string("jace::catchAndThrow()\n") +
-                     "An error occurred while trying to call getSuperclass() on the thrown exception.";
-        throw JNIException(msg);
-      }
+				env->ExceptionDescribe();
+				string msg = string("jace::catchAndThrow()\n") +
+					"An error occurred while trying to call getSuperclass() on the thrown exception.";
+				throw JNIException(msg);
+			}
 
-      // We get NULL if we've already reached java.lang.Object, in which case,
-      // we couldn't find any match at all.
-      if (!superClass)
-        break;
+			// We get NULL if we've already reached java.lang.Object, in which case,
+			// we couldn't find any match at all.
+			if (!superClass)
+				break;
 
-      deleteLocalRef(env, exceptionClass);
-      deleteLocalRef(env, exceptionType);
-      exceptionClass = superClass;
+			deleteLocalRef(env, exceptionClass);
+			deleteLocalRef(env, exceptionType);
+			exceptionClass = superClass;
 
-      exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
+			exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
 
-      if (env->ExceptionOccurred())
+			if (env->ExceptionOccurred())
 			{
-        env->ExceptionDescribe();
-        throw JNIException("jace::catchAndThrow()\nAn error occurred while trying to call "
+				env->ExceptionDescribe();
+				throw JNIException("jace::catchAndThrow()\nAn error occurred while trying to call "
 					"getName() on the superclass of the thrown exception.");
-      }
+			}
 
-      exceptionTypeString = asString(env, exceptionType);
+			exceptionTypeString = asString(env, exceptionType);
 			if (exceptionTypeString == "java.lang.Object")
 			{
-			  // Couldn't find a matching exception. Abort!
+				// Couldn't find a matching exception. Abort!
 				break;
 			}
-      continue;
-    }
+			continue;
+		}
 
-    // Ask the factory to throw the exception.
-    // cout << "jace::catchAndThrow() - Throwing the exception " << endl;
-    // print(jexception);
+		// Ask the factory to throw the exception.
+		// cout << "jace::catchAndThrow() - Throwing the exception " << endl;
+		// print(jexception);
 
-    jvalue value;
-    value.l = jexception;
-    it->second->throwInstance(value);
-  }
+		jvalue value;
+		value.l = jexception;
+		it->second->throwInstance(value);
+	}
 
 	exceptionClass = env->CallObjectMethod(jexception, throwableGetClass);
 
-  if (env->ExceptionOccurred())
+	if (env->ExceptionOccurred())
 	{
-    env->ExceptionDescribe();
-    string msg = string("jace::catchAndThrow()\n") +
-                 "An error occurred while trying to call getClass() on the thrown exception.";
-    throw JNIException(msg);
-  }
+		env->ExceptionDescribe();
+		string msg = string("jace::catchAndThrow()\n") +
+			"An error occurred while trying to call getClass() on the thrown exception.";
+		throw JNIException(msg);
+	}
 
-  exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
+	exceptionType = static_cast<jstring>(env->CallObjectMethod(exceptionClass, classGetName));
 
-  if (env->ExceptionOccurred())
+	if (env->ExceptionOccurred())
 	{
-    env->ExceptionDescribe();
-    string msg = string("jace::catchAndThrow()\n") +
-                 "An error occurred while trying to call getName() on the class of the thrown exception.";
-    throw JNIException(msg);
-  }
+		env->ExceptionDescribe();
+		string msg = string("jace::catchAndThrow()\n") +
+			"An error occurred while trying to call getName() on the class of the thrown exception.";
+		throw JNIException(msg);
+	}
 
-  exceptionTypeString = asString(env, exceptionType);
-  //    cout << "Unable to find an enlisted class factory matching the type <" + exceptionTypeString + ">" << endl;
-  //    cout << "Throwing Exception instead." << endl;
-  string msg = string("Can't find any linked in parent exception for ") + exceptionTypeString + "\n";
-  throw JNIException(msg);
+	exceptionTypeString = asString(env, exceptionType);
+	//    cout << "Unable to find an enlisted class factory matching the type <" + exceptionTypeString + ">" << endl;
+	//    cout << "Throwing Exception instead." << endl;
+	string msg = string("Can't find any linked in parent exception for ") + exceptionTypeString + "\n";
+	throw JNIException(msg);
 }
 
 void registerShutdownHook(JNIEnv *env) throw (JNIException)
 {
-  jclass hookClass = env->FindClass("org/jace/util/ShutdownHook");
-  if (!hookClass)
+	jclass hookClass = env->FindClass("org/jace/util/ShutdownHook");
+	if (!hookClass)
 	{
-    string msg = "Assert failed: Unable to find the class, org.jace.util.ShutdownHook.";
-    throw JNIException(msg);
-  }
-
-  jmethodID hookGetInstance = env->GetStaticMethodID(hookClass, "getInstance", "()Lorg/jace/util/ShutdownHook;");
-  if (!hookGetInstance)
-	{
-		env->DeleteLocalRef(hookClass);
-    string msg = "Assert failed: Unable to find the method, ShutdownHook.getInstance().";
-    throw JNIException(msg);
-  }
-
-	jobject hookObject = env->CallStaticObjectMethod(hookClass, hookGetInstance);
-	if (!hookObject)
-	{
-		env->DeleteLocalRef(hookClass);
-    string msg = "Unable to invoke ShutdownHook.getInstance()";
+		string msg = "Assert failed: Unable to find the class, org.jace.util.ShutdownHook.";
 		try
 		{
 			catchAndThrow(env);
@@ -562,16 +537,60 @@ void registerShutdownHook(JNIEnv *env) throw (JNIException)
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
 		}
-    throw JNIException(msg);
+		throw JNIException(msg);
 	}
 
-  jmethodID hookRegisterIfNecessary = env->GetMethodID(hookClass, "registerIfNecessary", "()V");
-  if (!hookRegisterIfNecessary)
+	jmethodID hookGetInstance = env->GetStaticMethodID(hookClass, "getInstance", "()Lorg/jace/util/ShutdownHook;");
+	if (!hookGetInstance)
+	{
+		env->DeleteLocalRef(hookClass);
+		string msg = "Assert failed: Unable to find the method, ShutdownHook.getInstance().";
+		try
+		{
+			catchAndThrow(env);
+		}
+		catch (std::exception& e)
+		{
+			msg.append("\ncaused by:\n");
+			msg.append(e.what());
+		}
+		throw JNIException(msg);
+	}
+
+	jobject hookObject = env->CallStaticObjectMethod(hookClass, hookGetInstance);
+	if (!hookObject)
+	{
+		env->DeleteLocalRef(hookClass);
+		string msg = "Unable to invoke ShutdownHook.getInstance()";
+		try
+		{
+			catchAndThrow(env);
+		}
+		catch (std::exception& e)
+		{
+			msg.append("\ncaused by:\n");
+			msg.append(e.what());
+		}
+		throw JNIException(msg);
+	}
+
+	jmethodID hookRegisterIfNecessary = env->GetMethodID(hookClass, "registerIfNecessary", "()V");
+	if (!hookRegisterIfNecessary)
 	{
 		env->DeleteLocalRef(hookObject);
 		env->DeleteLocalRef(hookClass);
-		throw JNIException("Unable to find the method, ShutdownHook.registerIfNecessary().");
-  }
+		string msg = "Unable to find the method, ShutdownHook.registerIfNecessary().";
+		try
+		{
+			catchAndThrow(env);
+		}
+		catch (std::exception& e)
+		{
+			msg.append("\ncaused by:\n");
+			msg.append(e.what());
+		}
+		throw JNIException(msg);
+	}
 
 	env->CallObjectMethodA(hookObject, hookRegisterIfNecessary, 0);
 	try
@@ -628,21 +647,21 @@ JNIEnv* attachImpl(JavaVM* jvm, const jobject threadGroup, const char* name, con
 		strcpy(args.name, temp.c_str());
 	}
 	args.group = threadGroup;
-  jint result;
+	jint result;
 	if (!daemon)
 		result = jvm->AttachCurrentThread(reinterpret_cast<void**>(&env), &args);
 	else
 		result = jvm->AttachCurrentThreadAsDaemon(reinterpret_cast<void**>(&env), &args);
 	delete[] args.name;
 
-  if (result != 0)
+	if (result != 0)
 	{
-    string msg = string("Jace::attach\n") +
-                 "Unable to attach the current thread. The specific JNI error code is " +
-                 toString(result);
-    throw JNIException(msg);
-  }
-  return env;
+		string msg = string("Jace::attach\n") +
+			"Unable to attach the current thread. The specific JNI error code is " +
+			toString(result);
+		throw JNIException(msg);
+	}
+	return env;
 }
 
 void classLoaderDestructor(jobject* value)
@@ -660,7 +679,7 @@ void classLoaderDestructor(jobject* value)
 	}
 	JNIEnv* env;
 	bool isDetached = jvm->GetEnv((void**) &env, jniVersion) == JNI_EDETACHED;
-	
+
 	if (isDetached)
 		env = attachImpl(jvm, 0, 0, false);
 	else
@@ -690,28 +709,28 @@ void setJavaVmImpl(JavaVM* _jvm) throw (JNIException)
 }
 
 void createVm(const VmLoader& loader,
-              const OptionList& options,
-              bool ignoreUnrecognized) throw (JNIException)
+	const OptionList& options,
+	bool ignoreUnrecognized) throw (JNIException)
 {
 	JavaVM* jvm;
-  JNIEnv* env;
-  JavaVMInitArgs vm_args;
-  JavaVMOption* jniOptions = options.createJniOptions();
+	JNIEnv* env;
+	JavaVMInitArgs vm_args;
+	JavaVMOption* jniOptions = options.createJniOptions();
 
-  vm_args.version = loader.getJniVersion();
-  vm_args.options = jniOptions;
-  vm_args.nOptions = jint(options.size());
-  vm_args.ignoreUnrecognized = ignoreUnrecognized;
+	vm_args.version = loader.getJniVersion();
+	vm_args.options = jniOptions;
+	vm_args.nOptions = jint(options.size());
+	vm_args.ignoreUnrecognized = ignoreUnrecognized;
 
 	boost::mutex::scoped_lock lock(jvmMutex);
-  jint rc = loader.createJavaVM(&jvm, reinterpret_cast<void**>(&env), &vm_args);
-  options.destroyJniOptions(jniOptions);
+	jint rc = loader.createJavaVM(&jvm, reinterpret_cast<void**>(&env), &vm_args);
+	options.destroyJniOptions(jniOptions);
 
-  if (rc != 0)
+	if (rc != 0)
 	{
-    string msg = "Unable to create the virtual machine. The error was " + toString(rc);
-    throw JNIException(msg);
-  }
+		string msg = "Unable to create the virtual machine. The error was " + toString(rc);
+		throw JNIException(msg);
+	}
 	setJavaVmImpl(jvm);
 }
 
@@ -806,7 +825,7 @@ void detach() throw ()
 		// The JVM is already shut down
 		return;
 	}
-  jvm->DetachCurrentThread();
+	jvm->DetachCurrentThread();
 }
 
 
@@ -826,46 +845,46 @@ void detach() throw ()
  */
 void enlist(JFactory* factory)
 {
-  string name = factory->getClass().getInternalName();
-  replace(name.begin(), name.end(), '/', '.');
-  getFactoryMap()->insert(FactoryMap::value_type(name, factory));
-  //  cout << "jace::enlist - Enlisted " << name << endl;
+	string name = factory->getClass().getInternalName();
+	replace(name.begin(), name.end(), '/', '.');
+	getFactoryMap()->insert(FactoryMap::value_type(name, factory));
+	//  cout << "jace::enlist - Enlisted " << name << endl;
 }
 
 
 jobject newLocalRef(JNIEnv* env, jobject ref) throw (JNIException)
 {
-  jobject localRef = env->NewLocalRef(ref);
-  if (!localRef)
+	jobject localRef = env->NewLocalRef(ref);
+	if (!localRef)
 	{
-    throw JNIException(string("Jace::newLocalRef\n") +
-                 "Unable to create a new local reference.\n" +
-                 "It is likely that you have exceeded the maximum local reference count.\n" +
-                 "You can increase the maximum count with a call to EnsureLocalCapacity().");
+		throw JNIException(string("Jace::newLocalRef\n") +
+			"Unable to create a new local reference.\n" +
+			"It is likely that you have exceeded the maximum local reference count.\n" +
+			"You can increase the maximum count with a call to EnsureLocalCapacity().");
 	}
-  return localRef;
+	return localRef;
 }
 
 void deleteLocalRef(JNIEnv* env, jobject localRef)
 {
-  env->DeleteLocalRef(localRef);
+	env->DeleteLocalRef(localRef);
 }
 
 jobject newGlobalRef(JNIEnv* env, jobject ref) throw (VirtualMachineShutdownError, JNIException)
 {
-  jobject globalRef = env->NewGlobalRef(ref);
-  if (!globalRef)
+	jobject globalRef = env->NewGlobalRef(ref);
+	if (!globalRef)
 	{
-    throw JNIException(string("Jace::newGlobalRef\n") +
-                 "Unable to create a new global reference.\n" +
-                 "It is likely that you have exceeded the max heap size of your virtual machine.");
-  }
-  return globalRef;
+		throw JNIException(string("Jace::newGlobalRef\n") +
+			"Unable to create a new global reference.\n" +
+			"It is likely that you have exceeded the max heap size of your virtual machine.");
+	}
+	return globalRef;
 }
 
 void deleteGlobalRef(JNIEnv* env, jobject globalRef)
 {
-  env->DeleteGlobalRef(globalRef);
+	env->DeleteGlobalRef(globalRef);
 }
 
 /**
@@ -885,15 +904,15 @@ void catchAndThrow()
 
 ::jace::Peer* getPeer(jobject jPeer)
 {
-  JNIEnv* env = attach();
+	JNIEnv* env = attach();
 
-  jclass peerClass = env->GetObjectClass(jPeer);
-  jmethodID handleID = env->GetMethodID(peerClass, "jaceGetNativeHandle", "()J");
+	jclass peerClass = env->GetObjectClass(jPeer);
+	jmethodID handleID = env->GetMethodID(peerClass, "jaceGetNativeHandle", "()J");
 
-  if (!handleID)
+	if (!handleID)
 	{
-    string msg = "Unable to locate the method, \"jaceGetNativeHandle\".\n" \
-                 "The class has not been properly enhanced.";
+		string msg = "Unable to locate the method, \"jaceGetNativeHandle\".\n" \
+			"The class has not been properly enhanced.";
 		try
 		{
 			catchAndThrow();
@@ -903,18 +922,18 @@ void catchAndThrow()
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
 		}
-    throw JNIException(msg);
-  }
+		throw JNIException(msg);
+	}
 
-  jlong nativeHandle = env->CallLongMethod(jPeer, handleID);
-  catchAndThrow();
+	jlong nativeHandle = env->CallLongMethod(jPeer, handleID);
+	catchAndThrow();
 
-  return reinterpret_cast< ::jace::Peer* >(nativeHandle);
+	return reinterpret_cast< ::jace::Peer* >(nativeHandle);
 }
 
 JavaVM* getJavaVm()
 {
-  return jvm;
+	return jvm;
 }
 
 void setJavaVm(JavaVM* _jvm) throw (VirtualMachineRunningError, JNIException)
@@ -922,14 +941,13 @@ void setJavaVm(JavaVM* _jvm) throw (VirtualMachineRunningError, JNIException)
 	if (_jvm == 0)
 		throw new JNIException("jvm may not be null");
 	boost::mutex::scoped_lock lock(jvmMutex);
-  if (jvm != 0)
-    throw VirtualMachineRunningError("The virtual machine is already running");
+	if (jvm != 0)
+		throw VirtualMachineRunningError("The virtual machine is already running");
 	setJavaVmImpl(_jvm);
 }
 
 /**
  * Returns the ClassLoader being used by the current thread.
- *
  */
 jobject getClassLoader()
 {
@@ -962,12 +980,12 @@ void setClassLoader(jobject classLoader)
 
 string toString(jobject obj)
 {
-  JNIEnv* env = attach();
-  jclass objectClass = env->FindClass("java/lang/Object");
+	JNIEnv* env = attach();
+	jclass objectClass = env->FindClass("java/lang/Object");
 
-  if (!objectClass)
+	if (!objectClass)
 	{
-    string msg = "Assert failed: Unable to find the class, java.lang.Object.";
+		string msg = "Assert failed: Unable to find the class, java.lang.Object.";
 		try
 		{
 			catchAndThrow();
@@ -977,13 +995,13 @@ string toString(jobject obj)
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
 		}
-    throw JNIException(msg);
-  }
+		throw JNIException(msg);
+	}
 
-  jmethodID toString = env->GetMethodID(objectClass, "toString", "()Ljava/lang/String;");
-  if (!toString)
+	jmethodID toString = env->GetMethodID(objectClass, "toString", "()Ljava/lang/String;");
+	if (!toString)
 	{
-    string msg = "Assert failed: Unable to find the method, Object.toString().";
+		string msg = "Assert failed: Unable to find the method, Object.toString().";
 		try
 		{
 			catchAndThrow();
@@ -993,46 +1011,46 @@ string toString(jobject obj)
 			msg.append("\ncaused by:\n");
 			msg.append(e.what());
 		}
-    throw JNIException(msg);
-  }
+		throw JNIException(msg);
+	}
 
-  jstring javaStr = static_cast<jstring>(env->CallObjectMethod(obj, toString));
-  const char* strBuf = env->GetStringUTFChars(javaStr, 0);
-  string value = string(strBuf);
+	jstring javaStr = static_cast<jstring>(env->CallObjectMethod(obj, toString));
+	const char* strBuf = env->GetStringUTFChars(javaStr, 0);
+	string value = string(strBuf);
 
-  env->ReleaseStringUTFChars(javaStr, strBuf);
+	env->ReleaseStringUTFChars(javaStr, strBuf);
 
-  deleteLocalRef(env, javaStr);
-  deleteLocalRef(env, objectClass);
+	deleteLocalRef(env, javaStr);
+	deleteLocalRef(env, objectClass);
 
-  return value;
+	return value;
 }
 
 void print(jobject obj)
 {
-  cout << toString(obj) << endl;
+	cout << toString(obj) << endl;
 }
 
 void printClass(jobject obj)
 {
-  JNIEnv* env = attach();
-  jclass objClass = env->GetObjectClass(obj);
-  print(objClass);
-  deleteLocalRef(env, objClass);
+	JNIEnv* env = attach();
+	jclass objClass = env->GetObjectClass(obj);
+	print(objClass);
+	deleteLocalRef(env, objClass);
 }
 
 bool isRunning()
 {
 	boost::mutex::scoped_lock lock(jvmMutex);
-  return jvm != 0;
+	return jvm != 0;
 }
 
 string getCurrentThreadId()
 {
 #ifdef _WIN32
-  return toString(GetCurrentThreadId());
+	return toString(GetCurrentThreadId());
 #else
-  return toString(syscall(SYS_gettid));
+	return toString(syscall(SYS_gettid));
 #endif
 }
 

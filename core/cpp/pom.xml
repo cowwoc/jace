@@ -43,6 +43,20 @@
 									<version>${boost.version}</version>
 									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
+								<artifactItem>
+									<groupId>com.googlecode.boost-maven-project</groupId>
+									<artifactId>boost-system</artifactId>
+									<classifier>${boost.classifier}</classifier>
+									<version>${boost.version}</version>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.googlecode.boost-maven-project</groupId>
+									<artifactId>boost-chrono</artifactId>
+									<classifier>${boost.classifier}</classifier>
+									<version>${boost.version}</version>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
@@ -51,7 +65,7 @@
 			<plugin>
 				<groupId>com.googlecode.cmake-maven-project</groupId>
 				<artifactId>cmake-maven-plugin</artifactId>
-				<version>2.8.10.2-b2</version>
+				<version>${cmake.version}</version>
 				<executions>
 					<execution>
 						<id>cmake-generate</id>
@@ -66,6 +80,10 @@
 							<environmentVariables>
 								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
 							</environmentVariables>
+							<options>
+								<option>-DCMAKE_C_FLAGS_FROM_MAVEN:STRING=${CMAKE_C_FLAGS}</option>
+								<option>-DCMAKE_CXX_FLAGS_FROM_MAVEN:STRING=${CMAKE_CXX_FLAGS}</option>
+							</options>
 						</configuration>
 					</execution>
 					<execution>
@@ -172,11 +190,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<boost.version>1.49.0-b1</boost.version>
-		<jace.classifier>${platform}-${build.type}</jace.classifier>
-	</properties>
 	<profiles>
 		<profile>
 			<id>windows-i386-vs10-debug</id>
@@ -186,6 +199,8 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-msvc-debug</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 		<profile>
@@ -196,6 +211,8 @@
 				<platform>windows-i386-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-msvc-release</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 		<profile>
@@ -206,6 +223,8 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-msvc-debug</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 		<profile>
@@ -216,6 +235,8 @@
 				<platform>windows-amd64-vs10</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-msvc-release</boost.classifier>
+				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 		<profile>
@@ -225,6 +246,8 @@
 				<platform>linux-i386-gcc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>linux-i386-gcc-debug</boost.classifier>
+				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 		<profile>
@@ -234,6 +257,8 @@
 				<platform>linux-i386-gcc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>linux-i386-gcc-release</boost.classifier>
+				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 		<profile>
@@ -243,6 +268,8 @@
 				<platform>linux-amd64-gcc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>linux-amd64-gcc-debug</boost.classifier>
+				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 		<profile>
@@ -252,6 +279,8 @@
 				<platform>linux-amd64-gcc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>linux-amd64-gcc-release</boost.classifier>
+				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
+				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
 			</properties>
 		</profile>
 	</profiles>

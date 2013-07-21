@@ -61,7 +61,7 @@
 			<plugin>
 				<groupId>com.googlecode.cmake-maven-project</groupId>
 				<artifactId>cmake-maven-plugin</artifactId>
-				<version>2.8.10.2-b2</version>
+				<version>${cmake.version}</version>
 				<executions>
 					<execution>
 						<id>cmake-generate</id>
@@ -102,10 +102,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<properties>
-		<boost.version>1.49.0-b1</boost.version>
-		<jace.classifier>${platform}-${build.type}</jace.classifier>
-	</properties>
 	<profiles>
 		<profile>
 			<id>windows-i386-vs10-debug</id>
