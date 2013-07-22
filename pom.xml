@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace</artifactId>
-	<version>1.2.23-SNAPSHOT</version>
+	<version>1.2.23</version>
 	<packaging>pom</packaging>
 	<name>Jace</name>
 	<description>Jace Module</description>
@@ -27,7 +27,8 @@
 		<url>https://jace.googlecode.com/hg/</url>
 		<connection>scm:hg:https://jaec.googlecode.com/hg/</connection>
 		<developerConnection>scm:hg:https://jace.googlecode.com/hg/</developerConnection>
-	</scm>
+	  <tag>release-1.2.23</tag>
+  </scm>
 	<developers>
 		<developer>
 			<id>cowwoc</id>
@@ -69,7 +70,7 @@
 		<cmake.version>2.8.11-b1</cmake.version>
 		<boost.version>1.53.0-b6</boost.version>
 		<jace.classifier>${platform}-${build.type}</jace.classifier>
-		<arguments/>
+		<arguments />
 	</properties>
 	<modules>
 		<module>core</module>
@@ -85,8 +86,8 @@
 				<platform>windows-i386-msvc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-msvc-debug</boost.classifier>
-				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+				<CMAKE_C_FLAGS />
+				<CMAKE_CXX_FLAGS />
 			</properties>
 		</profile>
 		<profile>
@@ -97,8 +98,8 @@
 				<platform>windows-i386-msvc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-msvc-release</boost.classifier>
-				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+				<CMAKE_C_FLAGS />
+				<CMAKE_CXX_FLAGS />
 			</properties>
 		</profile>
 		<profile>
@@ -109,8 +110,8 @@
 				<platform>windows-amd64-msvc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-msvc-debug</boost.classifier>
-				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+				<CMAKE_C_FLAGS />
+				<CMAKE_CXX_FLAGS />
 			</properties>
 		</profile>
 		<profile>
@@ -121,8 +122,8 @@
 				<platform>windows-amd64-msvc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-msvc-release</boost.classifier>
-				<CMAKE_C_FLAGS></CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS></CMAKE_CXX_FLAGS>
+				<CMAKE_C_FLAGS />
+				<CMAKE_CXX_FLAGS />
 			</properties>
 		</profile>
 		<profile>
