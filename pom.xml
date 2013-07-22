@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>com.googlecode.jace</groupId>
 	<artifactId>jace</artifactId>
-	<version>1.2.23</version>
+	<version>1.2.24-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Jace</name>
 	<description>Jace Module</description>
@@ -27,7 +27,7 @@
 		<url>https://jace.googlecode.com/hg/</url>
 		<connection>scm:hg:https://jaec.googlecode.com/hg/</connection>
 		<developerConnection>scm:hg:https://jace.googlecode.com/hg/</developerConnection>
-	  <tag>release-1.2.23</tag>
+	  <tag>HEAD</tag>
   </scm>
 	<developers>
 		<developer>
