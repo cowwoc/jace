@@ -27,8 +27,8 @@
 		<url>https://jace.googlecode.com/hg/</url>
 		<connection>scm:hg:https://jaec.googlecode.com/hg/</connection>
 		<developerConnection>scm:hg:https://jace.googlecode.com/hg/</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 	<developers>
 		<developer>
 			<id>cowwoc</id>
@@ -86,8 +86,7 @@
 				<platform>windows-i386-msvc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-i386-msvc-debug</boost.classifier>
-				<CMAKE_C_FLAGS />
-				<CMAKE_CXX_FLAGS />
+				<build.architecture>i386</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -98,8 +97,7 @@
 				<platform>windows-i386-msvc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-i386-msvc-release</boost.classifier>
-				<CMAKE_C_FLAGS />
-				<CMAKE_CXX_FLAGS />
+				<build.architecture>i386</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -110,8 +108,7 @@
 				<platform>windows-amd64-msvc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>windows-amd64-msvc-debug</boost.classifier>
-				<CMAKE_C_FLAGS />
-				<CMAKE_CXX_FLAGS />
+				<build.architecture>amd64</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -122,8 +119,7 @@
 				<platform>windows-amd64-msvc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>windows-amd64-msvc-release</boost.classifier>
-				<CMAKE_C_FLAGS />
-				<CMAKE_CXX_FLAGS />
+				<build.architecture>amd64</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -133,8 +129,7 @@
 				<platform>linux-i386-gcc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>linux-i386-gcc-debug</boost.classifier>
-				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
+				<build.architecture>i386</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -144,8 +139,7 @@
 				<platform>linux-i386-gcc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>linux-i386-gcc-release</boost.classifier>
-				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
+				<build.architecture>i386</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -155,8 +149,7 @@
 				<platform>linux-amd64-gcc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>linux-amd64-gcc-debug</boost.classifier>
-				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
+				<build.architecture>amd64</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -166,30 +159,7 @@
 				<platform>linux-amd64-gcc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>linux-amd64-gcc-release</boost.classifier>
-				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
-			</properties>
-		</profile>
-		<profile>
-			<id>mac-i386-gcc-debug</id>
-			<properties>
-				<cmake.generator>Unix Makefiles</cmake.generator>
-				<platform>mac-i386-gcc</platform>
-				<build.type>debug</build.type>
-				<boost.classifier>mac-i386-gcc-debug</boost.classifier>
-				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
-			</properties>
-		</profile>
-		<profile>
-			<id>mac-i386-gcc-release</id>
-			<properties>
-				<cmake.generator>Unix Makefiles</cmake.generator>
-				<platform>mac-i386-gcc</platform>
-				<build.type>release</build.type>
-				<boost.classifier>mac-i386-gcc-release</boost.classifier>
-				<CMAKE_C_FLAGS>-m32</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m32</CMAKE_CXX_FLAGS>
+				<build.architecture>amd64</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -199,8 +169,7 @@
 				<platform>mac-amd64-gcc</platform>
 				<build.type>debug</build.type>
 				<boost.classifier>mac-amd64-gcc-debug</boost.classifier>
-				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
+				<build.architecture>amd64</build.architecture>
 			</properties>
 		</profile>
 		<profile>
@@ -210,8 +179,7 @@
 				<platform>mac-amd64-gcc</platform>
 				<build.type>release</build.type>
 				<boost.classifier>mac-amd64-gcc-release</boost.classifier>
-				<CMAKE_C_FLAGS>-m64</CMAKE_C_FLAGS>
-				<CMAKE_CXX_FLAGS>-m64</CMAKE_CXX_FLAGS>
+				<build.architecture>amd64</build.architecture>
 			</properties>
 		</profile>
 		<profile>

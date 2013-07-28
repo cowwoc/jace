@@ -76,11 +76,8 @@
 							<environmentVariables>
 								<BOOST_HOME>${project.build.directory}/dependency/boost</BOOST_HOME>
 								<JACE_HOME>${project.build.directory}/dependency/jace</JACE_HOME>
+								<BUILD_ARCHITECTURE>${build.architecture}</BUILD_ARCHITECTURE>
 							</environmentVariables>
-							<options>
-								<option>-DCMAKE_C_FLAGS_FROM_MAVEN:STRING=${CMAKE_C_FLAGS}</option>
-								<option>-DCMAKE_CXX_FLAGS_FROM_MAVEN:STRING=${CMAKE_CXX_FLAGS}</option>
-							</options>
 						</configuration>
 					</execution>
 					<execution>
