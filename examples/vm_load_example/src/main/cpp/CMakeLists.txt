@@ -90,18 +90,18 @@ INCLUDE_DIRECTORIES (include $ENV{JAVA_HOME}/include ${java_include_path} $ENV{B
 FILE (TO_CMAKE_PATH "$ENV{JACE_HOME}/lib" jace_library_path)
 FIND_LIBRARY (jace_library jace HINTS ${jace_library_path})
 
-FILE (TO_CMAKE_PATH "$ENV{BOOST_HOME}/lib" boost_library_path)
-FIND_LIBRARY (boost_system boost_system HINTS ${boost_library_path})
-FIND_LIBRARY (boost_thread boost_thread HINTS ${boost_library_path})
+FILE (TO_CMAKE_PATH "$ENV{BOOST_HOME}/lib" boost_home)
+FIND_LIBRARY (boost_system boost_system HINTS ${boost_home})
+FIND_LIBRARY (boost_thread boost_thread HINTS ${boost_home})
 
 ADD_EXECUTABLE (vm_load_example ${SOURCE_FILES} ${HEADER_FILES})
 
 TARGET_LINK_LIBRARIES (vm_load_example ${java_library} ${jace_library} ${boost_system} ${boost_thread})
 
 FILE (TO_NATIVE_PATH ${PROJECT_BINARY_DIR} NATIVE_PROJECT_BINARY_DIR)
-FILE (TO_NATIVE_PATH "$ENV{JACE_HOME}" JACE_HOME)
+FILE (TO_NATIVE_PATH "$ENV{JACE_HOME}" jace_home)
 IF (${CMAKE_GENERATOR} MATCHES "Visual Studio")
-	ADD_CUSTOM_COMMAND (TARGET vm_load_example POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build.bat \"${CMAKE_CFG_INTDIR}\" \"${JACE_HOME}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
+	ADD_CUSTOM_COMMAND (TARGET vm_load_example POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build.bat \"${CMAKE_CFG_INTDIR}\" \"${jace_home}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
 ELSEIF (${CMAKE_GENERATOR} MATCHES "Unix Makefiles")
-	ADD_CUSTOM_COMMAND (TARGET vm_load_example  POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build.sh \"${JACE_HOME}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
+	ADD_CUSTOM_COMMAND (TARGET vm_load_example  POST_BUILD COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/post-build.sh \"${jace_home}\" \"${NATIVE_PROJECT_BINARY_DIR}\")
 ENDIF ()
