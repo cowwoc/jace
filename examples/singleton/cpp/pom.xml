@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.googlecode.jace</groupId>
 		<artifactId>jace-examples-singleton</artifactId>
-		<version>1.2.29</version>
+		<version>1.2.30-SNAPSHOT</version>
 	</parent>
 	<artifactId>jace-examples-singleton-cpp</artifactId>
 	<name>Jace Examples: Singleton C++</name>
