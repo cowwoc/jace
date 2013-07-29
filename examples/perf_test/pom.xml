@@ -38,6 +38,20 @@
 									<version>${boost.version}</version>
 									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
 								</artifactItem>
+								<artifactItem>
+									<groupId>com.googlecode.boost-maven-project</groupId>
+									<artifactId>boost-system</artifactId>
+									<classifier>${jace.classifier}</classifier>
+									<version>${boost.version}</version>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.googlecode.boost-maven-project</groupId>
+									<artifactId>boost-thread</artifactId>
+									<classifier>${jace.classifier}</classifier>
+									<version>${boost.version}</version>
+									<outputDirectory>${project.build.directory}/dependency/boost</outputDirectory>
+								</artifactItem>
 							</artifactItems>
 						</configuration>
 					</execution>
