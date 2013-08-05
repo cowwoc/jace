@@ -452,7 +452,7 @@ public class PeerGenerator
 				output.write("    if (fieldId == 0)" + newLine);
 				output.write("      ::jace::catchAndThrow();" + newLine);
 				output.write("    jlong nativeHandle = env->GetLongField(jPeer, fieldId);" + newLine);
-				output.write("    ::jace::Peer* peer = reinterpret_cast<::jace::Peer*>(nativeHandle);"
+				output.write("    ::jace::Peer* peer = reinterpret_cast< ::jace::Peer*>(nativeHandle);"
 										 + newLine);
 				output.write("    peer->destroy();" + newLine);
 				output.write("    delete peer; " + newLine);
@@ -600,7 +600,13 @@ public class PeerGenerator
 			}
 			output.write("  }" + newLine);
 
-			String returnValue = returnType instanceof VoidClass ? "" : " NULL";
+			String returnValue;
+			if (returnType instanceof VoidClass)
+				returnValue = "";
+			else if (returnType instanceof NumberClass)
+				returnValue = " 0";
+			else
+				returnValue = " NULL";
 
 			output.write("  catch (jace::proxy::java::lang::Throwable& t)" + newLine);
 			output.write("  {" + newLine);

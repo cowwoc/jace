@@ -6,7 +6,7 @@ package org.jace.metaclass;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class LongClass extends PrimitiveMetaClass
+public class LongClass extends NumberClass
 {
 	/**
 	 * Creates a new LongClass.

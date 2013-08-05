@@ -6,7 +6,7 @@ package org.jace.metaclass;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class FloatClass extends PrimitiveMetaClass
+public class FloatClass extends NumberClass
 {
 	/**
 	 * Creates a new FloatClass.

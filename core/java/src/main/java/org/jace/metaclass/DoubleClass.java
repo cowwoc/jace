@@ -6,7 +6,7 @@ package org.jace.metaclass;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class DoubleClass extends PrimitiveMetaClass
+public class DoubleClass extends NumberClass
 {
 	/**
 	 * Creates a new DoubleClass.

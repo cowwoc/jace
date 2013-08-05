@@ -93,8 +93,8 @@ FIND_LIBRARY (jace_library jace HINTS ${jace_library_path})
 FILE (TO_CMAKE_PATH "$ENV{BOOST_HOME}/lib" boost_home)
 FIND_LIBRARY (boost_system boost_system HINTS ${boost_home})
 FIND_LIBRARY (boost_thread boost_thread HINTS ${boost_home})
-ADD_EXECUTABLE (perf_test ${SOURCE_FILES} ${HEADER_FILES})
 
+ADD_EXECUTABLE (perf_test ${SOURCE_FILES} ${HEADER_FILES})
 TARGET_LINK_LIBRARIES (perf_test ${java_library} ${jace_library} ${boost_system} ${boost_thread})
 
 FILE (TO_NATIVE_PATH ${PROJECT_BINARY_DIR} NATIVE_PROJECT_BINARY_DIR)

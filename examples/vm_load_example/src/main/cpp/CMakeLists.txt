@@ -95,7 +95,6 @@ FIND_LIBRARY (boost_system boost_system HINTS ${boost_home})
 FIND_LIBRARY (boost_thread boost_thread HINTS ${boost_home})
 
 ADD_EXECUTABLE (vm_load_example ${SOURCE_FILES} ${HEADER_FILES})
-
 TARGET_LINK_LIBRARIES (vm_load_example ${java_library} ${jace_library} ${boost_system} ${boost_thread})
 
 FILE (TO_NATIVE_PATH ${PROJECT_BINARY_DIR} NATIVE_PROJECT_BINARY_DIR)

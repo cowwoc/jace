@@ -6,7 +6,7 @@ package org.jace.metaclass;
  * @author Toby Reyelts
  * @author Gili Tzabari
  */
-public class IntClass extends PrimitiveMetaClass
+public class IntClass extends NumberClass
 {
 	/**
 	 * Creates a new IntClass.
