@@ -71,7 +71,7 @@ You don't need to build Jace yourself. Simply locate a version at [Maven Central
 
 ### Contributing
 
-If you want to contribute back to this project, please see (Building_Instructions.md) to get started.
+If you want to contribute back to this project, please see [Building Instructions](Building_Instructions.md) to get started.
 
 ----
 [Previous page](Developer_Guide.md) - [Next page](Chapter_2.md)
