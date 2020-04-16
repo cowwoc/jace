@@ -42,4 +42,4 @@ are required to implement your native Peer.
 6. You're all done. Compile your code and take it for a spin.
 
 ----
-[Previous page](Chapter 3) - [Next page](Chapter 5)
+[Previous page](Chapter_3.md) - [Next page](Chapter_5.md)
