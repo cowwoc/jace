@@ -48,7 +48,7 @@ Jace models each JNI type with a corresponding C++ class as can be seen in Figur
 
 At the root of the class hierarchy is JValue which is the base class for every type in the
 system<a id="note1ref" href="#note1"><sup>1</sup></a>. A JValue is mostly a simple wrapper around a JNI jvalue. Every JValue has
-a JClass which can be used to retrieve the JNI string which represents itself<a id="note1ref" href="#note1"><sup>2</sup></a>
+a JClass which can be used to retrieve the JNI string which represents itself<a id="note2ref" href="#note2"><sup>2</sup></a>
 and the JNI jclass that represents the Java type. JValues can be constructed with a JNI jvalue, and the JValue base class sets the
 rule that all of its subclasses must also be constructible with a jvalue.
 
